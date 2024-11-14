@@ -1,0 +1,70 @@
+{
+    "title":"Threatened Leak of Sensitive Data",
+    "summary":"This scenario covers the events following an anonymous email being received by an employee threatening to release sensitive information about your organisation’s employees. It includes:",
+    "topics":["Your organisation’s logging and monitoring of internal sensitive documents","Your processes for securely offboarding a disgruntled employee and escalating a security incident internally","Legal activities following such an incident"],
+    "objective":"Discussing the above events will help you explore the controls your organisation has in place to prevent the leak of sensitive information and to respond in a timely and appropriate manner if such threats are made",
+    "stages":[{
+        "stage": "Inject 1: User Access Control",
+        "content": "An employee reports receiving an anonymous email from someone claiming to have access to sensitive information about your employees, including personal information, salaries, bank details and an attached file. The email threatens to sell the information unless you pay a large amount of money. It appears as though the file originates from your internal HR system, and that the email author has access to these sensitive internal documents.",
+        "observations": [
+            "Does your organisation limit access to certain files to specific employees based on their relevance to an employee’s job role and sensitivity?",
+            "How is this access managed if an employee changes role within the organisation?",
+            "Does your organisation have a method of determining when a certain document was accessed and by whom? Could you determine with any confidence who had accessed these files?"
+        ],
+        "reflections": [
+            {
+                "question": "Our organisation implements effective access control to ensure that sensitive documents can only be accessed by the appropriate employees at your organisation.",
+                "choices": ["Not at all confident", "slightly confident", "somewhat confident", "fairly confident", "completely confident"]
+            },
+            {
+                "question": "Our organisation can accurately monitor access to files to determine who has accessed a file.",
+                "choices": ["Not at all confident", "slightly confident", "somewhat confident", "fairly confident", "completely confident"]
+            }
+        ]
+    },
+    {
+        "stage": "Inject 2: Incident Management",
+        "content": "Examination of your logs shows that one employee in particular has been repeatedly accessing sensitive HR documents. This is unusual as the employee’s job role does not require access to these documents. Investigation of the employee’s workstation shows that the email has indeed been written by this person. As a result, the decision is taken to dismiss the employee.",
+        "observations": [
+            "Do you have a process for dismissing a disgruntled employee in a secure manner?",
+            "Can you ensure that access to all sensitive data and services is immediately revoked?",
+            "Do you have a method of determining any other sensitive files this employee may have had access to?",
+            "Would your organisation be able to retrospectively determine if this employee had managed to exfiltrate any of this sensitive data?"
+        ],
+       "reflections": [
+            {
+                "question": "Our organisation has a clear process in place for offboarding employees in a secure manner, ensuring that access to corporate datamand services is revoked.",
+                "choices": ["Not at all confident", "slightly confident", "somewhat confident", "fairly confident", "completely confident"]
+            },
+            {
+                "question": "Our organisation has effective monitoring in place that could allow us to determine which other documents the employee may have had access to.",
+                "choices": ["Not at all confident", "slightly confident", "somewhat confident", "fairly confident", "completely confident"]
+            },
+            {
+                "question": "Our organisation has clear methods of monitoring sensitive data leaving the network; it would be possible for us to determine if any employee information had been exfiltrated.",
+                "choices": ["Not at all confident", "slightly confident", "somewhat confident", "fairly confident", "completely confident"]
+            }
+        ]
+    },
+    {
+        "stage": "Inject 3: Incident Response",
+        "content": "Following the dismissal of the employee and removal of their access to this sensitive data, your organisation considers its next steps in response to this incident.",
+        "observations": [
+            "At what point are you unable to respond to an incident of this nature?",
+            "Can you ensure that access to all sensitive data and services is immediately revoked?",
+            "In the case that you are unable to respond, does your organisation have a clear policy on how to escalate this incident either internally or to an outside organisation?",
+            "Once the incident is resolved, would you consider a legal response? Who in your organisation would be responsible for managing this?"
+        ],
+        "reflections": [
+            {
+                "question": "Our organisation has a clear process in place to deal with the legal and regulatory implications of an incident involving the potential leaking of sensitive information.",
+                "choices": ["Not at all confident", "slightly confident", "somewhat confident", "fairly confident", "completely confident"]
+            },
+            {
+                "question": "Employees are aware of how to respond if they receive a threat of this nature; they are aware how to escalate such an incident if necessary.",
+                "choices": ["Not at all confident", "slightly confident", "somewhat confident", "fairly confident", "completely confident"]
+            }
+        ]
+    }
+]
+}

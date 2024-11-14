@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="notranslate">
+
+<head>
+    <meta name="google" content="notranslate" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="../css/gym_styles.css">
+</head>
+
+<body>
+    <div id="layout">
+        <div id="header">
+            <!--   <h1>DRILL SERGEANT</h1> -->
+        </div>
+
+        <div id="controller">
+            <div id="logo"><img src="../images/ttxgym.svg" /></div>
+            <div class="menu">
+                <div id="scenarioLoader">
+                    <button onclick="fileInput.click()">Load Scenario</button>
+                    <input type="file" id="fileInput" /><br />
+                </div>
+                <button id="launcher" class="hide" onclick="launchPresentation();"><span>Launch&nbsp;</span> <img
+                        src="../images/launch.svg" /></button>
+                <div id="times">
+                    <div id="times-header" class="hide">Time</div>
+                </div>
+                <button id="timer" class="hide" onclick="toggleTimer();"><span>Ready&nbsp;</span> <img
+                        src="../images/playpause.svg" /></button>
+
+                <button id="reportlauncher" class="hide" onclick="reporter.click()">Generate Report</button>
+            </div>
+
+        </div>
+        <div id="scribe" class="hide">
+            <form id="questionsForm">
+                <div id="questionsContainer">
+                    <!-- Rounds and questions will be added here by JavaScript -->
+                </div>
+                <button id="reporter" type="submit">Generate Report</button>
+            </form>
+        </div>
+
+        <div id="footer">
+            <div class="footer-bar">
+
+                <div id="stageWrapper" class="process-stages">
+
+                </div>
+            </div>
+            </footer>
+        </div>
+    </div>
+    <script src="gym_core.js"></script>
+</body>
+
+</html>

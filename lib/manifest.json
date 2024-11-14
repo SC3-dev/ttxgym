@@ -1,0 +1,100 @@
+[
+  {
+    "title": "Bring Your Own Device",
+    "image": "byod1",
+    "categories": ["Devices", "Policy"],
+    "level": "Operational",
+    "size": "1-6 people",
+    "duration": "45 mins",
+    "summary": "This is a short summary of Product 1."
+  },
+  {
+    "title": "Home and Remote Working",
+    "image": "harw1",
+    "categories": ["Devices"],
+    "level": "Operational",
+    "size": "1-4 people",
+    "duration": "1 hour",
+    "summary": "This is a summary of Product 2, which is longer and more detailed."
+  },
+  {
+    "title": "Supply Chain Software",
+    "image": "scs1",
+    "categories": ["Supply Chain", "Policy"],
+    "level": "Strategic",
+    "size": "4-6 people",
+    "duration": "2 hours",
+    "summary": "Detailed description of Product 3."
+  },{
+    "title": "Third Party Software Compromise",
+    "image": "tpsc1",
+    "categories": ["Supply Chain"],
+    "level": "Operational",
+    "size": "4-6 people",
+    "duration": "1 hour",
+    "summary": "This is a short summary of Product 1."
+  },
+  {
+    "title": "Managing A Vulnerability Disclosure",
+    "image": "hct1",
+    "categories": ["Policy","Media"],
+    "level": "Operational",
+    "size": "4-6 people",
+    "duration": "90 mins",
+    "summary": "This is a summary of Product 2, which is longer and more detailed."
+  },
+  {
+    "title": "Threatened Leak of Sensitive Data",
+    "image": "tlosd1",
+    "categories": ["Insider Threat", "Media"],
+    "level": "Executive",
+    "size": "4-6 people",
+    "duration": "3 hours",
+    "summary": "Detailed description of Product 3."
+  },
+  {
+    "title": "Supply Chain Ransomware",
+    "image": "scr1",
+    "categories": ["Supply Chain", "Ransomware"],
+    "level": "Executive",
+    "size": "4-6 people",
+    "duration": "2 hours",
+    "summary": "Detailed description of Product 3."
+  },
+  {
+    "title": "Ransomware Attack By Phishing Email",
+    "image": "rabpe1",
+    "categories": ["Ransomware"],
+    "level": "Executive",
+    "size": "4-6 people",
+    "duration": "3 hours",
+    "summary": "Detailed description of Product 3."
+  },
+  {
+    "title": "Mobile Phone Theft and Response",
+    "image": "mptar",
+    "categories": ["Devices", "Policy"],
+    "level": "Operational",
+    "size": "1-4 people",
+    "duration": "45 mins",
+    "summary": "Detailed description of Product 3."
+  },
+  {
+    "title": "Attack from Unknown Wifi",
+    "image": "bafauw1",
+    "categories": ["Devices"],
+    "level": "Operational",
+    "size": "1-4 people",
+    "duration": "1 hour",
+    "summary": "This is a summary of Product 2, which is longer and more detailed."
+  },
+  {
+    "title": "Supply Chain",
+    "image": "sc1",
+    "categories": ["Supply Chain"],
+    "level": "Strategic",
+    "size": "6-12 people",
+    "duration": "90 mins",
+    "summary": "This is a summary of Product 2, which is longer and more detailed."
+  }
+]

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Exercise Library</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <ul class="nav-links">
+      <li><a href="#">Getting Started</a></li>
+      <li><a href="#">Resources</a></li>
+    </ul>
+    <div class="logo"><img src="images/ttxgym.svg"></div>
+    <ul class="nav-links">
+      <li><a href="#" class="active">Exercise Library</a></li>
+      <li><a href="gym/">Quick Start</a></li>
+    </ul>
+  </nav>
+
+  <div class="container"> <!-- Added a container for flex layout -->
+    <div class="sidebar">
+
+      <!-- Search Section -->
+      <div class="filter-section">
+        <h2>Search</h2> <!-- Added Search header -->
+        <input type="text" id="search" placeholder="Search by title or description">
+      </div>
+
+      <h2>Filters</h2>
+
+      <div id="category-filter" class="filter-section">
+        <div class="icon-title"><img src="images/tag.svg">
+          <h3>&nbsp;Tags</h3>
+        </div>
+        <!-- Categories will be dynamically created here -->
+      </div>
+
+      <div id="level-filter" class="filter-section">
+        <div class="icon-title"><img src="images/level.svg">
+          <h3>&nbsp;Level</h3>
+        </div>
+        <!-- Levels will be dynamically created here -->
+      </div>
+
+      <div id="duration-filter" class="filter-section">
+        <div class="icon-title"><img src="images/clock.svg">
+          <h3>&nbsp;Duration</h3>
+        </div>
+        <!-- Durations will be dynamically created here -->
+      </div>
+    </div>
+
+    <div id="gallery" class="gallery"></div>
+  </div>
+
+  <!-- Modal Structure -->
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <span id="close-modal" class="close"><img src="images/close.svg"></span>
+        <h2 id="modal-title"></h2>
+      </div>
+      <div class="modal-body">
+        <div class="modal-left">
+          <ul class="ex-links">
+            <li><a id="starter" href="#" class="active"><img src="images/launch2.svg">&nbsp;Launch</a></li>
+            <li><a id="downloader" href="#" download><img src="images/download.svg">&nbsp;Download</a></li>
+          </ul>
+          <p id="modal-summary"></p>
+          <div id="tag-bar">
+            <div id="tag-header"><img src="images/tag.svg">&nbsp;Tags:</div>
+            <div id="tag-content"></div>
+          </div>
+        </div>
+        <div class="modal-body-right">
+          <div id="modal-attributes">
+
+            <p><img src="images/level.svg"><br></p>
+            <p><img src="images/group.svg"><br></p>
+            <p><img src="images/clock.svg"><br></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="gallery.js"></script>
+</body>
+
+</html>
