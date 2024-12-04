@@ -110,21 +110,35 @@ function populateScenario() {
         data.forEach(round => {
             roundCounter++; //increment at the start of the loop. All the ID assignments for the first are therefore '1' not '0'.
             const roundDiv = document.createElement('div');
-            roundDiv.className = 'round';
+            roundDiv.classList.add('round');
+            roundDiv.classList.add('sc_collapsible');
+            roundDiv.id = "round" + roundCounter;
             //stage title
-            const roundTitle = document.createElement('h2');
-            roundTitle.textContent = round.stage;
+            const roundTitle = document.createElement('div');
+            roundTitle.classList.add('sc_title-bar');
             roundDiv.appendChild(roundTitle);
+
+            const roundTitleSpan = document.createElement('span');
+            roundTitleSpan.classList.add('sc_title');
+            roundTitleSpan.textContent = round.stage;
+            roundTitle.appendChild(roundTitleSpan);
+            const roundTitlebutton = document.createElement('button');
+            roundTitlebutton.classList.add('sc_toggle-btn');
+            roundTitlebutton.textContent = "▼";
+            roundTitle.appendChild(roundTitlebutton);
+
             //Stage description
-            const description = document.createElement('div');
-            description.className = 'description';
-            description.innerHTML = round.content;
-            roundDiv.appendChild(description);
+            const descriptionWrapper = document.createElement('div');
+            descriptionWrapper.classList.add('sc_content-wrapper');
+            const content = document.createElement('div');
+            content.classList.add('sc_content');
+            content.innerHTML = round.content;
+            descriptionWrapper.appendChild(content);
             //stage comments
             const comment = document.createElement('textarea');
             comment.className = 'description';
             comment.placeholder = "Record comments and observations here";
-            roundDiv.appendChild(comment);
+            descriptionWrapper.appendChild(comment);
 
             if (round.questions) {
                 round.questions.forEach(item => {
@@ -165,10 +179,11 @@ function populateScenario() {
                     });
 
                     questionDiv.appendChild(choicesContainer);
-                    roundDiv.appendChild(questionDiv);
+                    descriptionWrapper.appendChild(questionDiv);
                     questionCounter++;  // Increment the counter after each question
                 });
             }
+            roundDiv.appendChild(descriptionWrapper);
             container.appendChild(roundDiv);
 
             // timing table
@@ -203,6 +218,19 @@ function populateScenario() {
         });
 
     }
+
+    // Add event listeners for the title bars
+    document.querySelectorAll('.sc_collapsible').forEach(collapsible => {
+        const titleBar = collapsible.querySelector('.sc_title-bar');
+        const button = collapsible.querySelector('.sc_toggle-btn');
+        const contentWrapper = collapsible.querySelector('.sc_content-wrapper');
+        const content = collapsible.querySelector('.sc_content');
+
+        titleBar.addEventListener('click', () => {
+            toggleCollapsible(collapsible.id);
+        });
+    });
+
     let confirmer = document.getElementById('scenarioLoader');
     confirmer.innerHTML = "<h2>" + fileContent.title + "</h2>";
     statfields = document.createElement('div');
@@ -261,6 +289,7 @@ function setActiveStage(stageNumber) {
     });
     stages = document.querySelectorAll('.round');
     stages.forEach((stage, index) => {
+        collapseCollapsible("round" + (index + 1));
         if (index == stageNumber - 1) {
             stage.classList.add('active');
         } else {
@@ -269,6 +298,7 @@ function setActiveStage(stageNumber) {
     });
 
     if (stageNumber > 0 && stageNumber < roundCounter + 1) {
+        expandCollapsible("round" + (stageNumber));
         document.getElementById("timer").innerHTML = currentTimerLabel;
     }
 
@@ -378,6 +408,55 @@ const formatTime = (seconds) => {
 };
 
 
+///////////////////////////////////////////
+// Collapsible Behaviours for Scribe panel
+///////////////////////////////////////////
+
+
+// Function to toggle a collapsible by ID
+function toggleCollapsible(id) {
+    const collapsible = document.getElementById(id);
+    const contentWrapper = collapsible.querySelector('.sc_content-wrapper');
+    const button = collapsible.querySelector('.sc_toggle-btn');
+    const content = collapsible.querySelector('.sc_content');
+
+    if (contentWrapper.style.height === '0px' || !contentWrapper.style.height) {
+        contentWrapper.style.height = `${contentWrapper.scrollHeight}px`;
+        button.textContent = '▲';
+    } else {
+        contentWrapper.style.height = '0px';
+        button.textContent = '▼';
+    }
+}
+
+// Function to expand a collapsible by ID
+function expandCollapsible(id) {
+    const collapsible = document.getElementById(id);
+    const contentWrapper = collapsible.querySelector('.sc_content-wrapper');
+    const button = collapsible.querySelector('.sc_toggle-btn');
+    const content = collapsible.querySelector('.sc_content');
+
+    contentWrapper.style.height = `${contentWrapper.scrollHeight}px`;
+    button.textContent = '▲';
+}
+
+// Function to collapse a collapsible by ID
+function collapseCollapsible(id) {
+    const collapsible = document.getElementById(id);
+    const contentWrapper = collapsible.querySelector('.sc_content-wrapper');
+    const button = collapsible.querySelector('.sc_toggle-btn');
+
+    contentWrapper.style.height = '0px';
+    button.textContent = '▼';
+}
+
+
+
+
+
+/////////////////////////////////////////////
+// Markdown processing
+/////////////////////////////////////////////
 
 
 

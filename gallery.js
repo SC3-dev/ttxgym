@@ -138,7 +138,7 @@ function openModal(product) {
   const modal = document.getElementById('modal');
   const modalContent = document.querySelector('.modal-header');
   document.getElementById('modal-title').textContent = product.title;
-  document.getElementById('modal-summary').textContent = product.summary;
+  document.getElementById('modal-summary').innerHTML = product.summary;
   document.getElementById('tag-content').textContent = product.categories.join(', ');
   document.getElementById('modal-attributes').innerHTML = `
         <p><img src="images/level.svg"/><br/>${product.level}</p>

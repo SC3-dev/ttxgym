@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collapsible Elements by ID</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div id="collapsible1" class="collapsible">
+        <div class="title-bar">
+            <span class="title">First Title Bar</span>
+            <button class="toggle-btn">▼</button>
+        </div>
+        <div class="content-wrapper">
+            <div class="content">
+                <p>This is the first collapsible content.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="collapsible2" class="collapsible">
+        <div class="title-bar">
+            <span class="title">Second Title Bar</span>
+            <button class="toggle-btn">▼</button>
+        </div>
+        <div class="content-wrapper">
+            <div class="content">
+                <p>This is the second collapsible content.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="collapsible3" class="collapsible">
+        <div class="title-bar">
+            <span class="title">Third Title Bar</span>
+            <button class="toggle-btn">▼</button>
+        </div>
+        <div class="content-wrapper">
+            <div class="content">
+                <p>This is the third collapsible content.</p>
+            </div>
+        </div>
+    </div>
+
+    <button onclick="expandCollapsible('collapsible2')">Expand Second</button>
+    <button onclick="collapseCollapsible('collapsible2')">Collapse Second</button>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
