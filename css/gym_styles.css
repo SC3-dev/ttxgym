@@ -356,7 +356,7 @@ input[type=file] {
 .footer-bar {
     width: 100%;
     color: #fff;
-    padding: 1rem 0rem;
+    padding-bottom: 1rem;
     display: flex;
     justify-content: center;
     align-items: center;

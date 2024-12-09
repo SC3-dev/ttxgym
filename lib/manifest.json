@@ -43,7 +43,7 @@
     "level": "Operational",
     "size": "4-6 people",
     "duration": "1 hour",
-    "summary": "This is a short summary of Product 1."
+    "summary": "<p>This scenario investigates the risks around using third party software and the controls your organisation has in place to mitigate the impact of a third party supplier being compromised. In particular, the exercise looks at password controls, the ability to detect and respond to a compromise and the ability to cope with disruption to key services.</p><p>The objective of this exercise is to explore how your organisation would respond to the compromise of a third party supplier. Discussions will cover the detection and response capability of your organisation, processes for dealing with service disruption, and policies in place to prevent stolen credentials being used to compromise network services. The outcomes of discussions around the events in this scenario can be an opportunity to identify areas for improvement.</p>"
   },
   {
     "title": "Managing A Vulnerability Disclosure",

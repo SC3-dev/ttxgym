@@ -1,0 +1,133 @@
+! title: Third Party Software Compromise
+
+! summary
+This scenario investigates the risks around using third party software and the controls your organisation has in place to mitigate the impact of a third party supplier being compromised. In particular, the exercise looks at password controls, the ability to detect and respond to a compromise and the ability to cope with disruption to key services.
+
+This exercise has the following aims:
+
+- Understand risk associated with third party software
+- Identify areas for improvement in password and authentication policy
+- Clarify which network services are publically exposed
+- Understand detection and response capability of organisation
+- Determine processes for dealing with key services being unavailable
+- Build trusted relationships and develop shared understanding between key stakeholders
+- Prepare and train key staff to think about what risks they are exposed to
+- Operate in a no fault environment to check and test cyber security defences and capabilities
+
+! objective
+The objective of this exercise is to explore how your organisation would respond to the compromise of a third party supplier. Discussions will cover the detection and response capability of your organisation, processes for dealing with service disruption, and policies in place to prevent stolen credentials being used to compromise network services. The outcomes of discussions around the events in this scenario can be an opportunity to identify areas for improvement.
+
+@ Inject 1
+! content
+Your organisation uses a third party e-commerce tool as part of its business process. The company running the tool have contacted you via email to inform you that they have been compromised. All user information stored by the organisation, including usernames and passwords, has been stolen.
+
+- Have you considered the benefits and risks of using third party service suppliers?
+- What processes do you have in place to respond to the compromise of a third party supplier you use?
+- How can you determine which users’ credentials have been stolen?
+
+? We have considered the risk from third party service suppliers and have a defined procedure in place to deal with the compromise of one of these suppliers.
++ Not at all confident
++ slightly confident
++ somewhat confident
++ fairly confident
++ completely confident
+
+@ Inject 2
+! content
+The attacker uses the credentials stolen from the third party supplier in an attack known as “password stuffing”. This involves the attacker sending automated login requests using these credentials to other services you use, such as your HR web portal or your remote worker interface, in the hope that they can use the same credentials to gain access.
+
+// this is just a commnet, you cna ignore.
+
+1. Which services on your network do you have accessible from the internet? Do you log access attempts to these services?
+2. Does the login to accessible services enforce account lockout after repeated failed login attempts?
+3. What protections do you have against the use of stolen credentials e.g. secure passwords, multi factor authentication, password managers, password policy for changing passwords?
+
+? We only have necessary services accessible from the internet.
++ Not at all confident
++ slightly confident
++ somewhat confident
++ fairly confident
++ completely confident
+
+? A strong password policy is implemented in our systems in which users must choose unique passwords.
++ Not at all confident
++ slightly confident
++ somewhat confident
++ fairly confident
++ completely confident
+
+? All the systems in our organisation are securely configured with multi-factor authentication.
++ Not at all confident
++ slightly confident
++ somewhat confident
++ fairly confident
++ completely confident
+
+@ Inject 3
+! content
+The attacker has gained access to your network via an unidentified external interface using the obtained credentials and is now seeking to get access to sensitive data on your network.
+# observations
++ Would the compromise of the third party tool provide any specific advantages to an attacker who also has access to your internal infrastructure? What about other third party services?
++ Do you know what all of your sensitive data is, and where it is stored?
++ Have you assessed the implications to your organisation of this data being compromised by an attacker?
++ Can your technical team identify or become aware of the attack? How quickly could you detect suspicious activity on your network?
++ Would you be able to tell what the attacker was doing?
+
+? We know what our most sensitive data is and where it is stored.
++ Not at all confident
++ slightly confident
++ somewhat confident
++ fairly confident
++ completely confident
+
+? We appropriately protect our sensitive data considering the implications of this data being attacked.
++ Not at all confident
++ slightly confident
++ somewhat confident
++ fairly confident
++ completely confident
+
+? Our monitoring system collects events with sufficient detail to determine an attacker’s movements.
++ Not at all confident
++ slightly confident
++ somewhat confident
++ fairly confident
++ completely confident
+
+? Our organisation has an incident response procedure in order to prevent an attacker further compromising our network.
++ Not at all confident
++ slightly confident
++ somewhat confident
++ fairly confident
++ completely confident
+
+@ Inject 4
+! content
+Your technical team detects this malicious activity and prevents the attack by temporarily blocking access from the compromised accounts. All users whose credentials were exposed in the initial password stuffing attack have also changed their passwords.
+
+However, the third party e-commerce software is temporarily unavailable following the compromise.
+
+1. Do you have a plan for managing any disrupted services in your organisation?
+2. Do you have a business continuity plan should a compromise lead to a technical failure?
+3. Do you have a good understanding of your Service Level Agreements and contingency plans with your third party supplier?
+
+? We have a plan to manage temporary disruptions to business due to technical faults or cyber incidents.
++ Not at all confident
++ slightly confident
++ somewhat confident
++ fairly confident
++ completely confident
+
+? We have a business continuity plan in place to allow the organisation to continue to function should we be severely impacted.
++ Not at all confident
++ slightly confident
++ somewhat confident
++ fairly confident
++ completely confident
+
+? We have a good understanding of our Service Level Agreements and contingency plans with our third party suppliers.
++ Not at all confident
++ slightly confident
++ somewhat confident
++ fairly confident
++ completely confident

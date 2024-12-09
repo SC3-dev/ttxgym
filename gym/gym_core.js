@@ -9,12 +9,19 @@ let firsttimer = 0;
 let timeron = 0;
 let timerInterval = null;
 let stageTime = [];
+let questionTrakcer = [];
 let questionCounter = 0;  // Global counter for unique IDs
 let roundCounter = 0;  // Global counter for unique IDs
 let ActiveStage = 0;
 let fileContent, data;
 let timer = false;
+let qList = [];
 let bc = new BroadcastChannel('cyex_channel');
+
+const form = document.getElementById('questionsForm');
+let progressDiv = document.createElement('div'); progressDiv.id = "progress-sections";
+let overallScoreDiv = document.createElement('div'); progressDiv.id = "overall-score";
+const recapList = document.getElementById('recap-list');
 document.getElementById('fileInput').addEventListener('change', handleFileSelect, false);
 const urlParams = new URLSearchParams(window.location.search);
 
@@ -47,7 +54,6 @@ if (urlParams.has('q')) {
 
 
 }
-
 
 
 //Handler for scenario files. Calls populateQuestions() to initalise the dashboard.
@@ -112,6 +118,7 @@ function populateScenario() {
             const roundDiv = document.createElement('div');
             roundDiv.classList.add('round');
             roundDiv.classList.add('sc_collapsible');
+            roundDiv.setAttribute('data-section', round.stage);
             roundDiv.id = "round" + roundCounter;
             //stage title
             const roundTitle = document.createElement('div');
@@ -141,6 +148,7 @@ function populateScenario() {
             descriptionWrapper.appendChild(comment);
 
             if (round.questions) {
+                console.log(round.questions);
                 round.questions.forEach(item => {
                     const questionDiv = document.createElement('div');
                     questionDiv.className = 'question';
@@ -155,6 +163,7 @@ function populateScenario() {
                         description.textContent = item.description;
                         questionDiv.appendChild(description);
                     }
+                    qList[`question_${questionCounter}`] = item.question;
 
                     const choicesContainer = document.createElement('div');
                     choicesContainer.className = 'choices';
@@ -272,10 +281,17 @@ document.getElementById('questionsForm').addEventListener('submit', function (ev
     formData.forEach((value, key) => {
         answers[key] = value;
     });
+    updateProgress();
+    bc.postMessage({ "title": overallScoreDiv.innerHTML, "content": progressDiv.innerHTML }); /* send */
 
     console.log('Submitted answers:', answers);
     // You can now send `answers` to a server or process it as needed
 });
+
+document.getElementById('questionsForm').addEventListener('change', updateProgress);
+
+// Initialize progress
+updateProgress();
 
 
 function setActiveStage(stageNumber) {
@@ -357,7 +373,7 @@ function launchPresentation() {
     setTimeout(() => {
         nextStage();
         previousStage(); /* send */
-    }, "250");
+    }, "750");
 
 }
 
@@ -451,6 +467,69 @@ function collapseCollapsible(id) {
 }
 
 
+
+
+/////////////////////////////////////////////
+// Report Handling
+////////////////////////////////////////////
+
+function updateProgress() {
+    const sections = document.querySelectorAll('.round');
+    progressDiv.innerHTML = ''; // Clear progress info
+    let totalSectionScores = 0;
+    let totalSections = 0;
+    let tick = 0;
+    sections.forEach(section => {
+        tick += 1;
+
+        const inputs = section.querySelectorAll('input[type="radio"]');
+        const uniqueQuestions = [...new Set(Array.from(inputs).map(input => input.name))];
+        let totalScore = 0;
+        let answeredQuestions = 0;
+
+        const sectionName = section.getAttribute('data-section');
+        const sectionProgress = document.createElement('ul');
+        //sectionProgress.innerHTML = `<strong>${sectionName}</strong>:`;
+
+        uniqueQuestions.forEach(questionName => {
+            const options = section.querySelectorAll(`input[name="${questionName}"]`);
+            const selectedOption = form.querySelector(`input[name="${questionName}"]:checked`);
+
+            if (selectedOption) {
+                const selectedIndex = Array.from(options).indexOf(selectedOption) + 1;
+                const score = ((selectedIndex - 1) / (options.length - 1)) * 100;
+                totalScore += score;
+                answeredQuestions++;
+                const questionScore = document.createElement('li');
+                questionScore.innerHTML = `${qList[questionName]} : <strong>${selectedOption.value}</strong>  (${score.toFixed(0)}% indicative score)`;
+                sectionProgress.appendChild(questionScore);
+            }
+        });
+
+        // Calculate overall score for the section
+        let overallScore = answeredQuestions > 0 ? (totalScore / answeredQuestions).toFixed(0) : 0;
+
+        if (uniqueQuestions.length == 0) { overallScore = 100 };
+        const isFullyAnswered = answeredQuestions === uniqueQuestions.length;
+
+        totalSectionScores += parseFloat(totalScore);
+        totalSections += answeredQuestions;
+
+        const sectionOverallScore = document.createElement('p');
+        sectionOverallScore.innerHTML = `<strong>Overall Score for ${sectionName}: ${overallScore}%</strong> (${formatTime(Number(stageTime[tick]))} mins)`;
+        sectionProgress.prepend(sectionOverallScore);
+
+        const fullAnswerStatus = document.createElement('p');
+        //fullAnswerStatus.innerHTML = `<strong>${sectionName} Fully Answered:</strong> ${isFullyAnswered ? "Yes" : "No"}`;
+        sectionProgress.appendChild(fullAnswerStatus);
+
+        progressDiv.appendChild(sectionProgress);
+    });
+
+    // Calculate overall score for the entire form
+    const overallFormScore = totalSections > 0 ? (totalSectionScores / totalSections).toFixed(0) : 0;
+    overallScoreDiv.innerHTML = `<h3> Exercise Summary (Indicative Score): ${overallFormScore}%</h3>`;
+};
 
 
 
