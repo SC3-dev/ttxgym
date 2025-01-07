@@ -19,7 +19,7 @@ The objective of this exercise is to explore how your organisation would respond
 
 @ Inject 1
 ! content
-Your organisation uses a third party e-commerce tool as part of its business process. The company running the tool have contacted you via email to inform you that they have been compromised. All user information stored by the organisation, including usernames and passwords, has been stolen.
+Your organisation uses a third party e-commerce tool as part of its business process. The company running the tool have contacted you via email to inform you that they have been compromised. %%(https://www.youtube.com/embed/tcmqS_pj53I?si=SD4omwpjDKPkOI1H) All user information stored by the organisation, including usernames and passwords, has been stolen.  %(https://i.redd.it/54d9gyguxz9e1.jpeg)
 
 - Have you considered the benefits and risks of using third party service suppliers?
 - What processes do you have in place to respond to the compromise of a third party supplier you use?
@@ -34,13 +34,18 @@ Your organisation uses a third party e-commerce tool as part of its business pro
 
 @ Inject 2
 ! content
-The attacker uses the credentials stolen from the third party supplier in an attack known as “password stuffing”. This involves the attacker sending automated login requests using these credentials to other services you use, such as your HR web portal or your remote worker interface, in the hope that they can use the same credentials to gain access.
+The attacker uses the credentials stolen from the third party supplier in an attack known as “password stuffing”. This involves the attacker sending automated login requests using these credentials to other services you use, =[Breaking News] such as your HR web portal or your remote worker interface, in the hope that they can use the same credentials to gain access.
 
 // this is just a commnet, you cna ignore.
 
 1. Which services on your network do you have accessible from the internet? Do you log access attempts to these services?
 2. Does the login to accessible services enforce account lockout after repeated failed login attempts?
 3. What protections do you have against the use of stolen credentials e.g. secure passwords, multi factor authentication, password managers, password policy for changing passwords?
+
+# prompts
++ Remeber
++ This is important
++ let them talk
 
 ? We only have necessary services accessible from the internet.
 + Not at all confident

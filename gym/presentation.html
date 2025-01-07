@@ -1,36 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cyber Excercise</title>
-    <link rel="stylesheet" href="../css/gym_stylec.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cyber Excercise</title>
+  <link rel="stylesheet" href="../css/gym_stylec.css">
 </head>
+
 <body>
-    <div class="container">
-    <div id="titleWrap">    <h1><div id="title"></div></h1>
-  </div>
+  <div class="container">
+    <div id="titleWrap">
+      <h1>
+        <div id="title"></div>
+      </h1>
+    </div>
     <div id="middle">
       <div id="content">
       </div>
       <ol id="observations"></ol>
     </div>
-        <div id="control">
-        <button type="button" onclick="changeSizeByBtn(20)" name="btn1">
-          <img src="../images/text-.svg"/>
-          </button>
-      
-          <button type="button" onclick="changeSizeByBtn(24)" name="btn2">
-            <img src="../images/text.svg"/></button>
-      
-          <button type="button" onclick="changeSizeByBtn(28)" name="btn3">
-            <img src="../images/text+.svg"/></button>
-          <button type="button" id="fullscreen" onclick="toggleFullscreen()" name="btn4">
-            <img src="../images/fullscreen.svg"/>
-          </button>
-        </div>
+    <div id="control">
+      <img src="../images/text.svg" />
+      <input id="slider" type="range" min="10" max="40" onclick="changeSizeBySlider()">
+      <button type="button" id="fullscreen" onclick="toggleFullscreen()" name="btn4">
+        <img src="../images/fullscreen.svg" />
+      </button>
     </div>
+  </div>
 
-    <script src="presentation.js"></script>
+  <script src="presentation.js"></script>
 </body>
+
 </html>

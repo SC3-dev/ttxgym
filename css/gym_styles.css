@@ -3,6 +3,7 @@
     --mid: #293042;
     --accent: #1a6ec0;
     --green: rgb(77, 190, 189);
+    box-sizing: border-box;
 }
 
 body {
@@ -68,6 +69,8 @@ h2 {
     background-color: var(--mid);
 }
 
+
+
 #footer {
     grid-area: 3 / 2 / 4 / 3;
 }
@@ -105,6 +108,15 @@ form {
 
 .round.active .sc_title-bar {
     background-color: var(--accent);
+}
+
+.round.active.complete {
+
+    border: 2px solid #4dbebd;
+}
+
+.round.complete .sc_title-bar {
+    background-color: #4dbebd;
 }
 
 .round h2 {
@@ -202,6 +214,22 @@ button:hover {
     box-sizing: border-box;
 }
 
+.prompt {
+    padding: 1rem 0rem;
+    margin: 1rem;
+    background-color: rgb(143, 100, 35);
+    border-radius: 0.3rem;
+    box-sizing: border-box;
+}
+
+.prompt ul {
+    margin: 0;
+}
+
+
+.SFmedia {
+    display: none;
+}
 
 @media (max-width: 600px) {
 
@@ -381,6 +409,7 @@ input[type=file] {
     transition: .3s;
     background-color: rgb(2, 17, 32);
     border: 1px #f4f4f4 solid;
+    cursor: pointer;
 }
 
 .connector {
@@ -391,6 +420,14 @@ input[type=file] {
 
 .stage.active {
     background-color: #1a6ec0;
+}
+
+.stage.complete {
+    background-color: #005755;
+}
+
+.stage.active.complete {
+    background-color: #4dbebd;
 }
 
 .stage.active img {

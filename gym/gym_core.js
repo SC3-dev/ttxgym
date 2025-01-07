@@ -8,6 +8,7 @@ var start;
 let firsttimer = 0;
 let timeron = 0;
 let timerInterval = null;
+let currentTimerLabel = '<span>Resume&nbsp;</span> <img src="../images/start.svg" />';
 let stageTime = [];
 let questionTrakcer = [];
 let questionCounter = 0;  // Global counter for unique IDs
@@ -86,6 +87,9 @@ function populateScenario() {
 
     //start is the inital screen for the participants (effectively treated as 'stage 0'). title, summary, and topics pulled from scenario data.
     start = { "title": fileContent.title, "content": fileContent.summary, "observations": fileContent.topics };
+    if (fileContent.conclusion) {
+        finish.content = fileContent.conclusion;
+    }
     let container = document.getElementById('questionsContainer');//parent div for round data in 'scribe' window
     container.innerHTML = ''; // Clear existing content
 
@@ -101,7 +105,9 @@ function populateScenario() {
 
     // Create start marker, prior to loop to populate stage markeres
     roundMarker = document.createElement('div');
+    roundMarker.id = 'marker0';
     roundMarker.innerHTML = '<img src="../images/start.svg"/>'; // Clear existing content
+    roundMarker.setAttribute("onclick", `goToStage(${roundCounter})`);
     roundMarker.className = 'stage';
     stageContainer.appendChild(roundMarker);
 
@@ -141,6 +147,22 @@ function populateScenario() {
             content.classList.add('sc_content');
             content.innerHTML = round.content;
             descriptionWrapper.appendChild(content);
+            //Facilitator Prompts
+            if (round.prompts) {
+
+                const promptDiv = document.createElement('div');
+                promptDiv.className = 'prompt';
+
+                const promptList = document.createElement('ul');
+
+                round.prompts.forEach(item => {
+                    const currentPrompt = document.createElement('li');
+                    currentPrompt.innerHTML = item;
+                    promptList.appendChild(currentPrompt);
+                });
+                promptDiv.appendChild(promptList);
+                descriptionWrapper.appendChild(promptDiv);
+            }
             //stage comments
             const comment = document.createElement('textarea');
             comment.className = 'description';
@@ -220,6 +242,8 @@ function populateScenario() {
             roundMarker = document.createElement('div');
             roundMarker.innerHTML = roundCounter; // Clear existing content
             roundMarker.className = 'stage';
+            roundMarker.id = 'marker' + roundCounter;
+            roundMarker.setAttribute("onclick", `goToStage(${roundCounter})`);
             stageContainer.appendChild(roundMarker);
             roundMarker = document.createElement('div');
             roundMarker.className = 'connector';
@@ -258,7 +282,9 @@ function populateScenario() {
 
     roundMarker = document.createElement('div');
     roundMarker.className = 'stage';
+    roundMarker.id = 'marker' + (roundCounter + 1);
     roundMarker.innerHTML = '<img src="../images/finish.svg"/>'; // Clear existing content
+    roundMarker.setAttribute("onclick", `goToStage(${roundCounter + 1})`);
     stageContainer.appendChild(roundMarker);
     roundMarker = document.createElement('button');
     roundMarker.id = 'next';
@@ -297,7 +323,7 @@ updateProgress();
 function setActiveStage(stageNumber) {
     var stages = document.querySelectorAll('.stage');
     stages.forEach((stage, index) => {
-        if (index <= stageNumber) {
+        if (index == stageNumber) {
             stage.classList.add('active');
         } else {
             stage.classList.remove('active');
@@ -339,6 +365,8 @@ function nextStage() {
     if (ActiveStage < roundCounter) {
         ActiveStage++;
         if (firsttimer == 0) {
+            var roundDiv = document.getElementById('marker0');
+            roundDiv.classList.add('complete');
             firsttimer = 1;
             toggleTimer();
             startStopTimer();
@@ -363,6 +391,32 @@ function previousStage() {
         setActiveStage(ActiveStage);
         bc.postMessage(start); /* send */
     }
+}
+
+function goToStage(stage) {
+
+    ActiveStage = stage;
+    if (stage > 0 && stage <= roundCounter) {
+
+        if (firsttimer == 0) {
+
+            var roundDiv = document.getElementById('marker0');
+            roundDiv.classList.add('complete');
+            firsttimer = 1;
+            toggleTimer();
+            startStopTimer();
+        }
+        setActiveStage(ActiveStage);
+        bc.postMessage({ "title": data[ActiveStage - 1].stage, "content": data[ActiveStage - 1].content, "observations": data[ActiveStage - 1].observations }); /* send */
+    } else if (stage == 0) {
+        setActiveStage(ActiveStage);
+        bc.postMessage(start); /* send */
+    } else if (stage == roundCounter + 1) {
+        setActiveStage(ActiveStage);
+        bc.postMessage(finish); /* send */
+
+    }
+
 }
 
 function launchPresentation() {
@@ -511,7 +565,13 @@ function updateProgress() {
 
         if (uniqueQuestions.length == 0) { overallScore = 100 };
         const isFullyAnswered = answeredQuestions === uniqueQuestions.length;
+        if (isFullyAnswered) {
+            var roundDiv = document.getElementById('marker' + (tick));
+            roundDiv.classList.add('complete');
 
+            var roundDiv = document.getElementById('round' + (tick));
+            roundDiv.classList.add('complete');
+        }
         totalSectionScores += parseFloat(totalScore);
         totalSections += answeredQuestions;
 
@@ -524,6 +584,7 @@ function updateProgress() {
         sectionProgress.appendChild(fullAnswerStatus);
 
         progressDiv.appendChild(sectionProgress);
+
     });
 
     // Calculate overall score for the entire form
@@ -672,6 +733,30 @@ function processMarkdown(text) {
         processed = processed.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
         // Italic text *text*
         processed = processed.replace(/\*(.*?)\*/g, '<em>$1</em>');
+
+        // Embedded videos %%[alt text](url)
+        processed = processed.replace(/%%\((.*?)\)/g, (match, url) => {
+            return `<iframe width="100%" class="SFmedia" src="${url}"></iframe>`;
+        });
+        // Embedded images %[alt text](url)
+        processed = processed.replace(/%\((.*?)\)/g, (match, url) => {
+            return `<img class="SFmedia" src="${url}">`;
+        });
+
+
+        // Media canvases =[title](optional image URL)
+        processed = processed.replace(/=\[(.*?)\](?:\((.*?)\))?/g, (match, title, url) => {
+
+            const safeTitle = title.trim();
+            const imagePart = url ? `<img src="${url}" alt="${escapeHTML(safeTitle)}">` : "";
+            return `<div class="canvas-object"><h3>${escapeHTML(safeTitle)}</h3>${imagePart}</div>`;
+        });
+
+        processed = processed.replace(/=\[(.*?)\](?:\((.*?)\))?/g, (match, title, url) => {
+            const safeTitle = title.trim();
+            const imagePart = url ? `<img src="${url}" alt="${escapeHTML(safeTitle)}">` : "";
+            return `<div class="canvas-object"><h3>${escapeHTML(safeTitle)}</h3>${imagePart}</div>`;
+        });
 
         // Accumulate list items for bulleted and numbered lists
         let bulletItems = [];
