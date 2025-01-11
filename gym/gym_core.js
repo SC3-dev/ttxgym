@@ -1,5 +1,6 @@
 
 var finish = {
+    "type": "update",
     "title": "Excercise Outcomes", "content": "Finish the exercise by discussing and collating what you learned, how your understanding of this type of threat has changed and what processes you might update as a result.", "observations": ["What did you learn from running the exercise?",
         "How has your understanding of preventing this type of cyber security threat changed?",
         "What will you look to change or implement across your organisation?"]
@@ -16,8 +17,9 @@ let roundCounter = 0;  // Global counter for unique IDs
 let ActiveStage = 0;
 let fileContent, data;
 let timer = false;
+let ExcerciseComplete = false;
 let qList = [];
-let bc = new BroadcastChannel('cyex_channel');
+let bc = new BroadcastChannel('ttx_gym');
 
 const form = document.getElementById('questionsForm');
 let progressDiv = document.createElement('div'); progressDiv.id = "progress-sections";
@@ -86,7 +88,7 @@ function populateScenario() {
     document.getElementById('timer').classList.remove('hide');
 
     //start is the inital screen for the participants (effectively treated as 'stage 0'). title, summary, and topics pulled from scenario data.
-    start = { "title": fileContent.title, "content": fileContent.summary, "observations": fileContent.topics };
+    start = { "type": "update", "title": fileContent.title, "content": fileContent.summary, "observations": fileContent.topics };
     if (fileContent.conclusion) {
         finish.content = fileContent.conclusion;
     }
@@ -308,7 +310,7 @@ document.getElementById('questionsForm').addEventListener('submit', function (ev
         answers[key] = value;
     });
     updateProgress();
-    bc.postMessage({ "title": overallScoreDiv.innerHTML, "content": progressDiv.innerHTML }); /* send */
+    bc.postMessage({ "type": "update", "title": overallScoreDiv.innerHTML, "content": progressDiv.innerHTML }); /* send */
 
     console.log('Submitted answers:', answers);
     // You can now send `answers` to a server or process it as needed
@@ -316,8 +318,6 @@ document.getElementById('questionsForm').addEventListener('submit', function (ev
 
 document.getElementById('questionsForm').addEventListener('change', updateProgress);
 
-// Initialize progress
-updateProgress();
 
 
 function setActiveStage(stageNumber) {
@@ -351,12 +351,35 @@ function setActiveStage(stageNumber) {
         document.getElementById('previous').classList.remove('hidden');
     }
     if (stageNumber == roundCounter + 1) {
+        if (ExcerciseComplete) {
+            var roundDiv = document.getElementById('marker' + (stageNumber));
+            roundDiv.classList.add('complete');
+        }
         document.getElementById('next').classList.add('hidden');
         document.getElementById('reportlauncher').classList.remove('hide');
         document.getElementById("timer").innerHTML = '<span>Ready&nbsp;</span> <img src="../images/playpause.svg" />';
     } else {
         document.getElementById('next').classList.remove('hidden');
     }
+
+    const sections = document.querySelectorAll('.round');
+    let i = 0;
+    let inputDisabled = true;
+    sections.forEach(section => {
+        i++;
+        const inputs = section.querySelectorAll('input[type="radio"]');
+        if (i == stageNumber) {
+            inputDisabled = false;
+        }
+        else {
+            inputDisabled = true;
+        }
+        inputs.forEach(question => {
+            question.disabled = inputDisabled;
+        });
+
+    });
+
 }
 
 // Example usage: Highlight the second stage
@@ -372,7 +395,7 @@ function nextStage() {
             startStopTimer();
         }
         setActiveStage(ActiveStage);
-        bc.postMessage({ "title": data[ActiveStage - 1].stage, "content": data[ActiveStage - 1].content, "observations": data[ActiveStage - 1].observations }); /* send */
+        bc.postMessage({ "type": "update", "title": data[ActiveStage - 1].stage, "content": data[ActiveStage - 1].content, "observations": data[ActiveStage - 1].observations }); /* send */
     }
     else {
         ActiveStage = roundCounter + 1;
@@ -384,7 +407,7 @@ function previousStage() {
     if (ActiveStage > 1) {
         ActiveStage--;
         setActiveStage(ActiveStage);
-        bc.postMessage({ "title": data[ActiveStage - 1].stage, "content": data[ActiveStage - 1].content, "observations": data[ActiveStage - 1].observations }); /* send */
+        bc.postMessage({ "type": "update", "title": data[ActiveStage - 1].stage, "content": data[ActiveStage - 1].content, "observations": data[ActiveStage - 1].observations }); /* send */
     }
     else {
         ActiveStage = 0;
@@ -407,7 +430,7 @@ function goToStage(stage) {
             startStopTimer();
         }
         setActiveStage(ActiveStage);
-        bc.postMessage({ "title": data[ActiveStage - 1].stage, "content": data[ActiveStage - 1].content, "observations": data[ActiveStage - 1].observations }); /* send */
+        bc.postMessage({ "type": "update", "title": data[ActiveStage - 1].stage, "content": data[ActiveStage - 1].content, "observations": data[ActiveStage - 1].observations }); /* send */
     } else if (stage == 0) {
         setActiveStage(ActiveStage);
         bc.postMessage(start); /* send */
@@ -448,12 +471,19 @@ const toggleTimer = () => {
             if (timer) {
                 currentTimerLabel = '<span>Resume&nbsp;</span> <img src="../images/start.svg" />';
                 document.getElementById("timer").innerHTML = currentTimerLabel;
+
+                var roundDiv = document.getElementById('pause');
+                roundDiv.classList.remove('hidden-overlay');
                 timer = false;
+                bc.postMessage({ "type": "pause", "switch": timer });
             }
             else {
                 currentTimerLabel = '<span>Pause&nbsp;</span> <img src="../images/pause.svg" />';
                 document.getElementById("timer").innerHTML = currentTimerLabel;
+                var roundDiv = document.getElementById('pause');
+                roundDiv.classList.add('hidden-overlay');
                 timer = true;
+                bc.postMessage({ "type": "pause", "switch": timer });
             }
         }
     } else {
@@ -533,6 +563,7 @@ function updateProgress() {
     let totalSectionScores = 0;
     let totalSections = 0;
     let tick = 0;
+    let completion = true;
     sections.forEach(section => {
         tick += 1;
 
@@ -548,16 +579,17 @@ function updateProgress() {
         uniqueQuestions.forEach(questionName => {
             const options = section.querySelectorAll(`input[name="${questionName}"]`);
             const selectedOption = form.querySelector(`input[name="${questionName}"]:checked`);
-
+            const questionScore = document.createElement('li');
             if (selectedOption) {
                 const selectedIndex = Array.from(options).indexOf(selectedOption) + 1;
                 const score = ((selectedIndex - 1) / (options.length - 1)) * 100;
                 totalScore += score;
                 answeredQuestions++;
-                const questionScore = document.createElement('li');
                 questionScore.innerHTML = `${qList[questionName]} : <strong>${selectedOption.value}</strong>  (${score.toFixed(0)}% indicative score)`;
-                sectionProgress.appendChild(questionScore);
+            } else {
+                questionScore.innerHTML = `${qList[questionName]} : <strong>Not Answered</strong>`;
             }
+            sectionProgress.appendChild(questionScore);
         });
 
         // Calculate overall score for the section
@@ -565,6 +597,7 @@ function updateProgress() {
 
         if (uniqueQuestions.length == 0) { overallScore = 100 };
         const isFullyAnswered = answeredQuestions === uniqueQuestions.length;
+        completion = completion && isFullyAnswered;  //boolean AND to test of all sections are fully answered up to this point
         if (isFullyAnswered) {
             var roundDiv = document.getElementById('marker' + (tick));
             roundDiv.classList.add('complete');
@@ -576,7 +609,7 @@ function updateProgress() {
         totalSections += answeredQuestions;
 
         const sectionOverallScore = document.createElement('p');
-        sectionOverallScore.innerHTML = `<strong>Overall Score for ${sectionName}: ${overallScore}%</strong> (${formatTime(Number(stageTime[tick]))} mins)`;
+        sectionOverallScore.innerHTML = `<strong>Overall Score for ${sectionName}: ${overallScore}%</strong> (${formatTime(Number(stageTime[tick]))} mins - ${isFullyAnswered ? "Complete" : "Incomplete"})`;
         sectionProgress.prepend(sectionOverallScore);
 
         const fullAnswerStatus = document.createElement('p');
@@ -586,12 +619,13 @@ function updateProgress() {
         progressDiv.appendChild(sectionProgress);
 
     });
-
+    if (completion) {
+        ExcerciseComplete = true;
+    }
     // Calculate overall score for the entire form
     const overallFormScore = totalSections > 0 ? (totalSectionScores / totalSections).toFixed(0) : 0;
     overallScoreDiv.innerHTML = `<h3> Exercise Summary (Indicative Score): ${overallFormScore}%</h3>`;
 };
-
 
 
 /////////////////////////////////////////////

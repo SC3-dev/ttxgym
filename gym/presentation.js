@@ -1,18 +1,31 @@
-var bc = new BroadcastChannel('cyex_channel');
+var bc = new BroadcastChannel('ttx_gym');
 bc.onmessage = function (ev) {
   console.log("Message received: ", ev);
-  var container = document.getElementById('title');
-  container.innerHTML = ev.data.title; // Clear existing contentev.data.title
-  container = document.getElementById('content');
-  container.innerHTML = ev.data.content; // Clear existing contentev.data.title
-  container = document.getElementById('observations');
-  container.innerHTML = ""; // Clear existing contentev.data.title
+  if (ev.data.type) {
+    if (ev.data.type == "pause") {
+      if (ev.data.switch == true) {
+        var roundDiv = document.getElementById('pause');
+        roundDiv.classList.add('hidden-overlay');
+      } else {
+        var roundDiv = document.getElementById('pause');
+        roundDiv.classList.remove('hidden-overlay');
+      }
+    }
+    else if (ev.data.type == "update") {
+      var container = document.getElementById('title');
+      container.innerHTML = ev.data.title; // Clear existing contentev.data.title
+      container = document.getElementById('content');
+      container.innerHTML = ev.data.content; // Clear existing contentev.data.title
+      container = document.getElementById('observations');
+      container.innerHTML = ""; // Clear existing contentev.data.title
 
-  ev.data.observations.forEach(item => {
-    row = document.createElement('li');
-    row.innerHTML = item;
-    container.appendChild(row);
-  })
+      ev.data.observations.forEach(item => {
+        row = document.createElement('li');
+        row.innerHTML = item;
+        container.appendChild(row);
+      })
+    }
+  }
 } /* receive */
 
 var cont = document.body;

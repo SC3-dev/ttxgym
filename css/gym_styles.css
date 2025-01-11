@@ -56,10 +56,46 @@ h2 {
 #scribe {
     overflow-y: auto;
     grid-area: 2 / 2 / 3 / 3;
-    padding: 20px;
+    padding: 2rem;
     color: #fff;
     /* Add shadow on hover */
     box-sizing: border-box;
+}
+
+#pause {
+
+    overflow-y: auto;
+    grid-area: 2 / 2 / 4 / 3;
+    padding: 2rem;
+    z-index: 999;
+    display: flex;
+    align-content: space-around;
+    flex-wrap: wrap;
+    justify-content: center;
+    flex-direction: column;
+    background-color: rgba(32, 38, 52, 0.8);
+    color: #fff;
+    line-height: 2rem;
+    font-size: 1.2rem;
+}
+
+#pause.hidden-overlay {
+    display: none;
+}
+
+.overlay-message {
+    background-color: var(--mid);
+    padding: 2rem;
+    border-radius: 0.3rem;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+    align-items: center;
+}
+
+.overlay-message img {
+    padding-bottom: 1rem;
+    height: 4rem;
 }
 
 #controller {
@@ -110,7 +146,7 @@ form {
     background-color: var(--accent);
 }
 
-.round.active.complete {
+.round.complete {
 
     border: 2px solid #4dbebd;
 }
