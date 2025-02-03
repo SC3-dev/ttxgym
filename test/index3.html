@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Distinct Color Variations Chart</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        .chart-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .bar {
+            width: 50px;
+            height: 200px;
+            margin: 5px;
+            display: inline-block;
+            border-radius: 5px;
+            transition: transform 0.3s ease;
+        }
+
+        .bar:hover {
+            transform: scale(1.1);
+        }
+
+        .pie {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            display: inline-block;
+            margin: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Bar Chart</h1>
+    <div id="bar-chart" class="chart-container"></div>
+
+    <h1>Pie Chart</h1>
+    <div id="pie-chart" class="chart-container"></div>
+
+    <script>
+        function generateDistinctColorVariations(baseHue, numVariants) {
+            const colors = [];
+            const saturationStep = 40; // Step size for saturation
+            const lightnessStep = 30; // Step size for lightness
+
+            let currentSaturation = 40; // Starting saturation
+            let currentLightness = 40; // Starting lightness
+
+            for (let i = 0; i < numVariants; i++) {
+                // Clamp lightness to stay between 20% and 80%
+                const clampedLightness = Math.min(80, Math.max(20, currentLightness));
+                // Clamp saturation to stay above 20%
+                const clampedSaturation = Math.max(40, currentSaturation);
+                colors.push(`hsl(${baseHue}, ${clampedSaturation}%, ${clampedLightness}%)`);
+
+                // Alternate adjustments for distinct variations
+                if (i % 2 === 0) {
+                    currentSaturation = (currentSaturation + saturationStep) % 100;
+                } else {
+                    currentLightness = (currentLightness + lightnessStep) % 100;
+                }
+            }
+
+            return colors;
+        }
+
+        const baseHue = 170; // Blue
+        const numBars = 12;
+        const numPies = 6;
+
+        const barColors = generateDistinctColorVariations(baseHue, numBars);
+        const pieColors = generateDistinctColorVariations(baseHue, numPies);
+
+        const barChart = document.getElementById('bar-chart');
+        const pieChart = document.getElementById('pie-chart');
+
+        barColors.forEach(color => {
+            const bar = document.createElement('div');
+            bar.classList.add('bar');
+            bar.style.backgroundColor = color;
+            barChart.appendChild(bar);
+        });
+
+        pieColors.forEach(color => {
+            const pie = document.createElement('div');
+            pie.classList.add('pie');
+            pie.style.backgroundColor = color;
+            pieChart.appendChild(pie);
+        });
+    </script>
+</body>
+
+</html>

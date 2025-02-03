@@ -9,13 +9,13 @@ var start;
 let firsttimer = 0;
 let timeron = 0;
 let timerInterval = null;
-let currentTimerLabel = '<span>Resume&nbsp;</span> <img src="../images/start.svg" />';
+let currentTimerLabel = '#';
 let stageTime = [];
 let questionTrakcer = [];
 let questionCounter = 0;  // Global counter for unique IDs
 let roundCounter = 0;  // Global counter for unique IDs
 let ActiveStage = 0;
-let fileContent, data;
+let fileName, fileContent, data;
 let timer = false;
 let ExcerciseComplete = false;
 let qList = [];
@@ -31,7 +31,7 @@ const urlParams = new URLSearchParams(window.location.search);
 if (urlParams.has('q')) {
     const targetFile = urlParams.get('q').replace(/\W/g, '');
     const filepath = "../lib/scenarios/" + targetFile + ".ttxf";
-
+    fileName = targetFile + ".ttxf";
 
 
     fetch(filepath)
@@ -67,6 +67,7 @@ function handleFileSelect(event) {
     const reader = new FileReader();
     reader.onload = function (e) {
         try {
+            fileName = file.name;
             fileContent = parseConfigToJSON(e.target.result);
             populateScenario();
         } catch (error) {
@@ -84,7 +85,6 @@ function populateScenario() {
     roundCounter = 0;
     let timingdiv, timeslot, timestage, timenum;
     document.getElementById('scribe').classList.remove('hide');
-    document.getElementById('times-header').classList.remove('hide');
     document.getElementById('timer').classList.remove('hide');
 
     //start is the inital screen for the participants (effectively treated as 'stage 0'). title, summary, and topics pulled from scenario data.
@@ -99,9 +99,10 @@ function populateScenario() {
     stageContainer.innerHTML = ''; // Clear existing content
 
     // Create navigation button
-    let roundMarker = document.createElement('button');
+    let roundMarker = document.createElement('div');
     roundMarker.id = 'previous';
-    roundMarker.innerHTML = '<img src="../images/previous.svg"/> <span>previous</span>'; // Clear existing content
+    roundMarker.className = 'link';
+    roundMarker.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" height="1.5rem" viewBox="0 -960 960 960" width="1.5rem"><path d="M400-80 0-480l400-400 71 71-329 329 329 329-71 71Z"/></svg><span>Previous</span>`;
     roundMarker.onclick = function () { previousStage(); };
     stageContainer.appendChild(roundMarker);
 
@@ -266,17 +267,29 @@ function populateScenario() {
         });
     });
 
-    let confirmer = document.getElementById('scenarioLoader');
-    confirmer.innerHTML = "<h2>" + fileContent.title + "</h2>";
-    statfields = document.createElement('div');
-    statfields.className = 'stat';
-    statfields.innerHTML = roundCounter + " Stages"; // Clear existing content
-    confirmer.appendChild(statfields);
+    let scribeDiv = document.getElementById('scribe');
+    titleField = document.createElement('div');
+    titleField.innerHTML = "<h2>" + fileContent.title + "</h2>";
+    titleField.id = "title";
+    scribeDiv.prepend(titleField);
+
+    let confirmer = document.getElementById('scenario-loader');
+    fileInfo = document.createElement('div');
+    fileInfo.id = "file-name";
+    fileInfo.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" height="1.5rem" viewBox="0 -960 960 960" width="1.5rem"><path d="M660-160h40v-160h-40v160Zm20-200q8 0 14-6t6-14q0-8-6-14t-14-6q-8 0-14 6t-6 14q0 8 6 14t14 6ZM200-800v640-640 200-200Zm80 400h147q11-23 25.5-43t32.5-37H280v80Zm0 160h123q-3-20-3-40t3-40H280v80ZM200-80q-33 0-56.5-23.5T120-160v-640q0-33 23.5-56.5T200-880h320l240 240v92q-19-6-39-9t-41-3v-40H480v-200H200v640h227q11 23 25.5 43T485-80H200Zm480-400q83 0 141.5 58.5T880-280q0 83-58.5 141.5T680-80q-83 0-141.5-58.5T480-280q0-83 58.5-141.5T680-480Z"/></svg><span class="indent">${fileName}</span>`;
+
 
     statfields = document.createElement('div');
-    statfields.className = 'stat';
+    statfields.className = 'stat indent';
+    statfields.innerHTML = roundCounter + " Stages"; // Clear existing content
+    confirmer.prepend(statfields);
+
+    statfields = document.createElement('div');
+    statfields.className = 'stat indent';
     statfields.innerHTML = questionCounter + " Questions"; // Clear existing content
-    confirmer.appendChild(statfields);
+    confirmer.prepend(statfields);
+
+    confirmer.prepend(fileInfo);
     confirmer.classList.add('scdone');
 
     document.getElementById('launcher').classList.remove('hide');
@@ -288,9 +301,10 @@ function populateScenario() {
     roundMarker.innerHTML = '<img src="../images/finish.svg"/>'; // Clear existing content
     roundMarker.setAttribute("onclick", `goToStage(${roundCounter + 1})`);
     stageContainer.appendChild(roundMarker);
-    roundMarker = document.createElement('button');
+    roundMarker = document.createElement('div');
     roundMarker.id = 'next';
-    roundMarker.innerHTML = '<span>next </span><img src="../images/next.svg"/>'; // Clear existing content
+    roundMarker.className = 'link';
+    roundMarker.innerHTML = `<span>Next</span><svg xmlns="http://www.w3.org/2000/svg" height="1.5rem" viewBox="0 -960 960 960" width="1.5rem"><path d="m321-80-71-71 329-329-329-329 71-71 400 400L321-80Z"/></svg>`;
     roundMarker.onclick = function () { nextStage(); };
     stageContainer.appendChild(roundMarker);
     previousStage();
@@ -309,8 +323,8 @@ document.getElementById('questionsForm').addEventListener('submit', function (ev
     formData.forEach((value, key) => {
         answers[key] = value;
     });
-    updateProgress();
-    bc.postMessage({ "type": "update", "title": overallScoreDiv.innerHTML, "content": progressDiv.innerHTML }); /* send */
+    let Scores = updateProgress();
+    bc.postMessage({ "type": "update", "title": overallScoreDiv.innerHTML, "content": generateCharts(Scores) + progressDiv.innerHTML }); /* send */
 
     console.log('Submitted answers:', answers);
     // You can now send `answers` to a server or process it as needed
@@ -346,7 +360,7 @@ function setActiveStage(stageNumber) {
 
     if (stageNumber == 0) {
         document.getElementById('previous').classList.add('hidden');
-        document.getElementById("timer").innerHTML = '<span>Ready&nbsp;</span> <img src="../images/playpause.svg" />';
+        document.getElementById("timer").innerHTML = `    <svg xmlns="http://www.w3.org/2000/svg" height="1.5rem" viewBox="0 -960 960 960" width="1.5rem"><path d="M320-320h80v-320h-80v320Zm160 0 240-160-240-160v320Zm0 240q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z" /></svg><span class="indent">Timer Ready</span>`;
     } else {
         document.getElementById('previous').classList.remove('hidden');
     }
@@ -356,8 +370,7 @@ function setActiveStage(stageNumber) {
             roundDiv.classList.add('complete');
         }
         document.getElementById('next').classList.add('hidden');
-        document.getElementById('reportlauncher').classList.remove('hide');
-        document.getElementById("timer").innerHTML = '<span>Ready&nbsp;</span> <img src="../images/playpause.svg" />';
+        document.getElementById("timer").innerHTML = `    <svg xmlns="http://www.w3.org/2000/svg" height="1.5rem" viewBox="0 -960 960 960" width="1.5rem"><path d="M320-320h80v-320h-80v320Zm160 0 240-160-240-160v320Zm0 240q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z" /></svg><span class="indent">Timer Ready</span>`;
     } else {
         document.getElementById('next').classList.remove('hidden');
     }
@@ -469,7 +482,7 @@ const toggleTimer = () => {
     if (ActiveStage > 0 && ActiveStage < roundCounter + 1) {
         if (firsttimer > 0) {
             if (timer) {
-                currentTimerLabel = '<span>Resume&nbsp;</span> <img src="../images/start.svg" />';
+                currentTimerLabel = `    <svg xmlns="http://www.w3.org/2000/svg" height="1.5rem" viewBox="0 -960 960 960" width="1.5rem"><path d="m380-300 280-180-280-180v360ZM480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"/></svg><span class="indent">Resume</span>`;
                 document.getElementById("timer").innerHTML = currentTimerLabel;
 
                 var roundDiv = document.getElementById('pause');
@@ -478,7 +491,7 @@ const toggleTimer = () => {
                 bc.postMessage({ "type": "pause", "switch": timer });
             }
             else {
-                currentTimerLabel = '<span>Pause&nbsp;</span> <img src="../images/pause.svg" />';
+                currentTimerLabel = `    <svg xmlns="http://www.w3.org/2000/svg" height="1.5rem" viewBox="0 -960 960 960" width="1.5rem"><path d="M360-320h80v-320h-80v320Zm160 0h80v-320h-80v320ZM480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"/></svg><span class="indent">Pause</span>`;
                 document.getElementById("timer").innerHTML = currentTimerLabel;
                 var roundDiv = document.getElementById('pause');
                 roundDiv.classList.add('hidden-overlay');
@@ -563,6 +576,7 @@ function updateProgress() {
     let totalSectionScores = 0;
     let totalSections = 0;
     let tick = 0;
+    let SectionScores = [];
     let completion = true;
     sections.forEach(section => {
         tick += 1;
@@ -574,7 +588,7 @@ function updateProgress() {
 
         const sectionName = section.getAttribute('data-section');
         const sectionProgress = document.createElement('ul');
-        //sectionProgress.innerHTML = `<strong>${sectionName}</strong>:`;
+        //sectionProgress.innerHTML = `< strong > ${ sectionName }</strong >: `;
 
         uniqueQuestions.forEach(questionName => {
             const options = section.querySelectorAll(`input[name="${questionName}"]`);
@@ -611,9 +625,9 @@ function updateProgress() {
         const sectionOverallScore = document.createElement('p');
         sectionOverallScore.innerHTML = `<strong>Overall Score for ${sectionName}: ${overallScore}%</strong> (${formatTime(Number(stageTime[tick]))} mins - ${isFullyAnswered ? "Complete" : "Incomplete"})`;
         sectionProgress.prepend(sectionOverallScore);
-
+        SectionScores.push({ name: sectionName, value: Number(overallScore), time: Number(stageTime[tick]) });
         const fullAnswerStatus = document.createElement('p');
-        //fullAnswerStatus.innerHTML = `<strong>${sectionName} Fully Answered:</strong> ${isFullyAnswered ? "Yes" : "No"}`;
+        //fullAnswerStatus.innerHTML = `< strong > ${ sectionName } Fully Answered:</strong > ${ isFullyAnswered ? "Yes" : "No" } `;
         sectionProgress.appendChild(fullAnswerStatus);
 
         progressDiv.appendChild(sectionProgress);
@@ -624,8 +638,136 @@ function updateProgress() {
     }
     // Calculate overall score for the entire form
     const overallFormScore = totalSections > 0 ? (totalSectionScores / totalSections).toFixed(0) : 0;
-    overallScoreDiv.innerHTML = `<h3> Exercise Summary (Indicative Score): ${overallFormScore}%</h3>`;
+    overallScoreDiv.innerHTML = `<h3>Exercise Summary(Indicative Score): ${overallFormScore}%</h3>`;
+    return SectionScores;
 };
+
+/////////////////////////////////////////////
+// Report Generation and Charting
+/////////////////////////////////////////////
+function generateCharts(data) {
+
+    let chart = document.createElement('div');
+    chart.classList.add('chart-container');
+    chart.appendChild(barchart(data));
+    chart.appendChild(donutchart(data));
+    return chart.outerHTML;
+}
+
+function barchart(data) {
+    const colors = generateDistinctColorVariations(200, data.length);
+    // Calculate the total value
+    const totalValue = data.reduce((sum, item) => sum + item.value, 0);
+
+    // Get the chart container
+    let chart = document.createElement('div');
+    chart.classList.add('bchart');
+
+    // Generate bars and labels dynamically
+    data.forEach((item, i) => {
+        // Create bar container
+        const bar = document.createElement('div');
+        bar.classList.add('bar');
+
+        // Create the inner bar
+        const barInner = document.createElement('div');
+        barInner.classList.add('bar-inner');
+        barInner.style.height = `${item.value}% `;
+        barInner.style.background = `${colors[i]} `;
+        // Add percentage label
+        const barLabel = document.createElement('div');
+        barLabel.classList.add('bar-label');
+        barLabel.textContent = `${item.value}% `;
+
+        // Create x-axis label
+        const xAxisLabel = document.createElement('div');
+        xAxisLabel.classList.add('x-axis-label');
+        xAxisLabel.textContent = item.name;
+
+        // Append everything
+        barInner.appendChild(barLabel);
+        bar.appendChild(barInner);
+        bar.appendChild(xAxisLabel);
+        chart.appendChild(bar);
+    });
+    return chart;
+}
+
+function donutchart(inputData) {
+    const colors = generateDistinctColorVariations(170, inputData.length);
+    // Generate dynamic percentages and colors
+    const totalValue = inputData.reduce((sum, item) => sum + item.time, 0);
+    const data = inputData.map(item => (item.time / totalValue) * 100);
+
+    // Generate the conic-gradient segments dynamically
+    const segments = data
+        .map((percentage, index) => {
+            const start = index === 0
+                ? 0
+                : data.slice(0, index).reduce((a, b) => a + b, 0);
+            return `${colors[index]} ${start}% ${start + percentage}% `;
+        })
+        .join(', ');
+    document.documentElement.style.setProperty('--segments', segments);
+
+    // Get the chart container
+    let chart = document.createElement('div');
+    chart.classList.add('dchart');
+    chart.style.background = `conic-gradient(${segments})`;
+    let labelContainer = document.createElement('div');
+    labelContainer.classList.add('dlabel-container');
+    let cumulativePercentage = 0;
+
+    const offsetRadians = -Math.PI / 2; // Aligns with CSS 12 o'clock start
+
+    inputData.forEach((item, index) => {
+        const percentage = data[index];
+        const angle = (cumulativePercentage + percentage / 2) * 3.6; // Convert percentage to degrees
+        cumulativePercentage += percentage;
+
+        const radians = (angle * Math.PI) / 180 + offsetRadians; // Add the offset for alignment
+
+        const x = 50 + 80 * Math.cos(radians); // Adjust radius for label placement
+        const y = 50 + 80 * Math.sin(radians);
+
+        const label = document.createElement('div');
+        label.classList.add('dlabel');
+        label.style.left = `${x}% `;
+        label.style.top = `${y}% `;
+        label.textContent = `${item.name} (${Math.round(percentage)}%)`;
+        label.style.color = '#fff';
+
+        labelContainer.appendChild(label);
+    });
+    chart.appendChild(labelContainer);
+    return chart;
+}
+
+function generateDistinctColorVariations(baseHue, numVariants) {
+    const colors = [];
+    const saturationStep = 40; // Step size for saturation
+    const lightnessStep = 30; // Step size for lightness
+
+    let currentSaturation = 40; // Starting saturation
+    let currentLightness = 40; // Starting lightness
+
+    for (let i = 0; i < numVariants; i++) {
+        // Clamp lightness to stay between 20% and 80%
+        const clampedLightness = Math.min(80, Math.max(40, currentLightness));
+        // Clamp saturation to stay above 20%
+        const clampedSaturation = Math.max(40, currentSaturation);
+        colors.push(`hsl(${baseHue}, ${clampedSaturation}%, ${clampedLightness}%)`);
+
+        // Alternate adjustments for distinct variations
+        if (i % 2 === 0) {
+            currentSaturation = (currentSaturation + saturationStep) % 100;
+        } else {
+            currentLightness = (currentLightness + lightnessStep) % 100;
+        }
+    }
+
+    return colors;
+}
 
 
 /////////////////////////////////////////////

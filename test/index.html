@@ -4,51 +4,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Collapsible Elements by ID</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Donut Chart</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #202634;
+        }
+
+        .chart-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+        }
+
+        .chart {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            position: relative;
+            background: conic-gradient(var(--segments));
+            border: 1px solid #202634;
+        }
+
+        .chart::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60%;
+            height: 60%;
+            background-color: #202634;
+            border-radius: 50%;
+        }
+
+        .label-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .label {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            background: #202634;
+            padding: 2px 8px;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: bold;
+            pointer-events: none;
+        }
+    </style>
 </head>
 
 <body>
-    <div id="collapsible1" class="collapsible">
-        <div class="title-bar">
-            <span class="title">First Title Bar</span>
-            <button class="toggle-btn">▼</button>
-        </div>
-        <div class="content-wrapper">
-            <div class="content">
-                <p>This is the first collapsible content.</p>
-            </div>
-        </div>
+    <div class="chart-container">
+        <div class="chart"></div>
+        <div class="label-container"></div>
     </div>
 
-    <div id="collapsible2" class="collapsible">
-        <div class="title-bar">
-            <span class="title">Second Title Bar</span>
-            <button class="toggle-btn">▼</button>
-        </div>
-        <div class="content-wrapper">
-            <div class="content">
-                <p>This is the second collapsible content.</p>
-            </div>
-        </div>
-    </div>
+    <script>
+        const inputData = [
+            { name: "Category A", value: 35 },
+            { name: "Category B", value: 25 },
+            { name: "Category C", value: 20 },
+            { name: "Category D", value: 20 },
+            { name: "Category E", value: 10 },
+            { name: "Category E", value: 10 },
+            { name: "Category E", value: 10 },
+            { name: "Category E", value: 10 }
+        ];
 
-    <div id="collapsible3" class="collapsible">
-        <div class="title-bar">
-            <span class="title">Third Title Bar</span>
-            <button class="toggle-btn">▼</button>
-        </div>
-        <div class="content-wrapper">
-            <div class="content">
-                <p>This is the third collapsible content.</p>
-            </div>
-        </div>
-    </div>
+        // Generate dynamic percentages and colors
+        const totalValue = inputData.reduce((sum, item) => sum + item.value, 0);
+        const data = inputData.map(item => (item.value / totalValue) * 100);
+        const colors = inputData.map((_, index) => `hsl(${(index * 360 / inputData.length)}, 40%, 40%)`);
 
-    <button onclick="expandCollapsible('collapsible2')">Expand Second</button>
-    <button onclick="collapseCollapsible('collapsible2')">Collapse Second</button>
+        // Generate the conic-gradient segments dynamically
+        const segments = data
+            .map((percentage, index) => {
+                const start = index === 0
+                    ? 0
+                    : data.slice(0, index).reduce((a, b) => a + b, 0);
+                return `${colors[index]} ${start}% ${start + percentage}%`;
+            })
+            .join(', ');
 
-    <script src="script.js"></script>
+        document.documentElement.style.setProperty('--segments', segments);
+
+        // Add labels to the chart
+        const labelContainer = document.querySelector('.label-container');
+
+        let cumulativePercentage = 0;
+
+        const offsetRadians = -Math.PI / 2; // Aligns with CSS 12 o'clock start
+
+        inputData.forEach((item, index) => {
+            const percentage = data[index];
+            const angle = (cumulativePercentage + percentage / 2) * 3.6; // Convert percentage to degrees
+            cumulativePercentage += percentage;
+
+            const radians = (angle * Math.PI) / 180 + offsetRadians; // Add the offset for alignment
+
+            const x = 50 + 42 * Math.cos(radians); // Adjust radius for label placement
+            const y = 50 + 42 * Math.sin(radians);
+
+            const label = document.createElement('div');
+            label.classList.add('label');
+            label.style.left = `${x}%`;
+            label.style.top = `${y}%`;
+            label.textContent = `${item.name} (${Math.round(percentage)}%)`;
+            label.style.color = '#fff';
+
+            labelContainer.appendChild(label);
+        });
+    </script>
+
 </body>
 
 </html>
