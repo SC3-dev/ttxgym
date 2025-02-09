@@ -4,129 +4,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Donut Chart</title>
+    <title>Responsive Sidebar</title>
     <style>
         body {
+            margin: 0;
             font-family: Arial, sans-serif;
             display: flex;
-            justify-content: center;
-            align-items: center;
+        }
+
+        .sidebar {
+            width: 250px;
             height: 100vh;
-            margin: 0;
-            background-color: #202634;
-        }
-
-        .chart-container {
-            position: relative;
-            width: 300px;
-            height: 300px;
-        }
-
-        .chart {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            position: relative;
-            background: conic-gradient(var(--segments));
-            border: 1px solid #202634;
-        }
-
-        .chart::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 60%;
-            height: 60%;
-            background-color: #202634;
-            border-radius: 50%;
-        }
-
-        .label-container {
-            position: absolute;
-            top: 0;
+            background: #333;
+            color: white;
+            position: fixed;
             left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0;
+            transition: left 0.3s ease;
+            padding: 15px;
         }
 
-        .label {
-            position: absolute;
-            transform: translate(-50%, -50%);
-            background: #202634;
-            padding: 2px 8px;
-            border-radius: 5px;
-            font-size: 12px;
-            font-weight: bold;
-            pointer-events: none;
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            width: 100%;
+            padding: 15px;
+        }
+
+        .title-bar {
+            background: #444;
+            color: white;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .hamburger {
+            font-size: 24px;
+            cursor: pointer;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                left: -250px;
+            }
+
+            .sidebar.show {
+                left: 0;
+            }
+
+            .hamburger {
+                display: block;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
         }
     </style>
 </head>
 
 <body>
-    <div class="chart-container">
-        <div class="chart"></div>
-        <div class="label-container"></div>
+    <div class="sidebar" id="sidebar">
+        <h2>Sidebar</h2>
+        <p>Some content here...</p>
     </div>
-
+    <div class="main-content">
+        <div class="title-bar">
+            <h1>Title</h1>
+            <span class="hamburger" onclick="toggleSidebar()">&#9776;</span>
+        </div>
+        <p>Main content goes here...</p>
+    </div>
     <script>
-        const inputData = [
-            { name: "Category A", value: 35 },
-            { name: "Category B", value: 25 },
-            { name: "Category C", value: 20 },
-            { name: "Category D", value: 20 },
-            { name: "Category E", value: 10 },
-            { name: "Category E", value: 10 },
-            { name: "Category E", value: 10 },
-            { name: "Category E", value: 10 }
-        ];
-
-        // Generate dynamic percentages and colors
-        const totalValue = inputData.reduce((sum, item) => sum + item.value, 0);
-        const data = inputData.map(item => (item.value / totalValue) * 100);
-        const colors = inputData.map((_, index) => `hsl(${(index * 360 / inputData.length)}, 40%, 40%)`);
-
-        // Generate the conic-gradient segments dynamically
-        const segments = data
-            .map((percentage, index) => {
-                const start = index === 0
-                    ? 0
-                    : data.slice(0, index).reduce((a, b) => a + b, 0);
-                return `${colors[index]} ${start}% ${start + percentage}%`;
-            })
-            .join(', ');
-
-        document.documentElement.style.setProperty('--segments', segments);
-
-        // Add labels to the chart
-        const labelContainer = document.querySelector('.label-container');
-
-        let cumulativePercentage = 0;
-
-        const offsetRadians = -Math.PI / 2; // Aligns with CSS 12 o'clock start
-
-        inputData.forEach((item, index) => {
-            const percentage = data[index];
-            const angle = (cumulativePercentage + percentage / 2) * 3.6; // Convert percentage to degrees
-            cumulativePercentage += percentage;
-
-            const radians = (angle * Math.PI) / 180 + offsetRadians; // Add the offset for alignment
-
-            const x = 50 + 42 * Math.cos(radians); // Adjust radius for label placement
-            const y = 50 + 42 * Math.sin(radians);
-
-            const label = document.createElement('div');
-            label.classList.add('label');
-            label.style.left = `${x}%`;
-            label.style.top = `${y}%`;
-            label.textContent = `${item.name} (${Math.round(percentage)}%)`;
-            label.style.color = '#fff';
-
-            labelContainer.appendChild(label);
-        });
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('show');
+        }
     </script>
-
 </body>
 
 </html>

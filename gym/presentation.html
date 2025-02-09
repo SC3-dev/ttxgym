@@ -25,15 +25,15 @@
         <h2>Exercise paused</h2>
       </div>
     </div>
-    <div id="control">
-      <img src="../images/text.svg" />
-      <input id="slider" type="range" min="10" max="40" onclick="changeSizeBySlider()">
-      <button type="button" id="fullscreen" onclick="toggleFullscreen()" name="btn4">
-        <img src="../images/fullscreen.svg" />
-      </button>
+
+  </div>
+  <div id="control">
+    <img src="../images/text.svg" />
+    <input id="slider" type="range" min="10" max="40" oninput="changeSizeBySlider()">
+    <div id="fullscreen" onclick="toggleFullscreen()" name="btn4">
+      <img src="../images/fullscreen.svg" />
     </div>
   </div>
-
 
   <script src="presentation.js"></script>
 </body>

@@ -19,6 +19,7 @@ let fileName, fileContent, data;
 let timer = false;
 let ExcerciseComplete = false;
 let qList = [];
+let rawFileData;
 let bc = new BroadcastChannel('ttx_gym');
 
 const form = document.getElementById('questionsForm');
@@ -46,6 +47,7 @@ if (urlParams.has('q')) {
             return response.text();
         })
         .then(data => {
+            rawFileData = data;
             fileContent = parseConfigToJSON(data);
             populateScenario();
         })
@@ -63,11 +65,12 @@ if (urlParams.has('q')) {
 function handleFileSelect(event) {
     const file = event.target.files[0];
     if (!file) return;
-
+    resetExercise();
     const reader = new FileReader();
     reader.onload = function (e) {
         try {
             fileName = file.name;
+            rawFileData = e.target.result;
             fileContent = parseConfigToJSON(e.target.result);
             populateScenario();
         } catch (error) {
@@ -97,12 +100,14 @@ function populateScenario() {
 
     let stageContainer = document.getElementById('stageWrapper');//parent div for stage navigation indicators
     stageContainer.innerHTML = ''; // Clear existing content
+    timingdiv = document.getElementById("times");
+    timingdiv.innerHTML = ''; // Clear existing content
 
     // Create navigation button
     let roundMarker = document.createElement('div');
     roundMarker.id = 'previous';
     roundMarker.className = 'link';
-    roundMarker.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" height="1.5rem" viewBox="0 -960 960 960" width="1.5rem"><path d="M400-80 0-480l400-400 71 71-329 329 329 329-71 71Z"/></svg><span>Previous</span>`;
+    roundMarker.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" height="2rem" viewBox="0 -960 960 960" width="2rem"><path d="M400-80 0-480l400-400 71 71-329 329 329 329-71 71Z"/></svg><span>Previous</span>`;
     roundMarker.onclick = function () { previousStage(); };
     stageContainer.appendChild(roundMarker);
 
@@ -223,6 +228,7 @@ function populateScenario() {
             // timing table
             timingdiv = document.getElementById("times");
 
+
             timeslot = document.createElement('div');
             timeslot.className = "data-row";
             timestage = document.createElement('div');
@@ -267,16 +273,14 @@ function populateScenario() {
         });
     });
 
-    let scribeDiv = document.getElementById('scribe');
-    titleField = document.createElement('div');
+    let titleField = document.getElementById('title-text');
     titleField.innerHTML = "<h2>" + fileContent.title + "</h2>";
-    titleField.id = "title";
-    scribeDiv.prepend(titleField);
 
-    let confirmer = document.getElementById('scenario-loader');
+    let confirmer = document.getElementById('scenario-loader-data');
+    confirmer.innerHTML = ''; // Clear existing content
     fileInfo = document.createElement('div');
     fileInfo.id = "file-name";
-    fileInfo.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" height="1.5rem" viewBox="0 -960 960 960" width="1.5rem"><path d="M660-160h40v-160h-40v160Zm20-200q8 0 14-6t6-14q0-8-6-14t-14-6q-8 0-14 6t-6 14q0 8 6 14t14 6ZM200-800v640-640 200-200Zm80 400h147q11-23 25.5-43t32.5-37H280v80Zm0 160h123q-3-20-3-40t3-40H280v80ZM200-80q-33 0-56.5-23.5T120-160v-640q0-33 23.5-56.5T200-880h320l240 240v92q-19-6-39-9t-41-3v-40H480v-200H200v640h227q11 23 25.5 43T485-80H200Zm480-400q83 0 141.5 58.5T880-280q0 83-58.5 141.5T680-80q-83 0-141.5-58.5T480-280q0-83 58.5-141.5T680-480Z"/></svg><span class="indent">${fileName}</span>`;
+    fileInfo.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" height="2rem" viewBox="0 -960 960 960" width="2rem"><path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h440l200 200v440q0 33-23.5 56.5T760-120H200Zm0-80h560v-400H600v-160H200v560Zm80-80h400v-80H280v80Zm0-320h200v-80H280v80Zm0 160h400v-80H280v80Zm-80-320v160-160 560-560Z"/></svg><span class="indent">${fileName}</span>`;
 
 
     statfields = document.createElement('div');
@@ -304,12 +308,33 @@ function populateScenario() {
     roundMarker = document.createElement('div');
     roundMarker.id = 'next';
     roundMarker.className = 'link';
-    roundMarker.innerHTML = `<span>Next</span><svg xmlns="http://www.w3.org/2000/svg" height="1.5rem" viewBox="0 -960 960 960" width="1.5rem"><path d="m321-80-71-71 329-329-329-329 71-71 400 400L321-80Z"/></svg>`;
+    roundMarker.innerHTML = `<span>Next</span><svg xmlns="http://www.w3.org/2000/svg" height="2rem" viewBox="0 -960 960 960" width="2rem"><path d="m321-80-71-71 329-329-329-329 71-71 400 400L321-80Z"/></svg>`;
     roundMarker.onclick = function () { nextStage(); };
     stageContainer.appendChild(roundMarker);
     previousStage();
 } // End of scenario initalisation
 
+
+function exportScenario() {
+    exportFile("export.ttxf", rawFileData);
+}
+
+function exportReport() {
+
+    let Scores = updateProgress();
+    exportFile("report.html", overallScoreDiv.innerHTML + generateCharts(Scores) + progressDiv.innerHTML, "text/hmtl"); /* send */
+}
+
+function exportFile(filename, content, mimeType) {
+    var link = document.createElement('a');
+    mimeType = mimeType || 'text/plain';
+
+    link.setAttribute('download', filename);
+    link.setAttribute('href', 'data:' + mimeType + ';charset=utf-8,' + encodeURIComponent(content));
+    document.body.append(link);
+    link.click();
+    document.body.removeChild(link);
+}
 
 
 
@@ -360,7 +385,7 @@ function setActiveStage(stageNumber) {
 
     if (stageNumber == 0) {
         document.getElementById('previous').classList.add('hidden');
-        document.getElementById("timer").innerHTML = `    <svg xmlns="http://www.w3.org/2000/svg" height="1.5rem" viewBox="0 -960 960 960" width="1.5rem"><path d="M320-320h80v-320h-80v320Zm160 0 240-160-240-160v320Zm0 240q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z" /></svg><span class="indent">Timer Ready</span>`;
+        document.getElementById("timer").innerHTML = `    <svg xmlns="http://www.w3.org/2000/svg" height="2rem" viewBox="0 -960 960 960" width="2rem"><path d="M320-320h80v-320h-80v320Zm160 0 240-160-240-160v320Zm0 240q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z" /></svg><span class="indent">Timer Ready</span>`;
     } else {
         document.getElementById('previous').classList.remove('hidden');
     }
@@ -370,7 +395,7 @@ function setActiveStage(stageNumber) {
             roundDiv.classList.add('complete');
         }
         document.getElementById('next').classList.add('hidden');
-        document.getElementById("timer").innerHTML = `    <svg xmlns="http://www.w3.org/2000/svg" height="1.5rem" viewBox="0 -960 960 960" width="1.5rem"><path d="M320-320h80v-320h-80v320Zm160 0 240-160-240-160v320Zm0 240q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z" /></svg><span class="indent">Timer Ready</span>`;
+        document.getElementById("timer").innerHTML = `    <svg xmlns="http://www.w3.org/2000/svg" height="2rem" viewBox="0 -960 960 960" width="2rem"><path d="M320-320h80v-320h-80v320Zm160 0 240-160-240-160v320Zm0 240q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z" /></svg><span class="indent">Timer Ready</span>`;
     } else {
         document.getElementById('next').classList.remove('hidden');
     }
@@ -455,6 +480,24 @@ function goToStage(stage) {
 
 }
 
+function toggleSidebar() {
+    document.getElementById('controller').classList.toggle('show');
+}
+
+function resetExercise() {
+    stageTime = [];
+    questionTrakcer = [];
+    questionCounter = 0;  // Global counter for unique IDs
+    roundCounter = 0;  // Global counter for unique IDs
+    ActiveStage = 0;
+    fileName, fileContent, data = "";
+    timer = false;
+    ExcerciseComplete = false;
+    qList = [];
+    rawFileData = "";
+
+}
+
 function launchPresentation() {
     var link = document.createElement("a");
     link.href = "presentation.html";
@@ -482,7 +525,7 @@ const toggleTimer = () => {
     if (ActiveStage > 0 && ActiveStage < roundCounter + 1) {
         if (firsttimer > 0) {
             if (timer) {
-                currentTimerLabel = `    <svg xmlns="http://www.w3.org/2000/svg" height="1.5rem" viewBox="0 -960 960 960" width="1.5rem"><path d="m380-300 280-180-280-180v360ZM480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"/></svg><span class="indent">Resume</span>`;
+                currentTimerLabel = `    <svg xmlns="http://www.w3.org/2000/svg" height="2rem" viewBox="0 -960 960 960" width="2rem"><path d="m380-300 280-180-280-180v360ZM480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"/></svg><span class="indent">Resume</span>`;
                 document.getElementById("timer").innerHTML = currentTimerLabel;
 
                 var roundDiv = document.getElementById('pause');
@@ -491,7 +534,7 @@ const toggleTimer = () => {
                 bc.postMessage({ "type": "pause", "switch": timer });
             }
             else {
-                currentTimerLabel = `    <svg xmlns="http://www.w3.org/2000/svg" height="1.5rem" viewBox="0 -960 960 960" width="1.5rem"><path d="M360-320h80v-320h-80v320Zm160 0h80v-320h-80v320ZM480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"/></svg><span class="indent">Pause</span>`;
+                currentTimerLabel = `    <svg xmlns="http://www.w3.org/2000/svg" height="2rem" viewBox="0 -960 960 960" width="2rem"><path d="M360-320h80v-320h-80v320Zm160 0h80v-320h-80v320ZM480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"/></svg><span class="indent">Pause</span>`;
                 document.getElementById("timer").innerHTML = currentTimerLabel;
                 var roundDiv = document.getElementById('pause');
                 roundDiv.classList.add('hidden-overlay');
