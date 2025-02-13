@@ -1,3 +1,358 @@
+let presentationHTML = `
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cyber Excercise</title>
+  <style>
+  * {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+
+  background-color: #202634;
+
+  height: 100vh;
+  width: 100vw;
+  box-sizing: border-box;
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  font-size: 20px;
+  flex-direction: column;
+}
+
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #b4b4b4;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1a6ec0;
+  border-radius: 10px;
+}
+
+
+#titleWrap {
+  grid-area: 1 / 1 / 2 / 2;
+}
+
+#middle {
+  grid-area: 2 / 1 / 3 / 2;
+  overflow-y: auto;
+  display: flex;
+  justify-content: flex-start;
+  align-content: center;
+  flex-direction: column;
+}
+
+#control {
+  grid-area: 3 / 1 / 4 / 2;
+  padding-top: 1rem;
+}
+
+.SFmedia {
+  padding: 1rem;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 60%;
+  max-height: 40%;
+  border: 0;
+  aspect-ratio: 16 / 9;
+}
+
+.container {
+
+  background-repeat: no-repeat;
+  background-position: center center;
+  width: 80%;
+  height: 80%;
+  padding: 1rem;
+
+  background-color: #293042;
+  border-radius: 8px;
+  box-sizing: border-box;
+  color: #fff;
+
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto 1fr auto;
+  grid-column-gap: 0px;
+  grid-row-gap: 0px;
+}
+
+h1 {
+  text-align: center;
+  color: #ccc;
+}
+
+
+#content {
+  padding: 20px;
+}
+
+#observations {
+  padding: 20px 20px 20px 20px;
+  margin: 0px 0px 0px 24px;
+  font-style: italic;
+}
+
+
+button {
+  align-self: center;
+  padding: 10px 15px;
+  margin: 2px;
+  font-size: 16px;
+  color: #fff;
+  background-color: #1a6ec0;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#fullscreen {
+  margin-left: 14px;
+
+}
+
+button:hover {
+  background-color: #4dbebd;
+}
+
+#control {
+
+  display: flex;
+  justify-content: right;
+  align-items: right;
+}
+
+li {
+  padding-bottom: 10px;
+}
+
+#pause {
+
+  overflow-y: auto;
+  grid-area: 2 / 1 / 3 / 2;
+  padding: 2rem;
+  z-index: 999;
+  display: flex;
+  align-content: space-around;
+  flex-wrap: wrap;
+  justify-content: center;
+  flex-direction: column;
+  background-color: rgba(41, 48, 66, 0.8);
+  color: #fff;
+  line-height: 2rem;
+  font-size: 1.2rem;
+}
+
+#pause.hidden-overlay {
+  display: none;
+}
+
+.overlay-message {
+  background-color: #202634;
+  padding: 2rem;
+  border-radius: 0.3rem;
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: center;
+}
+
+.overlay-message img {
+  height: 4rem;
+}
+
+.chart-container {
+  height: 20%;
+  display: flex;
+  padding: 1rem;
+  box-sizing: border-box;
+  justify-content: space-evenly;
+}
+
+.bchart {
+  display: flex;
+  align-items: flex-end;
+  margin: 0 10%;
+}
+
+.bar {
+  flex: 1;
+  margin: 0 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  position: relative;
+  text-align: center;
+  height: 100%;
+}
+
+.bar-inner {
+  width: 100%;
+  background-color: #3498db;
+  border-radius: 5px 5px 0 0;
+  transition: height 0.3s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.bar-label {
+  color: #f4f4f9;
+  font-weight: bold;
+  font-size: 1rem;
+  margin-bottom: 5px;
+}
+
+.x-axis-label {
+  margin-top: 5px;
+  font-size: 1rem;
+  color: #333;
+}
+
+.dchart {
+  border-radius: 50%;
+  position: relative;
+  border: 1px solid #202634;
+  aspect-ratio: 1;
+  margin: 0 10%;
+}
+
+.dchart::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 60%;
+  height: 60%;
+  background-color: #202634;
+  border-radius: 50%;
+}
+
+.dlabel-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.dlabel {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  background: #202634;
+  padding: 2px 8px;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: bold;
+  pointer-events: none;
+}
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div id="titleWrap">
+      <h1>
+        <div id="title"></div>
+      </h1>
+    </div>
+    <div id="middle">
+      <div id="content">
+      </div>
+      <ol id="observations"></ol>
+    </div>
+    <div id="pause" class="hidden-overlay">
+      <div class="overlay-message"><img src="../images/pause.svg" />
+        <h2>Exercise paused</h2>
+      </div>
+    </div>
+
+  </div>
+  <div id="control">
+    <img src="../images/text.svg" />
+    <input id="slider" type="range" min="10" max="40" oninput="changeSizeBySlider()">
+    <div id="fullscreen" onclick="toggleFullscreen()" name="btn4">
+      <img src="../images/fullscreen.svg" />
+    </div>
+  </div>
+
+  <script>
+  var bc = new BroadcastChannel('ttx_gym');
+bc.onmessage = function (ev) {
+  console.log("Message received: ", ev);
+  if (ev.data.type) {
+    if (ev.data.type == "pause") {
+      if (ev.data.switch == true) {
+        var roundDiv = document.getElementById('pause');
+        roundDiv.classList.add('hidden-overlay');
+      } else {
+        var roundDiv = document.getElementById('pause');
+        roundDiv.classList.remove('hidden-overlay');
+      }
+    }
+    else if (ev.data.type == "update") {
+      var container = document.getElementById('title');
+      container.innerHTML = ev.data.title; // Clear existing contentev.data.title
+      container = document.getElementById('content');
+      container.innerHTML = ev.data.content; // Clear existing contentev.data.title
+      container = document.getElementById('observations');
+      container.innerHTML = ""; // Clear existing contentev.data.title
+
+      ev.data.observations.forEach(item => {
+        row = document.createElement('li');
+        row.innerHTML = item;
+        container.appendChild(row);
+      })
+    }
+  }
+} /* receive */
+
+var cont = document.body;
+
+function changeSizeBySlider() {
+  var slider = document.getElementById("slider");
+
+  // Set slider value as fontSize
+  cont.style.fontSize = slider.value + "px"; // <- HERE
+}
+
+function toggleFullscreen() {
+  var doc = window.document;
+  var docEl = doc.documentElement;
+
+  var requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+  var cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+
+  if (!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+    requestFullScreen.call(docEl);
+  }
+  else {
+    cancelFullScreen.call(doc);
+  }
+}
+
+  </script>
+</body>
+
+</html>
+`;
 
 var finish = {
     "type": "update",
@@ -316,26 +671,28 @@ function populateScenario() {
 
 
 function exportScenario() {
-    exportFile("export.ttxf", rawFileData);
+    serveFile(rawFileData, "export.ttxf");
 }
 
 function exportReport() {
 
     let Scores = updateProgress();
-    exportFile("report.html", overallScoreDiv.innerHTML + generateCharts(Scores) + progressDiv.innerHTML, "text/hmtl"); /* send */
+    serveFile(overallScoreDiv.innerHTML + generateCharts(Scores) + progressDiv.innerHTML, "report.html"); /* send */
 }
 
-function exportFile(filename, content, mimeType) {
-    var link = document.createElement('a');
-    mimeType = mimeType || 'text/plain';
+function serveFile(text, downloadAs) {
+    const blob = new Blob([text], { type: "text/html" });
+    const url = URL.createObjectURL(blob);
 
-    link.setAttribute('download', filename);
-    link.setAttribute('href', 'data:' + mimeType + ';charset=utf-8,' + encodeURIComponent(content));
-    document.body.append(link);
-    link.click();
-    document.body.removeChild(link);
+    const domNode = document.createElement('a');
+    downloadAs && (domNode.download = downloadAs);
+    !downloadAs && (domNode.target = "_blank");
+    domNode.href = url;
+    domNode.style.display = 'none';
+    document.body.appendChild(domNode);
+    domNode.click();
+    document.body.removeChild(domNode);
 }
-
 
 
 // report generation
@@ -499,10 +856,8 @@ function resetExercise() {
 }
 
 function launchPresentation() {
-    var link = document.createElement("a");
-    link.href = "presentation.html";
-    link.target = "_blank";
-    link.click();
+
+    serveFile(presentationHTML);
     setTimeout(() => {
         nextStage();
         previousStage(); /* send */
