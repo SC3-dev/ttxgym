@@ -125,5 +125,18 @@
     "size": "6-12 people",
     "duration": "90 mins",
     "summary": "This is a summary of Product 2, which is longer and more detailed."
+  },
+  {
+    "title": "Op Trojan Horse",
+    "image": "oth1",
+    "categories": [
+      "Supply Chain",
+      "Ransomware",
+      "Devices"
+    ],
+    "level": "Strategic",
+    "size": "6-12 people",
+    "duration": "60 mins",
+    "summary": "This is a summary of Product 2, which is longer and more detailed."
   }
 ]

@@ -5,8 +5,8 @@
 }
 
 body {
-  font-family: Arial, sans-serif;
-  margin: 0;
+  font-family: "Montserrat", sans-serif;
+  margin: 0 auto;
   padding: 0;
   display: flex;
   flex-direction: column;
@@ -15,23 +15,26 @@ body {
 
   /* Navigation Bar */
   .navbar {
-    background-color: #293042;
     color: white;
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
-    padding: 0.5rem 2rem;
+    padding: 0.5rem 0;
+    width: 80%;
+    margin: 0 auto;
+  }
+
+  #logo {
+    padding: 0px 20px;
+    width: 10rem;
+    height: 3.5rem;
+  }
+
+  #logo svg {
     width: 100%;
-  }
-
-  .logo {
-    font-size: 1.5rem;
-    font-weight: bold;
-  }
-
-  .logo img {
-
-    max-height: 4rem;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   .nav-links {
@@ -74,6 +77,9 @@ body {
     flex-grow: 1;
     align-items: flex-start;
     height: 100%;
+    padding: 0.5rem 0;
+    width: 80%;
+    margin: 0 auto;
   }
 
   /* Sidebar */
@@ -111,15 +117,15 @@ body {
     flex: 1;
     /* Allow gallery to take the remaining space */
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
     /* Adjusted for width */
-    gap: 20px;
-    padding: 20px;
+    gap: 2rem;
+    padding: 2rem;
     align-content: flex-start;
     overflow-y: auto;
   }
 
-  .product-tile {
+  .ex-tile {
     color: white;
     cursor: pointer;
     text-align: center;
@@ -135,7 +141,7 @@ body {
     /* Enforce 4:3 aspect ratio */
   }
 
-  .product-tile:hover {
+  .ex-tile:hover {
     transform: scale(1.02);
     /* Scale up on hover for emphasis */
     box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.6);
@@ -144,22 +150,22 @@ body {
     border-radius: 0.5rem;
   }
 
-  .product-tile h3 {
+  .ex-tile h3 {
     padding: 20px 20px 20px 20px;
-    font-size: 1.6rem;
+    font-size: 1.2rem;
     margin: 0;
     background: linear-gradient(0deg, rgb(0, 0, 0, 0) 0%, #171b25 80%);
   }
 
   /* Align attributes in a row at the bottom */
-  .product-attributes {
+  .ex-attributes {
     display: flex;
     justify-content: space-around;
     padding: 20px 10px 10px 10px;
     background: linear-gradient(180deg, rgb(0, 0, 0, 0) 0%, #171b25 100%);
   }
 
-  .product-attributes p {
+  .ex-attributes p {
     margin: 0;
     font-size: 0.9rem;
   }

@@ -5,14 +5,19 @@ let presentationHTML = `
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cyber Excercise</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet">
+  <meta name="google" content="notranslate" />
+  <title>TTX-GYM: Participant Window</title>
   <style>
   * {
   box-sizing: border-box;
 }
 
 body {
-  font-family: Arial, sans-serif;
+  font-family: "Montserrat", Arial, sans-serif;
   margin: 0;
   padding: 0;
 
@@ -24,7 +29,7 @@ body {
   align-items: center;
   display: flex;
   justify-content: center;
-  font-size: 20px;
+  font-size: 80%;
   flex-direction: column;
 }
 
@@ -49,17 +54,22 @@ body {
 }
 
 #middle {
-  grid-area: 2 / 1 / 3 / 2;
-  overflow-y: auto;
   display: flex;
-  justify-content: flex-start;
+  justify-content: center;
   align-content: center;
   flex-direction: column;
+}
+
+#middleWrap{
+    grid-area: 2 / 1 / 3 / 2;
+    overflow-y: auto;
+    display:grid;
 }
 
 #control {
   grid-area: 3 / 1 / 4 / 2;
   padding-top: 1rem;
+  fill:#fff;
 }
 
 .SFmedia {
@@ -79,7 +89,7 @@ body {
   background-position: center center;
   width: 80%;
   height: 80%;
-  padding: 1rem;
+  padding: 0 2rem 2rem 2rem;
 
   background-color: #293042;
   border-radius: 8px;
@@ -100,7 +110,7 @@ h1 {
 
 
 #content {
-  padding: 20px;
+  padding: 0px 20px;
 }
 
 #observations {
@@ -123,7 +133,8 @@ button {
 }
 
 #fullscreen {
-  margin-left: 14px;
+  margin-left: 3rem;
+  cursor: pointer;
 
 }
 
@@ -145,7 +156,6 @@ li {
 #pause {
 
   overflow-y: auto;
-  grid-area: 2 / 1 / 3 / 2;
   padding: 2rem;
   z-index: 999;
   display: flex;
@@ -157,6 +167,9 @@ li {
   color: #fff;
   line-height: 2rem;
   font-size: 1.2rem;
+  position: absolute;
+    width: 100vw;
+    height: 100vh;
 }
 
 #pause.hidden-overlay {
@@ -171,6 +184,9 @@ li {
   flex-wrap: wrap;
   flex-direction: column;
   align-items: center;
+  fill:#fff;
+
+  pointer-events: none;
 }
 
 .overlay-message img {
@@ -178,7 +194,6 @@ li {
 }
 
 .chart-container {
-  height: 20%;
   display: flex;
   padding: 1rem;
   box-sizing: border-box;
@@ -186,9 +201,10 @@ li {
 }
 
 .bchart {
+    width: 30%;
   display: flex;
   align-items: flex-end;
-  margin: 0 10%;
+  margin: 0 2rem;
 }
 
 .bar {
@@ -215,22 +231,23 @@ li {
 .bar-label {
   color: #f4f4f9;
   font-weight: bold;
-  font-size: 1rem;
+  font-size: 0.8rem;
   margin-bottom: 5px;
 }
 
 .x-axis-label {
   margin-top: 5px;
-  font-size: 1rem;
+  font-size: 0.8rem;
   color: #333;
 }
 
 .dchart {
+    width: 30%;
   border-radius: 50%;
   position: relative;
   border: 1px solid #202634;
   aspect-ratio: 1;
-  margin: 0 10%;
+  margin: 0 2rem;
 }
 
 .dchart::before {
@@ -239,8 +256,8 @@ li {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 60%;
-  height: 60%;
+  width: 40%;
+  height: 40%;
   background-color: #202634;
   border-radius: 50%;
 }
@@ -257,39 +274,47 @@ li {
   position: absolute;
   transform: translate(-50%, -50%);
   background: #202634;
-  padding: 2px 8px;
-  border-radius: 5px;
-  font-size: 12px;
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.2rem;
+  font-size: 0.8rem;
   font-weight: bold;
   pointer-events: none;
+  width: 30%;
+  text-align:center;
 }
   </style>
 </head>
 
 <body>
+<div id="pause" class="hidden-overlay">
+<div class="overlay-message"><svg xmlns="http://www.w3.org/2000/svg" height="4rem"
+viewBox="0 -960 960 960" width="4rem">
+<path
+    d="M360-320h80v-320h-80v320Zm160 0h80v-320h-80v320ZM480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z">
+</path>
+</svg>
+  <h2>Exercise paused</h2>
+</div>
+</div>
   <div class="container">
     <div id="titleWrap">
       <h1>
         <div id="title"></div>
       </h1>
     </div>
+    <div id="middleWrap">
     <div id="middle">
       <div id="content">
       </div>
       <ol id="observations"></ol>
     </div>
-    <div id="pause" class="hidden-overlay">
-      <div class="overlay-message"><img src="../images/pause.svg" />
-        <h2>Exercise paused</h2>
-      </div>
     </div>
-
   </div>
   <div id="control">
-    <img src="../images/text.svg" />
+  <svg xmlns="http://www.w3.org/2000/svg" height="2rem" viewBox="0 -960 960 960" width="2rem"><path d="M240-80 80-240l160-160 57 56-64 64h494l-63-64 56-56 160 160L720-80l-57-56 64-64H233l63 64-56 56Zm36-360 164-440h80l164 440h-76l-38-112H392l-40 112h-76Zm138-176h132l-64-182h-4l-64 182Z"/></svg>
     <input id="slider" type="range" min="10" max="40" oninput="changeSizeBySlider()">
     <div id="fullscreen" onclick="toggleFullscreen()" name="btn4">
-      <img src="../images/fullscreen.svg" />
+    <svg xmlns="http://www.w3.org/2000/svg" height="2rem" viewBox="0 -960 960 960" width="2rem" fill="#fff"><path d="M560-280h200v-200h-80v120H560v80ZM200-480h80v-120h120v-80H200v200Zm-40 320q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720v480q0 33-23.5 56.5T800-160H160Zm0-80h640v-480H160v480Zm0 0v-480 480Z"/></svg>
     </div>
   </div>
 
@@ -379,7 +404,8 @@ let bc = new BroadcastChannel('ttx_gym');
 
 const form = document.getElementById('questionsForm');
 let progressDiv = document.createElement('div'); progressDiv.id = "progress-sections";
-let overallScoreDiv = document.createElement('div'); progressDiv.id = "overall-score";
+let overallScoreDiv = document.createElement('div'); overallScoreDiv.id = "overall-score";
+let overallScore = "";
 const recapList = document.getElementById('recap-list');
 document.getElementById('fileInput').addEventListener('change', handleFileSelect, false);
 const urlParams = new URLSearchParams(window.location.search);
@@ -515,7 +541,11 @@ function populateScenario() {
 
                 const promptDiv = document.createElement('div');
                 promptDiv.className = 'prompt';
-
+                const promptIcon = document.createElement('div');
+                promptIcon.className = 'icon';
+                promptIcon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" height="2rem" viewBox="0 -960 960 960" width="2rem"><path d="M480-360q17 0 28.5-11.5T520-400q0-17-11.5-28.5T480-440q-17 0-28.5 11.5T440-400q0 17 11.5 28.5T480-360Zm-40-160h80v-240h-80v240ZM80-80v-720q0-33 23.5-56.5T160-880h640q33 0 56.5 23.5T880-800v480q0 33-23.5 56.5T800-240H240L80-80Zm126-240h594v-480H160v525l46-45Zm-46 0v-480 480Z"/></svg>';
+                promptDiv.appendChild(promptIcon);
+                promptContent = document.createElement('div');
                 const promptList = document.createElement('ul');
 
                 round.prompts.forEach(item => {
@@ -523,7 +553,8 @@ function populateScenario() {
                     currentPrompt.innerHTML = item;
                     promptList.appendChild(currentPrompt);
                 });
-                promptDiv.appendChild(promptList);
+                promptContent.appendChild(promptList);
+                promptDiv.appendChild(promptContent);
                 descriptionWrapper.appendChild(promptDiv);
             }
             //stage comments
@@ -706,7 +737,7 @@ document.getElementById('questionsForm').addEventListener('submit', function (ev
         answers[key] = value;
     });
     let Scores = updateProgress();
-    bc.postMessage({ "type": "update", "title": overallScoreDiv.innerHTML, "content": generateCharts(Scores) + progressDiv.innerHTML }); /* send */
+    bc.postMessage({ "type": "update", "title": overallScore, "content": generateCharts(Scores) + progressDiv.innerHTML }); /* send */
 
     console.log('Submitted answers:', answers);
     // You can now send `answers` to a server or process it as needed
@@ -763,6 +794,8 @@ function setActiveStage(stageNumber) {
     sections.forEach(section => {
         i++;
         const inputs = section.querySelectorAll('input[type="radio"]');
+
+        const textinputs = section.querySelectorAll('textarea');
         if (i == stageNumber) {
             inputDisabled = false;
         }
@@ -770,6 +803,9 @@ function setActiveStage(stageNumber) {
             inputDisabled = true;
         }
         inputs.forEach(question => {
+            question.disabled = inputDisabled;
+        });
+        textinputs.forEach(question => {
             question.disabled = inputDisabled;
         });
 
@@ -865,6 +901,21 @@ function launchPresentation() {
 
 }
 
+function toggleFullscreen() {
+    var doc = window.document;
+    var docEl = doc.documentElement;
+
+    var requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+    var cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+
+    if (!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+        requestFullScreen.call(docEl);
+    }
+    else {
+        cancelFullScreen.call(doc);
+    }
+}
+
 const startStopTimer = () => {
     if (timerInterval) {
         clearInterval(timerInterval);
@@ -911,6 +962,9 @@ const toggleClock = () => {
         }
     }
 };
+
+
+
 
 const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
@@ -1036,7 +1090,7 @@ function updateProgress() {
     }
     // Calculate overall score for the entire form
     const overallFormScore = totalSections > 0 ? (totalSectionScores / totalSections).toFixed(0) : 0;
-    overallScoreDiv.innerHTML = `<h3>Exercise Summary(Indicative Score): ${overallFormScore}%</h3>`;
+    overallScore = `Exercise Summary (Indicative Score: ${overallFormScore}%)`;
     return SectionScores;
 };
 
@@ -1092,7 +1146,7 @@ function barchart(data) {
 }
 
 function donutchart(inputData) {
-    const colors = generateDistinctColorVariations(170, inputData.length);
+    const colors = generateDistinctColorVariations(200, inputData.length);
     // Generate dynamic percentages and colors
     const totalValue = inputData.reduce((sum, item) => sum + item.time, 0);
     const data = inputData.map(item => (item.time / totalValue) * 100);
@@ -1125,8 +1179,8 @@ function donutchart(inputData) {
 
         const radians = (angle * Math.PI) / 180 + offsetRadians; // Add the offset for alignment
 
-        const x = 50 + 80 * Math.cos(radians); // Adjust radius for label placement
-        const y = 50 + 80 * Math.sin(radians);
+        const x = 50 + 40 * Math.cos(radians); // Adjust radius for label placement
+        const y = 50 + 40 * Math.sin(radians);
 
         const label = document.createElement('div');
         label.classList.add('dlabel');

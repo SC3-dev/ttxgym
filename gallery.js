@@ -1,6 +1,6 @@
 
 
-var products = [];
+var exs = [];
 
 
 //Handler for scenario files. Calls populateQuestions() to initalise the dashboard.
@@ -14,17 +14,17 @@ function handleFileSelect() {
       return response.text();
     })
     .then(data => {
-      products = JSON.parse(data);
-      console.log(products);
+      exs = JSON.parse(data);
+      console.log(exs);
       // Event listener for modal close button
       document.getElementById('close-modal').addEventListener('click', closeModal);
 
       // Event listener for search input to trigger filtering
-      document.getElementById('search').addEventListener('input', filterProducts);
+      document.getElementById('search').addEventListener('input', filterexs);
 
-      // Initialize filters and display products on load
+      // Initialize filters and display exs on load
       initializeFilters();
-      displayProducts(products);
+      displayexs(exs);
     })
     .catch(error => {
       console.error('There was a problem with the fetch operation:', error);
@@ -36,68 +36,69 @@ function handleFileSelect() {
   //}
 }
 
-// Function to display products
-function displayProducts(filteredProducts) {
+// Function to display exs
+function displayexs(filteredexs) {
 
 
   const gallery = document.getElementById('gallery');
   gallery.innerHTML = '';
-  filteredProducts.forEach(product => {
-    const productTile = document.createElement('div');
-    productTile.classList.add('product-tile');
+  filteredexs.forEach(ex => {
+    const exTile = document.createElement('div');
+    exTile.classList.add('ex-tile');
 
-    // Updated HTML structure of product tiles
-    if (product.image) {
-      productTile.style.background = "#ccc";
-      productTile.style.backgroundImage = `url(lib/images/${product.image}.png)`;
-      productTile.style.backgroundSize = "cover";
-      productTile.style.backgroundBlendMode = "multiply";
+    // Updated HTML structure of ex tiles
+    if (ex.image) {
+      exTile.style.background = "#ccc";
+      exTile.style.backgroundImage = `url(lib/images/${ex.image}.png)`;
+      exTile.style.backgroundSize = "cover";
+      exTile.style.backgroundBlendMode = "multiply";
+      exTile.style.backgroundPosition = "center";
 
 
     }
-    productTile.innerHTML = `
-      <h3>${product.title}</h3>
-      <div class="product-attributes">
+    exTile.innerHTML = `
+      <h3>${ex.title}</h3>
+      <div class="ex-attributes">
         
-        <p><img src="images/level.svg"/><br/>${product.level}</p>
-        <p><img src="images/group.svg"/><br/>${product.size}</p>
-        <p><img src="images/clock.svg"/><br/>${product.duration}</p>
+        <p><img src="images/level.svg"/><br/>${ex.level}</p>
+        <p><img src="images/group.svg"/><br/>${ex.size}</p>
+        <p><img src="images/clock.svg"/><br/>${ex.duration}</p>
       </div>
     `;
-    productTile.addEventListener('click', () => openModal(product));
-    gallery.appendChild(productTile);
+    exTile.addEventListener('click', () => openModal(ex));
+    gallery.appendChild(exTile);
   });
 }
 
-// Function to filter products based on selected filters and search
-function filterProducts() {
+// Function to filter exs based on selected filters and search
+function filterexs() {
   const searchValue = document.getElementById('search').value.toLowerCase();
   const selectedCategories = Array.from(document.querySelectorAll('#category-filter input:checked')).map(el => el.value);
   const selectedLevels = Array.from(document.querySelectorAll('#level-filter input:checked')).map(el => el.value);
   const selectedSizes = Array.from(document.querySelectorAll('#size-filter input:checked')).map(el => el.value);
   const selectedDurations = Array.from(document.querySelectorAll('#duration-filter input:checked')).map(el => el.value);
 
-  const filteredProducts = products.filter(product => {
-    const matchesCategory = selectedCategories.length === 0 || product.categories.some(category => selectedCategories.includes(category));
-    const matchesLevel = selectedLevels.length === 0 || selectedLevels.includes(product.level);
-    const matchesSize = selectedSizes.length === 0 || selectedSizes.includes(product.size);
-    const matchesDuration = selectedDurations.length === 0 || selectedDurations.includes(product.duration);
+  const filteredexs = exs.filter(ex => {
+    const matchesCategory = selectedCategories.length === 0 || ex.categories.some(category => selectedCategories.includes(category));
+    const matchesLevel = selectedLevels.length === 0 || selectedLevels.includes(ex.level);
+    const matchesSize = selectedSizes.length === 0 || selectedSizes.includes(ex.size);
+    const matchesDuration = selectedDurations.length === 0 || selectedDurations.includes(ex.duration);
 
     // Updated to search both title and description
-    const matchesSearch = product.title.toLowerCase().includes(searchValue) || product.summary.toLowerCase().includes(searchValue);
+    const matchesSearch = ex.title.toLowerCase().includes(searchValue) || ex.summary.toLowerCase().includes(searchValue);
 
     return matchesCategory && matchesLevel && matchesDuration && matchesSize && matchesSearch;
   });
 
-  displayProducts(filteredProducts);
+  displayexs(filteredexs);
 }
 
 // Initialize filters dynamically
 function initializeFilters() {
-  const categories = [...new Set(products.flatMap(product => product.categories))];
-  const levels = [...new Set(products.map(product => product.level))];
-  const sizes = [...new Set(products.map(product => product.size))];
-  const durations = [...new Set(products.map(product => product.duration))];
+  const categories = [...new Set(exs.flatMap(ex => ex.categories))];
+  const levels = [...new Set(exs.map(ex => ex.level))];
+  const sizes = [...new Set(exs.map(ex => ex.size))];
+  const durations = [...new Set(exs.map(ex => ex.duration))];
 
   const categoryFilter = document.getElementById('category-filter');
   const levelFilter = document.getElementById('level-filter');
@@ -107,51 +108,51 @@ function initializeFilters() {
   categories.forEach(category => {
     const label = document.createElement('label');
     label.innerHTML = `<input type="checkbox" value="${category}"> ${category}`;
-    label.addEventListener('change', filterProducts);
+    label.addEventListener('change', filterexs);
     categoryFilter.appendChild(label);
   });
 
   levels.forEach(level => {
     const label = document.createElement('label');
     label.innerHTML = `<input type="checkbox" value="${level}"> ${level}`;
-    label.addEventListener('change', filterProducts);
+    label.addEventListener('change', filterexs);
     levelFilter.appendChild(label);
   });
   /*
     sizes.forEach(size => {
       const label = document.createElement('label');
       label.innerHTML = `<input type="checkbox" value="${size}"> ${size}`;
-      label.addEventListener('change', filterProducts);
+      label.addEventListener('change', filterexs);
       sizeFilter.appendChild(label);
     });
   */
   durations.forEach(duration => {
     const label = document.createElement('label');
     label.innerHTML = `<input type="checkbox" value="${duration}"> ${duration}`;
-    label.addEventListener('change', filterProducts);
+    label.addEventListener('change', filterexs);
     durationFilter.appendChild(label);
   });
 }
 
-// Function to open modal with product details
-function openModal(product) {
+// Function to open modal with ex details
+function openModal(ex) {
   const modal = document.getElementById('modal');
   const modalContent = document.querySelector('.modal-header');
-  document.getElementById('modal-title').textContent = product.title;
-  document.getElementById('modal-summary').innerHTML = product.summary;
-  document.getElementById('tag-content').textContent = product.categories.join(', ');
+  document.getElementById('modal-title').textContent = ex.title;
+  document.getElementById('modal-summary').innerHTML = ex.summary;
+  document.getElementById('tag-content').textContent = ex.categories.join(', ');
   document.getElementById('modal-attributes').innerHTML = `
-        <p><img src="images/level.svg"/><br/>${product.level}</p>
-        <p><img src="images/group.svg"/><br/>${product.size}</p>
-        <p><img src="images/clock.svg"/><br/>${product.duration}</p>
+        <p><img src="images/level.svg"/><br/>${ex.level}</p>
+        <p><img src="images/group.svg"/><br/>${ex.size}</p>
+        <p><img src="images/clock.svg"/><br/>${ex.duration}</p>
       </div>
     `;
-  document.getElementById("downloader").href = `lib/scenarios/${product.image}.ttxf`;
-  document.getElementById("starter").href = `gym?q=${product.image}`;
+  document.getElementById("downloader").href = `lib/scenarios/${ex.image}.ttxf`;
+  document.getElementById("starter").href = `gym?q=${ex.image}`;
 
   modal.style.display = 'flex';
   modalContent.style.background = "#ccc";
-  modalContent.style.backgroundImage = `url(lib/images/${product.image}.png)`;
+  modalContent.style.backgroundImage = `url(lib/images/${ex.image}.png)`;
   modalContent.style.backgroundSize = "cover";
   modalContent.style.backgroundPosition = "center";
   modalContent.style.backgroundBlendMode = "multiply";
