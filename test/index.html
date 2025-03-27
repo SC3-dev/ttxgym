@@ -4,8 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TTX Gym - Home</title>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <title>TTX Gym</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
@@ -15,7 +14,6 @@
 
 <body>
     <header>
-
         <nav>
             <div class="logo"><a href="index.html"><svg height="3rem" viewBox="0 0 210 83.999996"
                         xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
@@ -61,25 +59,21 @@
                                 id="path179" />
                         </g>
                     </svg></a></div>
-            <div class="menu-open"><a href="#menu">
-                    <span class="material-icons">menu</span>
-                </a>
+            <div class="menu-toggle" onclick="document.querySelector('.nav-links').classList.toggle('active')">
+                <div></div>
+                <div></div>
+                <div></div>
             </div>
-            <div id="menu">
-                <div class="menu-close"><a href="#"><span class="material-icons">close</span></a>
-                </div>
-                <ul class="nav-links">
-                    <li><a href="#about">About</a></li>
-                    <li><a href="guide.html">How To Use</a></li>
-                    <li><a href="library.html">Exercise Library</a></li>
-                    <li><a href="gym/">Launch</a></li>
-                </ul>
-            </div>
-
+            <ul class="nav-links">
+                <li><a href="#about">About</a></li>
+                <li><a href="#services">How To Use</a></li>
+                <li><a href="library.html">Exercise Library</a></li>
+                <li><a href="gym/">Launch</a></li>
+            </ul>
         </nav>
     </header>
 
-    <div class="hero">
+    <section class="hero">
         <div class="hero-text">
             <h1>Make table-top exercises easy and effective.</h1>
             <h2>Flexible. Free. Forever.</h2>
@@ -89,17 +83,15 @@
         <div class="hero-image">
             <img src="images/hero.png" alt="Hero">
         </div>
-    </div>
+    </section>
     <section id="about">
         <p>Running a cyber security exercise is an immersive and effective way for you to evaluate and practise the
             skills and decision-making mechanisms you need to respond to cyber incidents. However, designing and
-            facilitating an exercise can be a complex and difficult task. TTX Gym helps by
+            facilitaitng and exercise can be a complex and difficult task. TTX Gym helps by
             providing a custom-designed tool specifically to help produce consistent, effective, and insightful
             exercising experiences.</p>
-        <p>Exercising is one of the most cost-effective ways an organisation can test its ability to respond to
-            cyber
-            incidents. By running an exercise using TTX Gym, you can establish how effective your current
-            defence
+        <p>Exercising is one of the most cost-effective ways an organisation can test its ability to respond to cyber
+            incidents. By running an exercise using TTX Gym, you can help stablish how effective your current defence
             and
             response mechanisms are, improve your colleagues' internal relationships and skills (specifically their
             ability to deal with an actual cyber attack), and identify areas for further improvement.</p>
@@ -108,42 +100,42 @@
         <h2>TTX Gym Features</h2>
         <div class="service-container">
             <div class="service">
-                <span class="material-icons">settings</span>
+                <img src="images/creator.svg" />
                 <h3>Flexible</h3>
                 <p>Customise existing scenarios or create new ones</p>
             </div>
             <div class="service">
-                <span class="material-icons">bolt</span>
+                <img src="images/playpause.svg" />
                 <h3>Frictonless</h3>
                 <p>Start in seconds, no registration or login required</p>
             </div>
             <div class="service">
-                <span class="material-icons">verified_user</span>
+                <img src="images/level.svg" />
                 <h3>Secure</h3>
                 <p>Runs entirely locally, with no data transferred from host machine</p>
             </div>
             <div class="service">
-                <span class="material-icons">work</span>
+                <img src="images/launch.svg" />
                 <h3>Portable</h3>
                 <p>All functionality in one single HTML file, can be downloaded for offline use</p>
             </div>
             <div class="service">
-                <span class="material-icons">inventory</span>
+                <img src="images/restart.svg" />
                 <h3>Self Contained</h3>
                 <p>No maintenance, plugins, installs or upgrades required</p>
             </div>
             <div class="service">
-                <span class="material-icons">stacked_line_chart</span>
+                <img src="images/report.svg" />
                 <h3>Consistent</h3>
                 <p>Produces standardised reporting and outcomes for consistent exercising</p>
             </div>
             <div class="service">
-                <span class="material-icons">group</span>
+                <img src="images/group.svg" />
                 <h3>Interactive</h3>
                 <p>Provides intuitive features for both facilitators and participants</p>
             </div>
             <div class="service">
-                <span class="material-icons">apps</span>
+                <img src="images/fullscreen.svg" />
                 <h3>Comprehensive</h3>
                 <p>Provides extensive library of exercises for common and specialist scenarios</p>
             </div>
