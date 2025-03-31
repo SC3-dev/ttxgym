@@ -442,6 +442,10 @@ input[type=file] {
     padding-bottom: 1rem;
 }
 
+#report-launcher.hide {
+    display: none;
+}
+
 .hide {
     display: none;
 }

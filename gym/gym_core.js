@@ -22,6 +22,7 @@ body {
   padding: 0;
 
   background-color: #202634;
+  background-image: radial-gradient(circle at 82% 60%, rgba(59, 59, 59, 0.06) 0%, rgba(59, 59, 59, 0.06) 69%, transparent 69%, transparent 100%), radial-gradient(circle at 36% 0%, rgba(185, 185, 185, 0.06) 0%, rgba(185, 185, 185, 0.06) 59%, transparent 59%, transparent 100%), radial-gradient(circle at 58% 82%, rgba(183, 183, 183, 0.06) 0%, rgba(183, 183, 183, 0.06) 17%, transparent 17%, transparent 100%), radial-gradient(circle at 71% 32%, rgba(19, 19, 19, 0.06) 0%, rgba(19, 19, 19, 0.06) 40%, transparent 40%, transparent 100%), radial-gradient(circle at 77% 5%, rgba(31, 31, 31, 0.06) 0%, rgba(31, 31, 31, 0.06) 52%, transparent 52%, transparent 100%), radial-gradient(circle at 96% 80%, rgba(11, 11, 11, 0.06) 0%, rgba(11, 11, 11, 0.06) 73%, transparent 73%, transparent 100%), radial-gradient(circle at 91% 59%, rgba(252, 252, 252, 0.06) 0%, rgba(252, 252, 252, 0.06) 44%, transparent 44%, transparent 100%), radial-gradient(circle at 52% 82%, rgba(223, 223, 223, 0.06) 0%, rgba(223, 223, 223, 0.06) 87%, transparent 87%, transparent 100%), radial-gradient(circle at 84% 89%, rgba(160, 160, 160, 0.06) 0%, rgba(160, 160, 160, 0.06) 57%, transparent 57%, transparent 100%), linear-gradient(90deg, rgb(25, 43, 143), rgb(28, 122, 104));
 
   height: 100vh;
   width: 100vw;
@@ -29,10 +30,12 @@ body {
   align-items: center;
   display: flex;
   justify-content: center;
-  font-size: 80%;
   flex-direction: column;
 }
 
+input[type="range"]{
+	color: #1a6ec0;
+}
 
 ::-webkit-scrollbar {
   width: 10px;
@@ -135,7 +138,11 @@ button {
 #fullscreen {
   margin-left: 3rem;
   cursor: pointer;
+  fill:#fff;
 
+}
+#fullscreen:hover {
+    fill:#1a6ec0;
 }
 
 button:hover {
@@ -314,7 +321,7 @@ viewBox="0 -960 960 960" width="4rem">
   <svg xmlns="http://www.w3.org/2000/svg" height="2rem" viewBox="0 -960 960 960" width="2rem"><path d="M240-80 80-240l160-160 57 56-64 64h494l-63-64 56-56 160 160L720-80l-57-56 64-64H233l63 64-56 56Zm36-360 164-440h80l164 440h-76l-38-112H392l-40 112h-76Zm138-176h132l-64-182h-4l-64 182Z"/></svg>
     <input id="slider" type="range" min="10" max="40" oninput="changeSizeBySlider()">
     <div id="fullscreen" onclick="toggleFullscreen()" name="btn4">
-    <svg xmlns="http://www.w3.org/2000/svg" height="2rem" viewBox="0 -960 960 960" width="2rem" fill="#fff"><path d="M560-280h200v-200h-80v120H560v80ZM200-480h80v-120h120v-80H200v200Zm-40 320q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720v480q0 33-23.5 56.5T800-160H160Zm0-80h640v-480H160v480Zm0 0v-480 480Z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" height="2rem" viewBox="0 -960 960 960" width="2rem"><path d="M560-280h200v-200h-80v120H560v80ZM200-480h80v-120h120v-80H200v200Zm-40 320q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720v480q0 33-23.5 56.5T800-160H160Zm0-80h640v-480H160v480Zm0 0v-480 480Z"/></svg>
     </div>
   </div>
 
@@ -468,8 +475,8 @@ function populateScenario() {
     }
     roundCounter = 0;
     let timingdiv, timeslot, timestage, timenum;
-    document.getElementById('scribe').classList.remove('hide');
-    document.getElementById('timer').classList.remove('hide');
+    // document.getElementById('scribe').classList.remove('hide');
+    // document.getElementById('timer').classList.remove('hide');
 
     //start is the inital screen for the participants (effectively treated as 'stage 0'). title, summary, and topics pulled from scenario data.
     start = { "type": "update", "title": fileContent.title, "content": fileContent.summary, "observations": fileContent.topics };
@@ -681,8 +688,10 @@ function populateScenario() {
 
     confirmer.prepend(fileInfo);
     confirmer.classList.add('scdone');
+    let showUI = document.querySelectorAll(".hide");
+    showUI.forEach(name => { name.classList.remove('hide'); });
 
-    document.getElementById('launcher').classList.remove('hide');
+    // document.getElementById('launcher').classList.remove('hide');
 
 
     roundMarker = document.createElement('div');
@@ -888,6 +897,9 @@ function resetExercise() {
     ExcerciseComplete = false;
     qList = [];
     rawFileData = "";
+    firsttimer = 0;
+    clearInterval(timerInterval);
+    timerInterval = null;
 
 }
 
