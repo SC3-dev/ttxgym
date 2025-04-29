@@ -1,0 +1,182 @@
+! title: Ransomware Attack via Phishing Email Exercise
+! author: Exercise in a Box
+
+@ Initial Incident - Initial Phishing
+! content 
+Your finance team has received an email from a customer stating they've attempted to make a payment but are having trouble.
+The email comes from a different address than typically used, with a slight misspelling of the customer's name. 
+A file is attached, and the message requests the finance team open it to help the customer [1]. 
+The email is suspicious; the sender's address has a misspelling, several words are misspelt, there's no signature, it conveys urgency, and the attachment has an executable extension [2, 3].
+
+# prompts
++ As part of a multi-layered approach, what mechanisms does your organisation have in place to make it difficult for attackers to reach your users? [3, 4]
++ Are there any email firewalls, spam blockers, filters, or automated phishing detection systems in place? [3]
++ How would those mechanisms work on the example phishing email presented in the scenario? [5]
++ Have these systems ever been verified? [5]
++ What support is offered to users that would help them identify that the above email is a phishing attack? [4, 5]
++ Do we provide any training to users? If so, what is in the training? [5]
++ Will our email system highlight suspicious aspects of incoming emails? [5]
++ When performing sensitive tasks, how do we help users ensure that appropriate checks have been made? [6]
++ If the user did find the email suspicious, what would they have done? [4, 6]
++ Is there a documented procedure for if a user suspects the email? [6]
++ What would a user have actually done? Does it differ from the procedure? [6]
++ Do users feel comfortable reporting phishing emails? [6]
++ When users do fall for phishing attacks, what is your response? [4, 6]
++ Do users feel comfortable reporting what they suspect is a successful phishing attack? [7]
++ Do users feel they may face disciplinary action as a result of falling victim to a phishing attack? [7]
++ How do we feedback lessons learned from phishing attacks, whether they are successful or near-misses? [7]
+
+? Discuss the following statements and rate them on a scale of 1-5: We make it difficult for attackers to reach our users with phishing emails. [8]
++ 1. Not at all confident [8]
++ 2. Slightly confident [8]
++ 3. Somewhat confident [8]
++ 4. Fairly confident [8]
++ 5. Completely confident [8]
+? Discuss the following statements and rate them on a scale of 1-5: We provide clear training to allow our users to identify and report suspected phishing attacks. [8]
++ 1. Not at all confident [8]
++ 2. Slightly confident [8]
++ 3. Somewhat confident [8]
++ 4. Fairly confident [8]
++ 5. Completely confident [8]
+
+@ Malware Protection
+! content
+The email recipient does not recognise that it is a phishing email and opens the attached file [9]. This immediately opens the file, which contains malware [9]. This stage covers technical measures to prevent the malware from running, as users cannot be expected to identify every threat [7].
+
+# prompts
++ What measures would be in place on a computer to combat malware? [9, 10]
++ Is there any malware protection software in use on the user’s system? [10]
++ Are documents received through an email opened in a protected mode? [10]
++ Are application macros enabled by default? [10]
++ Is this user likely to have up to date malware protection software running on their computer? [9, 10]
++ How often is the malware protection software updated? [10]
++ Can users pause or delay updates to the malware protection software? [11]
++ How would the malware protection software have responded when the user tried to open the file? [11, 12]
++ Would the malware protection software have prevented the file from being opened? [11]
++ Can the user ignore or override the malware protection software to allow the file to be opened? [11]
++ Do we have any visibility of when the malware protection software blocks the infection? [11]
+
+? Discuss the following statements and rate them on a scale of 1-5: We effectively detect and prevent malware running on our organisations IT. [12]
++ 1. Not at all confident [12]
++ 2. Slightly confident [12]
++ 3. Somewhat confident [12]
++ 4. Fairly confident [12]
++ 5. Completely confident [12]
+? Discuss the following statements and rate them on a scale of 1-5: We have a clear policy for keeping our organisation’s software current and always apply the latest security updates. [12]
++ 1. Not at all confident [12]
++ 2. Slightly confident [12]
++ 3. Somewhat confident [12]
++ 4. Fairly confident [12]
++ 5. Completely confident [12]
+
+@ User Permissions
+! description
+When the attached file is opened, it attempts to infect the computer with malware [13]. The infection starts with the same permissions as the user, giving it the same access level [13]. This section investigates user permissions and how limiting them can reduce the immediate impact of an infection [11].
+
+# facilitator prompts
++ What permissions do your users have? [13, 14]
++ Do users have administrator permissions? [14]
++ Can users access other users’ files or data? [14]
++ What systems do users have access to? [14]
++ What sensitive data could the user access? What would be the impact? [14]
++ Would the user (and therefore the malware) be able to install new applications and administer the computer? [13, 14]
++ What happens when the user tries to install new software or applications? [15]
++ Can the user elevate their own permissions to that of an administrator? [15]
++ If a user has a legitimate business need to get software installed in a short timeframe, is this possible? [15]
++ Otherwise, how might a user subvert their current permissions to install the software anyway, and how would that impact security? [15]
++ Do you have any method of blocking unauthorised software from running on a user’s computer? [15, 16]
++ Is there a list of software that is allowed to run on our computers? [15]
++ What happens when new software is introduced? Does it run? [15]
++ Can the user introduce new software? [15]
+
+? Discuss the following statements and rate them on a scale of 1-5: We place appropriate limits on the software that can be installed or run on our organisations IT. [16]
++ 1. Not at all confident [16]
++ 2. Slightly confident [16]
++ 3. Somewhat confident [16]
++ 4. Fairly confident [16]
++ 5. Completely confident [16]
+
+@ Ransomware and Backups
+! description
+After several hours, users have trouble opening documents and files [17]. A message pops up indicating ransomware infection, stating it has encrypted all business-critical data and demands £150,000 in cryptocurrency to recover data [17]. This section explores operating without critical systems and the availability of backups [18].
+
+# facilitator prompts
++ How long could you continue to operate without access to that data? Do you have an effective incident response plan? [18, 19]
++ What alternative systems could we use? [18]
++ How would normal operations be impacted? [18]
++ Do we have any non-security outages we can use as an example? [18]
++ Do we have an incident response plan that will help us to deal with this ransomware attack? [18]
++ Has our incident response plan been tested, and is it regularly reviewed? [18]
++ Would we be able to execute our plan if multiple critical systems have been infected? [20]
++ What data is backed up? Is there any business-critical data that is not backed up? [19, 20]
++ How regularly are backups made? [20]
++ If this event happened today, what is the most recent backup available? [20]
++ What data isn’t backed up? [20]
++ Are your backups separate to your normal business systems? Could the ransomware have also encrypted the backups? [19, 20]
++ How is data transferred to the backup storage? [20]
++ Which users and systems can modify data on the backup system? [20]
++ Is there any way of overwriting the backup data? [21]
++ How long would it take you retrieve the backed-up data? How quickly could you resume normal operation? [19, 21]
++ What mechanism is used to recover data? [21]
++ How would we ensure that the recovered data is not immediately encrypted by the ransomware? [21]
+
+? Discuss the following statements and rate them on a scale of 1-5: We have identified our critical systems and data and understand the potential impact of an infection. [22]
++ 1. Not at all confident [22]
++ 2. Slightly confident [22]
++ 3. Somewhat confident [22]
++ 4. Fairly confident [22]
++ 5. Completely confident [22]
+? Discuss the following statements and rate them on a scale of 1-5: We have a tested incident response plan that covers key stakeholders, contact details, steps and procedures for dealing with a ransomware attack, and our legal and regulatory requirements. [22]
++ 1. Not at all confident [22]
++ 3. Somewhat confident [22]
++ 2. Slightly confident [22]
++ 4. Fairly confident [22]
++ 5. Completely confident [22]
+? Discuss the following statements and rate them on a scale of 1-5: We have access to the resources required to execute the incident response plan in the event that our systems are unavailable. [23]
++ 1. Not at all confident [23]
++ 2. Slightly confident [23]
++ 3. Somewhat confident [23]
++ 4. Fairly confident [23]
++ 5. Completely confident [23]
+? Discuss the following statements and rate them on a scale of 1-5: If we lost access to our business-critical data, we could recover from our backups without significant disruption. [23]
++ 1. Not at all confident [23]
++ 2. Slightly confident [23]
++ 3. Somewhat confident [23]
++ 4. Fairly confident [23]
++ 5. Completely confident [23]
+
+@ Response and Communication
+! description
+Your organisation begins receiving calls from journalists about rumours of a ransomware attack [23]. Stories appear on social media and local press [24]. This section examines the organisation's communication response to inform stakeholders and handle media queries [21].
+
+# facilitator prompts
++ How do you respond to journalists? Do you issue a statement or grant an interview? [24, 25]
++ Do you have a communications plan to execute in the event of a cyber incident? Is it still relevant? How often is it reviewed? [25]
++ Are the named individuals in the plan still part of the organisation? [25]
++ Do you have a nominated central point for all communications? [25]
++ How do you keep the representative or team up to date? [25]
++ Is there an available technical representative who can support the media representative? [26]
++ What do you tell your staff, supply chain and customers? [24, 26]
++ Who will lead your media response? [26]
++ Who will be responsible for contacting / responding to each stakeholder group? [26]
++ Which communications method will you use? [26]
++ How much detail about the attack will you provide? [26]
+
+? Discuss the following statements and rate them on a scale of 1-5: We have a clear and consistent approach for communication with staff, media and stakeholders during an incident. [24]
++ 1. Not at all confident [24]
++ 2. Slightly confident [24]
++ 3. Somewhat confident [24]
++ 4. Fairly confident [24]
++ 5. Completely confident [24]
+
+@ Exercise Outcomes and Next Steps
+! content
+Finish the exercise by discussing and collating what you learned, how your understanding of this type of threat has changed, and what processes you might update as a result [27]. Make recommendations that will develop confidence in areas needing improvement, particularly those with lower confidence ratings in observations [28]. Allocate recommendations to those who can facilitate change [29].
+
+# prompts
++ What did you learn from running the exercise? [27]
++ How has your understanding of preventing this type of cyber security threat changed? [28]
++ What will you look to change or implement across your organisation? [28]
++ Discuss the risks associated with not addressing the recommendations. [29]
++ Consider implementing changes and running the exercise again to see the impact. [29]
++ Review related guidance from the NCSC, such as the Small Business Guide (Response and Recovery), Mitigating Malware, Phishing guidance, and A guide to ransomware [30, 31].

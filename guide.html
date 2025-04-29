@@ -176,7 +176,7 @@
                         the
                         skills and decision-making mechanisms you need to respond to cyber incidents. However, designing
                         and
-                        facilitaitng and exercise can be a complex and difficult task. TTX Gym helps by
+                        facilitating an exercise can be a complex and difficult task. TTX Gym helps by
                         providing a custom-designed tool specifically to help produce consistent, effective, and
                         insightful
                         exercising experiences.</p>
@@ -204,18 +204,26 @@
                         Each
                         type has specific indicators to denote its purpose.
                     </p>
+                    <p>Each scenio file should being with a 'title' and 'summary' variable:</p>
+                    <pre><code>! title: Example Scenario Title
+! summary
+Example scenario summary.
+This can spread across multiple lines or paragraphs.
+</code></pre>
                     <h4 id="1-stages">1. <strong>Stages</strong></h4>
                     <p>Stages define major sections in your file. Use <code>@</code> followed by the stage name.</p>
                     <p>Example:</p>
-                    <pre><code>@ Stage 1: Initial Incident
+                    <pre><code>@ Initial Incident
 </code></pre>
                     <p>Everything after this line belongs to this stage until the next stage declaration.</p>
+                    <p>Each stage can have any of the elements described below, but should always have a 'content'
+                        variable that defines the content to be displayed to participants on the presenter view.</p>
 
                     <h4 id="2-key-value-variables">2. <strong>Key-Value Variables</strong></h4>
                     <p>Define variables using <code>!</code>, followed by a key and value separated by a colon
-                        (<code>:</code>). For multi-line values, omit the colon.</p>
+                        (:). For multi-line values, omit the colon.</p>
                     <p>Examples:</p>
-                    <pre><code>! title: Example Scenario Title
+                    <pre><code>! author: Jane Doe
 ! description
 This is a multi-line description.
 It continues on multiple lines.
@@ -233,9 +241,11 @@ It continues on multiple lines.
 </code></pre>
 
                     <h4 id="4-facilitator-prompts">4. <strong>Facilitator Prompts</strong></h4>
-                    <p>Use <code>#</code> to declare facilitator prompts. Each prompt starts with <code>+</code>.</p>
+                    <p>Use <code># prompts</code> to declare facilitator prompts. Each prompt starts with
+                        <code>+</code>.
+                    </p>
                     <p>Example:</p>
-                    <pre><code># facilitator prompts
+                    <pre><code># prompts
 + Ask the team about their incident response plan.
 + Discuss the potential risks of delaying action.
 + Encourage brainstorming on containment strategies.
@@ -301,33 +311,40 @@ It continues on multiple lines.
                     <p>Here’s a complete configuration file:</p>
                     <pre><code>! title: Security Breach Response Plan
 ! author: Jane Doe
+! summary
+This scenario depicts an unusal login to a critical system.
 
 @ Stage 1: Identification
-! description
+! content
 An unusual login attempt was detected.
 
-# facilitator prompts
+# prompts
 + Ask the team to identify possible attack vectors.
 + Discuss recent security training and preparedness.
 + Explore options for immediate response.
 
 ? What action should be taken first?
 + Notify the security team
-+ Investigate the login origin
++ Investigate the login origin 
 + Block the IP address
 
 %[Incident Diagram](https://example.com/diagram.png)
 
 @ Stage 2: Containment
-! description
+! content
 Contain the breach by isolating affected systems.
 
-# facilitator prompts
+# prompts
 + Review logs for additional suspicious activity.
 + Coordinate with IT to isolate compromised systems.
 + Plan a communication strategy for stakeholders.
 
-%%[Training Video](https://example.com/training.mp4)
+? How confident are you in your response procedures
++ Not at all
++ Somewhat
++ Mostly
++ Completely
+
 </code></pre>
 
                     <p>Use this guide to create structured, readable, and actionable configuration files.</p>
