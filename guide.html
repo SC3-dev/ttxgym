@@ -199,12 +199,14 @@
                         facilitator prompts with markdown-enhanced content. Follow this structure and syntax to build
                         properly formatted and feature-rich files.</p>
                     <h3 id="file-structure">File Structure</h3>
-                    <p>The configuration file is structured into <strong>stages</strong>, <strong>variables</strong>,
-                        <strong>questions</strong>, <strong>facilitator prompts</strong>, and <strong>content</strong>.
+                    <p>The configuration file is structured into <strong>stages</strong>, which contain
+                        <strong>information content</strong> along with optional <strong>questions</strong>,
+                        <strong>facilitator prompts</strong>, and <strong>discussion points</strong>.
                         Each
-                        type has specific indicators to denote its purpose.
+                        'content' type has specific indicators to denote its purpose (see 'Key-Value Variables' below
+                        for more info).
                     </p>
-                    <p>Each scenio file should being with a 'title' and 'summary' variable:</p>
+                    <p>Each scenio file should begin with a 'title' and 'summary' variable:</p>
                     <pre><code>! title: Example Scenario Title
 ! summary
 Example scenario summary.
@@ -220,29 +222,35 @@ This can spread across multiple lines or paragraphs.
                         variable that defines the content to be displayed to participants on the presenter view.</p>
 
                     <h4 id="2-key-value-variables">2. <strong>Key-Value Variables</strong></h4>
-                    <p>Define variables using <code>!</code>, followed by a key and value separated by a colon
+                    <p>Define variables using <code>!</code>followed by a key and value separated by a colon
                         (:). For multi-line values, omit the colon.</p>
                     <p>Examples:</p>
                     <pre><code>! author: Jane Doe
-! description
+! content
 This is a multi-line description.
 It continues on multiple lines.
 </code></pre>
 
                     <h4 id="3-questions">3. <strong>Questions</strong></h4>
-                    <p>Use <code>?</code> to define a question. Answers are listed under it, each starting with
-                        <code>+</code>.
+                    <p>Use <code>?</code> to define an assessment question for the stage. Answers are listed under it,
+                        each starting with
+                        <code>+</code>There can be multiple questions per stage, each will contribute towards the
+                        indicative 'score' for the stage. This scoring assumes an order of preference of answer,
+                        increasing from first (0%) to last (100%).
                     </p>
                     <p>Example:</p>
-                    <pre><code>? What is your primary concern?
-+ Security breach
-+ Data loss
-+ Service downtime
+                    <pre><code>? What core systems are included in vulnerability assessments?
++ None
++ Some centrally managed systems
++ Most centrally managed systems
++ All centrally managed systems
 </code></pre>
 
                     <h4 id="4-facilitator-prompts">4. <strong>Facilitator Prompts</strong></h4>
-                    <p>Use <code># prompts</code> to declare facilitator prompts. Each prompt starts with
-                        <code>+</code>.
+                    <p>Use <code># prompts</code> to declare facilitator prompts. These prompts will not appear on the
+                        'participant view', but will be shown below the stage content in the 'facilitator view'. Each
+                        prompt starts with
+                        <code>+</code>
                     </p>
                     <p>Example:</p>
                     <pre><code># prompts
@@ -251,8 +259,21 @@ It continues on multiple lines.
 + Encourage brainstorming on containment strategies.
 </code></pre>
 
+                    <h4 id="4-facilitator-prompts">4. <strong>Discussion Points</strong></h4>
+                    <p>Use <code># discussion</code> to declare discussion points. These prompts will appear on the
+                        'participant view', to encourage disuccssion among participants and enable fuller answers to the
+                        stage questions. Each prompt starts with
+                        <code>+</code>
+                    </p>
+                    <p>Example:</p>
+                    <pre><code># discussion
++ Do you regularly update and test your incident response plan?
++ Discuss the potential risks of delaying action
++ Do you have a designated board member with responsibility for security incidents?
+</code></pre>
+
                     <h3 id="markdown-syntax">Markdown Syntax</h3>
-                    <p>Enhance your content using Markdown. Below are supported features:</p>
+                    <p>Enhance your stage 'content' using Markdown. Below are supported features:</p>
                     <h4 id="1-bold-text">1. <strong>Bold Text</strong></h4>
                     <p>Wrap text in <code>**</code> for bold.</p>
                     <pre><code>**Important:** Take immediate action.
@@ -295,17 +316,11 @@ It continues on multiple lines.
                         <p>This is a quoted statement.</p>
                     </blockquote>
                     <h4 id="5-embedded-images">5. <strong>Embedded Images</strong></h4>
-                    <p>Use <code>%</code> to embed an image. Format: <code>%[alt text](url)</code>.</p>
+                    <p>Use <code>%</code> to embed an image. Format: <code>%[alt text](url)</code></p>
                     <pre><code>%[Sample Image](https://example.com/image.jpg)
 </code></pre>
                     <p>Output:
                         An image appears with the given URL.</p>
-                    <h4 id="6-embedded-videos">6. <strong>Embedded Videos</strong></h4>
-                    <p>Use <code>%%</code> to embed a video. Format: <code>%%[alt text](url)</code>.</p>
-                    <pre><code>%%[Sample Video](https://example.com/video.mp4)
-</code></pre>
-                    <p>Output:
-                        A video player appears for the provided URL.</p>
 
                     <h3 id="full-example">Full Example</h3>
                     <p>Here’s a complete configuration file:</p>
@@ -317,6 +332,8 @@ This scenario depicts an unusal login to a critical system.
 @ Stage 1: Identification
 ! content
 An unusual login attempt was detected.
+%[Incident Diagram](https://example.com/diagram.png)
+The incident response process should be invoked.
 
 # prompts
 + Ask the team to identify possible attack vectors.
@@ -327,8 +344,6 @@ An unusual login attempt was detected.
 + Notify the security team
 + Investigate the login origin 
 + Block the IP address
-
-%[Incident Diagram](https://example.com/diagram.png)
 
 @ Stage 2: Containment
 ! content

@@ -113,12 +113,25 @@ h1 {
 
 
 #content {
-  padding: 0px 20px;
+  padding: 0px 1rem;
 }
 
-#observations {
-  padding: 20px 20px 20px 20px;
-  margin: 0px 0px 0px 24px;
+#discussionWrap{
+    margin: 1rem;
+    padding: 1rem;
+    background-color: rgb(0, 51, 102);
+    border-left: 5px solid rgb(20, 129, 184);
+    border-radius: 0.3rem;
+    box-sizing: border-box;
+    fill: rgb(20, 129, 184);
+    display: none;
+}
+#discussionWrap.show{
+    display:flex;
+    align-items: center;
+}
+
+#discussion {
   font-style: italic;
 }
 
@@ -313,7 +326,10 @@ viewBox="0 -960 960 960" width="4rem">
     <div id="middle">
       <div id="content">
       </div>
-      <ol id="observations"></ol>
+      <div id="discussionWrap">
+      <div id="icon"><svg xmlns="http://www.w3.org/2000/svg" height="2rem" viewBox="0 -960 960 960" width="2rem"><path d="M240-400h320v-80H240v80Zm0-120h480v-80H240v80Zm0-120h480v-80H240v80ZM80-80v-720q0-33 23.5-56.5T160-880h640q33 0 56.5 23.5T880-800v480q0 33-23.5 56.5T800-240H240L80-80Zm126-240h594v-480H160v525l46-45Zm-46 0v-480 480Z"/></svg></div>
+      <ol id="discussion"></ol>
+      </div>
     </div>
     </div>
   </div>
@@ -343,15 +359,22 @@ bc.onmessage = function (ev) {
       var container = document.getElementById('title');
       container.innerHTML = ev.data.title; // Clear existing contentev.data.title
       container = document.getElementById('content');
-      container.innerHTML = ev.data.content; // Clear existing contentev.data.title
-      container = document.getElementById('observations');
-      container.innerHTML = ""; // Clear existing contentev.data.title
+      container.innerHTML = ev.data.content; // Clear existing contentev.data.content
+      container = document.getElementById('discussion');
+      container.innerHTML = ""; // Clear existing discussion
 
-      ev.data.observations.forEach(item => {
+      if( ev.data.discussion) {
+
+        var discussionDiv = document.getElementById('discussionWrap');
+        discussionDiv.classList.add('show');
+        ev.data.discussion.forEach(item => {
         row = document.createElement('li');
         row.innerHTML = item;
         container.appendChild(row);
       })
+    }else{        var discussionDiv = document.getElementById('discussionWrap');
+    discussionDiv.classList.remove('show');
+    }
     }
   }
 } /* receive */
@@ -388,7 +411,7 @@ function toggleFullscreen() {
 
 var finish = {
     "type": "update",
-    "title": "Excercise Outcomes", "content": "Finish the exercise by discussing and collating what you learned, how your understanding of this type of threat has changed and what processes you might update as a result.", "observations": ["What did you learn from running the exercise?",
+    "title": "Excercise Outcomes", "content": "Finish the exercise by discussing and collating what you learned, how your understanding of this type of threat has changed and what processes you might update as a result.", "discussion": ["What did you learn from running the exercise?",
         "How has your understanding of preventing this type of cyber security threat changed?",
         "What will you look to change or implement across your organisation?"]
 };
@@ -479,7 +502,7 @@ function populateScenario() {
     // document.getElementById('timer').classList.remove('hide');
 
     //start is the inital screen for the participants (effectively treated as 'stage 0'). title, summary, and topics pulled from scenario data.
-    start = { "type": "update", "title": fileContent.title, "content": fileContent.summary, "observations": fileContent.topics };
+    start = { "type": "update", "title": fileContent.title, "content": fileContent.summary, "discussion": fileContent.topics };
     if (fileContent.conclusion) {
         finish.content = fileContent.conclusion;
     }
@@ -835,7 +858,7 @@ function nextStage() {
             startStopTimer();
         }
         setActiveStage(ActiveStage);
-        bc.postMessage({ "type": "update", "title": data[ActiveStage - 1].stage, "content": data[ActiveStage - 1].content, "observations": data[ActiveStage - 1].observations }); /* send */
+        bc.postMessage({ "type": "update", "title": data[ActiveStage - 1].stage, "content": data[ActiveStage - 1].content, "discussion": data[ActiveStage - 1].discussion }); /* send */
     }
     else {
         ActiveStage = roundCounter + 1;
@@ -847,7 +870,7 @@ function previousStage() {
     if (ActiveStage > 1) {
         ActiveStage--;
         setActiveStage(ActiveStage);
-        bc.postMessage({ "type": "update", "title": data[ActiveStage - 1].stage, "content": data[ActiveStage - 1].content, "observations": data[ActiveStage - 1].observations }); /* send */
+        bc.postMessage({ "type": "update", "title": data[ActiveStage - 1].stage, "content": data[ActiveStage - 1].content, "discussion": data[ActiveStage - 1].discussion }); /* send */
     }
     else {
         ActiveStage = 0;
@@ -870,7 +893,7 @@ function goToStage(stage) {
             startStopTimer();
         }
         setActiveStage(ActiveStage);
-        bc.postMessage({ "type": "update", "title": data[ActiveStage - 1].stage, "content": data[ActiveStage - 1].content, "observations": data[ActiveStage - 1].observations }); /* send */
+        bc.postMessage({ "type": "update", "title": data[ActiveStage - 1].stage, "content": data[ActiveStage - 1].content, "discussion": data[ActiveStage - 1].discussion }); /* send */
     } else if (stage == 0) {
         setActiveStage(ActiveStage);
         bc.postMessage(start); /* send */
