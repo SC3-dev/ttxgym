@@ -1,0 +1,122 @@
+! title: Supply Chain Incident Exercise
+! summary
+This scenario explores an incident in which a third-party organisation responsible for supplying your organisation's corporate IT systems suffers an outage.
+You are encouraged to discuss the procurement process for IT systems and considerations for supply chain security, including methods to understand risks and establish control when working with suppliers and how these arrangements are monitored and reviewed.
+You can also discuss your organisation’s processes to communicate with customers following an incident, as well as methods to propagate lessons learnt throughout the supply chain.
+@ Inject 1: Assessing prospective suppliers
+! content
+Your department has been given a new remit to deliver a service which will require the introduction of a new IT system.
+A decision has been made to assess external suppliers, some of which offer online cloud-based solutions, while some provide hardware and software which is deployed within the existing corporate IT estate.
+# discussion
++ What processes do you have for learning about potential suppliers?
++ Who in the organisation is responsible for negotiating the contract and expected minimum service levels?
++ Would a contract or SLA with a supplier specify a minimum security standard that the supplier is expected to meet?
++ What are the key components you would expect to be covered by an SLA with your supplier?
++ Do you have a process for deciding the risk level or using a certain supplier?
+# prompts
++ What processes do you have for learning about potential suppliers?
++ Who in the organisation is responsible for negotiating the contract and expected minimum service levels?
++ What are the key components you would expect to be covered by an SLA with your supplier?
++ Would a contract or SLA with a supplier specify a minimum-security standard that the supplier is expected to meet?
++ Do you have a process for deciding the risk level or using a certain supplier?
+? Our organisation has a clear and thorough process for learning about potential suppliers and assessing the risk associated with working with them.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+? Our organisation sets baseline security requirements that all suppliers are expected to meet.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+@ Inject 2: Supplier downtime
+! content
+After the procurement process, you select a third-party supplier and integrate their system within your organisational processes.
+Several months later, the system maintained by the third-party supplier has an outage and no one in your organisation is able to access it.
+# discussion
++ Who from the third party would you contact in case of emergency?
++ What information would you expect the supplier to provide?
++ Do you have any method of telling if the outage was a security incident or just a system failure?
++ How do you determine if this problem requires action from your organisation or the supplier?
++ What is your plan for managing any disrupted services in your organisation in the case of an outage?
++ Are you likely to have a contingency plan agreed with the supplier?
++ What steps might this involve?
+# prompts
++ Who from the third party would you contact in case of emergency?
++ What information would you expect the supplier to provide?
++ Do you have any method of telling if the outage was a security incident or just a system failure?
++ How do you determine if this problem requires action from your organisation or the supplier?
++ What is your plan for managing any disrupted services in your organisation in the case of an outage?
+? Our organisation has a process to minimise disruption caused by outages of key services.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+? Our organisation has a policy for contacting suppliers in case of emergency and the relevant people in the organisation are made aware of the key contacts at the supplier.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+@ Inject 3: Incident assessment
+! content
+The supplier contacts you to inform you that they have suffered a security breach and have had to temporarily take their systems offline, causing the outage.
+# discussion
++ Who handles the response to an incident at a supplier that manages a key service for your organisation?
++ What level of access to your organisation’s data does the supplier have?
++ Which components of an SLA would you expect to cover a security breach?
++ How do you investigate whether any terms of your agreement or SLA were broken leading to this incident?
+# prompts
++ Who handles the response to an incident at a supplier that manages a key service for your organisation?
++ What level of access to your organisation’s data does the supplier have?
++ Which components of an SLA would you expect to cover a security breach?
++ How do you investigate whether any terms of your agreement or SLA were broken leading to this incident?
+? Our organisation manages which corporate data suppliers and their subcontractors are able to access.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+? Our organisation has a process for responding to an incident at a supplier that manages key services.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+@ Inject 4: Resolution
+! content
+Following an investigation, the supplier informs you that the breach has been resolved and the service is running again.
+The supplier informs you that no sensitive data was stolen in the breach.
+# discussion
++ How would you verify that the supplier has done due-diligence in their investigation?
++ What processes do you have in place to inform customers of such a breach and assure them that appropriate steps have been taken to protect their data?
++ Are you a supplier to any other organisations for which you store data?
++ Do you have any method of determining which areas of your business are reliant on service elements outside of your organisation’s direct control?
++ What methods do you have in place to propagate lessons learnt from this incident to your suppliers and their subcontractors in order to mitigate against such an incident in future?
+# prompts
++ How would you verify that the supplier has done due diligence in their investigation?
++ What processes do you have in place to inform customers of such a breach and assure them that appropriate steps have been taken to protect their data?
++ Are you a supplier to any other organisations for which you store data?
++ Do you have any method of determining which areas of your business are reliant on service elements outside of your organisation’s direct control?
++ What methods do you have in place to propagate lessons learnt from this incident to your suppliers and their subcontractors in order to mitigate against such an incident in future?
+? Our organisation has a clear process in place for communicating details of a breach to customers.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+? It is clear whose responsibility it is within the organisation to reach out to organisations higher up in the supply chain following a breach.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+? Our organisation has methods of sharing lessons learnt from incidents throughout the supply chain.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident

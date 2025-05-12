@@ -1,0 +1,229 @@
+! title: Heightened cyber threat
+! summary
+This scenario explores an incident which leads to an increased threat of cyber attack.
+This could be the result of a new zero-day exploit that is actively being used, negative press surrounding your organisation or geo-political tensions between your country and another nation state.
+Organisations should be prepared to react during periods of heightened cyber threat.
+You are encouraged to discuss how this would impact your organisation, including how you manage your systems effectively to detect such a threat, and what you would do in the event of being subject to an increased level of cyber threat.
+You can also discuss your approach to cyber insurance, and long-term resilience planning.
+
+@ Stage 1: Fundamentals
+! content
+In ‘business as usual’ circumstances it is important to ensure some fundamental cyber security controls are in-place to reduce the risk of a cyber attack.
+Understanding your current cyber posture will help you to effectively respond to reports of a heightened cyber threat situation.
+This section explores your cyber posture, your approach to asset management, monitoring and logging capabilities, backup strategy, and incident response planning.
+
+# discussion
++ Do you have accurate IT asset management?
++ Do you have visibility of activity on your systems and networks?
++ Do you have appropriate incident response plans for your organisation?
++ Do you have effective backup methods and have you tested them?
+
+# prompts
++ What is your awareness of your asset management, and is this consistent across your IT estate?
++ Do you know what is managed by third parties?
++ How do you manage Identity and Access Management (IAM)? Do you know who has access to what?
++ Do you have the ability to monitor relevant activity on your networks? Can you estimate your coverage?
++ Where are your backups? On your network? In the cloud? At an offsite location?
+
+? How confident are you in the following statement: Our assets are recorded and we have a good understanding of patch levels.
++ 1. Not at all confident
++ 2. Slightly confident
++ 3. Somewhat confident
++ 4. Fairly confident
++ 5. Completely confident
+
+? How confident are you in the following statement: We are confident with the visibility we have of activity on our networks.
++ 1. Not at all confident
++ 2. Slightly confident
++ 3. Somewhat confident
++ 4. Fairly confident
++ 5. Completely confident
+
+? How confident are you in the following statement: We are confident in our incident response plans.
++ 1. Not at all confident
++ 2. Slightly confident
++ 3. Somewhat confident
++ 4. Fairly confident
++ 5. Completely confident
+
+? How confident are you in the following statement: Our tested backup methods are effective.
++ 1. Not at all confident
++ 2. Slightly confident
++ 3. Somewhat confident
++ 4. Fairly confident
++ 5. Completely confident
+
+@ Stage 2: Increased cyber threat
+! content
+Geo-political tensions have heightened the cyber threat level.
+There has not been any direct threat to your organisation however it is believed that organisations in the same sector as you are likely to be targeted.
+This section explores what your reaction is to an increased cyber threat to your organisation and actions you can take.
+Participants should focus on the potential threat of cyber attack.
+At this point in the scenario, no cyber attacks have been carried out on any organisation.
+Recalling any past examples of a potential threat, or actual attack, may help this discussion.
+
+# discussion
++ Where will you seek further specific information and guidance?
++ How does your organisation respond to the new information and guidance?
++ Will the heightened posture impact important business systems and activities?
++ Do you have cyber insurance or have you considered it, and what do you expect it to cover?
+
+# prompts
++ For example, NCSC website etc?
++ Do you have employees who can extract key information from reports or feeds?
++ Will you brief employees?
++ Will you heighten the posture of your cyber security team or Security Operations Centre (SOC)?
++ Who in your organisation will be required to support the heightened posture?
+
+? How confident are you in the following statement: We know where to get threat information and guidance.
++ 1. Not at all confident
++ 2. Slightly confident
++ 3. Somewhat confident
++ 4. Fairly confident
++ 5. Completely confident
+
+? How confident are you in the following statement: Our organisation will respond to guidance around an increased cyber threat.
++ 1. Not at all confident
++ 2. Slightly confident
++ 3. Somewhat confident
++ 4. Fairly confident
++ 5. Completely confident
+
+? How confident are you in the following statement: We understand the pressures that heightened posture might bring to our organisation.
++ 1. Not at all confident
++ 2. Slightly confident
++ 3. Somewhat confident
++ 4. Fairly confident
++ 5. Completely confident
+
+? How confident are you in the following statement: We understand what may and may not be covered by cyber insurance.
++ 1. Not at all confident
++ 2. Slightly confident
++ 3. Somewhat confident
++ 4. Fairly confident
++ 5. Completely confident
+
+@ Stage 3: Government and media reporting
+! content
+The media are reporting several websites and local government services have been taken offline and are not accessible.
+It is reported that widespread cyber attacks are taking place in the form of Distributed Denial of Service (DDoS), website defacements, and ransomware attacks.
+This section explores your organisation’s reaction when organisations and government services start to come under cyber attack.
+Questions in this section relate to your gathering of information that may provide indications of the tactics and techniques of the adversary, understanding of your supply chain risk, and consideration of any cyber insurance you may have.
+This information can then be used to defend your organisation more effectively.
+
+# discussion
++ Where can you get information including threat intelligence that can help you protect and defend your organisation?
++ What type of information do you want that you can use to strengthen your defences?
++ Are you aware of your supply chain risks and any potential impact to your organisation?
++ If the media are attributing the attacks to a cybercrime group, will it change how you respond to the threat?
+
+# prompts
++ Do you have a threat intelligence provider or access to threat feeds?
++ Do you have a Managed Security Service Provider (MSSP)? Who would be your point of contact?
++ Do you get threat intelligence from NCSC, SANS, Cybersecurity and Infrastructure Security Agency (CISA)?
++ Would you expect to receive strategic, operational, or technical information?
++ Do you have an up-to-date emergency point of contact for each of your suppliers?
+
+? How confident are you in the following statement: We consume and share threat intelligence data.
++ 1. Not at all confident
++ 2. Slightly confident
++ 3. Somewhat confident
++ 4. Fairly confident
++ 5. Completely confident
+
+? How confident are you in the following statement: Our supply chain risks are fully understood.
++ 1. Not at all confident
++ 2. Slightly confident
++ 3. Somewhat confident
++ 4. Fairly confident
++ 5. Completely confident
+
+? How confident are you in the following statement: Our organisation has robust business continuity plans in place.
++ 1. Not at all confident
++ 2. Slightly confident
++ 3. Somewhat confident
++ 4. Fairly confident
++ 5. Completely confident
+
+@ Stage 4: Increased targeting
+! conten
+ Your IT Security are reporting an increase in external scanning against your systems and have also detected a significant increase in phishing emails to several of your employees.
+This section examines how your organisation can detect and respond to actions carried out by potential adversaries.
+It aims to get the participants thinking about how cyber attacks can be detected, if there is sufficient monitoring in place and what gaps may exist.
+It also explores the procedures that you have for sharing threat data with others.
+
+# discussion
++ How can you increase the efficacy of detecting malicious activity in your systems?
++ Can you determine if an external facing system has been exploited?
++ Do you have network visibility and detection mechanisms to identify phishing attacks?
++ Do you have incident response playbooks to respond to and recover from a significant compromise?
++ What procedures do you have for sharing threat intelligence data with others, both internally and externally?
+
+# prompts
++ How can you validate or verify that detection methods are working?
++ If detection is outsourced, how can your organisation be assured of getting good service?
++ Do you know which systems in your environment are externally facing and accessible from the internet?
++ Do employees know how to report phishing emails?
++ Are your incident response playbooks reviewed regularly?
+
+? How confident are you in the following statement: We can identify malicious activity in all our internet facing systems.
++ 1. Not at all confident
++ 2. Slightly confident
++ 3. Somewhat confident
++ 4. Fairly confident
++ 5. Completely confident
+
+? How confident are you in the following statement: We are confident our incident response playbooks are up-to-date and effective.
++ 1. Not at all confident
++ 2. Slightly confident
++ 3. Somewhat confident
++ 4. Fairly confident
++ 5. Completely confident
+
+? How confident are you in the following statement: We routinely consider sharing appropriate threat intelligence data with others.
++ 1. Not at all confident
++ 2. Slightly confident
++ 3. Somewhat confident
++ 4. Fairly confident
++ 5. Completely confident
+
+@ Stage 5: Long term planning
+! content
+Your organisation has been at a heightened posture for several months now.
+Geo-political tensions have not scaled back and there has been little to no reduction in external system scanning and the phishing attacks appear to be becoming more sophisticated.
+This section explores the possibility of an increased cyber threat over a prolonged period and the associated pressures that this might bring to your organisation.
+Questions will examine mechanisms in-place within your organisation that will help support your response to a long-term threat increase.
+
+# discussion
++ What do you do to maintain general staff morale and awareness?
++ How do you minimise fatigue within your cyber security team or Security Operations Centre (SOC)?
++ Do you have a strategy in place to continually improve cyber security in your organisation?
++ How do you reduce the additional pressure placed on the organisation during this period?
+
+# prompts
++ How do you monitor the morale of your employees across your organisation?
++ Will you alter how users are educated to an evolving cyber threat?
++ How will you communicate with employees to support your response to a prolonged cyber threat?
++ Are there any work conditions you will potentially alter for the cyber security team?
++ Would you delay significant system changes that are not security related?
+
+? How confident are you in the following statement: We are confident that employees across our organisation will be informed and alert over an extended period of heightened posture.
++ 1. Not at all confident
++ 2. Slightly confident
++ 3. Somewhat confident
++ 4. Fairly confident
++ 5. Completely confident
+
+? How confident are you in the following statement: We understand steps we can take to minimise fatigue in our cyber security teams.
++ 1. Not at all confident
++ 2. Slightly confident
++ 3. Somewhat confident
++ 4. Fairly confident
++ 5. Completely confident
+
+? How confident are you in the following statement: We can manage the pressure and impact to our organisation while operating at a heightened posture.
++ 1. Not at all confident
++ 2. Slightly confident
++ 3. Somewhat confident
++ 4. Fairly confident
++ 5. Completely confident

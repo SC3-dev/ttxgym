@@ -1,84 +1,113 @@
-! title: Threatened Leak of Sensitive Data
-
+! title: Threatened leak of sensitive data
+! author: NCSC
 ! summary
-This scenario covers the events following an *anonymous* email being received by an employee threatening to release sensitive information about your organisation’s employees.
-It includes the following.
+This tabletop exercise scenario covers the events following an anonymous email being received by an employee threatening to release sensitive information about your organisation’s employees.
+It includes discussion around logging and monitoring of internal sensitive documents, processes for securely offboarding a disgruntled employee, escalating a security incident internally, and potential legal activities following such an incident.
+Discussing these events will help you explore the controls your organisation has in place to prevent the leak of sensitive information and respond appropriately if such threats are made.
 
-- Your organisation’s logging and monitoring of internal sensitive documents
-- Your processes for securely offboarding a disgruntled employee and escalating a security incident internally
-- Legal activities following such an incident
-
-! objective
-Discussing the above events will help you explore the controls your organisation has in place to prevent the leak of sensitive information and to respond in a timely and appropriate manner if such threats are made
-
-@ Inject 1: User Access Control
+@ Inject 1: User access control
 ! content
-An employee reports receiving an anonymous email from someone claiming to have access to sensitive information about your employees, including personal information, salaries, bank details, and an attached file. The email threatens to sell the information unless you pay a large amount of money. It appears as though the file originates from your internal HR system, and that the email author has access to these sensitive internal documents.
+An employee reports receiving an anonymous email from someone claiming to have access to sensitive information about your employees, including personal information, salaries, bank details and an attached file.
+The email threatens to sell the information unless you pay a large amount of money.
+It appears as though the file originates from your internal HR system, and that the email author has access to these sensitive internal documents.
 
-# observations
+# discussion
 + Does your organisation limit access to certain files to specific employees based on their relevance to an employee’s job role and sensitivity?
 + How is this access managed if an employee changes role within the organisation?
-+ Does your organisation have a method of determining when a certain document was accessed and by whom? Could you determine with any confidence who had accessed these files?
++ Does your organisation have a method of determining when a certain document was accessed and by whom?
++ Could you determine with any confidence who had accessed these files?
+
+# prompts
++ How is access to corporate data monitored or restricted?
++ Do these controls also apply to data stored in external networks?
++ Is access updated manually or via an automated process when an employee changes role?
++ Does your monitoring solution tie events to users?
++ Can you see which files have been opened or downloaded by a particular user?
 
 ? Our organisation implements effective access control to ensure that sensitive documents can only be accessed by the appropriate employees at your organisation.
 + Not at all confident
-+ slightly confident
-+ somewhat confident
-+ fairly confident
-+ completely confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
 
 ? Our organisation can accurately monitor access to files to determine who has accessed a file.
 + Not at all confident
-+ slightly confident
-+ somewhat confident
-+ fairly confident
-+ completely confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
 
-@ Inject 2: Incident Management
+@ Inject 2: Incident management
 ! content
-Examination of your logs shows that one employee in particular has been repeatedly accessing sensitive HR documents. This is unusual as the employee’s job role does not require access to these documents. Investigation of the employee’s workstation shows that the email has indeed been written by this person. As a result, the decision is taken to dismiss the employee.
-This scenario involves multiple steps:
+Examination of your logs shows that one employee in particular has been repeatedly accessing sensitive HR documents.
+This is unusual as the employee’s job role does not require access to these documents.
+Investigation of the employee’s workstation shows that the email has indeed been written by this person.
+As a result, the decision is taken to dismiss the employee.
 
-// this is just a commnet, you cna ignore.
-
-1. **Step 1**: Identification of the threat.
-2. **Step 2**: Containment of the situation.
-
-~ Remember, communication is key during incidents.
-
-# observations
+# discussion
 + Do you have a process for dismissing a disgruntled employee in a secure manner?
 + Can you ensure that access to all sensitive data and services is immediately revoked?
 + Do you have a method of determining any other sensitive files this employee may have had access to?
 + Would your organisation be able to retrospectively determine if this employee had managed to exfiltrate any of this sensitive data?
 
+# prompts
++ What are the security risks when dismissing an employee?
++ What processes are in place for mitigating these risks?
++ Is the revocation of access to corporate data and services a manual or automated process?
++ Does your file monitoring solution allow you to follow a certain user’s activity?
++ Does your monitoring solution show uploads to external locations such as file sharing sites?
+
 ? Our organisation has a clear process in place for offboarding employees in a secure manner, ensuring that access to corporate data and services is revoked.
 + Not at all confident
-+ slightly confident
-+ somewhat confident
-+ fairly confident
-+ completely confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
 
 ? Our organisation has effective monitoring in place that could allow us to determine which other documents the employee may have had access to.
 + Not at all confident
-+ slightly confident
-+ somewhat confident
-+ fairly confident
-+ completely confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
 
 ? Our organisation has clear methods of monitoring sensitive data leaving the network; it would be possible for us to determine if any employee information had been exfiltrated.
 + Not at all confident
-+ slightly confident
-+ somewhat confident
-+ fairly confident
-+ completely confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
 
-@ Inject 3: Incident Response
+@ Inject 3: Incident response
 ! content
-Following the dismissal of the employee and removal of their access to this sensitive data, your organisation considers its next steps 
+Following the dismissal of the employee and removal of their access to this sensitive data, your organisation considers its next steps in response to this incident.
 
-# contributors
-+ Jane Smith
-+ Alice Johnson
-+ Bob Lee
-+ John Doe
+# discussion
++ At what point are you unable to respond to an incident of this nature?
++ In the case that you are unable to respond, does your organisation have a clear policy on how to escalate this incident either internally or to an outside organisation?
++ Once the incident is resolved, would you consider a legal response?
++ Who in your organisation would be responsible for managing this?
+
+# prompts
++ Are there limitations to your organisation’s ability to investigate an incident of this nature?
++ If the team managing this incident requires assistance, is there a method of escalation?
++ Would this escalation happen via a person, process or policy?
++ What are the organisation’s reporting requirements?
++ Which authorities might the organisation involve?
+
+? Our organisation has a clear process in place to deal with the legal and regulatory implications of an incident involving the potential leaking of sensitive information.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+
+? Employees are aware of how to respond if they receive a threat of this nature; they are aware how to escalate such an incident if necessary.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+
+```

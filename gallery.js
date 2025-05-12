@@ -61,7 +61,7 @@ function displayexs(filteredexs) {
       <div class="ex-attributes">
         
         <p><img src="images/level.svg"/><br/>${ex.level}</p>
-        <p><img src="images/group.svg"/><br/>${ex.size}</p>
+        <p><img src="images/author.svg"/><br/>${ex.author}</p>
         <p><img src="images/clock.svg"/><br/>${ex.duration}</p>
       </div>
     `;
@@ -75,19 +75,19 @@ function filterexs() {
   const searchValue = document.getElementById('search').value.toLowerCase();
   const selectedCategories = Array.from(document.querySelectorAll('#category-filter input:checked')).map(el => el.value);
   const selectedLevels = Array.from(document.querySelectorAll('#level-filter input:checked')).map(el => el.value);
-  const selectedSizes = Array.from(document.querySelectorAll('#size-filter input:checked')).map(el => el.value);
+  const selectedAuthors = Array.from(document.querySelectorAll('#author-filter input:checked')).map(el => el.value);
   const selectedDurations = Array.from(document.querySelectorAll('#duration-filter input:checked')).map(el => el.value);
 
   const filteredexs = exs.filter(ex => {
     const matchesCategory = selectedCategories.length === 0 || ex.categories.some(category => selectedCategories.includes(category));
     const matchesLevel = selectedLevels.length === 0 || selectedLevels.includes(ex.level);
-    const matchesSize = selectedSizes.length === 0 || selectedSizes.includes(ex.size);
+    const matchesAuthor = selectedAuthors.length === 0 || selectedAuthors.includes(ex.author);
     const matchesDuration = selectedDurations.length === 0 || selectedDurations.includes(ex.duration);
 
     // Updated to search both title and description
     const matchesSearch = ex.title.toLowerCase().includes(searchValue) || ex.summary.toLowerCase().includes(searchValue);
 
-    return matchesCategory && matchesLevel && matchesDuration && matchesSize && matchesSearch;
+    return matchesCategory && matchesLevel && matchesDuration && matchesSearch && matchesAuthor;
   });
 
   displayexs(filteredexs);
@@ -97,13 +97,13 @@ function filterexs() {
 function initializeFilters() {
   const categories = [...new Set(exs.flatMap(ex => ex.categories))];
   const levels = [...new Set(exs.map(ex => ex.level))];
-  const sizes = [...new Set(exs.map(ex => ex.size))];
   const durations = [...new Set(exs.map(ex => ex.duration))];
+  const authors = [...new Set(exs.map(ex => ex.author))];
 
   const categoryFilter = document.getElementById('category-filter');
   const levelFilter = document.getElementById('level-filter');
-  const sizeFilter = document.getElementById('size-filter');
   const durationFilter = document.getElementById('duration-filter');
+  const authorFilter = document.getElementById('author-filter');
 
   categories.forEach(category => {
     const label = document.createElement('label');
@@ -118,20 +118,21 @@ function initializeFilters() {
     label.addEventListener('change', filterexs);
     levelFilter.appendChild(label);
   });
-  /*
-    sizes.forEach(size => {
-      const label = document.createElement('label');
-      label.innerHTML = `<input type="checkbox" value="${size}"> ${size}`;
-      label.addEventListener('change', filterexs);
-      sizeFilter.appendChild(label);
-    });
-  */
+
+  authors.forEach(author => {
+    const label = document.createElement('label');
+    label.innerHTML = `<input type="checkbox" value="${author}"> ${author}`;
+    label.addEventListener('change', filterexs);
+    authorFilter.appendChild(label);
+  });
+
   durations.forEach(duration => {
     const label = document.createElement('label');
     label.innerHTML = `<input type="checkbox" value="${duration}"> ${duration}`;
     label.addEventListener('change', filterexs);
     durationFilter.appendChild(label);
   });
+
 }
 
 // Function to open modal with ex details
@@ -143,7 +144,7 @@ function openModal(ex) {
   document.getElementById('tag-content').textContent = ex.categories.join(', ');
   document.getElementById('modal-attributes').innerHTML = `
         <p><img src="images/level.svg"/><br/>${ex.level}</p>
-        <p><img src="images/group.svg"/><br/>${ex.size}</p>
+        <p><img src="images/author.svg"/><br/>${ex.author}</p>
         <p><img src="images/clock.svg"/><br/>${ex.duration}</p>
       </div>
     `;

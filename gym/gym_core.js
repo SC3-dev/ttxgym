@@ -411,9 +411,9 @@ function toggleFullscreen() {
 
 var finish = {
     "type": "update",
-    "title": "Excercise Outcomes", "content": "Finish the exercise by discussing and collating what you learned, how your understanding of this type of threat has changed and what processes you might update as a result.", "discussion": ["What did you learn from running the exercise?",
-        "How has your understanding of preventing this type of cyber security threat changed?",
-        "What will you look to change or implement across your organisation?"]
+    "title": "Excercise Outcomes", "content": "<p>Finish the exercise by discussing and collating what you learned, how your understanding of this scenario has changed and what processes you might update as a result.</p><p>Make recommendations that will develop confidence in the areas that have been identified as having scope for improvement. Allocate the recommendations to the people in your organisation who can facilitate change and action improvement.</p><p>Discuss the risks associated with not addressing the recommendations. Ensure any recommendations are implemented and when ready, run the exercise again to see how those changes have impacted upon your organisation.</p>", "discussion": ["What did you learn from running the exercise?",
+        "How has your understanding of this scenario changed?",
+        "What will you look to change or implement across your organisation?", "How can recommendations be assigned and tracked within your organisation?"]
 };
 var start;
 let firsttimer = 0;
@@ -1110,7 +1110,7 @@ function updateProgress() {
         totalSections += answeredQuestions;
 
         const sectionOverallScore = document.createElement('p');
-        sectionOverallScore.innerHTML = `<strong>Overall Score for ${sectionName}: ${overallScore}%</strong> (${formatTime(Number(stageTime[tick]))} mins - ${isFullyAnswered ? "Complete" : "Incomplete"})`;
+        sectionOverallScore.innerHTML = `<strong>Overall Score for "${sectionName}": ${overallScore}%</strong> (${formatTime(Number(stageTime[tick]))} mins - ${isFullyAnswered ? "Complete" : "Incomplete"})`;
         sectionProgress.prepend(sectionOverallScore);
         SectionScores.push({ name: sectionName, value: Number(overallScore), time: Number(stageTime[tick]) });
         const fullAnswerStatus = document.createElement('p');

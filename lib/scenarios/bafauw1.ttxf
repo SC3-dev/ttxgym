@@ -1,0 +1,75 @@
+! title: Being attacked from an unknown wifi network
+! summary
+This exercise scenario covers the entire sequence of events that could occur when a user connects to an unknown wifi network.
+It discusses the risks taken when connected to such a wifi network and how an attacker may use that to access a user’s device, such as a laptop.
+The use of outdated software is also covered as a method of the attacker compromising the user’s device.
+@ Inject 1: Wifi Connection
+! content
+While waiting for a meeting, a user connects to the free, unsecured wifi available at a coffee shop.
+They are using their device with the intention of editing documents and responding to emails.
+# discussion
++ How do you support users in identifying unsecured wifi hotspots and understanding the dangers of connecting to them?
++ What technical alternatives do you provide for users to help them avoid the dangers of unknown wifi hotspots?
++ Do you provide access to mobile (3G or 4G) networks or operate a Virtual Private Networks (VPNs)?
++ How are laptops configured to prevent other network users from accessing them?
++ For example, is the device firewall configured and enabled?
+# prompts
++ How do we teach users to know when it’s safe to connect to wifi hotspots?
++ Are users able to connect to any wifi network that they want to?
++ If using a VPN, is it enabled by default, or does a user have to know how to enable it?
++ How are firewalls setup?
++ Can users or applications modify the firewall rules, or disable the firewall?
+? Our users are provided with sufficient education and tools to either avoid using unknown wifi hotspots, or to use them in a secure fashion.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+@ Inject 2: Software Updates
+! content
+Unbeknownst to the user, the wifi network is actually operated by a hacker trying to catch unsuspecting business users.
+They scan the user’s laptop for outdated software and try to attack any vulnerable software that they can identify.
+# discussion
++ How does your organisation ensure that devices you issue are kept up to date?
++ How does your organisation ensure that the apps you use are kept up to date?
++ How does that differ under a BYOD (Bring your own device) policy?
+# prompts
++ Are devices set to automatically apply updates?
++ Can users delay updates?
++ Is software centrally managed and updated, or is each application configured to do its own updating?
++ Do we ask users to keep their devices and software up to date?
++ What happens if users don’t keep their devices and software up to date?
+? We ensure the software and operating systems on organisation issued devices are up to date.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+@ Inject 3: User Permissions
+! content
+The hacker identifies some outdated software on the user’s device and uses an exploit to compromise the device.
+They now have access to everything on the device, including any accounts the user is logged in to, such as email and file sharing services.
+# discussion
++ To what extent would the user be setup where they only have the lowest level of user rights required to perform their role?
++ Are normal users setup as administrators of their computers?
++ Would a user and therefore the attacker be able to install new applications without extra permissions?
++ What additional protections are used with important accounts, such as HR or financial systems?
++ Is two-factor authentication setup for these services?
+# prompts
++ Do users have administrator permissions?
++ Can users access other users’ files or data?
++ What happens when the user tries to install new software or applications?
++ Are any accounts given extra protection?
++ Do we use two-factor authentication anywhere?
+? User accounts are configured according to the principle of “least privilege”, where they only have the lowest level of user rights required to perform their role.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+? We have a clear policy requiring our organisation's systems are configured with multi-factor authentication.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident

@@ -1,0 +1,146 @@
+! title: Supply Chain Software Cyber Attack Exercise
+! author: NCSC
+! summary
+This scenario explores an incident in which third-party software that is critical in your organisation is determined to have been compromised and can enable remote access by unauthorised users.
+This can lead to a serious cyber incident, for example, ransomware can be deployed effectively via the supply chain.
+You are encouraged to discuss the procurement process for IT systems and considerations for supply chain security, including how your supplier arrangements are monitored and reviewed.
+You can also discuss your approach to monitoring software versions, your patching strategy, and your capabilities for analysis of activity on your computer network and response to mitigating unauthorised user access.
+
+@ Inject 1: Software Procurement Process
+! content
+Your organisation requires a new IT management software package to help monitor network performance, identify issues and misconfigurations, and generate important metrics to increase efficiency.
+This will be incorporated into your current IT system.
+A decision has been made to assess external suppliers, some of which offer online cloud-based solutions, while some provide hardware and software which is deployed within your existing IT estate.
+
+# discussion
++ Have you considered the benefits and risks of using differing third-party software suppliers?
++ What processes do you have for learning about potential suppliers?
++ Who in the organisation is responsible for negotiating the contract and expected minimum service levels?
++ Would a contract or SLA (service level agreements) with a supplier specify a minimum security standard that the supplier is expected to meet?
++ Do you have a process for deciding the risk level of using a certain supplier?
+
+# prompts
++ Have you considered the benefits and risks of using differing third party software suppliers?
++ What processes do you have for learning about potential suppliers?
++ Who in the organisation is responsible for negotiating the contract and expected minimum service levels?
++ Does a contract or SLA with a supplier specify a minimum-security standard that the supplier is expected to meet?
++ Do you have a process for deciding the risk level of using a certain supplier?
+
+? We have considered the risk from third party service suppliers and have a defined procedure in place to deal with the compromise of one of these suppliers.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+? Our suppliers meet a minimum cyber security standard.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+
+@ Inject 2: Supplier Potentially Compromised
+! content
+There are some news reports circulating that a major IT software provider has been the subject of a significant cyber attack.
+The provider owns the IT management platform you previously selected.
+This software was successfully deployed into your network last year.
+
+# discussion
++ Do you have an emergency point of contact for each of your software suppliers?
++ What level of exposure does your organisation have to IT software providers?
++ Where could you find further information or guidance regarding this type of attack?
++ What proactive steps could you take to pre-empt any potential incident?
+
+# prompts
++ Do you have an emergency point of contact for each of your software suppliers?
++ What exposure does your organisation have to the IT software provider?
++ Where can you find further information or guidance regarding this type of attack?
++ What proactive steps can you take to pre-empt any potential incident?
+
+? We have identified sensitive data or critical systems that could be exposed to third party software providers.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+? We have an up to date and tested incident management plan.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+
+@ Inject 3: Incident Confirmation
+! content
+The supplier has contacted you to confirm that the reports of a compromise are accurate and that your company is using a version of the software impacted by the cyber attack.
+They report that the attacker replaced the latest version of the software with a malicious version that connects back to the attacker’s command and control server.
+This allows the attacker to issue remote, administrator-level commands to affected workstations.
+It is believed that your organisation may have installed this software version around six months ago.
+
+# discussion
++ How are you going to coordinate your response if your network has been compromised?
++ Can you easily identify the versions of all the software used in your organisation for business activities?
++ How would you minimise the potential impact of the incident?
++ If this incident impacts a business-critical application, what steps would you take to ensure business continuity?
+
+# prompts
++ How do you coordinate your response if your network has been compromised?
++ Can you easily identify the versions of all the software used in your organisation for business activities?
++ How can you minimise the potential impact of the incident?
++ If this incident impacts a business-critical application, what steps will you take to ensure business continuity?
+
+? We track all software deployed in our organisation, including versions and patch levels.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+? Our organisation has mechanisms in place to securely coordinate our response.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+? Our organisation has robust business continuity plans in place.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+
+@ Inject 4: Attribution and Response
+! content
+Various threat intelligence organisations have been able to obtain a list of affected customers and your organisation is listed.
+They are attributing this to an Advanced Persistent Threat (APT) group, and the news is being widely reported in the media.
+Partners, suppliers and customers are contacting you to ask if you have been compromised by this software.
+
+# discussion
++ Does the attribution to an APT group change how you respond to the incident?
++ Do you have the logging in place to be able to detect connections to the attacker domain?
++ How would you detect if customer data has been compromised / stolen?
++ How are you going to respond to media and customer queries?
+
+# prompts
++ Does the attribution to an APT group change how you respond to the incident?
++ Do you have the logging in place to be able to detect connections to the attacker domain?
++ How will you detect if customer data has been compromised / stolen?
++ How do you respond to media and customer queries?
+
+? Our organisation has effective systems for log collection, monitoring and analysis.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+? We have developed and tested a communications plan to respond to the media in the event of a cyber attack.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+? Our organisation is aware of our GDPR (General Data Protection Regulation) obligations for reporting data breaches.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
