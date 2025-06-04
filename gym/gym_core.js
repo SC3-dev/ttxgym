@@ -1,3 +1,217 @@
+let reportHeaderHTML = `
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet">
+  <meta name="google" content="notranslate" />
+  <title>Excercise Report</title>
+  <style>
+  * {
+  box-sizing: border-box;
+}
+body {
+  font-family: "Montserrat", Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  width:80%;
+  margin:auto;
+  color-adjust: exact!important;  
+  print-color-adjust:exact !important;
+  -webkit-print-color-adjust:exact !important;
+  font-size: 80%;
+}
+#headerRow{
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+
+}
+#logo{
+
+    width: 10rem;
+}
+#title{
+
+}
+#helper{
+    background:#bf5f5f;
+    border-radius: 0.3rem;
+    border-left:5px solid #e00;
+    color:#fff;
+    padding:1rem;
+    margin:1rem;
+}
+#content{
+}
+.chart-container {
+    display: flex;
+    padding: 1rem;
+    box-sizing: border-box;
+    justify-content: space-evenly;
+  }
+  
+  .bchart {
+    display: flex;
+    align-items: flex-end;
+    margin: 0 2rem;
+    flex: 1 0 25%; max-width: 25%
+  }
+  .chart-title{
+      display:flex;
+      justify-content: space-evenly;
+      text-align: center;
+  }
+  .chart-title div{
+      flex: 1 0 25%; max-width: 25%
+  }
+  
+  .bar {
+    flex: 1;
+    margin: 0 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    position: relative;
+    text-align: center;
+    font-weight: bold;
+    height: 100%;
+  }
+  
+  .bar-inner {
+    width: 100%;
+    background-color: #3498db;
+    border-radius: 5px 5px 0 0;
+    transition: height 0.3s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .bar-label {
+    color: #f4f4f9;
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+  
+  .x-axis-label {
+    margin-top: 5px;
+    font-weight: bold;
+  }
+  
+  .dchart {
+    border-radius: 50%;
+    position: relative;
+    aspect-ratio: 1;
+    margin: 0 2rem;
+    flex: 1 0 25%; max-width: 25%
+  }
+  
+  .dchart::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40%;
+    height: 40%;
+    background-color: #fff;
+    border-radius: 50%;
+  }
+  
+  .dlabel-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+  
+  .dlabel {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    padding: 0.2rem 0.5rem;
+    border-radius: 0.2rem;
+    font-weight: bold;
+    color:#000;
+    pointer-events: none;
+    width: max-content;
+    text-align:center;
+  }
+
+  [contenteditable] {
+    outline: 0px solid transparent;
+  }
+
+  @media screen {
+}
+@media print{
+    body{
+        width:100%;
+    }
+    #helper{
+        display:none;
+    }
+}
+</style>
+</head>
+
+<body><div id="headerRow"><div id="title"><h1>Exercise Report</h1></div><div id="logo"><svg viewBox="0 0 210 83.999996" xmlns="http://www.w3.org/2000/svg"
+xmlns:svg="http://www.w3.org/2000/svg">
+<g>
+    <path style="fill:#000;stroke-width:0.144177"
+        d="m 123.95944,30.43245 0.001,-1.117375 5.11724,-6.112717 c 2.81453,-3.361993 5.11729,-6.171028 5.11729,-6.242298 0,-0.07123 -2.30323,-2.881476 -5.1183,-6.244894 l -5.1183,-6.1153013 v -1.086954 -1.086943 l 3.28003,0.0063 3.28005,0.0063 3.8207,4.544782 c 2.10139,2.499633 3.91803,4.6295583 4.03697,4.7331703 0.18592,0.161956 0.77129,-0.476686 4.17186,-4.5515563 l 3.95559,-4.739934 h 3.28934 3.28932 v 1.052384 1.052384 l -5.19039,6.1834383 c -2.85472,3.400899 -5.1886,6.219979 -5.18639,6.264626 0.002,0.04464 2.33524,2.838581 5.18451,6.208731 l 5.18051,6.127543 0.006,1.117375 0.006,1.117376 -3.28004,-0.0032 -3.28003,-0.0032 -4.03542,-4.764205 c -3.77303,-4.454434 -4.04959,-4.7469 -4.25324,-4.498099 -0.1198,0.146359 -1.92418,2.291532 -4.00975,4.767043 l -3.792,4.500917 h -3.23672 -3.23673 l 0.001,-1.117376 z"
+        id="path220" />
+    <path style="fill:#000;stroke-width:0.144177"
+        d="M 103.62935,20.159802 V 8.7697787 h -5.767107 -5.767099 v -3.171906 -3.171905 h 14.634016 14.63402 v 3.171905 3.171906 h -5.69501 -5.69501 V 20.159802 31.549826 h -3.1719 -3.17191 z"
+        id="path218" />
+    <path style="fill:#000;stroke-width:0.144177"
+        d="M 71.045229,20.159802 V 8.7697787 h -5.695017 -5.695007 v -3.171906 -3.171905 h 14.561929 14.561929 v 3.171905 3.171906 H 83.084046 77.38904 V 20.159802 31.549826 h -3.171906 -3.171905 z"
+        id="path216" />
+    <path style="fill:#1a6ec0;fill-opacity:1;stroke-width:0.139424"
+        d="m 56.568246,44.749266 c 0.132103,-1.130608 0.11982,-5.393817 -0.01826,-6.336905 l -0.09381,-0.640428 h 50.057284 50.05728 l -0.0914,0.775254 c -0.14125,1.198686 -0.15482,4.546774 -0.0241,5.932418 l 0.1177,1.247158 H 106.51352 56.453986 Z"
+        id="path214" />
+    <path style="fill:#1a6ec0;stroke-width:0.144177;fill-opacity:1"
+        d="m 200.94868,51.986986 c 0,-0.01984 -0.19934,-0.522652 -0.44235,-1.117376 -0.24303,-0.594734 -0.62663,-1.835993 -0.85249,-2.758363 -1.17752,-4.80902 -0.86406,-9.679602 0.90117,-14.002281 l 0.57405,-1.405726 h 4.0357 4.03569 l -0.26157,0.39649 c -1.23002,1.864399 -2.0063,3.624311 -2.54655,5.77324 -0.26627,1.059149 -0.3139,1.638572 -0.30464,3.706429 0.0142,3.191363 0.30209,4.354515 1.81632,7.340458 l 1.06655,2.103165 h -4.01068 c -2.20589,0 -4.01093,-0.01625 -4.0112,-0.03609 z"
+        id="path212" />
+    <path style="fill:#1a6ec0;fill-opacity:1;stroke-width:0.144177"
+        d="m 3.0885296,51.941186 c 0,-0.04506 0.44678,-0.969549 0.99284,-2.054529 1.56297,-3.105469 1.81674,-4.159426 1.81148,-7.523519 -0.003,-2.117705 -0.0453,-2.529327 -0.38251,-3.748616 -0.62502,-2.259971 -1.27274,-3.70054 -2.47959,-5.514785 l -0.26374,-0.396489 h 4.03913 4.0391284 l 0.508459,1.214635 c 1.175244,2.807495 1.592501,5.008816 1.600805,8.445255 0.0084,3.455866 -0.441579,6.004916 -1.515078,8.583574 l -0.448069,1.076317 H 7.0399596 c -2.17329,0 -3.95143,-0.03683 -3.95143,-0.08188 z"
+        id="path210" />
+    <path style="fill:#1a6ec0;stroke-width:0.144177;fill-opacity:1"
+        d="m 188.14448,64.45835 c -4.60694,-9.066036 -6.34795,-19.950671 -4.79103,-29.952887 0.79263,-5.092105 2.34256,-10.128325 4.37061,-14.201486 l 0.75375,-1.513865 5.15491,-0.03788 5.15492,-0.03788 -1.44187,2.36676 c -1.68405,2.764325 -2.62234,4.771433 -3.60217,7.705364 -1.48568,4.448683 -2.16923,8.595656 -2.16312,13.123333 0.0109,8.068699 2.41694,16.120002 6.77075,22.656654 0.44893,0.674024 0.86412,1.306609 0.92263,1.405726 0.0843,0.142814 -0.97051,0.180221 -5.08108,0.180221 h -5.18744 z"
+        id="path208" />
+    <path style="fill:#1a6ec0;fill-opacity:1;stroke-width:0.144177"
+        d="M 13.442562,64.890886 C 21.430959,52.97521 22.612598,37.550731 16.537975,24.485129 16.224594,23.811095 15.34227,22.237758 14.577265,20.988827 L 13.186333,18.71803 h 5.166097 5.166087 l 0.803415,1.698254 c 5.365207,11.340999 6.308978,24.008992 2.687685,36.076248 -0.753947,2.512395 -1.94733,5.507012 -3.117002,7.821643 l -0.928945,1.838262 h -5.183434 -5.183435 z"
+        id="path206" />
+    <path style="fill:#1a6ec0;stroke-width:0.144177;fill-opacity:1"
+        d="m 174.53173,78.948193 c -5.15518,-8.267119 -8.66247,-19.326858 -9.79592,-30.890037 -0.24331,-2.48236 -0.24156,-10.536496 0.003,-12.975982 1.12233,-11.203007 4.06279,-20.780917 9.1843,-29.9160563 l 1.53618,-2.74015 h 5.47631 5.47631 l -0.49924,0.68484 c -2.41341,3.310656 -5.29765,8.4418153 -7.00382,12.4600833 -6.83569,16.098892 -7.07266,34.022086 -0.66592,50.365278 1.74301,4.446298 4.74992,9.997815 7.52608,13.895014 0.41656,0.58477 0.72226,1.12003 0.67935,1.18946 -0.0429,0.0694 -2.43321,0.12626 -5.31175,0.12626 h -5.23371 z"
+        id="path204" />
+    <path style="fill:#000;stroke-width:0.144177"
+        d="M 121.65153,67.017498 V 52.888101 l 3.13587,5.7e-4 3.13586,5.8e-4 3.17191,3.780699 c 1.74455,2.079391 3.89837,4.64314 4.78628,5.697244 l 1.61436,1.916538 4.77081,-5.697761 4.77081,-5.69787 h 3.16659 3.16657 v 14.129397 14.129405 h -3.09878 -3.09876 l -0.0371,-9.382769 -0.037,-9.382768 -4.75785,5.697085 c -2.61683,3.1334 -4.7903,5.700884 -4.82996,5.705506 -0.0397,0.0042 -2.24556,-2.565511 -4.90203,-5.711405 l -4.82995,-5.719804 -0.037,9.397077 -0.0371,9.397078 h -3.02668 -3.02669 z"
+        id="path202" />
+    <path style="fill:#000;stroke-width:0.144177"
+        d="m 100.45743,75.865912 v -5.280979 l -1.344169,-1.819764 c -0.739298,-1.000858 -3.6589,-4.950452 -6.487984,-8.776859 -2.829095,-3.826422 -5.143811,-6.989316 -5.143811,-7.028665 0,-0.03936 1.617879,-0.07154 3.595271,-0.07154 h 3.595282 l 4.42039,5.550836 c 2.431221,3.05296 4.432961,5.550842 4.448301,5.550842 0.0153,0 2.00418,-2.497006 4.41964,-5.54889 l 4.39174,-5.548884 3.64048,-0.0021 c 2.00227,-0.001 3.64048,0.03218 3.64048,0.07376 0,0.04168 -1.83591,2.555739 -4.0798,5.586882 -2.24389,3.031139 -5.16348,6.979234 -6.48798,8.773567 l -2.40819,3.262401 v 5.280114 5.2801 h -3.09983 -3.09982 z"
+        id="path200" />
+    <path style="fill:#000;stroke-width:0.144177"
+        d="m 62.502123,80.992853 c -1.603358,-0.38525 -3.146168,-1.67929 -3.90041,-3.2715 l -0.460373,-0.97187 v -9.731985 -9.731983 l 0.47064,-0.962093 c 0.817123,-1.670376 2.149173,-2.774973 3.881596,-3.2188 0.768181,-0.196799 2.098574,-0.22127 10.08887,-0.185561 9.200985,0.04115 9.204277,0.04126 10.016894,0.369845 1.187347,0.480148 2.594836,1.823046 3.180052,3.034115 0.444291,0.91942 0.467685,1.054456 0.522915,3.017034 l 0.05783,2.05453 h -3.115852 -3.115852 v -1.153422 -1.153422 h -8.003075 -8.003064 l 0.03725,7.965804 0.03725,7.965814 7.965804,0.03725 7.965804,0.03725 v -2.163882 -2.163893 h -3.027719 -3.02773 v -3.02772 -3.02773 h 6.134855 6.134866 l -0.04337,6.019414 -0.04337,6.019405 -0.463865,0.94788 c -0.594481,1.21481 -1.698782,2.31911 -2.913576,2.91359 l -0.947886,0.46386 -9.443633,0.0241 c -5.211651,0.0133 -9.686177,-0.0342 -9.984879,-0.106 z"
+        id="path198" />
+    <path style="fill:#1a6ec0;fill-opacity:1;stroke-width:0.144177"
+        d="m 25.519705,81.021453 c -0.0439,-0.071 0.03978,-0.28263 0.185983,-0.47036 1.311927,-1.68534 3.639855,-5.502462 5.220114,-8.559464 C 37.220777,59.814061 39.557125,45.873306 37.606851,32.126537 36.200366,22.212685 32.499604,12.59703 26.939043,4.4084047 l -1.3462,-1.982437 5.436392,0.0021 5.436382,0.0021 1.40982,2.557101 c 2.522363,4.575035 4.243812,8.5214633 5.769337,13.2262383 6.107588,18.835993 4.615545,39.223717 -4.167783,56.950123 -0.589373,1.189457 -1.607315,3.006103 -2.262092,4.036963 l -1.190513,1.87431 -5.212463,0.0379 c -2.957294,0.0214 -5.24697,-0.0179 -5.292218,-0.0912 z"
+        id="path179" />
+</g>
+</svg></div></div><div id="helper"><p>This is the draft exercise report. All text in the report below can be edited directly in the browser, so that any amendments or changes can be made before the report is finalised.</p><p>Once you are ready to produce the final report for reference or for dissemination, simply click <a href="javascript:if(window.print)window.print()">here</a> or press CTRL+P, and select "Print to PDF". This will produce a final exercise report - this text box will not be included.</p></div><div id="content" contenteditable="true">`;
+let reportFooterHTML = `</div></body></html>`;
+
 let presentationHTML = `
 <!DOCTYPE html>
 <html lang="en">
@@ -10,7 +224,7 @@ let presentationHTML = `
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
       rel="stylesheet">
   <meta name="google" content="notranslate" />
-  <title>TTX-GYM: Participant Window</title>
+  <title>TTX Gym - Participant Window</title>
   <style>
   * {
   box-sizing: border-box;
@@ -221,10 +435,18 @@ li {
 }
 
 .bchart {
-    width: 30%;
   display: flex;
   align-items: flex-end;
   margin: 0 2rem;
+  flex: 1 0 25%; max-width: 25%
+}
+.chart-title{
+    display:flex;
+    justify-content: space-evenly;
+    text-align: center;
+}
+.chart-title div{
+    flex: 1 0 25%; max-width: 25%
 }
 
 .bar {
@@ -235,6 +457,7 @@ li {
   justify-content: flex-end;
   position: relative;
   text-align: center;
+  font-weight: bold;
   height: 100%;
 }
 
@@ -251,23 +474,21 @@ li {
 .bar-label {
   color: #f4f4f9;
   font-weight: bold;
-  font-size: 0.8rem;
   margin-bottom: 5px;
 }
 
 .x-axis-label {
   margin-top: 5px;
-  font-size: 0.8rem;
-  color: #333;
+  font-weight: bold;
 }
 
 .dchart {
-    width: 30%;
   border-radius: 50%;
   position: relative;
   border: 1px solid #202634;
   aspect-ratio: 1;
   margin: 0 2rem;
+  flex: 1 0 25%; max-width: 25%
 }
 
 .dchart::before {
@@ -296,8 +517,8 @@ li {
   background: #202634;
   padding: 0.2rem 0.5rem;
   border-radius: 0.2rem;
-  font-size: 0.8rem;
   font-weight: bold;
+  color:#fff;
   pointer-events: none;
   width: 30%;
   text-align:center;
@@ -434,6 +655,7 @@ let bc = new BroadcastChannel('ttx_gym');
 
 const form = document.getElementById('questionsForm');
 let progressDiv = document.createElement('div'); progressDiv.id = "progress-sections";
+let reportDiv = document.createElement('div');
 let overallScoreDiv = document.createElement('div'); overallScoreDiv.id = "overall-score";
 let overallScore = "";
 const recapList = document.getElementById('recap-list');
@@ -740,7 +962,11 @@ function exportScenario() {
 function exportReport() {
 
     let Scores = updateProgress();
-    serveFile(overallScoreDiv.innerHTML + generateCharts(Scores) + progressDiv.innerHTML, "report.html"); /* send */
+    let reportBuilder = reportHeaderHTML;
+    reportBuilder += "<p><h2>" + start.title + "</h2><h3>" + new Date().toLocaleDateString() + "</h3>" + start.content + "</p>";
+    reportBuilder += "<p><h2>" + overallScore + "</h2>";
+    reportBuilder += generateCharts(Scores) + reportDiv.innerHTML + reportFooterHTML;
+    serveFile(reportBuilder, "report.html"); /* send */
 }
 
 function serveFile(text, downloadAs) {
@@ -912,8 +1138,8 @@ function toggleSidebar() {
 function resetExercise() {
     stageTime = [];
     questionTrakcer = [];
-    questionCounter = 0;  // Global counter for unique IDs
-    roundCounter = 0;  // Global counter for unique IDs
+    questionCounter = 0;
+    roundCounter = 0;
     ActiveStage = 0;
     fileName, fileContent, data = "";
     timer = false;
@@ -1060,6 +1286,7 @@ function collapseCollapsible(id) {
 function updateProgress() {
     const sections = document.querySelectorAll('.round');
     progressDiv.innerHTML = ''; // Clear progress info
+    reportDiv.innerHTML = ''; // Clear progress info
     let totalSectionScores = 0;
     let totalSections = 0;
     let tick = 0;
@@ -1075,8 +1302,14 @@ function updateProgress() {
 
         const sectionName = section.getAttribute('data-section');
         const sectionProgress = document.createElement('ul');
-        //sectionProgress.innerHTML = `< strong > ${ sectionName }</strong >: `;
-
+        const reportProgress = document.createElement('div');
+        const sectionTitle = document.createElement('h3');
+        sectionTitle.innerHTML = sectionName;
+        reportProgress.appendChild(sectionTitle);
+        const scribeNotes = document.createElement('div');
+        scribeNotes.style = "white-space:pre";
+        scribeNotes.innerHTML = section.querySelector('textarea').value;
+        reportProgress.appendChild(scribeNotes);
         uniqueQuestions.forEach(questionName => {
             const options = section.querySelectorAll(`input[name="${questionName}"]`);
             const selectedOption = form.querySelector(`input[name="${questionName}"]:checked`);
@@ -1093,32 +1326,33 @@ function updateProgress() {
             sectionProgress.appendChild(questionScore);
         });
 
-        // Calculate overall score for the section
-        let overallScore = answeredQuestions > 0 ? (totalScore / answeredQuestions).toFixed(0) : 0;
+        if (answeredQuestions > 0) {
+            // Calculate overall score for the section
+            let overallScore = answeredQuestions > 0 ? (totalScore / answeredQuestions).toFixed(0) : 0;
 
-        if (uniqueQuestions.length == 0) { overallScore = 100 };
-        const isFullyAnswered = answeredQuestions === uniqueQuestions.length;
-        completion = completion && isFullyAnswered;  //boolean AND to test of all sections are fully answered up to this point
-        if (isFullyAnswered) {
-            var roundDiv = document.getElementById('marker' + (tick));
-            roundDiv.classList.add('complete');
+            if (uniqueQuestions.length == 0) { overallScore = 100 };
+            const isFullyAnswered = answeredQuestions === uniqueQuestions.length;
+            completion = completion && isFullyAnswered;  //boolean AND to test of all sections are fully answered up to this point
+            if (isFullyAnswered) {
+                var roundDiv = document.getElementById('marker' + (tick));
+                roundDiv.classList.add('complete');
 
-            var roundDiv = document.getElementById('round' + (tick));
-            roundDiv.classList.add('complete');
+                var roundDiv = document.getElementById('round' + (tick));
+                roundDiv.classList.add('complete');
+
+            }
+            totalSectionScores += parseFloat(totalScore);
+            totalSections += answeredQuestions;
+
+            const sectionOverallScore = document.createElement('p');
+            sectionOverallScore.innerHTML = `<strong>Overall Score for stage ${tick} ("${sectionName}"): ${overallScore}%</strong> (${formatTime(Number(stageTime[tick]))} mins - ${isFullyAnswered ? "Complete" : "Incomplete"})`;
+            sectionProgress.prepend(sectionOverallScore);
+            SectionScores.push({ name: "Stage " + tick, value: Number(overallScore), time: Number(stageTime[tick]) });
+
+            progressDiv.appendChild(sectionProgress);
+            reportProgress.appendChild(progressDiv.cloneNode(sectionProgress));
+            reportDiv.appendChild(reportProgress);
         }
-        totalSectionScores += parseFloat(totalScore);
-        totalSections += answeredQuestions;
-
-        const sectionOverallScore = document.createElement('p');
-        sectionOverallScore.innerHTML = `<strong>Overall Score for "${sectionName}": ${overallScore}%</strong> (${formatTime(Number(stageTime[tick]))} mins - ${isFullyAnswered ? "Complete" : "Incomplete"})`;
-        sectionProgress.prepend(sectionOverallScore);
-        SectionScores.push({ name: sectionName, value: Number(overallScore), time: Number(stageTime[tick]) });
-        const fullAnswerStatus = document.createElement('p');
-        //fullAnswerStatus.innerHTML = `< strong > ${ sectionName } Fully Answered:</strong > ${ isFullyAnswered ? "Yes" : "No" } `;
-        sectionProgress.appendChild(fullAnswerStatus);
-
-        progressDiv.appendChild(sectionProgress);
-
     });
     if (completion) {
         ExcerciseComplete = true;
@@ -1133,12 +1367,20 @@ function updateProgress() {
 // Report Generation and Charting
 /////////////////////////////////////////////
 function generateCharts(data) {
-
+    let charttitle = document.createElement('div');
+    charttitle.classList.add('chart-title');
+    let bartitle = document.createElement('div');
+    bartitle.innerHTML = "<h3>Score by Stage</h3>";
+    let pietitle = document.createElement('div');
+    pietitle.innerHTML = "<h3>Stage by Duration</h3>";
+    charttitle.appendChild(bartitle);
+    charttitle.appendChild(pietitle);
     let chart = document.createElement('div');
     chart.classList.add('chart-container');
+
     chart.appendChild(barchart(data));
     chart.appendChild(donutchart(data));
-    return chart.outerHTML;
+    return charttitle.outerHTML + chart.outerHTML;
 }
 
 function barchart(data) {
@@ -1222,7 +1464,6 @@ function donutchart(inputData) {
         label.style.left = `${x}% `;
         label.style.top = `${y}% `;
         label.textContent = `${item.name} (${Math.round(percentage)}%)`;
-        label.style.color = '#fff';
 
         labelContainer.appendChild(label);
     });
