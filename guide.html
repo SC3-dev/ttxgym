@@ -297,8 +297,8 @@ It continues on multiple lines.
                         <p>This is a quoted statement.</p>
                     </blockquote>
                     <h4 id="5-embedded-images">5. <strong>Embedded Images</strong></h4>
-                    <p>Use <code>%</code> to embed an image. Format: <code>%[alt text](url)</code></p>
-                    <pre><code>%[Sample Image](https://example.com/image.jpg)
+                    <p>Use <code>%</code> to embed an image. Format: <code>%(url)</code></p>
+                    <pre><code>%(https://example.com/image.jpg)
 </code></pre>
                     <p>Output:
                         An image appears with the given URL.</p>
@@ -313,7 +313,7 @@ This scenario depicts an unusual login to a critical system.
 @ Stage 1: Identification
 ! content
 An unusual login attempt was detected.
-%[Incident Diagram](https://example.com/diagram.png)
+%(https://example.com/diagram.png)
 The incident response process should be invoked.
 
 # prompts

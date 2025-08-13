@@ -2432,24 +2432,6 @@ within your organisation?`]
                 });
 
 
-                // Media canvases =[title](optional image URL)
-                processed = processed.replace(/=\[(.*?)\](?:\((.*?)\))?/g, (match, title, url) => {
-
-                    const safeTitle = title.trim();
-                    const imagePart = url ? `<img src="${url}" alt="${escapeHTML(safeTitle)}">` : "";
-                    return `<div class="canvas-object">
-                                <h3>${escapeHTML(safeTitle)}</h3>${imagePart}
-                            </div>`;
-                });
-
-                processed = processed.replace(/=\[(.*?)\](?:\((.*?)\))?/g, (match, title, url) => {
-                    const safeTitle = title.trim();
-                    const imagePart = url ? `<img src="${url}" alt="${escapeHTML(safeTitle)}">` : "";
-                    return `<div class="canvas-object">
-                                <h3>${escapeHTML(safeTitle)}</h3>${imagePart}
-                            </div>`;
-                });
-
                 // Accumulate list items for bulleted and numbered lists
                 let bulletItems = [];
                 let numberedItems = [];
