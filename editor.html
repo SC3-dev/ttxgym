@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TTX Gym Scenario Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Montserrat", sans-serif;
+            background: #202634;
+            min-height: 100vh;
+            color: white;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 3fr 2fr;
+            gap: 20px;
+            height: 100vh;
+        }
+
+        .editor-panel, .preview-panel {
+            background: #293042;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            /* border: 1px solid #1a6ec0; */
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            background: #171b25;
+            color: white;
+            padding: 16px 20px;
+            font-weight: 600;
+            font-size: 1.1em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            /* border-bottom: 1px solid #1a6ec0; */
+        }
+
+        .panel-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: white;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #1a6ec0;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: all 0.2s;
+            background: #202634;
+            color: white;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #1a6ec0;
+            box-shadow: 0 0 0 3px rgba(26, 110, 192, 0.2);
+        }
+
+        input::placeholder, textarea::placeholder {
+            color: #888;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .btn {
+            background: #1a6ec0;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.2s;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+
+        .btn:hover {
+            background: #202634;
+        }
+
+        .btn-secondary {
+            background: #293042;
+            border: 1px solid #1a6ec0;
+        }
+
+        .btn-secondary:hover {
+            background: #202634;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .stage {
+            background: #171b25;
+            border: 1px solid #1a6ec0;
+            border-radius: 6px;
+            padding: 0;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .stage-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid #1a6ec0;
+            cursor: pointer;
+            user-select: none;
+            background: #293042;
+            border-radius: 6px 6px 0 0;
+        }
+
+        .stage-header:hover {
+            background: #202634;
+        }
+
+        .stage-content {
+            padding: 20px;
+            display: none;
+        }
+
+        .stage-content.expanded {
+            display: block;
+        }
+
+        .stage-toggle {
+            font-size: 18px;
+            color: #1a6ec0;
+            transition: transform 0.2s;
+        }
+
+        .stage-toggle.expanded {
+            transform: rotate(0deg);
+        }
+
+        .stage-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .stage-controls {
+            display: flex;
+            gap: 5px;
+        }
+
+        .element {
+            background: #293042;
+            border: 1px solid #1a6ec0;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .element-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .element-type {
+            font-weight: 600;
+            color: white;
+            font-size: 14px;
+        }
+
+        .option-item, .prompt-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .option-item input, .prompt-item input {
+            flex: 1;
+        }
+
+        .preview-content {
+            font-family: 'Monaco', 'Menlo', monospace;
+            background: #202634;
+            color: white;
+            padding: 20px;
+            white-space: pre-wrap;
+            font-size: 13px;
+            line-height: 1.5;
+            overflow-x: auto;
+            border: 1px solid #1a6ec0;
+            border-radius: 5px;
+        }
+
+        .export-btn {
+            background: #38a169;
+        }
+
+        .export-btn:hover {
+            background: #2f855a;
+        }
+
+        .add-element-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right:  0;
+            background-color: #293042;
+            min-width: 220px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            border-radius: 6px;
+            z-index: 1;
+            border: 1px solid #1a6ec0;
+        }
+
+        .dropdown-content.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 10px 14px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border-bottom: 1px solid #1a6ec0;
+            font-size: 14px;
+            color: white;
+        }
+
+        .dropdown-item:hover {
+            background-color: #202634;
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="editor-panel">
+            <div class="panel-header">
+                <span>TTX Gym Scenario Editor</span>
+            </div>
+            <div class="panel-content">
+                <!-- File Info Section -->
+                <div class="form-group">
+                    <label for="title">Scenario Title</label>
+                    <input type="text" id="title" placeholder="Enter scenario title" oninput="updatePreview()">
+                </div>
+                
+                <div class="form-group">
+                    <label for="author">Author (Optional)</label>
+                    <input type="text" id="author" placeholder="Enter author name" oninput="updatePreview()">
+                </div>
+                
+                <div class="form-group">
+                    <label for="summary">Summary</label>
+                    <textarea id="summary" placeholder="Enter scenario summary" oninput="updatePreview()"></textarea>
+                </div>
+
+                <!-- Stages Section -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin: 30px 0 20px 0;">
+                    <h3>Stages</h3>
+                    <button class="btn" onclick="addStage()">+ Add Stage</button>
+                </div>
+
+                <div id="stages-container"></div>
+            </div>
+        </div>
+
+        <div class="preview-panel">
+            <div class="panel-header">
+                <span>Scenario File Preview</span>
+                <div>
+                    <button class="btn btn-small export-btn" onclick="exportMarkdown()">Export Scenario File</button>
+                </div>
+            </div>
+            <div class="panel-content">
+                <div class="preview-content" id="preview"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let stageCounter = 0;
+        let elementCounter = 0;
+
+        // Initialize with one stage
+        document.addEventListener('DOMContentLoaded', function() {
+            addStage();
+            // Show the first stage expanded by default
+            const firstToggle = document.getElementById('toggle-1');
+            if (firstToggle) {
+                firstToggle.textContent = '▲';
+                firstToggle.classList.add('expanded');
+            }
+            updatePreview();
+        });
+
+        function toggleStage(stageId) {
+            const content = document.getElementById(`content-${stageId}`);
+            const toggle = document.getElementById(`toggle-${stageId}`);
+            
+            if (content.classList.contains('expanded')) {
+                content.classList.remove('expanded');
+                toggle.textContent = '▼';
+                toggle.classList.remove('expanded');
+            } else {
+                content.classList.add('expanded');
+                toggle.textContent = '▲';
+                toggle.classList.add('expanded');
+            }
+        }
+
+        function updateStageTitle(stageId) {
+            const titleInput = document.getElementById(`stage-title-${stageId}`);
+            const displayTitle = document.getElementById(`stage-display-title-${stageId}`);
+            
+            if (titleInput.value.trim()) {
+                displayTitle.textContent = titleInput.value;
+            } else {
+                displayTitle.textContent = 'New Stage';
+            }
+        }
+
+        function addStage() {
+            stageCounter++;
+            const stagesContainer = document.getElementById('stages-container');
+            
+            const stageDiv = document.createElement('div');
+            stageDiv.className = 'stage';
+            stageDiv.id = `stage-${stageCounter}`;
+            
+            stageDiv.innerHTML = `
+                <div class="stage-header" onclick="toggleStage(${stageCounter})">
+                    <div class="stage-title">
+                        <span class="stage-toggle" id="toggle-${stageCounter}">▲</span>
+                        <span id="stage-display-title-${stageCounter}">New Stage</span>
+                    </div>
+                    <div class="stage-controls" onclick="event.stopPropagation()">
+                        <button class="btn btn-small btn-secondary" onclick="moveStageUp(${stageCounter})">↑</button>
+                        <button class="btn btn-small btn-secondary" onclick="moveStageDown(${stageCounter})">↓</button>
+                        <button class="btn btn-small btn-danger" onclick="removeStage(${stageCounter})">Remove</button>
+                    </div>
+                </div>
+                
+                <div class="stage-content expanded" id="content-${stageCounter}">
+                    <div class="form-group">
+                        <label>Stage Title</label>
+                        <input type="text" id="stage-title-${stageCounter}" placeholder="Enter stage title" oninput="updateStageTitle(${stageCounter}); updatePreview()">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Stage Content</label>
+                        <textarea id="stage-content-${stageCounter}" placeholder="Enter stage content. Use **bold**, *italics*, %(image-url), ~ for quotes, - for bullets, 1. for numbered lists" oninput="updatePreview()"></textarea>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin: 20px 0 10px 0;">
+                        <h4 style="color: white;">Stage Elements</h4>
+                        <div class="add-element-dropdown">
+                            <button class="btn btn-small" onclick="toggleDropdown(${stageCounter})">+ Add Element</button>
+                            <div class="dropdown-content" id="dropdown-${stageCounter}">
+                                <div class="dropdown-item" onclick="addElement(${stageCounter}, 'question')">Multiple Choice Question</div>
+                                <div class="dropdown-item" onclick="addElement(${stageCounter}, 'prompt')" id="prompt-option-${stageCounter}">Facilitator Prompts</div>
+                                <div class="dropdown-item" onclick="addElement(${stageCounter}, 'discussion')" id="discussion-option-${stageCounter}">Discussion Points</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="elements-${stageCounter}"></div>
+                </div>
+            `;
+            
+            stagesContainer.appendChild(stageDiv);
+            updatePreview();
+        }
+
+        function removeStage(stageId) {
+            const stage = document.getElementById(`stage-${stageId}`);
+            stage.remove();
+            updatePreview();
+        }
+
+        function moveStageUp(stageId) {
+            const stage = document.getElementById(`stage-${stageId}`);
+            const previousStage = stage.previousElementSibling;
+            if (previousStage) {
+                stage.parentNode.insertBefore(stage, previousStage);
+                updatePreview();
+            }
+        }
+
+        function moveStageDown(stageId) {
+            const stage = document.getElementById(`stage-${stageId}`);
+            const nextStage = stage.nextElementSibling;
+            if (nextStage) {
+                stage.parentNode.insertBefore(nextStage, stage);
+                updatePreview();
+            }
+        }
+
+        function toggleDropdown(stageId) {
+            const dropdown = document.getElementById(`dropdown-${stageId}`);
+            // Close all other dropdowns
+            document.querySelectorAll('.dropdown-content').forEach(d => {
+                if (d.id !== `dropdown-${stageId}`) {
+                    d.classList.remove('show');
+                }
+            });
+            dropdown.classList.toggle('show');
+        }
+
+        function addElement(stageId, type) {
+            // Check if prompt or discussion already exists for this stage
+            if (type === 'prompt') {
+                const existingPrompt = document.querySelector(`#elements-${stageId} .element:has(#prompts-count-${stageId})`);
+                if (document.querySelector(`#elements-${stageId} [id*="prompts-count"]`)) {
+                    alert('Only one Facilitator Prompts list is allowed per stage.');
+                    document.getElementById(`dropdown-${stageId}`).classList.remove('show');
+                    return;
+                }
+            }
+            
+            if (type === 'discussion') {
+                if (document.querySelector(`#elements-${stageId} [id*="discussion-count"]`)) {
+                    alert('Only one Discussion Points list is allowed per stage.');
+                    document.getElementById(`dropdown-${stageId}`).classList.remove('show');
+                    return;
+                }
+            }
+            
+            elementCounter++;
+            const elementsContainer = document.getElementById(`elements-${stageId}`);
+            
+            const elementDiv = document.createElement('div');
+            elementDiv.className = 'element';
+            elementDiv.id = `element-${elementCounter}`;
+            elementDiv.setAttribute('data-stage', stageId);
+            elementDiv.setAttribute('data-type', type);
+            
+            let elementContent = '';
+            
+            if (type === 'question') {
+                elementContent = `
+                    <div class="element-header">
+                        <div class="element-type">Multiple Choice Question</div>
+                        <button class="btn btn-small btn-danger" onclick="removeElement(${elementCounter})">Remove</button>
+                    </div>
+                    <div class="form-group">
+                        <label>Question</label>
+                        <input type="text" id="question-${elementCounter}" placeholder="Enter your question" oninput="updatePreview()">
+                    </div>
+                    <div class="form-group">
+                        <label>Number of Options</label>
+                        <select id="options-count-${elementCounter}" onchange="updateQuestionOptions(${elementCounter})" oninput="updatePreview()">
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5" selected>5</option>
+                            <option value="6">6</option>
+                        </select>
+                    </div>
+                    <div id="options-${elementCounter}"></div>
+                `;
+            } else if (type === 'prompt') {
+                elementContent = `
+                    <div class="element-header">
+                        <div class="element-type">Facilitator Prompts</div>
+                        <button class="btn btn-small btn-danger" onclick="removeElement(${elementCounter})">Remove</button>
+                    </div>
+                    <div class="form-group">
+                        <label>Number of Prompts</label>
+                        <select id="prompts-count-${elementCounter}" onchange="updatePromptItems(${elementCounter})" oninput="updatePreview()">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3" selected>3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                    </div>
+                    <div id="prompts-${elementCounter}"></div>
+                `;
+            } else if (type === 'discussion') {
+                elementContent = `
+                    <div class="element-header">
+                        <div class="element-type">Discussion Points</div>
+                        <button class="btn btn-small btn-danger" onclick="removeElement(${elementCounter})">Remove</button>
+                    </div>
+                    <div class="form-group">
+                        <label>Number of Discussion Points</label>
+                        <select id="discussion-count-${elementCounter}" onchange="updateDiscussionItems(${elementCounter})" oninput="updatePreview()">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3" selected>3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                    </div>
+                    <div id="discussion-${elementCounter}"></div>
+                `;
+            }
+            
+            elementDiv.innerHTML = elementContent;
+            elementsContainer.appendChild(elementDiv);
+            
+            // Initialize options/prompts based on type
+            if (type === 'question') {
+                updateQuestionOptions(elementCounter);
+            } else if (type === 'prompt') {
+                updatePromptItems(elementCounter);
+                // Hide the prompt option in dropdown
+                const promptOption = document.getElementById(`prompt-option-${stageId}`);
+                if (promptOption) promptOption.style.display = 'none';
+            } else if (type === 'discussion') {
+                updateDiscussionItems(elementCounter);
+                // Hide the discussion option in dropdown
+                const discussionOption = document.getElementById(`discussion-option-${stageId}`);
+                if (discussionOption) discussionOption.style.display = 'none';
+            }
+            
+            // Close dropdown
+            document.getElementById(`dropdown-${stageId}`).classList.remove('show');
+            updatePreview();
+        }
+
+        function removeElement(elementId) {
+            const element = document.getElementById(`element-${elementId}`);
+            const stageId = element.getAttribute('data-stage');
+            const type = element.getAttribute('data-type');
+            
+            element.remove();
+            
+            // Show the dropdown option again if we removed a prompt or discussion
+            if (type === 'prompt') {
+                const promptOption = document.getElementById(`prompt-option-${stageId}`);
+                if (promptOption) promptOption.style.display = 'block';
+            } else if (type === 'discussion') {
+                const discussionOption = document.getElementById(`discussion-option-${stageId}`);
+                if (discussionOption) discussionOption.style.display = 'block';
+            }
+            
+            updatePreview();
+        }
+
+        function updateQuestionOptions(elementId) {
+            const count = parseInt(document.getElementById(`options-count-${elementId}`).value);
+            const optionsContainer = document.getElementById(`options-${elementId}`);
+            
+            optionsContainer.innerHTML = '';
+            
+            for (let i = 1; i <= count; i++) {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'option-item';
+switch(i){
+case 1:
+optionDiv.innerHTML = `
+                    <input type="text" value="Not at all confident" oninput="updatePreview()">
+                `;
+break;
+case 2:
+optionDiv.innerHTML = `
+                    <input type="text" value="Slightly confident" oninput="updatePreview()">
+                `;
+break;
+case 3:
+optionDiv.innerHTML = `
+                    <input type="text" value="Somewhat confident" oninput="updatePreview()">
+                `;
+break;
+case 4:
+optionDiv.innerHTML = `
+                    <input type="text" value="Fairly confident" oninput="updatePreview()">
+                `;
+break;
+case 5:
+optionDiv.innerHTML = `
+                    <input type="text" value="Completely confident" oninput="updatePreview()">
+                `;
+break;
+default:
+                optionDiv.innerHTML = `
+                    <input type="text" placeholder="Option ${i}" oninput="updatePreview()">
+                `;
+}
+                optionsContainer.appendChild(optionDiv);
+            }
+            updatePreview();
+        }
+
+        function updatePromptItems(elementId) {
+            const count = parseInt(document.getElementById(`prompts-count-${elementId}`).value);
+            const promptsContainer = document.getElementById(`prompts-${elementId}`);
+            
+            promptsContainer.innerHTML = '';
+            
+            for (let i = 1; i <= count; i++) {
+                const promptDiv = document.createElement('div');
+                promptDiv.className = 'prompt-item';
+                promptDiv.innerHTML = `
+                    <input type="text" placeholder="Facilitator prompt ${i}" oninput="updatePreview()">
+                `;
+                promptsContainer.appendChild(promptDiv);
+            }
+            updatePreview();
+        }
+
+        function updateDiscussionItems(elementId) {
+            const count = parseInt(document.getElementById(`discussion-count-${elementId}`).value);
+            const discussionContainer = document.getElementById(`discussion-${elementId}`);
+            
+            discussionContainer.innerHTML = '';
+            
+            for (let i = 1; i <= count; i++) {
+                const discussionDiv = document.createElement('div');
+                discussionDiv.className = 'prompt-item';
+                discussionDiv.innerHTML = `
+                    <input type="text" placeholder="Discussion point ${i}" oninput="updatePreview()">
+                `;
+                discussionContainer.appendChild(discussionDiv);
+            }
+            updatePreview();
+        }
+
+        function updatePreview() {
+            let markdown = '';
+            
+            // Title and Summary
+            const title = document.getElementById('title').value;
+            const author = document.getElementById('author').value;
+            const summary = document.getElementById('summary').value;
+            
+            if (title) {
+                markdown += `! title: ${title}\n`;
+            }
+            
+            if (author) {
+                markdown += `! author: ${author}\n`;
+            }
+            
+            if (summary) {
+                markdown += `! summary\n${summary}\n\n`;
+            }
+            
+            // Stages
+            const stages = document.querySelectorAll('.stage');
+            stages.forEach(stage => {
+                const stageId = stage.id.split('-')[1];
+                const stageTitle = document.getElementById(`stage-title-${stageId}`)?.value;
+                const stageContent = document.getElementById(`stage-content-${stageId}`)?.value;
+                
+                if (stageTitle) {
+                    markdown += `@ ${stageTitle}\n`;
+                    
+                    if (stageContent) {
+                        markdown += `! content\n${stageContent}\n\n`;
+                    }
+                    
+                    // Process elements in this stage
+                    const elementsContainer = document.getElementById(`elements-${stageId}`);
+                    if (elementsContainer) {
+                        const elements = elementsContainer.children;
+                        
+                        for (let element of elements) {
+                            const elementId = element.id.split('-')[1];
+                            
+                            // Check element type and process accordingly
+                            if (element.querySelector(`#question-${elementId}`)) {
+                                // Question element
+                                const question = document.getElementById(`question-${elementId}`)?.value;
+                                if (question) {
+                                    markdown += `? ${question}\n`;
+                                    
+                                    const options = element.querySelectorAll('.option-item input');
+                                    options.forEach(option => {
+                                        if (option.value) {
+                                            markdown += `+ ${option.value}\n`;
+                                        }
+                                    });
+                                    markdown += '\n';
+                                }
+                            } else if (element.querySelector(`#prompts-${elementId}`)) {
+                                // Prompts element
+                                const prompts = element.querySelectorAll('.prompt-item input');
+                                let hasPrompts = false;
+                                
+                                prompts.forEach(prompt => {
+                                    if (prompt.value) {
+                                        if (!hasPrompts) {
+                                            markdown += '# prompts\n';
+                                            hasPrompts = true;
+                                        }
+                                        markdown += `+ ${prompt.value}\n`;
+                                    }
+                                });
+                                
+                                if (hasPrompts) {
+                                    markdown += '\n';
+                                }
+                            } else if (element.querySelector(`#discussion-${elementId}`)) {
+                                // Discussion element
+                                const discussions = element.querySelectorAll('.prompt-item input');
+                                let hasDiscussions = false;
+                                
+                                discussions.forEach(discussion => {
+                                    if (discussion.value) {
+                                        if (!hasDiscussions) {
+                                            markdown += '# discussion\n';
+                                            hasDiscussions = true;
+                                        }
+                                        markdown += `+ ${discussion.value}\n`;
+                                    }
+                                });
+                                
+                                if (hasDiscussions) {
+                                    markdown += '\n';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            document.getElementById('preview').textContent = markdown;
+        }
+
+        function exportMarkdown() {
+            const markdown = document.getElementById('preview').textContent;
+            const title = document.getElementById('title').value || 'scenario';
+            
+            const blob = new Blob([markdown], { type: 'text/markdown' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.ttxf`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!event.target.matches('.btn')) {
+                const dropdowns = document.getElementsByClassName('dropdown-content');
+                for (let dropdown of dropdowns) {
+                    dropdown.classList.remove('show');
+                }
+            }
+        });
+    </script>
+</body>
+</html>
