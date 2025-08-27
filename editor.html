@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TTX Gym Scenario Generator</title>
+    <title>TTX Gym Scenario Builder</title>
     <style>
         * {
             margin: 0;
@@ -28,10 +29,11 @@
             height: 100vh;
         }
 
-        .editor-panel, .preview-panel {
+        .editor-panel,
+        .preview-panel {
             background: #293042;
             border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
             /* border: 1px solid #1a6ec0; */
             display: flex;
             flex-direction: column;
@@ -67,7 +69,9 @@
             color: white;
         }
 
-        input, textarea, select {
+        input,
+        textarea,
+        select {
             width: 100%;
             padding: 10px 12px;
             border: 1px solid #1a6ec0;
@@ -78,13 +82,16 @@
             color: white;
         }
 
-        input:focus, textarea:focus, select:focus {
+        input:focus,
+        textarea:focus,
+        select:focus {
             outline: none;
             border-color: #1a6ec0;
             box-shadow: 0 0 0 3px rgba(26, 110, 192, 0.2);
         }
 
-        input::placeholder, textarea::placeholder {
+        input::placeholder,
+        textarea::placeholder {
             color: #888;
         }
 
@@ -214,14 +221,16 @@
             font-size: 14px;
         }
 
-        .option-item, .prompt-item {
+        .option-item,
+        .prompt-item {
             display: flex;
             align-items: center;
             gap: 10px;
             margin-bottom: 10px;
         }
 
-        .option-item input, .prompt-item input {
+        .option-item input,
+        .prompt-item input {
             flex: 1;
         }
 
@@ -254,10 +263,10 @@
         .dropdown-content {
             display: none;
             position: absolute;
-            right:  0;
+            right: 0;
             background-color: #293042;
             min-width: 220px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
             border-radius: 6px;
             z-index: 1;
             border: 1px solid #1a6ec0;
@@ -290,13 +299,129 @@
                 height: auto;
             }
         }
+
+        .import-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+
+        .import-modal-content {
+            background-color: #293042;
+            margin: 5% auto;
+            padding: 0;
+            border: 1px solid #1a6ec0;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 800px;
+            max-height: 80%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .import-modal-header {
+            background: #171b25;
+            color: white;
+            padding: 16px 20px;
+            font-weight: 600;
+            border-bottom: 1px solid #1a6ec0;
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .import-file-area {
+            border: 2px dashed #1a6ec0;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            margin: 20px;
+            background: #202634;
+            transition: all 0.3s ease;
+        }
+
+        .import-file-area:hover {
+            border-color: #007BFF;
+            background: #293042;
+        }
+
+        .import-file-area.dragover {
+            border-color: #007BFF;
+            background: #293042;
+            transform: scale(1.02);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-input-label {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #1a6ec0;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            margin: 10px;
+            transition: background 0.2s;
+        }
+
+        .file-input-label:hover {
+            background: #007BFF;
+        }
+
+        .file-info {
+            margin-top: 15px;
+            color: #1a6ec0;
+            font-weight: 500;
+        }
+
+        .import-modal-footer {
+            padding: 16px 20px;
+            border-top: 1px solid #1a6ec0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .close-modal {
+            cursor: pointer;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .close-modal:hover {
+            color: #1a6ec0;
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+
+            .import-modal-content {
+                width: 95%;
+                margin: 2% auto;
+                max-height: 95%;
+            }
+        }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="editor-panel">
             <div class="panel-header">
-                <span>TTX Gym Scenario Editor</span>
+                <span>TTX Gym Scenario Builder</span>
             </div>
             <div class="panel-content">
                 <!-- File Info Section -->
@@ -304,12 +429,12 @@
                     <label for="title">Scenario Title</label>
                     <input type="text" id="title" placeholder="Enter scenario title" oninput="updatePreview()">
                 </div>
-                
+
                 <div class="form-group">
                     <label for="author">Author (Optional)</label>
                     <input type="text" id="author" placeholder="Enter author name" oninput="updatePreview()">
                 </div>
-                
+
                 <div class="form-group">
                     <label for="summary">Summary</label>
                     <textarea id="summary" placeholder="Enter scenario summary" oninput="updatePreview()"></textarea>
@@ -329,11 +454,38 @@
             <div class="panel-header">
                 <span>Scenario File Preview</span>
                 <div>
-                    <button class="btn btn-small export-btn" onclick="exportMarkdown()">Export Scenario File</button>
+                    <button class="btn btn-small" onclick="importFromFile()">Import</button>
+                    <button class="btn btn-small export-btn" onclick="exportMarkdown()">Export</button>
                 </div>
             </div>
             <div class="panel-content">
                 <div class="preview-content" id="preview"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Import Modal -->
+    <div id="import-modal" class="import-modal">
+        <div class="import-modal-content">
+            <div class="import-modal-header">
+                <span>Import TTXF File</span>
+                <span class="close-modal" onclick="closeImportModal()">&times;</span>
+            </div>
+            <div class="import-file-area" id="file-drop-area">
+                <div>
+                    <h3 style="color: white; margin-bottom: 20px;">Upload TTXF File</h3>
+                    <p style="color: #888; margin-bottom: 20px;">Drag and drop a .ttxf file here, or click to select</p>
+
+                    <input type="file" id="file-input" class="file-input" accept=".ttxf,.txt,.md"
+                        onchange="handleFileSelect(event)">
+                    <label for="file-input" class="file-input-label">Choose File</label>
+
+                    <div id="file-info" class="file-info" style="display: none;"></div>
+                </div>
+            </div>
+            <div class="import-modal-footer">
+                <button class="btn btn-secondary" onclick="closeImportModal()">Cancel</button>
+                <button class="btn" id="import-btn" onclick="processFileImport()" disabled>Import</button>
             </div>
         </div>
     </div>
@@ -343,12 +495,14 @@
         let elementCounter = 0;
 
         // Initialize with one stage
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             addStage();
-            // Show the first stage expanded by default
+            // Show the first stage expanded by default and set correct arrow
+            const firstContent = document.getElementById('content-1');
             const firstToggle = document.getElementById('toggle-1');
-            if (firstToggle) {
-                firstToggle.textContent = '▲';
+            if (firstContent && firstToggle) {
+                firstContent.classList.add('expanded');
+                firstToggle.textContent = '▲'; // Up arrow for expanded state
                 firstToggle.classList.add('expanded');
             }
             updatePreview();
@@ -357,14 +511,16 @@
         function toggleStage(stageId) {
             const content = document.getElementById(`content-${stageId}`);
             const toggle = document.getElementById(`toggle-${stageId}`);
-            
+
             if (content.classList.contains('expanded')) {
+                // Currently expanded, so collapse it
                 content.classList.remove('expanded');
-                toggle.textContent = '▼';
+                toggle.textContent = '▼'; // Show down arrow when collapsed
                 toggle.classList.remove('expanded');
             } else {
+                // Currently collapsed, so expand it
                 content.classList.add('expanded');
-                toggle.textContent = '▲';
+                toggle.textContent = '▲'; // Show up arrow when expanded
                 toggle.classList.add('expanded');
             }
         }
@@ -372,7 +528,7 @@
         function updateStageTitle(stageId) {
             const titleInput = document.getElementById(`stage-title-${stageId}`);
             const displayTitle = document.getElementById(`stage-display-title-${stageId}`);
-            
+
             if (titleInput.value.trim()) {
                 displayTitle.textContent = titleInput.value;
             } else {
@@ -380,18 +536,352 @@
             }
         }
 
+        let selectedFile = null;
+
+        function importFromFile() {
+            document.getElementById('import-modal').style.display = 'block';
+            setupDragAndDrop();
+        }
+
+        function closeImportModal() {
+            document.getElementById('import-modal').style.display = 'none';
+            selectedFile = null;
+            document.getElementById('file-input').value = '';
+            document.getElementById('file-info').style.display = 'none';
+            document.getElementById('import-btn').disabled = true;
+        }
+
+        function setupDragAndDrop() {
+            const dropArea = document.getElementById('file-drop-area');
+
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropArea.addEventListener(eventName, highlight, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, unhighlight, false);
+            });
+
+            function highlight(e) {
+                dropArea.classList.add('dragover');
+            }
+
+            function unhighlight(e) {
+                dropArea.classList.remove('dragover');
+            }
+
+            dropArea.addEventListener('drop', handleDrop, false);
+
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+
+                if (files.length > 0) {
+                    handleFileSelection(files[0]);
+                }
+            }
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                handleFileSelection(file);
+            }
+        }
+
+        function handleFileSelection(file) {
+            // Validate file type
+            const validExtensions = ['.ttxf', '.txt', '.md'];
+            const fileName = file.name.toLowerCase();
+            const isValidFile = validExtensions.some(ext => fileName.endsWith(ext));
+
+            if (!isValidFile) {
+                alert('Please select a valid file (.ttxf, .txt, or .md)');
+                return;
+            }
+
+            // Validate file size (max 1MB)
+            if (file.size > 1024 * 1024) {
+                alert('File size must be less than 1MB');
+                return;
+            }
+
+            selectedFile = file;
+
+            // Show file info
+            const fileInfo = document.getElementById('file-info');
+            fileInfo.innerHTML = `
+                <strong>Selected:</strong> ${file.name}<br>
+                <strong>Size:</strong> ${(file.size / 1024).toFixed(1)} KB<br>
+                <strong>Type:</strong> ${file.type || 'text/plain'}
+            `;
+            fileInfo.style.display = 'block';
+
+            // Enable import button
+            document.getElementById('import-btn').disabled = false;
+        }
+
+        function processFileImport() {
+            if (!selectedFile) {
+                alert('Please select a file first.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                try {
+                    const markdownText = e.target.result.trim();
+                    if (!markdownText) {
+                        alert('The file appears to be empty.');
+                        return;
+                    }
+
+                    parseAndRebuild(markdownText);
+                    closeImportModal();
+                } catch (error) {
+                    alert('Warning when parsing file (' + error.message + "). Check preview for accuracy.");
+                }
+            };
+
+            reader.onerror = function () {
+                alert('Error reading file. Please try again.');
+            };
+
+            reader.readAsText(selectedFile);
+        }
+
+        function processImport() {
+            const markdownText = document.getElementById('import-textarea').value.trim();
+            if (!markdownText) {
+                alert('Please paste some markdown to import.');
+                return;
+            }
+
+            try {
+                parseAndRebuild(markdownText);
+                closeImportModal();
+                alert('Markdown imported successfully!');
+            } catch (error) {
+                alert('Error parsing markdown: ' + error.message);
+            }
+        }
+
+        function parseAndRebuild(markdown) {
+            // Clear existing content
+            clearAll();
+
+            const lines = markdown.split('\n');
+            let currentStage = null;
+            let currentElement = null;
+            let multiLineValue = '';
+            let isMultiLine = false;
+            let multiLineKey = '';
+
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+
+                // Handle multi-line values
+                if (isMultiLine) {
+                    if (line.startsWith('!') || line.startsWith('@') || line.startsWith('?') || line.startsWith('#') || i === lines.length - 1) {
+                        // End of multi-line, process the accumulated value
+                        if (i === lines.length - 1 && !line.startsWith('!') && !line.startsWith('@') && !line.startsWith('?') && !line.startsWith('#')) {
+                            multiLineValue += (multiLineValue ? '\n' : '') + line;
+                        }
+
+                        if (multiLineKey === 'summary') {
+                            document.getElementById('summary').value = multiLineValue.trim();
+                        } else if (multiLineKey === 'content' && currentStage) {
+                            document.getElementById(`stage-content-${currentStage}`).value = multiLineValue.trim();
+                        }
+
+                        isMultiLine = false;
+                        multiLineValue = '';
+                        multiLineKey = '';
+
+                        // Don't skip this line, process it normally
+                        if (line.startsWith('!') || line.startsWith('@') || line.startsWith('?') || line.startsWith('#')) {
+                            i--; // Reprocess this line
+                            continue;
+                        }
+                    } else {
+                        multiLineValue += (multiLineValue ? '\n' : '') + line;
+                        continue;
+                    }
+                }
+
+                // Skip empty lines
+                if (!line.trim()) continue;
+
+                // Handle key-value pairs
+                if (line.startsWith('!')) {
+                    const colonIndex = line.indexOf(':');
+                    if (colonIndex > 1) {
+                        // Single line key-value
+                        const key = line.substring(1, colonIndex).trim();
+                        const value = line.substring(colonIndex + 1).trim();
+
+                        if (key === 'title') {
+                            document.getElementById('title').value = value;
+                        } else if (key === 'author') {
+                            document.getElementById('author').value = value;
+                        }
+                    } else {
+                        // Multi-line key
+                        const key = line.substring(1).trim();
+                        if (key === 'summary' || key === 'content') {
+                            isMultiLine = true;
+                            multiLineKey = key;
+                            multiLineValue = '';
+                        }
+                    }
+                }
+
+                // Handle stages
+                else if (line.startsWith('@')) {
+                    const stageTitle = line.substring(1).trim();
+                    addStage();
+                    currentStage = stageCounter;
+
+                    document.getElementById(`stage-title-${currentStage}`).value = stageTitle;
+                    updateStageTitle(currentStage);
+                    currentElement = null;
+                }
+
+                // Handle questions
+                else if (line.startsWith('?')) {
+                    if (!currentStage) continue;
+
+                    const question = line.substring(1).trim();
+                    addElement(currentStage, 'question');
+                    currentElement = {
+                        type: 'question',
+                        id: elementCounter,
+                        options: []
+                    };
+
+                    document.getElementById(`question-${elementCounter}`).value = question;
+                }
+
+                // Handle options, prompts, discussions
+                else if (line.startsWith('+')) {
+                    const item = line.substring(1).trim();
+
+                    if (currentElement && currentElement.type === 'question') {
+                        currentElement.options.push(item);
+                        updateQuestionWithOptions(currentElement.id, currentElement.options);
+                    } else if (currentElement && currentElement.type === 'prompts') {
+                        currentElement.items.push(item);
+                        updatePromptsWithItems(currentElement.id, currentElement.items);
+                    } else if (currentElement && currentElement.type === 'discussion') {
+                        currentElement.items.push(item);
+                        updateDiscussionWithItems(currentElement.id, currentElement.items);
+                    }
+                }
+
+                // Handle section headers
+                else if (line.startsWith('#')) {
+                    if (!currentStage) continue;
+
+                    const section = line.substring(1).trim();
+                    if (section === 'prompts') {
+                        addElement(currentStage, 'prompt');
+                        currentElement = {
+                            type: 'prompts',
+                            id: elementCounter,
+                            items: []
+                        };
+                    } else if (section === 'discussion') {
+                        addElement(currentStage, 'discussion');
+                        currentElement = {
+                            type: 'discussion',
+                            id: elementCounter,
+                            items: []
+                        };
+                    }
+                }
+            }
+
+            updatePreview();
+        }
+
+        function clearAll() {
+            // Clear basic fields
+            document.getElementById('title').value = '';
+            document.getElementById('author').value = '';
+            document.getElementById('summary').value = '';
+
+            // Remove all stages except keep the container
+            const stagesContainer = document.getElementById('stages-container');
+            stagesContainer.innerHTML = '';
+
+            // Reset counters
+            stageCounter = 0;
+            elementCounter = 0;
+        }
+
+        function updateQuestionWithOptions(elementId, options) {
+            const select = document.getElementById(`options-count-${elementId}`);
+            select.value = options.length;
+            updateQuestionOptions(elementId);
+
+            const optionsContainer = document.getElementById(`options-${elementId}`);
+            const inputs = optionsContainer.querySelectorAll('input');
+            options.forEach((option, index) => {
+                if (inputs[index]) {
+                    inputs[index].value = option;
+                }
+            });
+        }
+
+        function updatePromptsWithItems(elementId, items) {
+            const select = document.getElementById(`prompts-count-${elementId}`);
+            select.value = Math.max(items.length, 1);
+            updatePromptItems(elementId);
+
+            const container = document.getElementById(`prompts-${elementId}`);
+            const inputs = container.querySelectorAll('input');
+            items.forEach((item, index) => {
+                if (inputs[index]) {
+                    inputs[index].value = item;
+                }
+            });
+        }
+
+        function updateDiscussionWithItems(elementId, items) {
+            const select = document.getElementById(`discussion-count-${elementId}`);
+            select.value = Math.max(items.length, 1);
+            updateDiscussionItems(elementId);
+
+            const container = document.getElementById(`discussion-${elementId}`);
+            const inputs = container.querySelectorAll('input');
+            items.forEach((item, index) => {
+                if (inputs[index]) {
+                    inputs[index].value = item;
+                }
+            });
+        }
+
         function addStage() {
             stageCounter++;
             const stagesContainer = document.getElementById('stages-container');
-            
+
             const stageDiv = document.createElement('div');
             stageDiv.className = 'stage';
             stageDiv.id = `stage-${stageCounter}`;
-            
+
             stageDiv.innerHTML = `
                 <div class="stage-header" onclick="toggleStage(${stageCounter})">
                     <div class="stage-title">
-                        <span class="stage-toggle" id="toggle-${stageCounter}">▲</span>
+                        <span class="stage-toggle" id="toggle-${stageCounter}">▼</span>
                         <span id="stage-display-title-${stageCounter}">New Stage</span>
                     </div>
                     <div class="stage-controls" onclick="event.stopPropagation()">
@@ -401,7 +891,7 @@
                     </div>
                 </div>
                 
-                <div class="stage-content expanded" id="content-${stageCounter}">
+                <div class="stage-content" id="content-${stageCounter}">
                     <div class="form-group">
                         <label>Stage Title</label>
                         <input type="text" id="stage-title-${stageCounter}" placeholder="Enter stage title" oninput="updateStageTitle(${stageCounter}); updatePreview()">
@@ -427,7 +917,7 @@
                     <div id="elements-${stageCounter}"></div>
                 </div>
             `;
-            
+
             stagesContainer.appendChild(stageDiv);
             updatePreview();
         }
@@ -477,7 +967,7 @@
                     return;
                 }
             }
-            
+
             if (type === 'discussion') {
                 if (document.querySelector(`#elements-${stageId} [id*="discussion-count"]`)) {
                     alert('Only one Discussion Points list is allowed per stage.');
@@ -485,18 +975,18 @@
                     return;
                 }
             }
-            
+
             elementCounter++;
             const elementsContainer = document.getElementById(`elements-${stageId}`);
-            
+
             const elementDiv = document.createElement('div');
             elementDiv.className = 'element';
             elementDiv.id = `element-${elementCounter}`;
             elementDiv.setAttribute('data-stage', stageId);
             elementDiv.setAttribute('data-type', type);
-            
+
             let elementContent = '';
-            
+
             if (type === 'question') {
                 elementContent = `
                     <div class="element-header">
@@ -512,8 +1002,8 @@
                         <select id="options-count-${elementCounter}" onchange="updateQuestionOptions(${elementCounter})" oninput="updatePreview()">
                             <option value="2">2</option>
                             <option value="3">3</option>
-                            <option value="4">4</option>
-                            <option value="5" selected>5</option>
+                            <option value="4" selected>4</option>
+                            <option value="5">5</option>
                             <option value="6">6</option>
                         </select>
                     </div>
@@ -556,10 +1046,10 @@
                     <div id="discussion-${elementCounter}"></div>
                 `;
             }
-            
+
             elementDiv.innerHTML = elementContent;
             elementsContainer.appendChild(elementDiv);
-            
+
             // Initialize options/prompts based on type
             if (type === 'question') {
                 updateQuestionOptions(elementCounter);
@@ -574,7 +1064,7 @@
                 const discussionOption = document.getElementById(`discussion-option-${stageId}`);
                 if (discussionOption) discussionOption.style.display = 'none';
             }
-            
+
             // Close dropdown
             document.getElementById(`dropdown-${stageId}`).classList.remove('show');
             updatePreview();
@@ -584,9 +1074,9 @@
             const element = document.getElementById(`element-${elementId}`);
             const stageId = element.getAttribute('data-stage');
             const type = element.getAttribute('data-type');
-            
+
             element.remove();
-            
+
             // Show the dropdown option again if we removed a prompt or discussion
             if (type === 'prompt') {
                 const promptOption = document.getElementById(`prompt-option-${stageId}`);
@@ -595,50 +1085,22 @@
                 const discussionOption = document.getElementById(`discussion-option-${stageId}`);
                 if (discussionOption) discussionOption.style.display = 'block';
             }
-            
+
             updatePreview();
         }
 
         function updateQuestionOptions(elementId) {
             const count = parseInt(document.getElementById(`options-count-${elementId}`).value);
             const optionsContainer = document.getElementById(`options-${elementId}`);
-            
+
             optionsContainer.innerHTML = '';
-            
+
             for (let i = 1; i <= count; i++) {
                 const optionDiv = document.createElement('div');
                 optionDiv.className = 'option-item';
-switch(i){
-case 1:
-optionDiv.innerHTML = `
-                    <input type="text" value="Not at all confident" oninput="updatePreview()">
-                `;
-break;
-case 2:
-optionDiv.innerHTML = `
-                    <input type="text" value="Slightly confident" oninput="updatePreview()">
-                `;
-break;
-case 3:
-optionDiv.innerHTML = `
-                    <input type="text" value="Somewhat confident" oninput="updatePreview()">
-                `;
-break;
-case 4:
-optionDiv.innerHTML = `
-                    <input type="text" value="Fairly confident" oninput="updatePreview()">
-                `;
-break;
-case 5:
-optionDiv.innerHTML = `
-                    <input type="text" value="Completely confident" oninput="updatePreview()">
-                `;
-break;
-default:
                 optionDiv.innerHTML = `
                     <input type="text" placeholder="Option ${i}" oninput="updatePreview()">
                 `;
-}
                 optionsContainer.appendChild(optionDiv);
             }
             updatePreview();
@@ -647,9 +1109,9 @@ default:
         function updatePromptItems(elementId) {
             const count = parseInt(document.getElementById(`prompts-count-${elementId}`).value);
             const promptsContainer = document.getElementById(`prompts-${elementId}`);
-            
+
             promptsContainer.innerHTML = '';
-            
+
             for (let i = 1; i <= count; i++) {
                 const promptDiv = document.createElement('div');
                 promptDiv.className = 'prompt-item';
@@ -664,9 +1126,9 @@ default:
         function updateDiscussionItems(elementId) {
             const count = parseInt(document.getElementById(`discussion-count-${elementId}`).value);
             const discussionContainer = document.getElementById(`discussion-${elementId}`);
-            
+
             discussionContainer.innerHTML = '';
-            
+
             for (let i = 1; i <= count; i++) {
                 const discussionDiv = document.createElement('div');
                 discussionDiv.className = 'prompt-item';
@@ -680,53 +1142,53 @@ default:
 
         function updatePreview() {
             let markdown = '';
-            
+
             // Title and Summary
             const title = document.getElementById('title').value;
             const author = document.getElementById('author').value;
             const summary = document.getElementById('summary').value;
-            
+
             if (title) {
                 markdown += `! title: ${title}\n`;
             }
-            
+
             if (author) {
                 markdown += `! author: ${author}\n`;
             }
-            
+
             if (summary) {
                 markdown += `! summary\n${summary}\n\n`;
             }
-            
+
             // Stages
             const stages = document.querySelectorAll('.stage');
             stages.forEach(stage => {
                 const stageId = stage.id.split('-')[1];
                 const stageTitle = document.getElementById(`stage-title-${stageId}`)?.value;
                 const stageContent = document.getElementById(`stage-content-${stageId}`)?.value;
-                
+
                 if (stageTitle) {
                     markdown += `@ ${stageTitle}\n`;
-                    
+
                     if (stageContent) {
                         markdown += `! content\n${stageContent}\n\n`;
                     }
-                    
+
                     // Process elements in this stage
                     const elementsContainer = document.getElementById(`elements-${stageId}`);
                     if (elementsContainer) {
                         const elements = elementsContainer.children;
-                        
+
                         for (let element of elements) {
                             const elementId = element.id.split('-')[1];
-                            
+
                             // Check element type and process accordingly
                             if (element.querySelector(`#question-${elementId}`)) {
                                 // Question element
                                 const question = document.getElementById(`question-${elementId}`)?.value;
                                 if (question) {
                                     markdown += `? ${question}\n`;
-                                    
+
                                     const options = element.querySelectorAll('.option-item input');
                                     options.forEach(option => {
                                         if (option.value) {
@@ -739,7 +1201,7 @@ default:
                                 // Prompts element
                                 const prompts = element.querySelectorAll('.prompt-item input');
                                 let hasPrompts = false;
-                                
+
                                 prompts.forEach(prompt => {
                                     if (prompt.value) {
                                         if (!hasPrompts) {
@@ -749,7 +1211,7 @@ default:
                                         markdown += `+ ${prompt.value}\n`;
                                     }
                                 });
-                                
+
                                 if (hasPrompts) {
                                     markdown += '\n';
                                 }
@@ -757,7 +1219,7 @@ default:
                                 // Discussion element
                                 const discussions = element.querySelectorAll('.prompt-item input');
                                 let hasDiscussions = false;
-                                
+
                                 discussions.forEach(discussion => {
                                     if (discussion.value) {
                                         if (!hasDiscussions) {
@@ -767,7 +1229,7 @@ default:
                                         markdown += `+ ${discussion.value}\n`;
                                     }
                                 });
-                                
+
                                 if (hasDiscussions) {
                                     markdown += '\n';
                                 }
@@ -776,14 +1238,14 @@ default:
                     }
                 }
             });
-            
+
             document.getElementById('preview').textContent = markdown;
         }
 
         function exportMarkdown() {
             const markdown = document.getElementById('preview').textContent;
             const title = document.getElementById('title').value || 'scenario';
-            
+
             const blob = new Blob([markdown], { type: 'text/markdown' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -796,14 +1258,21 @@ default:
         }
 
         // Close dropdowns when clicking outside
-        document.addEventListener('click', function(event) {
+        document.addEventListener('click', function (event) {
             if (!event.target.matches('.btn')) {
                 const dropdowns = document.getElementsByClassName('dropdown-content');
                 for (let dropdown of dropdowns) {
                     dropdown.classList.remove('show');
                 }
             }
+
+            // Close import modal when clicking outside
+            const modal = document.getElementById('import-modal');
+            if (event.target === modal) {
+                closeImportModal();
+            }
         });
     </script>
 </body>
+
 </html>
