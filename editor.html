@@ -1002,8 +1002,8 @@
                         <select id="options-count-${elementCounter}" onchange="updateQuestionOptions(${elementCounter})" oninput="updatePreview()">
                             <option value="2">2</option>
                             <option value="3">3</option>
-                            <option value="4" selected>4</option>
-                            <option value="5">5</option>
+                            <option value="4">4</option>
+                            <option value="5" selected>5</option>
                             <option value="6">6</option>
                         </select>
                     </div>
@@ -1098,9 +1098,37 @@
             for (let i = 1; i <= count; i++) {
                 const optionDiv = document.createElement('div');
                 optionDiv.className = 'option-item';
-                optionDiv.innerHTML = `
+                switch (i) {
+                    case 1:
+                        optionDiv.innerHTML = `
+                    <input type="text" value="Not at all confident" oninput="updatePreview()">
+                `;
+                        break;
+                    case 2:
+                        optionDiv.innerHTML = `
+                    <input type="text" value="Slightly confident" oninput="updatePreview()">
+                `;
+                        break;
+                    case 3:
+                        optionDiv.innerHTML = `
+                    <input type="text" value="Somewhat confident" oninput="updatePreview()">
+                `;
+                        break;
+                    case 4:
+                        optionDiv.innerHTML = `
+                    <input type="text" value="Fairly confident" oninput="updatePreview()">
+                `;
+                        break;
+                    case 5:
+                        optionDiv.innerHTML = `
+                    <input type="text" value="Completely confident" oninput="updatePreview()">
+                `;
+                        break;
+                    default:
+                        optionDiv.innerHTML = `
                     <input type="text" placeholder="Option ${i}" oninput="updatePreview()">
                 `;
+                }
                 optionsContainer.appendChild(optionDiv);
             }
             updatePreview();
