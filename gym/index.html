@@ -1667,12 +1667,16 @@ within your organisation?`]
                             choicesContainer.className = 'choices';
 
                             item.answers.forEach((choice, choiceIndex) => {
+
                                 const choiceContainer = document.createElement('div');
                                 choiceContainer.className = 'choice';
 
                                 const choiceInput = document.createElement('input');
                                 choiceInput.type = 'radio';
                                 choiceInput.name = `question_${questionCounter}`;
+                                if (item.quiz) {
+                                    choiceInput.setAttribute('data-quiz', item.quiz);
+                                }
                                 choiceInput.value = choice;
                                 choiceInput.id = `q${questionCounter}_c${choiceIndex}`;
 
@@ -1835,7 +1839,6 @@ within your organisation?`]
             /* send */
 
             console.log('Submitted answers:', answers);
-            // You can now send `answers` to a server or process it as needed
         });
 
         document.getElementById('questionsForm').addEventListener('change', updateProgress);
@@ -2127,12 +2130,29 @@ within your organisation?`]
                     const selectedOption = form.querySelector(`input[name="${questionName}"]:checked`);
                     const questionScore = document.createElement('li');
                     if (selectedOption) {
-                        const selectedIndex = Array.from(options).indexOf(selectedOption) + 1;
-                        const score = ((selectedIndex - 1) / (options.length - 1)) * 100;
-                        totalScore += score;
-                        answeredQuestions++;
-                        questionScore.innerHTML = `${qList[questionName]} : <strong>${selectedOption.value}</strong>
+
+                        if (selectedOption.hasAttribute("data-quiz")) {
+                            if (selectedOption.getAttribute('data-quiz') == selectedOption.value) {
+                                totalScore += 100;
+                                questionScore.innerHTML = `${qList[questionName]} : <strong>${selectedOption.value}</strong>
+                    (CORRECT)`;
+                            }
+                            else {
+                                questionScore.innerHTML = `${qList[questionName]} : <strong>${selectedOption.value}</strong>
+                    (INCORRECT - correct answer is '${selectedOption.getAttribute('data-quiz')}')`;
+                            }
+                            answeredQuestions++;
+                        } else {
+
+                            const selectedIndex = Array.from(options).indexOf(selectedOption) + 1;
+                            const score = ((selectedIndex - 1) / (options.length - 1)) * 100;
+                            totalScore += score;
+                            answeredQuestions++;
+                            questionScore.innerHTML = `${qList[questionName]} : <strong>${selectedOption.value}</strong>
                     (${score.toFixed(0)}% indicative score)`;
+
+                        }
+
                     } else {
                         questionScore.innerHTML = `${qList[questionName]} : <strong>Not Answered</strong>`;
                     }
@@ -2167,9 +2187,16 @@ within your organisation?`]
                             Number(stageTime[tick])
                     });
 
+
                     progressDiv.appendChild(sectionProgress);
                     reportProgress.appendChild(progressDiv.cloneNode(sectionProgress));
                     reportDiv.appendChild(reportProgress);
+                }
+                else {
+                    SectionScores.push({
+                        name: "Stage " + tick, value: null, time:
+                            Number(stageTime[tick])
+                    });
                 }
             });
             if (completion) {
@@ -2212,30 +2239,32 @@ within your organisation?`]
 
             // Generate bars and labels dynamically
             data.forEach((item, i) => {
-                // Create bar container
-                const bar = document.createElement('div');
-                bar.classList.add('bar');
+                if (item.value != null) {
+                    // Create bar container
+                    const bar = document.createElement('div');
+                    bar.classList.add('bar');
 
-                // Create the inner bar
-                const barInner = document.createElement('div');
-                barInner.classList.add('bar-inner');
-                barInner.style.height = `${item.value}% `;
-                barInner.style.background = `${colors[i]} `;
-                // Add percentage label
-                const barLabel = document.createElement('div');
-                barLabel.classList.add('bar-label');
-                barLabel.textContent = `${item.value}% `;
+                    // Create the inner bar
+                    const barInner = document.createElement('div');
+                    barInner.classList.add('bar-inner');
+                    barInner.style.height = `${item.value}% `;
+                    barInner.style.background = `${colors[i]} `;
+                    // Add percentage label
+                    const barLabel = document.createElement('div');
+                    barLabel.classList.add('bar-label');
+                    barLabel.textContent = `${item.value}% `;
 
-                // Create x-axis label
-                const xAxisLabel = document.createElement('div');
-                xAxisLabel.classList.add('x-axis-label');
-                xAxisLabel.textContent = item.name;
+                    // Create x-axis label
+                    const xAxisLabel = document.createElement('div');
+                    xAxisLabel.classList.add('x-axis-label');
+                    xAxisLabel.textContent = item.name;
 
-                // Append everything
-                barInner.appendChild(barLabel);
-                bar.appendChild(barInner);
-                bar.appendChild(xAxisLabel);
-                chart.appendChild(bar);
+                    // Append everything
+                    barInner.appendChild(barLabel);
+                    bar.appendChild(barInner);
+                    bar.appendChild(xAxisLabel);
+                    chart.appendChild(bar);
+                }
             });
             return chart;
         }
@@ -2402,6 +2431,13 @@ within your organisation?`]
                         json[currentArrayContext].push(itemText);
                     } else if (currentQuestion) {
                         currentQuestion.answers.push(itemText);
+                    }
+
+                } else if (trimmedLine.startsWith('++ ')) {
+                    if (currentQuestion) {
+                        const itemText = trimmedLine.slice(3).trim();
+                        currentQuestion.answers.push(itemText);
+                        currentQuestion.quiz = itemText;
                     }
                 } else if (multiLineKey) {
                     // Accumulate multi-line value, prevent excessive length
