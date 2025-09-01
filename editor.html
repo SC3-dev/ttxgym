@@ -15,18 +15,17 @@
         body {
             font-family: "Montserrat", sans-serif;
             background: #202634;
-            min-height: 100vh;
             color: white;
         }
 
         .container {
-            max-width: 1400px;
+            width: var(--setWidth);
             margin: 0 auto;
             padding: 20px;
             display: grid;
             grid-template-columns: 3fr 2fr;
             gap: 20px;
-            height: 100vh;
+            height: calc(100vh - 6rem);
         }
 
         .editor-panel,
@@ -34,7 +33,6 @@
             background: #293042;
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-            /* border: 1px solid #1a6ec0; */
             display: flex;
             flex-direction: column;
             overflow: hidden;
@@ -49,7 +47,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            /* border-bottom: 1px solid #1a6ec0; */
+            line-height: 2;
         }
 
         .panel-content {
@@ -74,12 +72,13 @@
         select {
             width: 100%;
             padding: 10px 12px;
-            border: 1px solid #1a6ec0;
+            border: 0px solid #1a6ec0;
             border-radius: 4px;
             font-size: 14px;
             transition: all 0.2s;
             background: #202634;
             color: white;
+            margin-bottom: 10px;
         }
 
         input:focus,
@@ -100,42 +99,41 @@
             min-height: 100px;
         }
 
-        .btn {
+        .bttn {
             background: #1a6ec0;
             color: white;
             border: none;
             padding: 10px 16px;
-            border-radius: 6px;
+            border-radius: 20px;
             cursor: pointer;
             font-weight: 500;
             font-size: 14px;
             transition: all 0.2s;
             margin-right: 8px;
-            margin-bottom: 8px;
         }
 
-        .btn:hover {
+        .bttn:hover {
             background: #202634;
         }
 
-        .btn-secondary {
+        .bttn-secondary {
             background: #293042;
             border: 1px solid #1a6ec0;
         }
 
-        .btn-secondary:hover {
+        .bttn-secondary:hover {
             background: #202634;
         }
 
-        .btn-danger {
+        .bttn-danger {
             background: #dc3545;
         }
 
-        .btn-danger:hover {
+        .bttn-danger:hover {
             background: #c82333;
         }
 
-        .btn-small {
+        .bttn-small {
             padding: 6px 12px;
             font-size: 12px;
         }
@@ -181,7 +179,7 @@
         }
 
         .stage-toggle.expanded {
-            transform: rotate(0deg);
+            transform: rotate(180deg);
         }
 
         .stage-title {
@@ -221,17 +219,26 @@
             font-size: 14px;
         }
 
-        .option-item,
-        .prompt-item {
+        .option-item {
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-bottom: 10px;
         }
 
-        .option-item input,
-        .prompt-item input {
+        .option-item input {
             flex: 1;
+        }
+
+        .correct-answer-radio {
+            width: auto !important;
+            margin-left: 10px;
+        }
+
+        .correct-answer-label {
+            color: #1a6ec0;
+            font-weight: 500;
+            font-size: 12px;
+            white-space: nowrap;
         }
 
         .preview-content {
@@ -243,61 +250,46 @@
             font-size: 13px;
             line-height: 1.5;
             overflow-x: auto;
-            border: 1px solid #1a6ec0;
-            border-radius: 5px;
         }
 
-        .export-btn {
+        .export-bttn {
             background: #38a169;
         }
 
-        .export-btn:hover {
+        .export-bttn:hover {
             background: #2f855a;
         }
 
-        .add-element-dropdown {
-            position: relative;
-            display: inline-block;
+        .element-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #1a6ec0;
         }
 
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            right: 0;
-            background-color: #293042;
-            min-width: 220px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-            border-radius: 6px;
-            z-index: 1;
-            border: 1px solid #1a6ec0;
-        }
-
-        .dropdown-content.show {
-            display: block;
-        }
-
-        .dropdown-item {
-            padding: 10px 14px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            border-bottom: 1px solid #1a6ec0;
-            font-size: 14px;
+        .element-pill {
+            background: #1a6ec0;
             color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
         }
 
-        .dropdown-item:hover {
-            background-color: #202634;
+        .element-pill:hover {
+            background: #007BFF;
+            transform: translateY(-1px);
         }
 
-        .dropdown-item:last-child {
-            border-bottom: none;
-        }
-
-        @media (max-width: 1024px) {
-            .container {
-                grid-template-columns: 1fr;
-                height: auto;
-            }
+        .element-pill:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
         }
 
         .import-modal {
@@ -415,13 +407,85 @@
             }
         }
     </style>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
+
+    <header>
+
+        <nav>
+            <div class="logo"><a href="index.html"><svg height="3rem" viewBox="0 0 210 83.999996"
+                        xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
+                        <g>
+                            <path style="fill:#ffffff;stroke-width:0.144177"
+                                d="m 123.95944,30.43245 0.001,-1.117375 5.11724,-6.112717 c 2.81453,-3.361993 5.11729,-6.171028 5.11729,-6.242298 0,-0.07123 -2.30323,-2.881476 -5.1183,-6.244894 l -5.1183,-6.1153013 v -1.086954 -1.086943 l 3.28003,0.0063 3.28005,0.0063 3.8207,4.544782 c 2.10139,2.499633 3.91803,4.6295583 4.03697,4.7331703 0.18592,0.161956 0.77129,-0.476686 4.17186,-4.5515563 l 3.95559,-4.739934 h 3.28934 3.28932 v 1.052384 1.052384 l -5.19039,6.1834383 c -2.85472,3.400899 -5.1886,6.219979 -5.18639,6.264626 0.002,0.04464 2.33524,2.838581 5.18451,6.208731 l 5.18051,6.127543 0.006,1.117375 0.006,1.117376 -3.28004,-0.0032 -3.28003,-0.0032 -4.03542,-4.764205 c -3.77303,-4.454434 -4.04959,-4.7469 -4.25324,-4.498099 -0.1198,0.146359 -1.92418,2.291532 -4.00975,4.767043 l -3.792,4.500917 h -3.23672 -3.23673 l 0.001,-1.117376 z"
+                                id="path220" />
+                            <path style="fill:#ffffff;stroke-width:0.144177"
+                                d="M 103.62935,20.159802 V 8.7697787 h -5.767107 -5.767099 v -3.171906 -3.171905 h 14.634016 14.63402 v 3.171905 3.171906 h -5.69501 -5.69501 V 20.159802 31.549826 h -3.1719 -3.17191 z"
+                                id="path218" />
+                            <path style="fill:#ffffff;stroke-width:0.144177"
+                                d="M 71.045229,20.159802 V 8.7697787 h -5.695017 -5.695007 v -3.171906 -3.171905 h 14.561929 14.561929 v 3.171905 3.171906 H 83.084046 77.38904 V 20.159802 31.549826 h -3.171906 -3.171905 z"
+                                id="path216" />
+                            <path style="fill:#1a6ec0;fill-opacity:1;stroke-width:0.139424"
+                                d="m 56.568246,44.749266 c 0.132103,-1.130608 0.11982,-5.393817 -0.01826,-6.336905 l -0.09381,-0.640428 h 50.057284 50.05728 l -0.0914,0.775254 c -0.14125,1.198686 -0.15482,4.546774 -0.0241,5.932418 l 0.1177,1.247158 H 106.51352 56.453986 Z"
+                                id="path214" />
+                            <path style="fill:#1a6ec0;stroke-width:0.144177;fill-opacity:1"
+                                d="m 200.94868,51.986986 c 0,-0.01984 -0.19934,-0.522652 -0.44235,-1.117376 -0.24303,-0.594734 -0.62663,-1.835993 -0.85249,-2.758363 -1.17752,-4.80902 -0.86406,-9.679602 0.90117,-14.002281 l 0.57405,-1.405726 h 4.0357 4.03569 l -0.26157,0.39649 c -1.23002,1.864399 -2.0063,3.624311 -2.54655,5.77324 -0.26627,1.059149 -0.3139,1.638572 -0.30464,3.706429 0.0142,3.191363 0.30209,4.354515 1.81632,7.340458 l 1.06655,2.103165 h -4.01068 c -2.20589,0 -4.01093,-0.01625 -4.0112,-0.03609 z"
+                                id="path212" />
+                            <path style="fill:#1a6ec0;fill-opacity:1;stroke-width:0.144177"
+                                d="m 3.0885296,51.941186 c 0,-0.04506 0.44678,-0.969549 0.99284,-2.054529 1.56297,-3.105469 1.81674,-4.159426 1.81148,-7.523519 -0.003,-2.117705 -0.0453,-2.529327 -0.38251,-3.748616 -0.62502,-2.259971 -1.27274,-3.70054 -2.47959,-5.514785 l -0.26374,-0.396489 h 4.03913 4.0391284 l 0.508459,1.214635 c 1.175244,2.807495 1.592501,5.008816 1.600805,8.445255 0.0084,3.455866 -0.441579,6.004916 -1.515078,8.583574 l -0.448069,1.076317 H 7.0399596 c -2.17329,0 -3.95143,-0.03683 -3.95143,-0.08188 z"
+                                id="path210" />
+                            <path style="fill:#1a6ec0;stroke-width:0.144177;fill-opacity:1"
+                                d="m 188.14448,64.45835 c -4.60694,-9.066036 -6.34795,-19.950671 -4.79103,-29.952887 0.79263,-5.092105 2.34256,-10.128325 4.37061,-14.201486 l 0.75375,-1.513865 5.15491,-0.03788 5.15492,-0.03788 -1.44187,2.36676 c -1.68405,2.764325 -2.62234,4.771433 -3.60217,7.705364 -1.48568,4.448683 -2.16923,8.595656 -2.16312,13.123333 0.0109,8.068699 2.41694,16.120002 6.77075,22.656654 0.44893,0.674024 0.86412,1.306609 0.92263,1.405726 0.0843,0.142814 -0.97051,0.180221 -5.08108,0.180221 h -5.18744 z"
+                                id="path208" />
+                            <path style="fill:#1a6ec0;fill-opacity:1;stroke-width:0.144177"
+                                d="M 13.442562,64.890886 C 21.430959,52.97521 22.612598,37.550731 16.537975,24.485129 16.224594,23.811095 15.34227,22.237758 14.577265,20.988827 L 13.186333,18.71803 h 5.166097 5.166087 l 0.803415,1.698254 c 5.365207,11.340999 6.308978,24.008992 2.687685,36.076248 -0.753947,2.512395 -1.94733,5.507012 -3.117002,7.821643 l -0.928945,1.838262 h -5.183434 -5.183435 z"
+                                id="path206" />
+                            <path style="fill:#1a6ec0;stroke-width:0.144177;fill-opacity:1"
+                                d="m 174.53173,78.948193 c -5.15518,-8.267119 -8.66247,-19.326858 -9.79592,-30.890037 -0.24331,-2.48236 -0.24156,-10.536496 0.003,-12.975982 1.12233,-11.203007 4.06279,-20.780917 9.1843,-29.9160563 l 1.53618,-2.74015 h 5.47631 5.47631 l -0.49924,0.68484 c -2.41341,3.310656 -5.29765,8.4418153 -7.00382,12.4600833 -6.83569,16.098892 -7.07266,34.022086 -0.66592,50.365278 1.74301,4.446298 4.74992,9.997815 7.52608,13.895014 0.41656,0.58477 0.72226,1.12003 0.67935,1.18946 -0.0429,0.0694 -2.43321,0.12626 -5.31175,0.12626 h -5.23371 z"
+                                id="path204" />
+                            <path style="fill:#ffffff;stroke-width:0.144177"
+                                d="M 121.65153,67.017498 V 52.888101 l 3.13587,5.7e-4 3.13586,5.8e-4 3.17191,3.780699 c 1.74455,2.079391 3.89837,4.64314 4.78628,5.697244 l 1.61436,1.916538 4.77081,-5.697761 4.77081,-5.69787 h 3.16659 3.16657 v 14.129397 14.129405 h -3.09878 -3.09876 l -0.0371,-9.382769 -0.037,-9.382768 -4.75785,5.697085 c -2.61683,3.1334 -4.7903,5.700884 -4.82996,5.705506 -0.0397,0.0042 -2.24556,-2.565511 -4.90203,-5.711405 l -4.82995,-5.719804 -0.037,9.397077 -0.0371,9.397078 h -3.02668 -3.02669 z"
+                                id="path202" />
+                            <path style="fill:#ffffff;stroke-width:0.144177"
+                                d="m 100.45743,75.865912 v -5.280979 l -1.344169,-1.819764 c -0.739298,-1.000858 -3.6589,-4.950452 -6.487984,-8.776859 -2.829095,-3.826422 -5.143811,-6.989316 -5.143811,-7.028665 0,-0.03936 1.617879,-0.07154 3.595271,-0.07154 h 3.595282 l 4.42039,5.550836 c 2.431221,3.05296 4.432961,5.550842 4.448301,5.550842 0.0153,0 2.00418,-2.497006 4.41964,-5.54889 l 4.39174,-5.548884 3.64048,-0.0021 c 2.00227,-0.001 3.64048,0.03218 3.64048,0.07376 0,0.04168 -1.83591,2.555739 -4.0798,5.586882 -2.24389,3.031139 -5.16348,6.979234 -6.48798,8.773567 l -2.40819,3.262401 v 5.280114 5.2801 h -3.09983 -3.09982 z"
+                                id="path200" />
+                            <path style="fill:#ffffff;stroke-width:0.144177"
+                                d="m 62.502123,80.992853 c -1.603358,-0.38525 -3.146168,-1.67929 -3.90041,-3.2715 l -0.460373,-0.97187 v -9.731985 -9.731983 l 0.47064,-0.962093 c 0.817123,-1.670376 2.149173,-2.774973 3.881596,-3.2188 0.768181,-0.196799 2.098574,-0.22127 10.08887,-0.185561 9.200985,0.04115 9.204277,0.04126 10.016894,0.369845 1.187347,0.480148 2.594836,1.823046 3.180052,3.034115 0.444291,0.91942 0.467685,1.054456 0.522915,3.017034 l 0.05783,2.05453 h -3.115852 -3.115852 v -1.153422 -1.153422 h -8.003075 -8.003064 l 0.03725,7.965804 0.03725,7.965814 7.965804,0.03725 7.965804,0.03725 v -2.163882 -2.163893 h -3.027719 -3.02773 v -3.02772 -3.02773 h 6.134855 6.134866 l -0.04337,6.019414 -0.04337,6.019405 -0.463865,0.94788 c -0.594481,1.21481 -1.698782,2.31911 -2.913576,2.91359 l -0.947886,0.46386 -9.443633,0.0241 c -5.211651,0.0133 -9.686177,-0.0342 -9.984879,-0.106 z"
+                                id="path198" />
+                            <path style="fill:#1a6ec0;fill-opacity:1;stroke-width:0.144177"
+                                d="m 25.519705,81.021453 c -0.0439,-0.071 0.03978,-0.28263 0.185983,-0.47036 1.311927,-1.68534 3.639855,-5.502462 5.220114,-8.559464 C 37.220777,59.814061 39.557125,45.873306 37.606851,32.126537 36.200366,22.212685 32.499604,12.59703 26.939043,4.4084047 l -1.3462,-1.982437 5.436392,0.0021 5.436382,0.0021 1.40982,2.557101 c 2.522363,4.575035 4.243812,8.5214633 5.769337,13.2262383 6.107588,18.835993 4.615545,39.223717 -4.167783,56.950123 -0.589373,1.189457 -1.607315,3.006103 -2.262092,4.036963 l -1.190513,1.87431 -5.212463,0.0379 c -2.957294,0.0214 -5.24697,-0.0179 -5.292218,-0.0912 z"
+                                id="path179" />
+                        </g>
+                    </svg></a></div>
+            <div class="menu-open"><a href="#menu">
+                    <span class="material-icons">menu</span>
+                </a>
+            </div>
+            <div id="menu">
+                <div class="menu-close"><a href="#"><span class="material-icons">close</span></a>
+                </div>
+                <ul class="nav-links">
+                    <li><a href="#about">About</a></li>
+                    <li><a href="guide.html">How To Use</a></li>
+                    <li><a href="library.html">Exercise Library</a></li>
+                    <li><a href="gym/">Launch</a></li>
+                </ul>
+            </div>
+
+        </nav>
+    </header>
+
     <div class="container">
         <div class="editor-panel">
             <div class="panel-header">
-                <span>TTX Gym Scenario Builder</span>
+                <span>TTX Scenario Editor</span>
             </div>
             <div class="panel-content">
                 <!-- File Info Section -->
@@ -443,10 +507,13 @@
                 <!-- Stages Section -->
                 <div style="display: flex; justify-content: space-between; align-items: center; margin: 30px 0 20px 0;">
                     <h3>Stages</h3>
-                    <button class="btn" onclick="addStage()">+ Add Stage</button>
                 </div>
 
                 <div id="stages-container"></div>
+
+                <div style="text-align: center; margin: 20px 0;">
+                    <button class="bttn" onclick="addStage()">+ Add Stage</button>
+                </div>
             </div>
         </div>
 
@@ -454,8 +521,8 @@
             <div class="panel-header">
                 <span>Scenario File Preview</span>
                 <div>
-                    <button class="btn btn-small" onclick="importFromFile()">Import</button>
-                    <button class="btn btn-small export-btn" onclick="exportMarkdown()">Export</button>
+                    <button class="bttn bttn-small" onclick="importFromFile()">Import</button>
+                    <button class="bttn bttn-small export-bttn" onclick="exportMarkdown()">Export</button>
                 </div>
             </div>
             <div class="panel-content">
@@ -484,8 +551,8 @@
                 </div>
             </div>
             <div class="import-modal-footer">
-                <button class="btn btn-secondary" onclick="closeImportModal()">Cancel</button>
-                <button class="btn" id="import-btn" onclick="processFileImport()" disabled>Import</button>
+                <button class="bttn bttn-secondary" onclick="closeImportModal()">Cancel</button>
+                <button class="bttn" id="import-bttn" onclick="processFileImport()" disabled>Import</button>
             </div>
         </div>
     </div>
@@ -548,7 +615,7 @@
             selectedFile = null;
             document.getElementById('file-input').value = '';
             document.getElementById('file-info').style.display = 'none';
-            document.getElementById('import-btn').disabled = true;
+            document.getElementById('import-bttn').disabled = true;
         }
 
         function setupDragAndDrop() {
@@ -627,7 +694,7 @@
             fileInfo.style.display = 'block';
 
             // Enable import button
-            document.getElementById('import-btn').disabled = false;
+            document.getElementById('import-bttn').disabled = false;
         }
 
         function processFileImport() {
@@ -647,8 +714,9 @@
 
                     parseAndRebuild(markdownText);
                     closeImportModal();
+                    alert(`Successfully imported "${selectedFile.name}"!`);
                 } catch (error) {
-                    alert('Warning when parsing file (' + error.message + "). Check preview for accuracy.");
+                    alert('Error parsing file: ' + error.message);
                 }
             };
 
@@ -761,23 +829,30 @@
                     if (!currentStage) continue;
 
                     const question = line.substring(1).trim();
-                    addElement(currentStage, 'question');
-                    currentElement = {
+                    // We'll determine if it's single-answer based on whether we find '++' options
+                    const tempElement = {
                         type: 'question',
-                        id: elementCounter,
-                        options: []
+                        question: question,
+                        options: [],
+                        hasCorrectAnswer: false
                     };
-
-                    document.getElementById(`question-${elementCounter}`).value = question;
+                    currentElement = tempElement;
                 }
 
                 // Handle options, prompts, discussions
+                else if (line.startsWith('++')) {
+                    const item = line.substring(2).trim();
+
+                    if (currentElement && currentElement.type === 'question') {
+                        currentElement.options.push({ text: item, correct: true });
+                        currentElement.hasCorrectAnswer = true;
+                    }
+                }
                 else if (line.startsWith('+')) {
                     const item = line.substring(1).trim();
 
                     if (currentElement && currentElement.type === 'question') {
-                        currentElement.options.push(item);
-                        updateQuestionWithOptions(currentElement.id, currentElement.options);
+                        currentElement.options.push({ text: item, correct: false });
                     } else if (currentElement && currentElement.type === 'prompts') {
                         currentElement.items.push(item);
                         updatePromptsWithItems(currentElement.id, currentElement.items);
@@ -790,6 +865,12 @@
                 // Handle section headers
                 else if (line.startsWith('#')) {
                     if (!currentStage) continue;
+
+                    // First, finalize any pending question
+                    if (currentElement && currentElement.type === 'question' && currentElement.options.length > 0) {
+                        finalizeQuestion(currentStage, currentElement);
+                        currentElement = null;
+                    }
 
                     const section = line.substring(1).trim();
                     if (section === 'prompts') {
@@ -810,7 +891,44 @@
                 }
             }
 
+            // Finalize any remaining question at the end
+            if (currentElement && currentElement.type === 'question' && currentElement.options.length > 0) {
+                finalizeQuestion(currentStage, currentElement);
+            }
+
             updatePreview();
+        }
+
+        function finalizeQuestion(stageId, questionElement) {
+            const questionType = questionElement.hasCorrectAnswer ? 'single-answer' : 'question';
+            addElement(stageId, questionType);
+
+            document.getElementById(`question-${elementCounter}`).value = questionElement.question;
+
+            if (questionType === 'single-answer') {
+                updateSingleAnswerWithOptions(elementCounter, questionElement.options);
+            } else {
+                updateQuestionWithOptions(elementCounter, questionElement.options.map(opt => opt.text));
+            }
+        }
+
+        function updateSingleAnswerWithOptions(elementId, options) {
+            const select = document.getElementById(`options-count-${elementId}`);
+            select.value = options.length;
+            updateSingleAnswerOptions(elementId);
+
+            const optionsContainer = document.getElementById(`options-${elementId}`);
+            const optionItems = optionsContainer.querySelectorAll('.option-item');
+
+            options.forEach((option, index) => {
+                if (optionItems[index]) {
+                    const input = optionItems[index].querySelector('input[type="text"]');
+                    const radio = optionItems[index].querySelector('.correct-answer-radio');
+
+                    if (input) input.value = option.text;
+                    if (radio) radio.checked = option.correct;
+                }
+            });
         }
 
         function clearAll() {
@@ -834,7 +952,7 @@
             updateQuestionOptions(elementId);
 
             const optionsContainer = document.getElementById(`options-${elementId}`);
-            const inputs = optionsContainer.querySelectorAll('input');
+            const inputs = optionsContainer.querySelectorAll('input[type="text"]');
             options.forEach((option, index) => {
                 if (inputs[index]) {
                     inputs[index].value = option;
@@ -885,9 +1003,9 @@
                         <span id="stage-display-title-${stageCounter}">New Stage</span>
                     </div>
                     <div class="stage-controls" onclick="event.stopPropagation()">
-                        <button class="btn btn-small btn-secondary" onclick="moveStageUp(${stageCounter})">↑</button>
-                        <button class="btn btn-small btn-secondary" onclick="moveStageDown(${stageCounter})">↓</button>
-                        <button class="btn btn-small btn-danger" onclick="removeStage(${stageCounter})">Remove</button>
+                        <button class="bttn bttn-small bttn-secondary" onclick="moveStageUp(${stageCounter})">↑</button>
+                        <button class="bttn bttn-small bttn-secondary" onclick="moveStageDown(${stageCounter})">↓</button>
+                        <button class="bttn bttn-small bttn-danger" onclick="removeStage(${stageCounter})">Remove</button>
                     </div>
                 </div>
                 
@@ -901,20 +1019,15 @@
                         <label>Stage Content</label>
                         <textarea id="stage-content-${stageCounter}" placeholder="Enter stage content. Use **bold**, *italics*, %(image-url), ~ for quotes, - for bullets, 1. for numbered lists" oninput="updatePreview()"></textarea>
                     </div>
-
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin: 20px 0 10px 0;">
-                        <h4 style="color: white;">Stage Elements</h4>
-                        <div class="add-element-dropdown">
-                            <button class="btn btn-small" onclick="toggleDropdown(${stageCounter})">+ Add Element</button>
-                            <div class="dropdown-content" id="dropdown-${stageCounter}">
-                                <div class="dropdown-item" onclick="addElement(${stageCounter}, 'question')">Multiple Choice Question</div>
-                                <div class="dropdown-item" onclick="addElement(${stageCounter}, 'prompt')" id="prompt-option-${stageCounter}">Facilitator Prompts</div>
-                                <div class="dropdown-item" onclick="addElement(${stageCounter}, 'discussion')" id="discussion-option-${stageCounter}">Discussion Points</div>
-                            </div>
-                        </div>
-                    </div>
                     
                     <div id="elements-${stageCounter}"></div>
+
+                    <div class="element-pills">
+                        <button class="element-pill" onclick="addElement(${stageCounter}, 'question')">+ Rating Question</button>
+                        <button class="element-pill" onclick="addElement(${stageCounter}, 'single-answer')">+ Quiz Question</button>
+                        <button class="element-pill" onclick="addElement(${stageCounter}, 'prompt')" id="prompt-pill-${stageCounter}">+ Facilitator Prompts</button>
+                        <button class="element-pill" onclick="addElement(${stageCounter}, 'discussion')" id="discussion-pill-${stageCounter}">+ Discussion Points</button>
+                    </div>
                 </div>
             `;
 
@@ -946,16 +1059,7 @@
             }
         }
 
-        function toggleDropdown(stageId) {
-            const dropdown = document.getElementById(`dropdown-${stageId}`);
-            // Close all other dropdowns
-            document.querySelectorAll('.dropdown-content').forEach(d => {
-                if (d.id !== `dropdown-${stageId}`) {
-                    d.classList.remove('show');
-                }
-            });
-            dropdown.classList.toggle('show');
-        }
+
 
         function addElement(stageId, type) {
             // Check if prompt or discussion already exists for this stage
@@ -963,7 +1067,6 @@
                 const existingPrompt = document.querySelector(`#elements-${stageId} .element:has(#prompts-count-${stageId})`);
                 if (document.querySelector(`#elements-${stageId} [id*="prompts-count"]`)) {
                     alert('Only one Facilitator Prompts list is allowed per stage.');
-                    document.getElementById(`dropdown-${stageId}`).classList.remove('show');
                     return;
                 }
             }
@@ -971,7 +1074,6 @@
             if (type === 'discussion') {
                 if (document.querySelector(`#elements-${stageId} [id*="discussion-count"]`)) {
                     alert('Only one Discussion Points list is allowed per stage.');
-                    document.getElementById(`dropdown-${stageId}`).classList.remove('show');
                     return;
                 }
             }
@@ -990,8 +1092,8 @@
             if (type === 'question') {
                 elementContent = `
                     <div class="element-header">
-                        <div class="element-type">Multiple Choice Question</div>
-                        <button class="btn btn-small btn-danger" onclick="removeElement(${elementCounter})">Remove</button>
+                        <div class="element-type">Rating Question</div>
+                        <button class="bttn bttn-small bttn-danger" onclick="removeElement(${elementCounter})">Remove</button>
                     </div>
                     <div class="form-group">
                         <label>Question</label>
@@ -1009,11 +1111,33 @@
                     </div>
                     <div id="options-${elementCounter}"></div>
                 `;
+            } else if (type === 'single-answer') {
+                elementContent = `
+                    <div class="element-header">
+                        <div class="element-type">Quiz Question</div>
+                        <button class="bttn bttn-small bttn-danger" onclick="removeElement(${elementCounter})">Remove</button>
+                    </div>
+                    <div class="form-group">
+                        <label>Question</label>
+                        <input type="text" id="question-${elementCounter}" placeholder="Enter your question" oninput="updatePreview()">
+                    </div>
+                    <div class="form-group">
+                        <label>Number of Options</label>
+                        <select id="options-count-${elementCounter}" onchange="updateSingleAnswerOptions(${elementCounter})" oninput="updatePreview()">
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4" selected>4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                        </select>
+                    </div>
+                    <div id="options-${elementCounter}"></div>
+                `;
             } else if (type === 'prompt') {
                 elementContent = `
                     <div class="element-header">
                         <div class="element-type">Facilitator Prompts</div>
-                        <button class="btn btn-small btn-danger" onclick="removeElement(${elementCounter})">Remove</button>
+                        <button class="bttn bttn-small bttn-danger" onclick="removeElement(${elementCounter})">Remove</button>
                     </div>
                     <div class="form-group">
                         <label>Number of Prompts</label>
@@ -1031,7 +1155,7 @@
                 elementContent = `
                     <div class="element-header">
                         <div class="element-type">Discussion Points</div>
-                        <button class="btn btn-small btn-danger" onclick="removeElement(${elementCounter})">Remove</button>
+                        <button class="bttn bttn-small bttn-danger" onclick="removeElement(${elementCounter})">Remove</button>
                     </div>
                     <div class="form-group">
                         <label>Number of Discussion Points</label>
@@ -1053,20 +1177,20 @@
             // Initialize options/prompts based on type
             if (type === 'question') {
                 updateQuestionOptions(elementCounter);
+            } else if (type === 'single-answer') {
+                updateSingleAnswerOptions(elementCounter);
             } else if (type === 'prompt') {
                 updatePromptItems(elementCounter);
-                // Hide the prompt option in dropdown
-                const promptOption = document.getElementById(`prompt-option-${stageId}`);
-                if (promptOption) promptOption.style.display = 'none';
+                // Disable the prompt pill
+                const promptPill = document.getElementById(`prompt-pill-${stageId}`);
+                if (promptPill) promptPill.disabled = true;
             } else if (type === 'discussion') {
                 updateDiscussionItems(elementCounter);
-                // Hide the discussion option in dropdown
-                const discussionOption = document.getElementById(`discussion-option-${stageId}`);
-                if (discussionOption) discussionOption.style.display = 'none';
+                // Disable the discussion pill
+                const discussionPill = document.getElementById(`discussion-pill-${stageId}`);
+                if (discussionPill) discussionPill.disabled = true;
             }
 
-            // Close dropdown
-            document.getElementById(`dropdown-${stageId}`).classList.remove('show');
             updatePreview();
         }
 
@@ -1077,19 +1201,19 @@
 
             element.remove();
 
-            // Show the dropdown option again if we removed a prompt or discussion
+            // Re-enable the pill if we removed a prompt or discussion
             if (type === 'prompt') {
-                const promptOption = document.getElementById(`prompt-option-${stageId}`);
-                if (promptOption) promptOption.style.display = 'block';
+                const promptPill = document.getElementById(`prompt-pill-${stageId}`);
+                if (promptPill) promptPill.disabled = false;
             } else if (type === 'discussion') {
-                const discussionOption = document.getElementById(`discussion-option-${stageId}`);
-                if (discussionOption) discussionOption.style.display = 'block';
+                const discussionPill = document.getElementById(`discussion-pill-${stageId}`);
+                if (discussionPill) discussionPill.disabled = false;
             }
 
             updatePreview();
         }
 
-        function updateQuestionOptions(elementId) {
+        function updateSingleAnswerOptions(elementId) {
             const count = parseInt(document.getElementById(`options-count-${elementId}`).value);
             const optionsContainer = document.getElementById(`options-${elementId}`);
 
@@ -1098,37 +1222,45 @@
             for (let i = 1; i <= count; i++) {
                 const optionDiv = document.createElement('div');
                 optionDiv.className = 'option-item';
-                switch (i) {
-                    case 1:
-                        optionDiv.innerHTML = `
-                    <input type="text" value="Not at all confident" oninput="updatePreview()">
-                `;
-                        break;
-                    case 2:
-                        optionDiv.innerHTML = `
-                    <input type="text" value="Slightly confident" oninput="updatePreview()">
-                `;
-                        break;
-                    case 3:
-                        optionDiv.innerHTML = `
-                    <input type="text" value="Somewhat confident" oninput="updatePreview()">
-                `;
-                        break;
-                    case 4:
-                        optionDiv.innerHTML = `
-                    <input type="text" value="Fairly confident" oninput="updatePreview()">
-                `;
-                        break;
-                    case 5:
-                        optionDiv.innerHTML = `
-                    <input type="text" value="Completely confident" oninput="updatePreview()">
-                `;
-                        break;
-                    default:
-                        optionDiv.innerHTML = `
+                const isFirst = i === 1;
+                optionDiv.innerHTML = `
                     <input type="text" placeholder="Option ${i}" oninput="updatePreview()">
+                    <input type="radio" name="correct-answer-${elementId}" class="correct-answer-radio" ${isFirst ? 'checked' : ''} onchange="updatePreview()">
+                    <label class="correct-answer-label">Correct Answer</label>
                 `;
-                }
+                optionsContainer.appendChild(optionDiv);
+            }
+            updatePreview();
+        }
+
+
+
+        function updateQuestionOptions(elementId) {
+            const count = parseInt(document.getElementById(`options-count-${elementId}`).value);
+            const optionsContainer = document.getElementById(`options-${elementId}`);
+
+            optionsContainer.innerHTML = '';
+
+            // Default confidence rating options for 5 options
+            const defaultOptions = [
+                "Not at all confident",
+                "Slightly confident",
+                "Somewhat confident",
+                "Fairly confident",
+                "Completely confident"
+            ];
+
+            for (let i = 1; i <= count; i++) {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'option-item';
+
+                // Use default option if available, otherwise use placeholder
+                const defaultValue = (count === 5 && i <= defaultOptions.length) ? defaultOptions[i - 1] : '';
+                const placeholder = defaultValue || `Option ${i}`;
+
+                optionDiv.innerHTML = `
+                    <input type="text" placeholder="${placeholder}" value="${defaultValue}" oninput="updatePreview()">
+                `;
                 optionsContainer.appendChild(optionDiv);
             }
             updatePreview();
@@ -1217,10 +1349,19 @@
                                 if (question) {
                                     markdown += `? ${question}\n`;
 
-                                    const options = element.querySelectorAll('.option-item input');
-                                    options.forEach(option => {
-                                        if (option.value) {
-                                            markdown += `+ ${option.value}\n`;
+                                    const options = element.querySelectorAll('.option-item');
+                                    options.forEach(optionItem => {
+                                        const input = optionItem.querySelector('input[type="text"]');
+                                        const radio = optionItem.querySelector('.correct-answer-radio');
+
+                                        if (input && input.value) {
+                                            if (radio && radio.checked) {
+                                                // This is a single correct answer question
+                                                markdown += `++ ${input.value}\n`;
+                                            } else {
+                                                // Regular multiple choice or incorrect option
+                                                markdown += `+ ${input.value}\n`;
+                                            }
                                         }
                                     });
                                     markdown += '\n';
@@ -1285,15 +1426,8 @@
             URL.revokeObjectURL(url);
         }
 
-        // Close dropdowns when clicking outside
+        // Close import modal when clicking outside
         document.addEventListener('click', function (event) {
-            if (!event.target.matches('.btn')) {
-                const dropdowns = document.getElementsByClassName('dropdown-content');
-                for (let dropdown of dropdowns) {
-                    dropdown.classList.remove('show');
-                }
-            }
-
             // Close import modal when clicking outside
             const modal = document.getElementById('import-modal');
             if (event.target === modal) {
