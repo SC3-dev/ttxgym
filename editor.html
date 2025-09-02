@@ -715,7 +715,6 @@
 
                     parseAndRebuild(markdownText);
                     closeImportModal();
-                    alert(`Successfully imported "${selectedFile.name}"!`);
                 } catch (error) {
                     alert('Error parsing file: ' + error.message);
                 }
@@ -740,7 +739,7 @@
                 closeImportModal();
                 alert('Markdown imported successfully!');
             } catch (error) {
-                alert('Error parsing markdown: ' + error.message);
+                alert('Error parsing markdown: ' + error.message + '(line ' + error.lineNumber + ')');
             }
         }
 
@@ -816,18 +815,28 @@
 
                 // Handle stages
                 else if (line.startsWith('@')) {
+                    // First, finalize any pending question from previous stage
+                    if (currentElement && currentElement.type === 'question' && currentElement.options.length > 0) {
+                        finalizeQuestion(currentStage, currentElement);
+                        currentElement = null;
+                    }
+
                     const stageTitle = line.substring(1).trim();
                     addStage();
                     currentStage = stageCounter;
 
                     document.getElementById(`stage-title-${currentStage}`).value = stageTitle;
                     updateStageTitle(currentStage);
-                    currentElement = null;
                 }
 
                 // Handle questions
                 else if (line.startsWith('?')) {
                     if (!currentStage) continue;
+
+                    // Finalize any previous question before starting a new one
+                    if (currentElement && currentElement.type === 'question' && currentElement.options.length > 0) {
+                        finalizeQuestion(currentStage, currentElement);
+                    }
 
                     const question = line.substring(1).trim();
                     // We'll determine if it's single-answer based on whether we find '++' options
