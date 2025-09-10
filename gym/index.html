@@ -2510,7 +2510,7 @@ within your organisation?`]
             });
 
             // Blockquotes
-            processedText = processedText.replace(/<p>~\s+(.*?)<\/p>/g, '<blockquote>$1</blockquote>');
+            processedText = processedText.replace(/<p>~(.*?)<\/p>/g, '<blockquote>$1</blockquote>');
 
             return processedText;
         }
