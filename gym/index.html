@@ -868,10 +868,14 @@ body {
     margin:1rem;
 }
 #content{
+  width:100%;
+}
+#content img {
+    display: block;
+    margin: auto;
 }
 .chart-container {
     display: flex;
-    padding: 1rem;
     box-sizing: border-box;
     justify-content: space-evenly;
   }
@@ -880,7 +884,9 @@ body {
     display: flex;
     align-items: flex-end;
     margin: 0 2rem;
-    flex: 1 0 25%; max-width: 25%
+    flex: 1 0 25%; 
+    justify-content:center;
+    //max-width: 25%
   }
   .chart-title{
       display:flex;
@@ -888,9 +894,17 @@ body {
       text-align: center;
   }
   .chart-title div{
-      flex: 1 0 25%; max-width: 25%
+      flex: 1 0 25%;
+      //max-width: 25%
   }
-  
+  #bt{
+    flex: 1;
+  }
+
+  #dt{
+    max-width: 30%;
+    margin: 0 2rem;
+  }
   .bar {
     flex: 1;
     margin: 0 10px;
@@ -901,6 +915,7 @@ body {
     text-align: center;
     font-weight: bold;
     height: 100%;
+    max-width:5rem;
   }
   
   .bar-inner {
@@ -929,7 +944,8 @@ body {
     position: relative;
     aspect-ratio: 1;
     margin: 0 2rem;
-    flex: 1 0 25%; max-width: 25%
+    flex: 1 0 25%;
+    max-width: 30%;
   }
   
   .dchart::before {
@@ -2129,7 +2145,7 @@ within your organisation?`]
                 const sectionProgress = document.createElement('ul');
                 const reportProgress = document.createElement('div');
                 const sectionTitle = document.createElement('h3');
-                sectionTitle.innerHTML = sectionName;
+                sectionTitle.innerHTML = `Stage ${tick}: "${sectionName}"`;
                 reportProgress.appendChild(sectionTitle);
                 const scribeNotes = document.createElement('div');
                 scribeNotes.style = "white-space:pre";
@@ -2199,7 +2215,7 @@ within your organisation?`]
 
 
                     progressDiv.appendChild(sectionProgress);
-                    reportProgress.appendChild(progressDiv.cloneNode(sectionProgress));
+                    reportProgress.appendChild(sectionProgress.cloneNode(true));
                     reportDiv.appendChild(reportProgress);
                 }
                 else {
@@ -2225,9 +2241,11 @@ within your organisation?`]
             let charttitle = document.createElement('div');
             charttitle.classList.add('chart-title');
             let bartitle = document.createElement('div');
+            bartitle.id = "bt";
             bartitle.innerHTML = "<h3>Score by Stage</h3>";
             let pietitle = document.createElement('div');
             pietitle.innerHTML = "<h3>Duration by Stage</h3>";
+            pietitle.id = "dt";
             charttitle.appendChild(bartitle);
             charttitle.appendChild(pietitle);
             let chart = document.createElement('div');
