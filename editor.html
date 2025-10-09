@@ -473,7 +473,7 @@
                 <div class="menu-close"><a href="#"><span class="material-icons">close</span></a>
                 </div>
                 <ul class="nav-links">
-                    <li><a href="#about">About</a></li>
+                    <li><a href="index.html#about">About</a></li>
                     <li><a href="guide.html">How To Use</a></li>
                     <li><a href="library.html">Exercise Library</a></li>
                     <li><a href="gym/">Launch</a></li>
@@ -523,6 +523,7 @@
                 <span>Scenario File Preview</span>
                 <div>
                     <button class="bttn bttn-small" onclick="importFromFile()">Import</button>
+                    <button class="bttn bttn-small" onclick="postToNewTab()">Preview</button>
                     <button class="bttn bttn-small export-bttn" onclick="exportMarkdown()">Export</button>
                 </div>
             </div>
@@ -1444,7 +1445,27 @@
                 closeImportModal();
             }
         });
+
+
+
+        function postToNewTab() {
+            const base64 = btoa(encodeURIComponent(document.getElementById('preview').textContent));
+
+
+            // Make it URL-safe (replace + / and remove =)
+            const urlSafeBase64 = base64
+                .replace(/\+/g, "-")
+                .replace(/\//g, "_")
+                .replace(/=+$/, "");
+
+            // Build receiver URL
+            const targetUrl = `gym?preview=${urlSafeBase64}`;
+
+            // Open receiver in new tab
+            window.open(targetUrl, "_blank");
+        }
     </script>
+
 </body>
 
 </html>

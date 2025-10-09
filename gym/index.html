@@ -874,112 +874,85 @@ body {
     display: block;
     margin: auto;
 }
-.chart-container {
-    display: flex;
-    box-sizing: border-box;
-    justify-content: space-evenly;
-  }
-  
-  .bchart {
-    display: flex;
-    align-items: flex-end;
-    margin: 0 2rem;
-    flex: 1 0 25%; 
-    justify-content:center;
-    //max-width: 25%
-  }
-  .chart-title{
-      display:flex;
-      justify-content: space-evenly;
-      text-align: center;
-  }
-  .chart-title div{
-      flex: 1 0 25%;
-      //max-width: 25%
-  }
-  #bt{
-    flex: 1;
-  }
-
-  #dt{
-    max-width: 30%;
-    margin: 0 2rem;
-  }
-  .bar {
-    flex: 1;
-    margin: 0 10px;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    position: relative;
-    text-align: center;
-    font-weight: bold;
-    height: 100%;
-    max-width:5rem;
-  }
-  
-  .bar-inner {
-    width: 100%;
-    background-color: #3498db;
-    border-radius: 5px 5px 0 0;
-    transition: height 0.3s ease;
+h2{
+text-align:center;
+}
+.outer{
+text-align:center;
     display: flex;
     justify-content: center;
-    align-items: center;
-  }
-  
-  .bar-label {
-    color: #f4f4f9;
-    font-weight: bold;
-    margin-bottom: 5px;
-  }
-  
-  .x-axis-label {
-    margin-top: 5px;
-    font-weight: bold;
-  }
-  
-  .dchart {
-    border-radius: 50%;
-    position: relative;
-    aspect-ratio: 1;
-    margin: 0 2rem;
-    flex: 1 0 25%;
-    max-width: 30%;
-  }
-  
-  .dchart::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 40%;
-    height: 40%;
-    background-color: #fff;
-    border-radius: 50%;
-  }
-  
-  .dlabel-container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-  }
-  
-  .dlabel {
-    position: absolute;
-    transform: translate(-50%, -50%);
-    background: #fff;
-    padding: 0.2rem 0.5rem;
-    border-radius: 0.2rem;
-    font-weight: bold;
-    color:#000;
-    pointer-events: none;
-    width: max-content;
-    text-align:center;
-  }
+}
+.chart-container {
+  display: inline-flex;
+  padding: 1rem;
+  box-sizing: border-box;
+  justify-content: space-evenly;
+    flex-direction: column;
+}
+
+.bchart {
+  display: flex;
+  align-items: flex-end;
+  margin: 1rem 0;
+  justify-content: center;
+
+}
+.chart-title{
+    display:flex;
+    justify-content: space-evenly;
+    text-align: center;
+}
+.chart-title div{
+    flex: 1 0 25%; max-width: 25%
+}
+
+.bar {
+  margin: 0 0.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  position: relative;
+  text-align: center;
+  font-weight: bold;
+  height: 10rem;
+}
+
+.bar-inner {
+  width: 100%;
+  background-color: #3498db;
+  border-radius: 5px 5px 0 0;
+  transition: height 0.3s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.bar-label {
+  color: #f4f4f9;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.x-axis-label {
+  margin-top: 5px;
+  font-weight: bold;
+}
+
+.outer h3{
+    margin:0;
+}
+
+.dchart {
+  position: relative;
+  margin: 1rem 0.5rem 1rem 0.5rem;
+  display:flex;
+  height:2rem;
+}
+.segment{
+
+    margin: 1px;
+}
+
 
   [contenteditable] {
     outline: 0px solid transparent;
@@ -1268,19 +1241,24 @@ li {
 .overlay-message img {
   height: 4rem;
 }
+.outer{
+    text-align:center;
 
+}
 .chart-container {
-  display: flex;
+  display: inline-flex;
   padding: 1rem;
   box-sizing: border-box;
   justify-content: space-evenly;
+    flex-direction: column;
 }
 
 .bchart {
   display: flex;
   align-items: flex-end;
-  margin: 0 2rem;
-  flex: 1 0 25%; max-width: 25%
+  margin: 1rem 0;
+  justify-content: center;
+
 }
 .chart-title{
     display:flex;
@@ -1292,15 +1270,14 @@ li {
 }
 
 .bar {
-  flex: 1;
-  margin: 0 10px;
+  margin: 0 0.5rem;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
   position: relative;
   text-align: center;
   font-weight: bold;
-  height: 100%;
+  height: 10rem;
 }
 
 .bar-inner {
@@ -1324,47 +1301,21 @@ li {
   font-weight: bold;
 }
 
+.outer h3{
+    margin:0;
+}
+
 .dchart {
-  border-radius: 50%;
   position: relative;
-  border: 1px solid #202634;
-  aspect-ratio: 1;
-  margin: 0 2rem;
-  flex: 1 0 25%; max-width: 25%
+  margin: 1rem 0.5rem 1rem 0.5rem;
+  display:flex;
+  height:2rem;
+}
+.segment{
+
+    margin: 1px;
 }
 
-.dchart::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 40%;
-  height: 40%;
-  background-color: #202634;
-  border-radius: 50%;
-}
-
-.dlabel-container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
-
-.dlabel {
-  position: absolute;
-  transform: translate(-50%, -50%);
-  background: #202634;
-  padding: 0.2rem 0.5rem;
-  border-radius: 0.2rem;
-  font-weight: bold;
-  color:#fff;
-  pointer-events: none;
-  width: 30%;
-  text-align:center;
-}
   </style>
 </head>
 
@@ -1512,35 +1463,60 @@ within your organisation?`]
         document.getElementById('fileInput').addEventListener('change', handleFileSelect, false);
         const urlParams = new URLSearchParams(window.location.search);
 
-        if (urlParams.has('q')) {
-            const targetFile = urlParams.get('q').replace(/\W/g, '');
-            const filepath = "../lib/scenarios/" + targetFile + ".ttxf";
-            fileName = targetFile + ".ttxf";
+        if (urlParams.has('preview')) {
+            const urlSafeBase64 = urlParams.get("preview");
+            try {
+                console.log("YES!");
+                // Convert back to standard Base64
+                let base64 = urlSafeBase64.replace(/-/g, "+").replace(/_/g, "/");
+                // Pad with '=' to make length multiple of 4
+                while (base64.length % 4) base64 += "=";
+
+                // Decode Base64 safely
+                const data = decodeURIComponent(atob(base64));
+
+                console.log(data);
+
+                fileContent = parseConfigToJSON(data);
+                populateScenario();
+            } catch (err) {
+                document.getElementById("output").innerText = "Error decoding data!";
+                console.error(err);
+            }
+        }
 
 
-            fetch(filepath)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok ' + response.statusText);
-                    }
-                    // Limit file size to prevent DoS
-                    if (response.headers.get('content-length') > 100000) { // Example limit: 100KB
-                        throw new Error('File too large');
-                    }
-                    return response.text();
-                })
-                .then(data => {
-                    rawFileData = data;
-                    fileContent = parseConfigToJSON(data);
-                    populateScenario();
-                })
-                .catch(error => {
-                    console.error('There was a problem with the fetch operation:', error);
-                });
+        else {
+            if (urlParams.has('q')) {
+                const targetFile = urlParams.get('q').replace(/\W/g, '');
+                const filepath = "../lib/scenarios/" + targetFile + ".ttxf";
+                fileName = targetFile + ".ttxf";
+
+
+                fetch(filepath)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok ' + response.statusText);
+                        }
+                        // Limit file size to prevent DoS
+                        if (response.headers.get('content-length') > 100000) { // Example limit: 100KB
+                            throw new Error('File too large');
+                        }
+                        return response.text();
+                    })
+                    .then(data => {
+                        rawFileData = data;
+                        fileContent = parseConfigToJSON(data);
+                        populateScenario();
+                    })
+                    .catch(error => {
+                        console.error('There was a problem with the fetch operation:', error);
+                    });
 
 
 
 
+            }
         }
 
 
@@ -2238,6 +2214,8 @@ within your organisation?`]
         // Report Generation and Charting
         /////////////////////////////////////////////
         function generateCharts(data) {
+            let outer = document.createElement('div');
+            outer.classList.add('outer');
             let charttitle = document.createElement('div');
             charttitle.classList.add('chart-title');
             let bartitle = document.createElement('div');
@@ -2246,14 +2224,14 @@ within your organisation?`]
             let pietitle = document.createElement('div');
             pietitle.innerHTML = "<h3>Duration by Stage</h3>";
             pietitle.id = "dt";
-            charttitle.appendChild(bartitle);
-            charttitle.appendChild(pietitle);
             let chart = document.createElement('div');
             chart.classList.add('chart-container');
-
+            outer.appendChild(chart);
+            chart.appendChild(bartitle);
             chart.appendChild(barchart(data));
             chart.appendChild(donutchart(data));
-            return charttitle.outerHTML + chart.outerHTML;
+            chart.appendChild(pietitle);
+            return outer.outerHTML;
         }
 
         function barchart(data) {
@@ -2300,49 +2278,50 @@ within your organisation?`]
         function donutchart(inputData) {
             const colors = generateDistinctColorVariations(200, inputData.length);
             // Generate dynamic percentages and colors
-            const totalValue = inputData.reduce((sum, item) => sum + item.time, 0);
-            const data = inputData.map(item => (item.time / totalValue) * 100);
+            const total = inputData.reduce((sum, item) => sum + item.time, 0);
+            const data = inputData.map(item => (item.time / total) * 100);
 
-            // Generate the conic-gradient segments dynamically
-            const segments = data
-                .map((percentage, index) => {
-                    const start = index === 0
-                        ? 0
-                        : data.slice(0, index).reduce((a, b) => a + b, 0);
-                    return `${colors[index]} ${start}% ${start + percentage}% `;
-                })
-                .join(', ');
-            document.documentElement.style.setProperty('--segments', segments);
-
-            // Get the chart container
             let chart = document.createElement('div');
             chart.classList.add('dchart');
-            chart.style.background = `conic-gradient(${segments})`;
-            let labelContainer = document.createElement('div');
-            labelContainer.classList.add('dlabel-container');
-            let cumulativePercentage = 0;
-
-            const offsetRadians = -Math.PI / 2; // Aligns with CSS 12 o'clock start
-
-            inputData.forEach((item, index) => {
-                const percentage = data[index];
-                const angle = (cumulativePercentage + percentage / 2) * 3.6; // Convert percentage to degrees
-                cumulativePercentage += percentage;
-
-                const radians = (angle * Math.PI) / 180 + offsetRadians; // Add the offset for alignment
-
-                const x = 50 + 40 * Math.cos(radians); // Adjust radius for label placement
-                const y = 50 + 40 * Math.sin(radians);
-
-                const label = document.createElement('div');
-                label.classList.add('dlabel');
-                label.style.left = `${x}% `;
-                label.style.top = `${y}% `;
-                label.textContent = `${item.name} (${Math.round(percentage)}%)`;
-
-                labelContainer.appendChild(label);
+            data.forEach((d, i) => {
+                const percent = d;
+                const seg = document.createElement('div');
+                seg.className = 'segment';
+                seg.style.width = percent + '%';
+                seg.style.background = colors[i % colors.length];
+                //seg.textContent = inputData[i].name;
+                chart.appendChild(seg);
             });
-            chart.appendChild(labelContainer);
+            /* 
+                        // Get the chart container
+                        let chart = document.createElement('div');
+                        chart.classList.add('dchart');
+                        chart.style.background = `conic-gradient(${segments})`;
+                        let labelContainer = document.createElement('div');
+                        labelContainer.classList.add('dlabel-container');
+                        let cumulativePercentage = 0;
+            
+                        const offsetRadians = -Math.PI / 2; // Aligns with CSS 12 o'clock start
+            
+                        inputData.forEach((item, index) => {
+                            const percentage = data[index];
+                            const angle = (cumulativePercentage + percentage / 2) * 3.6; // Convert percentage to degrees
+                            cumulativePercentage += percentage;
+            
+                            const radians = (angle * Math.PI) / 180 + offsetRadians; // Add the offset for alignment
+            
+                            const x = 50 + 40 * Math.cos(radians); // Adjust radius for label placement
+                            const y = 50 + 40 * Math.sin(radians);
+            
+                            const label = document.createElement('div');
+                            label.classList.add('dlabel');
+                            label.style.left = `${x}% `;
+                            label.style.top = `${y}% `;
+                            label.textContent = `${item.name} (${Math.round(percentage)}%)`;
+            
+                            labelContainer.appendChild(label);
+                        });
+                        chart.appendChild(labelContainer); */
             return chart;
         }
 
