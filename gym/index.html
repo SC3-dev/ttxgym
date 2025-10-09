@@ -950,7 +950,12 @@ text-align:center;
 }
 .segment{
 
+    display: flex;
+    justify-content: center;
+    align-items: center;
     margin: 1px;
+  color: #f4f4f9;
+  font-weight: bold;
 }
 
 
@@ -1312,8 +1317,13 @@ li {
   height:2rem;
 }
 .segment{
-
+    display: flex;
+    justify-content: center;
+    align-items: center;
     margin: 1px;
+  color: #f4f4f9;
+  font-weight: bold;
+
 }
 
   </style>
@@ -2192,6 +2202,10 @@ within your organisation?`]
                     reportDiv.appendChild(reportProgress);
                 }
                 else {
+                    if (section.querySelector('textarea').value) {
+
+                        reportDiv.appendChild(reportProgress);
+                    }
                     SectionScores.push({
                         name: "Stage " + tick, value: null, time:
                             Number(stageTime[tick])
@@ -2286,7 +2300,7 @@ within your organisation?`]
                 seg.className = 'segment';
                 seg.style.width = percent + '%';
                 seg.style.background = colors[i % colors.length];
-                //seg.textContent = inputData[i].name;
+                seg.textContent = i + 1;
                 chart.appendChild(seg);
             });
             /* 
