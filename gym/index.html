@@ -1463,20 +1463,18 @@ within your organisation?`]
         document.getElementById('fileInput').addEventListener('change', handleFileSelect, false);
         const urlParams = new URLSearchParams(window.location.search);
 
-        if (urlParams.has('preview')) {
+
+        // Try to read from localStorage
+        const preview = localStorage.getItem("preview");
+
+        if (preview) {
+
+            // Delete it after reading
+            localStorage.removeItem("preview");
             const urlSafeBase64 = urlParams.get("preview");
             try {
-                console.log("YES!");
-                // Convert back to standard Base64
-                let base64 = urlSafeBase64.replace(/-/g, "+").replace(/_/g, "/");
-                // Pad with '=' to make length multiple of 4
-                while (base64.length % 4) base64 += "=";
-
                 // Decode Base64 safely
-                const data = decodeURIComponent(atob(base64));
-
-                console.log(data);
-
+                const data = preview;
                 fileContent = parseConfigToJSON(data);
                 populateScenario();
             } catch (err) {
@@ -1486,38 +1484,37 @@ within your organisation?`]
         }
 
 
-        else {
-            if (urlParams.has('q')) {
-                const targetFile = urlParams.get('q').replace(/\W/g, '');
-                const filepath = "../lib/scenarios/" + targetFile + ".ttxf";
-                fileName = targetFile + ".ttxf";
+        if (urlParams.has('q')) {
+            const targetFile = urlParams.get('q').replace(/\W/g, '');
+            const filepath = "../lib/scenarios/" + targetFile + ".ttxf";
+            fileName = targetFile + ".ttxf";
 
 
-                fetch(filepath)
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Network response was not ok ' + response.statusText);
-                        }
-                        // Limit file size to prevent DoS
-                        if (response.headers.get('content-length') > 100000) { // Example limit: 100KB
-                            throw new Error('File too large');
-                        }
-                        return response.text();
-                    })
-                    .then(data => {
-                        rawFileData = data;
-                        fileContent = parseConfigToJSON(data);
-                        populateScenario();
-                    })
-                    .catch(error => {
-                        console.error('There was a problem with the fetch operation:', error);
-                    });
+            fetch(filepath)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok ' + response.statusText);
+                    }
+                    // Limit file size to prevent DoS
+                    if (response.headers.get('content-length') > 100000) { // Example limit: 100KB
+                        throw new Error('File too large');
+                    }
+                    return response.text();
+                })
+                .then(data => {
+                    rawFileData = data;
+                    fileContent = parseConfigToJSON(data);
+                    populateScenario();
+                })
+                .catch(error => {
+                    console.error('There was a problem with the fetch operation:', error);
+                });
 
 
 
 
-            }
         }
+
 
 
         //Handler for scenario files. Calls populateQuestions() to initalise the dashboard.
