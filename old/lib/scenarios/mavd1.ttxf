@@ -1,0 +1,157 @@
+! title: Managing a vulnerability disclosure
+! author: UK Crown Copyright / NCSC
+! summary
+This scenario covers the events following the disclosure of a vulnerability in a public facing web application run by your organisation.
+It includes managing communication between your organisation and a person reporting a vulnerability.
+It also covers the process of responding to a vulnerability disclosure.
+Finally, it looks at mitigating further problems by implementing an effective vulnerability disclosure process.
+
+@ Inject 1: Vulnerability disclosure received
+! content
+An employee manages your organisation’s official social media account and receives the following message:
+"beta.example.com points to a cloud instance that can be registered by an attacker to take over the domain.
+Steps To Reproduce: Do a CNAME lookup for each domain.
+Take the resource and register it on your cloud service provider.
+Redirect cloud resource to malicious infrastructure or phishing websites.
+Use the trusted domain to attack the general public.
+This is of major concern. Thanks."
+
+# discussion
++ Are your social media accounts centrally managed and are they actively monitored?
++ Does your organisation have a procedure in place to manage the disclosure of potential security vulnerabilities related to its public facing online services?
++ Would the individuals who monitor the social media accounts know what to do with this information and how to respond to the reporter?
++ How do you ensure that vulnerability details get to the correct people in your organisation in a timely manner, including security contacts?
++ Do you have any protective monitoring in place that will alert you to potential security problems related to your website?
+
+# prompts
++ How frequently are your social media channels monitored – all day every day?
++ Do you have a vulnerability disclosure policy or guidelines in place?
++ How would you verify the claim made by the reporter?
++ Is there an existing escalation path?
++ What protective monitoring do you have in place?
+
+? Our organisation has a documented action plan for vulnerability disclosure and the relevant people know what this is and understand it as an important part of being prepared.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+
+? Our organisation actively monitors our social media channels to identify any issues that are raised that need attention.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+
+? Our organisation provides a simple vulnerability disclosure policy or guidelines, to ensure expectations around providing vulnerability reports are easily understood by reporters.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+
+? Our organisation has effective protective monitoring that should quickly alert us to potential security issues with your online services.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+
+@ Inject 2: Vulnerability exploitation
+! content
+24 hours after receiving the message from social media,
+someone has taken over the vulnerable subdomain and is hosting phishing and social engineering content from a third-party site.
+This is being done to take advantage of your users’ trust in your website and domain.
+You do not immediately notice this but reports pertaining to the malicious content start circulating in online forums and social media.
+
+# discussion
++ Do you have a procedure in place to respond to and address exploitation of security vulnerabilities on your website?
++ Are the relevant people in your organisation aware of the process, and how to quickly address the issue and engage with any relevant service providers and authorities?
++ Are you able to respond to the incident internally or do you require external assistance?
++ Do you consider attempting to communicate with the original reporter of the vulnerability to try to help regain control of your subdomain, or do you attempt to address the problem without their assistance?
++ Would you respond to any of the posts on social media or forums?
+
+# prompts
++ What policies and procedures do you have to quickly address and mitigate vulnerabilities?
++ Are the procedures manual or facilitated by specific systems including automation and alerting?
++ Is everyone aware of the process and who is responsible for engaging with various third parties?
++ Which authorities might the organisation involve?
++ If the team managing this incident requires assistance, is there a method of escalation?
+
+? Our organisation has a procedure in place to quickly respond to malicious attacks on our website or external infrastructure.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+
+? Our organisation has the ability to engage with the relevant people and/or service providers and authorities to recover the website.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+
+@  Inject 3: Public and media reaction
+! content
+Your organisation is now receiving numerous calls every hour from concerned and angry users stating that they are being redirected to a malicious website.
+Some calls are also from media organisations asking for comment.
+
+# discussion
++ At what point do you communicate with users regarding the incident?
++ Do you have a communications plan to execute in the event of a cyber incident?
++ How do you handle media enquiries?
++ How could you rebuild trust with users post incident?
+
+# prompts
++ Which communications method would you use?
++ How much detail about the attack would you provide?
++ Is your communications plan still relevant?
++ Who would be the nominated central point for all communications?
++ How do you ensure, and reassure customers that, you do not have the same vulnerability elsewhere?
+
+? Our organisation has procedures in place to handle communications with your users in the event of a security incident that may affect them.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+
+? Our organisation has an appropriate media plan with a designated representative to respond to media enquiries.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+
+@ Inject 4: Post-incident review and remediation
+! content
+72 hours after the vulnerability was reported to your organisation your team has now mitigated the vulnerability and online services have been restored.
+The Post Incident Review (PIR) highlights that if the organisation had identified and responded to the initial vulnerability report, the incident could potentially have been avoided.
+Your organisation seeks guidance to implement a vulnerability disclosure process as soon as possible.
+
+# discussion
++ Do you have a vulnerability disclosure process that is easy to follow for external reporters and fully understood by all the relevant people in your organisation?
++ Are any additional systems or training necessary to ensure the process is effective when required?
+
+# prompts
++ Will provision of a vulnerability disclosure process require further discussion and reviews?
++ If you already have a process how often has this been tested?
++ Can you make any necessary changes to your website to publicise the process?
++ Do you have nominated contact information and is the contact available all day every day?
++ Do you have the means to respond to reports in a given timeframe?
+
+? Our organisation has an effective vulnerability disclosure process in place or plans to implement this soon following further discussions and approvals.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+
+? Our organisation aims to acknowledge any reported vulnerabilities in a timely manner and will open a communications channel with reporters without threatening any legal action.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident

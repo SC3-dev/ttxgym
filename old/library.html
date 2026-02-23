@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TTX Gym - Exercise Library</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        a {
+            text-decoration: none;
+            color: #1a6ec0;
+        }
+
+        code {
+            margin: 2rem 0;
+            padding: 1rem;
+            background: #293042;
+            border-left: 5px solid #1a6ec0;
+            border-radius: 0.3rem;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+        }
+
+        body {
+            font-family: "Montserrat", sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #202634;
+            color: white;
+            --setWidth: 80rem;
+        }
+
+        header {
+            width: 100%;
+            height: 5rem;
+            padding: 1rem 0;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: var(--setWidth);
+            margin: auto;
+            position: relative;
+            background-color: #202634;
+        }
+
+        input[type="checkbox" i] {
+            margin: 0 0.4rem;
+        }
+
+        .logo {
+            display: block;
+            margin: 0rem 2rem;
+            height: 3rem;
+        }
+
+        #menu {
+            display: block;
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            padding: 0rem 2rem;
+        }
+
+        .nav-links li {
+            margin: 0rem 1rem;
+            padding: 0.5rem 0rem;
+        }
+
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+        }
+
+        .nav-links a:hover {
+            color: #1a6ec0;
+            text-decoration: none;
+        }
+
+        .nav-links .current-link {
+            box-shadow:
+                0px 3px #1a6ec0;
+
+        }
+
+        .menu-close {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            margin: 0rem 2rem;
+        }
+
+        .menu-open {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            margin: 0rem 2rem;
+        }
+
+        .menu-open div {
+            width: 3rem;
+            height: 3px;
+            background: white;
+            margin: 0.3rem;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            margin: auto;
+        }
+
+        button {
+            background: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        footer {
+            max-width: var(--setWidth);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        .social-links {
+            margin-top: 1rem;
+        }
+
+        .social-links a {
+            color: white;
+            text-decoration: none;
+        }
+
+        /* Index Declarations */
+
+        .hero {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            padding: 4rem 2rem;
+            text-align: center;
+            width: 100%;
+            background-image: radial-gradient(circle at 82% 60%, rgba(59, 59, 59, 0.06) 0%, rgba(59, 59, 59, 0.06) 69%, transparent 69%, transparent 100%), radial-gradient(circle at 36% 0%, rgba(185, 185, 185, 0.06) 0%, rgba(185, 185, 185, 0.06) 59%, transparent 59%, transparent 100%), radial-gradient(circle at 58% 82%, rgba(183, 183, 183, 0.06) 0%, rgba(183, 183, 183, 0.06) 17%, transparent 17%, transparent 100%), radial-gradient(circle at 71% 32%, rgba(19, 19, 19, 0.06) 0%, rgba(19, 19, 19, 0.06) 40%, transparent 40%, transparent 100%), radial-gradient(circle at 77% 5%, rgba(31, 31, 31, 0.06) 0%, rgba(31, 31, 31, 0.06) 52%, transparent 52%, transparent 100%), radial-gradient(circle at 96% 80%, rgba(11, 11, 11, 0.06) 0%, rgba(11, 11, 11, 0.06) 73%, transparent 73%, transparent 100%), radial-gradient(circle at 91% 59%, rgba(252, 252, 252, 0.06) 0%, rgba(252, 252, 252, 0.06) 44%, transparent 44%, transparent 100%), radial-gradient(circle at 52% 82%, rgba(223, 223, 223, 0.06) 0%, rgba(223, 223, 223, 0.06) 87%, transparent 87%, transparent 100%), radial-gradient(circle at 84% 89%, rgba(160, 160, 160, 0.06) 0%, rgba(160, 160, 160, 0.06) 57%, transparent 57%, transparent 100%), linear-gradient(90deg, rgb(25, 43, 143), rgb(28, 122, 104));
+
+        }
+
+        .hero-text {
+            max-width: 32rem;
+            text-align: center;
+        }
+
+        .hero-text h1 {
+            font-size: 2.5em;
+            margin-bottom: 1rem;
+        }
+
+        h2 {
+            margin-bottom: 2rem;
+        }
+
+        .hero-text p {
+            margin: 0.5rem;
+        }
+
+        .btn {
+            display: inline-block;
+            margin-top: 0.75rem;
+            padding: 0.75rem 1.5rem;
+            background: #1a6ec0;
+            color: white;
+            text-decoration: none;
+            border-radius: 5rem;
+        }
+
+        .btn:hover {
+            background: #202634;
+            ;
+
+        }
+
+        .hero-image img {
+            max-width: 100%;
+            height: auto;
+            padding: 2rem 4rem;
+            -webkit-filter: drop-shadow(0 0.2rem 0.2rem rgba(0, 0, 0, 0.));
+            filter: drop-shadow(0 0.2rem 0.2rem rgba(0, 0, 0, 0.5));
+        }
+
+
+        section {
+            padding: 2rem 2rem 0 2rem;
+            max-width: var(--setWidth);
+
+        }
+
+        p {
+            margin-bottom: 1rem;
+        }
+
+        .services {
+            text-align: center;
+        }
+
+        .service-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .service {
+            width: 100%;
+            max-width: 16rem;
+            padding: 1rem;
+        }
+
+        .service h3 {
+            margin: 1rem 0;
+            color: #007BFF;
+        }
+
+        .material-icons {
+            font-size: 2rem;
+        }
+
+        /* Guide elements */
+
+        #kb {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 2rem;
+        }
+
+        pre {
+            text-wrap: pretty;
+        }
+
+        .sidebar {
+            position: sticky;
+            top: 20px;
+            /* Adjust this to control where it sticks */
+            background: #293042;
+            padding: 1rem 2rem;
+            border-radius: 0.3rem;
+            margin: 1rem 0;
+        }
+
+        .sidebar a {
+
+            color: white;
+            text-decoration: none;
+            font-weight: normal;
+        }
+
+        .sidebar a:hover {
+            color: #1a6ec0;
+        }
+
+        .sidebar li {
+            margin: 1rem 0 0 1rem;
+        }
+
+        .info-window {
+            flex: 3;
+            margin: 1rem 0;
+        }
+
+        .tile-window {
+            flex: 3;
+        }
+
+        /* Library elements */
+        #lb {
+            display: flex;
+            flex: 1;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 2rem 2rem;
+            gap: 2rem;
+            width: 100%;
+        }
+
+        /* Filter section */
+        .filter-section {
+            margin-bottom: 20px;
+        }
+
+        .filter-section label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .filter-section input[type="text"] {
+
+            border-radius: 50px;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+
+        /* Gallery */
+        .gallery {
+            flex: 1;
+            /* Allow gallery to take the remaining space */
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+            /* Adjusted for width */
+            gap: 1rem;
+            padding: 1rem;
+            align-content: flex-start;
+            overflow-y: auto;
+        }
+
+        .ex-tile {
+            color: white;
+            cursor: pointer;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            /* Add shadow on hover */
+            justify-content: space-between;
+            overflow: hidden;
+            border-radius: 0.3rem;
+            transition: transform 0.5s, box-shadow 0.5s, border 0.5s;
+            /* Transition effect for hover */
+            aspect-ratio: 4 / 3;
+            /* Enforce 4:3 aspect ratio */
+        }
+
+        .ex-tile:hover {
+            transform: scale(1.02);
+            /* Scale up on hover for emphasis */
+            box-shadow: 0 0.4rem 1rem rgba(0, 0, 0, 0.6);
+            /* Add shadow on hover */
+            border: 2px solid #00509e;
+            border-radius: 0.5rem;
+        }
+
+        .ex-tile h3 {
+            padding: 20px 20px 20px 20px;
+            font-size: 1.2rem;
+            margin: 0;
+            background: linear-gradient(0deg, rgb(0, 0, 0, 0) 0%, #171b25 80%);
+        }
+
+        /* Align attributes in a row at the bottom */
+        .ex-attributes {
+            display: flex;
+            justify-content: space-around;
+            padding: 20px 10px 10px 10px;
+            background: linear-gradient(180deg, rgb(0, 0, 0, 0) 0%, #171b25 100%);
+        }
+
+        .ex-attributes p {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            color: white;
+            background-color: #171b25;
+            border-radius: 0.5rem;
+            overflow: auto;
+            min-width: 40%;
+            max-width: 70%;
+
+            min-height: 40%;
+            max-height: 80%;
+            aspect-ratio: 4 / 3;
+            /* Enforce 4:3 aspect ratio */
+            display: flex;
+            flex-direction: column;
+            /* Add shadow on hover */
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-direction: column;
+            height: 50%;
+            background-position: center center;
+        }
+
+        #modal-title::before {
+            display: inline-block;
+            content: '';
+            height: 100%;
+            vertical-align: bottom;
+        }
+
+        #modal-title {
+            width: 100%;
+            padding: 2rem;
+            margin: 0;
+            background: linear-gradient(180deg, rgb(0, 0, 0, 0) 0%, #171b25 80%);
+            height: 100%;
+
+        }
+
+        .close {
+            cursor: pointer;
+            font-size: 20px;
+            width: 100%;
+            padding: 1rem 1rem 0 0;
+            text-align: end;
+            background: linear-gradient(4deg, rgb(0, 0, 0, 0) 50%, #171b25 100%);
+        }
+
+        #modal-summary {
+
+            flex: 1;
+            color: white;
+            padding: 1rem 2rem;
+
+        }
+
+        .modal-body {
+            flex: 1;
+            display: flex;
+            padding: 0;
+
+        }
+
+        .modal-left {
+            flex: 1;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+
+        #modal-attributes {
+            display: flex;
+            padding: 1rem;
+            margin: 0;
+            text-align: center;
+            justify-content: center;
+            height: 100%;
+        }
+
+        #modal-attributes p {
+            padding: 0.5rem;
+            margin: 0;
+        }
+
+        .icon-title {
+            display: flex;
+            align-items: center;
+            padding-bottom: 1rem;
+        }
+
+        #tag-bar {
+            display: flex;
+            padding: 1.6rem;
+            margin: 0;
+            flex-direction: row;
+            justify-content: center;
+            flex-wrap: wrap-reverse;
+        }
+
+        #tag-header {
+            display: flex;
+            align-items: center;
+            flex: 1;
+        }
+
+        #tag-content {
+            font-weight: bold;
+            font-style: italic;
+            padding: 0rem 0.5rem;
+            display: flex;
+            justify-content: center;
+            /* Align horizontal */
+            align-items: center;
+            /* Align vertical */
+        }
+
+        .ex-links {
+            list-style: none;
+            display: flex;
+            padding: 0rem 2rem;
+            margin: 0;
+        }
+
+        .ex-links li {
+            display: inline;
+        }
+
+        .ex-links a {
+            color: white;
+            text-decoration: none;
+            font-size: 1rem;
+            padding: 0.5rem 1rem;
+            margin-right: 0.5rem;
+            transition: background-color 0.3s, color 0.3s;
+            border-radius: 2rem;
+            border: 2px #f4f4f4 solid;
+            display: flex;
+            align-items: center;
+        }
+
+        .ex-links a:hover {
+            background-color: #00509e;
+            /* Lighter blue for hover */
+        }
+
+        .ex-links a.active {
+            background-color: #fff;
+            color: #00509e;
+            /* Lighter blue for active link */
+            font-weight: bold;
+        }
+
+        .ex-links a:active {
+            background-color: #fff;
+            color: #00509e;
+            /* Lighter blue for active link */
+            font-weight: bold;
+        }
+
+
+
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+                flex-direction: column;
+                position: absolute;
+                background-color: #202634;
+                top: 4rem;
+                right: 0;
+                width: 100%;
+                text-align: center;
+            }
+
+            .menu-close {
+                position: absolute;
+                right: 0;
+                top: 0;
+                padding: 2rem;
+                background-color: #202634;
+                margin: 0;
+
+            }
+
+            #menu:target .menu-close {
+                display: flex;
+            }
+
+            #menu:target .nav-links {
+                display: flex;
+            }
+
+            .nav-links li {
+                margin: 1rem 0;
+            }
+
+            .menu-open {
+                display: flex;
+            }
+
+            #menu {
+                transform: translateY(-100%);
+                transition: transform 0.2s ease;
+                position: fixed;
+                /* give the menu a larger z-index than the ham link
+  to put the menu above it */
+                z-index: 100;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                width: 100%;
+            }
+
+            #menu:target {
+                transform: translateY(0);
+                transition: transform 0.2s ease;
+
+            }
+
+            .hero {
+                flex-direction: column;
+            }
+
+            #kb {
+                flex-direction: column;
+            }
+
+            #lb {
+                flex-direction: column;
+            }
+
+            .modal-content {
+                width: 100%;
+                height: 100%;
+                max-width: 100%;
+                max-height: 100%;
+            }
+
+            .gallery {
+                grid-template-columns: 1fr;
+            }
+
+            .info-window {
+                width: 100%
+            }
+
+            .sidebar {
+                position: initial;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <nav>
+            <div class="logo"><a href="index.html"><svg height="3rem" viewBox="0 0 210 83.999996"
+                        xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
+                        <g>
+                            <path style="fill:#ffffff;stroke-width:0.144177"
+                                d="m 123.95944,30.43245 0.001,-1.117375 5.11724,-6.112717 c 2.81453,-3.361993 5.11729,-6.171028 5.11729,-6.242298 0,-0.07123 -2.30323,-2.881476 -5.1183,-6.244894 l -5.1183,-6.1153013 v -1.086954 -1.086943 l 3.28003,0.0063 3.28005,0.0063 3.8207,4.544782 c 2.10139,2.499633 3.91803,4.6295583 4.03697,4.7331703 0.18592,0.161956 0.77129,-0.476686 4.17186,-4.5515563 l 3.95559,-4.739934 h 3.28934 3.28932 v 1.052384 1.052384 l -5.19039,6.1834383 c -2.85472,3.400899 -5.1886,6.219979 -5.18639,6.264626 0.002,0.04464 2.33524,2.838581 5.18451,6.208731 l 5.18051,6.127543 0.006,1.117375 0.006,1.117376 -3.28004,-0.0032 -3.28003,-0.0032 -4.03542,-4.764205 c -3.77303,-4.454434 -4.04959,-4.7469 -4.25324,-4.498099 -0.1198,0.146359 -1.92418,2.291532 -4.00975,4.767043 l -3.792,4.500917 h -3.23672 -3.23673 l 0.001,-1.117376 z"
+                                id="path220" />
+                            <path style="fill:#ffffff;stroke-width:0.144177"
+                                d="M 103.62935,20.159802 V 8.7697787 h -5.767107 -5.767099 v -3.171906 -3.171905 h 14.634016 14.63402 v 3.171905 3.171906 h -5.69501 -5.69501 V 20.159802 31.549826 h -3.1719 -3.17191 z"
+                                id="path218" />
+                            <path style="fill:#ffffff;stroke-width:0.144177"
+                                d="M 71.045229,20.159802 V 8.7697787 h -5.695017 -5.695007 v -3.171906 -3.171905 h 14.561929 14.561929 v 3.171905 3.171906 H 83.084046 77.38904 V 20.159802 31.549826 h -3.171906 -3.171905 z"
+                                id="path216" />
+                            <path style="fill:#1a6ec0;fill-opacity:1;stroke-width:0.139424"
+                                d="m 56.568246,44.749266 c 0.132103,-1.130608 0.11982,-5.393817 -0.01826,-6.336905 l -0.09381,-0.640428 h 50.057284 50.05728 l -0.0914,0.775254 c -0.14125,1.198686 -0.15482,4.546774 -0.0241,5.932418 l 0.1177,1.247158 H 106.51352 56.453986 Z"
+                                id="path214" />
+                            <path style="fill:#1a6ec0;stroke-width:0.144177;fill-opacity:1"
+                                d="m 200.94868,51.986986 c 0,-0.01984 -0.19934,-0.522652 -0.44235,-1.117376 -0.24303,-0.594734 -0.62663,-1.835993 -0.85249,-2.758363 -1.17752,-4.80902 -0.86406,-9.679602 0.90117,-14.002281 l 0.57405,-1.405726 h 4.0357 4.03569 l -0.26157,0.39649 c -1.23002,1.864399 -2.0063,3.624311 -2.54655,5.77324 -0.26627,1.059149 -0.3139,1.638572 -0.30464,3.706429 0.0142,3.191363 0.30209,4.354515 1.81632,7.340458 l 1.06655,2.103165 h -4.01068 c -2.20589,0 -4.01093,-0.01625 -4.0112,-0.03609 z"
+                                id="path212" />
+                            <path style="fill:#1a6ec0;fill-opacity:1;stroke-width:0.144177"
+                                d="m 3.0885296,51.941186 c 0,-0.04506 0.44678,-0.969549 0.99284,-2.054529 1.56297,-3.105469 1.81674,-4.159426 1.81148,-7.523519 -0.003,-2.117705 -0.0453,-2.529327 -0.38251,-3.748616 -0.62502,-2.259971 -1.27274,-3.70054 -2.47959,-5.514785 l -0.26374,-0.396489 h 4.03913 4.0391284 l 0.508459,1.214635 c 1.175244,2.807495 1.592501,5.008816 1.600805,8.445255 0.0084,3.455866 -0.441579,6.004916 -1.515078,8.583574 l -0.448069,1.076317 H 7.0399596 c -2.17329,0 -3.95143,-0.03683 -3.95143,-0.08188 z"
+                                id="path210" />
+                            <path style="fill:#1a6ec0;stroke-width:0.144177;fill-opacity:1"
+                                d="m 188.14448,64.45835 c -4.60694,-9.066036 -6.34795,-19.950671 -4.79103,-29.952887 0.79263,-5.092105 2.34256,-10.128325 4.37061,-14.201486 l 0.75375,-1.513865 5.15491,-0.03788 5.15492,-0.03788 -1.44187,2.36676 c -1.68405,2.764325 -2.62234,4.771433 -3.60217,7.705364 -1.48568,4.448683 -2.16923,8.595656 -2.16312,13.123333 0.0109,8.068699 2.41694,16.120002 6.77075,22.656654 0.44893,0.674024 0.86412,1.306609 0.92263,1.405726 0.0843,0.142814 -0.97051,0.180221 -5.08108,0.180221 h -5.18744 z"
+                                id="path208" />
+                            <path style="fill:#1a6ec0;fill-opacity:1;stroke-width:0.144177"
+                                d="M 13.442562,64.890886 C 21.430959,52.97521 22.612598,37.550731 16.537975,24.485129 16.224594,23.811095 15.34227,22.237758 14.577265,20.988827 L 13.186333,18.71803 h 5.166097 5.166087 l 0.803415,1.698254 c 5.365207,11.340999 6.308978,24.008992 2.687685,36.076248 -0.753947,2.512395 -1.94733,5.507012 -3.117002,7.821643 l -0.928945,1.838262 h -5.183434 -5.183435 z"
+                                id="path206" />
+                            <path style="fill:#1a6ec0;stroke-width:0.144177;fill-opacity:1"
+                                d="m 174.53173,78.948193 c -5.15518,-8.267119 -8.66247,-19.326858 -9.79592,-30.890037 -0.24331,-2.48236 -0.24156,-10.536496 0.003,-12.975982 1.12233,-11.203007 4.06279,-20.780917 9.1843,-29.9160563 l 1.53618,-2.74015 h 5.47631 5.47631 l -0.49924,0.68484 c -2.41341,3.310656 -5.29765,8.4418153 -7.00382,12.4600833 -6.83569,16.098892 -7.07266,34.022086 -0.66592,50.365278 1.74301,4.446298 4.74992,9.997815 7.52608,13.895014 0.41656,0.58477 0.72226,1.12003 0.67935,1.18946 -0.0429,0.0694 -2.43321,0.12626 -5.31175,0.12626 h -5.23371 z"
+                                id="path204" />
+                            <path style="fill:#ffffff;stroke-width:0.144177"
+                                d="M 121.65153,67.017498 V 52.888101 l 3.13587,5.7e-4 3.13586,5.8e-4 3.17191,3.780699 c 1.74455,2.079391 3.89837,4.64314 4.78628,5.697244 l 1.61436,1.916538 4.77081,-5.697761 4.77081,-5.69787 h 3.16659 3.16657 v 14.129397 14.129405 h -3.09878 -3.09876 l -0.0371,-9.382769 -0.037,-9.382768 -4.75785,5.697085 c -2.61683,3.1334 -4.7903,5.700884 -4.82996,5.705506 -0.0397,0.0042 -2.24556,-2.565511 -4.90203,-5.711405 l -4.82995,-5.719804 -0.037,9.397077 -0.0371,9.397078 h -3.02668 -3.02669 z"
+                                id="path202" />
+                            <path style="fill:#ffffff;stroke-width:0.144177"
+                                d="m 100.45743,75.865912 v -5.280979 l -1.344169,-1.819764 c -0.739298,-1.000858 -3.6589,-4.950452 -6.487984,-8.776859 -2.829095,-3.826422 -5.143811,-6.989316 -5.143811,-7.028665 0,-0.03936 1.617879,-0.07154 3.595271,-0.07154 h 3.595282 l 4.42039,5.550836 c 2.431221,3.05296 4.432961,5.550842 4.448301,5.550842 0.0153,0 2.00418,-2.497006 4.41964,-5.54889 l 4.39174,-5.548884 3.64048,-0.0021 c 2.00227,-0.001 3.64048,0.03218 3.64048,0.07376 0,0.04168 -1.83591,2.555739 -4.0798,5.586882 -2.24389,3.031139 -5.16348,6.979234 -6.48798,8.773567 l -2.40819,3.262401 v 5.280114 5.2801 h -3.09983 -3.09982 z"
+                                id="path200" />
+                            <path style="fill:#ffffff;stroke-width:0.144177"
+                                d="m 62.502123,80.992853 c -1.603358,-0.38525 -3.146168,-1.67929 -3.90041,-3.2715 l -0.460373,-0.97187 v -9.731985 -9.731983 l 0.47064,-0.962093 c 0.817123,-1.670376 2.149173,-2.774973 3.881596,-3.2188 0.768181,-0.196799 2.098574,-0.22127 10.08887,-0.185561 9.200985,0.04115 9.204277,0.04126 10.016894,0.369845 1.187347,0.480148 2.594836,1.823046 3.180052,3.034115 0.444291,0.91942 0.467685,1.054456 0.522915,3.017034 l 0.05783,2.05453 h -3.115852 -3.115852 v -1.153422 -1.153422 h -8.003075 -8.003064 l 0.03725,7.965804 0.03725,7.965814 7.965804,0.03725 7.965804,0.03725 v -2.163882 -2.163893 h -3.027719 -3.02773 v -3.02772 -3.02773 h 6.134855 6.134866 l -0.04337,6.019414 -0.04337,6.019405 -0.463865,0.94788 c -0.594481,1.21481 -1.698782,2.31911 -2.913576,2.91359 l -0.947886,0.46386 -9.443633,0.0241 c -5.211651,0.0133 -9.686177,-0.0342 -9.984879,-0.106 z"
+                                id="path198" />
+                            <path style="fill:#1a6ec0;fill-opacity:1;stroke-width:0.144177"
+                                d="m 25.519705,81.021453 c -0.0439,-0.071 0.03978,-0.28263 0.185983,-0.47036 1.311927,-1.68534 3.639855,-5.502462 5.220114,-8.559464 C 37.220777,59.814061 39.557125,45.873306 37.606851,32.126537 36.200366,22.212685 32.499604,12.59703 26.939043,4.4084047 l -1.3462,-1.982437 5.436392,0.0021 5.436382,0.0021 1.40982,2.557101 c 2.522363,4.575035 4.243812,8.5214633 5.769337,13.2262383 6.107588,18.835993 4.615545,39.223717 -4.167783,56.950123 -0.589373,1.189457 -1.607315,3.006103 -2.262092,4.036963 l -1.190513,1.87431 -5.212463,0.0379 c -2.957294,0.0214 -5.24697,-0.0179 -5.292218,-0.0912 z"
+                                id="path179" />
+                        </g>
+                    </svg></a></div>
+            <div class="menu-open"><a href="#menu">
+                    <span class="material-icons">menu</span>
+                </a>
+            </div>
+            <div id="menu">
+                <div class="menu-close"><a href="#"><span class="material-icons">close</span></a>
+                </div>
+                <ul class="nav-links">
+                    <li><a href="index.html">About</a></li>
+                    <li> <a href="guide.html">How To Use</a></li>
+                    <li class="current-link">Exercise Library</a></li>
+                    <li><a href="gym/">Launch</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+    <section id="lb">
+        <div class="sidebar">
+
+            <!-- Search Section -->
+            <div class="filter-section">
+                <h2>Search</h2> <!-- Added Search header -->
+                <input type="text" id="search" placeholder="Search by title or description">
+            </div>
+
+            <h2>Filters</h2>
+
+            <div id="category-filter" class="filter-section">
+                <div class="icon-title"><img src="images/tag.svg">
+                    <h3>&nbsp;Tags</h3>
+                </div>
+                <!-- Categories will be dynamically created here -->
+            </div>
+
+            <div id="level-filter" class="filter-section">
+                <div class="icon-title"><img src="images/level.svg">
+                    <h3>&nbsp;Level</h3>
+                </div>
+                <!-- Levels will be dynamically created here -->
+            </div>
+
+            <div id="duration-filter" class="filter-section">
+                <div class="icon-title"><img src="images/clock.svg">
+                    <h3>&nbsp;Duration</h3>
+                </div>
+                <!-- Durations will be dynamically created here -->
+            </div>
+            <div id="author-filter" class="filter-section">
+                <div class="icon-title"><img src="images/author.svg">
+                    <h3>&nbsp;Source</h3>
+                </div>
+                <!-- Authors will be dynamically created here -->
+            </div>
+        </div>
+        <div class="tile-window">
+            <div id="gallery" class="gallery"></div>
+        </div>
+    </section>
+    <!-- Modal Structure -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span id="close-modal" class="close"><img src="images/close.svg"></span>
+                <h2 id="modal-title"></h2>
+            </div>
+            <div class="modal-body">
+                <div class="modal-left">
+                    <ul class="ex-links">
+                        <li><a id="starter" href="#"><img src="images/launch2.svg">&nbsp;Launch</a></li>
+                        <li><a id="downloader" href="#" download><img src="images/download.svg">&nbsp;Download</a></li>
+                    </ul>
+                    <p id="modal-summary"></p>
+                    <div id="tag-bar">
+                        <div id="tag-header"><img src="images/tag.svg">&nbsp;Tags:
+                            <div id="tag-content"></div>
+                        </div>
+                        <div id="modal-attributes">
+
+                            <p><img src="images/level.svg"><br></p>
+                            <p><img src="images/group.svg"><br></p>
+                            <p><img src="images/clock.svg"><br></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+
+        var exs = [];
+
+
+        //Handler for scenario files. Calls populateQuestions() to initalise the dashboard.
+        function handleFileSelect() {
+            const file = "lib/manifest.json";
+            fetch(file)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok ' + response.statusText);
+                    }
+                    return response.text();
+                })
+                .then(data => {
+                    exs = JSON.parse(data);
+                    console.log(exs);
+                    // Event listener for modal close button
+                    document.getElementById('close-modal').addEventListener('click', closeModal);
+
+                    // Event listener for search input to trigger filtering
+                    document.getElementById('search').addEventListener('input', filterexs);
+
+                    // Initialize filters and display exs on load
+                    initializeFilters();
+                    displayexs(exs);
+                })
+                .catch(error => {
+                    console.error('There was a problem with the fetch operation:', error);
+                });
+
+
+            //   } catch (error) {
+            //     alert('Error parsing Scenario file.');
+            //}
+        }
+
+        // Function to display exs
+        function displayexs(filteredexs) {
+
+
+            const gallery = document.getElementById('gallery');
+            gallery.innerHTML = '';
+            filteredexs.forEach(ex => {
+                const exTile = document.createElement('div');
+                exTile.classList.add('ex-tile');
+
+                // Updated HTML structure of ex tiles
+                if (ex.image) {
+                    exTile.style.background = "#ccc";
+                    exTile.style.backgroundImage = `url(lib/images/${ex.image}.png)`;
+                    exTile.style.backgroundSize = "cover";
+                    exTile.style.backgroundBlendMode = "multiply";
+                    exTile.style.backgroundPosition = "center";
+
+
+                }
+                exTile.innerHTML = `
+      <h3>${ex.title}</h3>
+      <div class="ex-attributes">
+        
+        <p><img src="images/level.svg"/><br/>${ex.level}</p>
+        <p><img src="images/author.svg"/><br/>${ex.author}</p>
+        <p><img src="images/clock.svg"/><br/>${ex.duration}</p>
+      </div>
+    `;
+                exTile.addEventListener('click', () => openModal(ex));
+                gallery.appendChild(exTile);
+            });
+        }
+
+        // Function to filter exs based on selected filters and search
+        function filterexs() {
+            const searchValue = document.getElementById('search').value.toLowerCase();
+            const selectedCategories = Array.from(document.querySelectorAll('#category-filter input:checked')).map(el => el.value);
+            const selectedLevels = Array.from(document.querySelectorAll('#level-filter input:checked')).map(el => el.value);
+            const selectedAuthors = Array.from(document.querySelectorAll('#author-filter input:checked')).map(el => el.value);
+            const selectedDurations = Array.from(document.querySelectorAll('#duration-filter input:checked')).map(el => el.value);
+
+            const filteredexs = exs.filter(ex => {
+                const matchesCategory = selectedCategories.length === 0 || ex.categories.some(category => selectedCategories.includes(category));
+                const matchesLevel = selectedLevels.length === 0 || selectedLevels.includes(ex.level);
+                const matchesAuthor = selectedAuthors.length === 0 || selectedAuthors.includes(ex.author);
+                const matchesDuration = selectedDurations.length === 0 || selectedDurations.includes(ex.duration);
+
+                // Updated to search both title and description
+                const matchesSearch = ex.title.toLowerCase().includes(searchValue) || ex.summary.toLowerCase().includes(searchValue);
+
+                return matchesCategory && matchesLevel && matchesDuration && matchesSearch && matchesAuthor;
+            });
+
+            displayexs(filteredexs);
+        }
+
+        // Initialize filters dynamically
+        function initializeFilters() {
+            const categories = [...new Set(exs.flatMap(ex => ex.categories))];
+            const levels = [...new Set(exs.map(ex => ex.level))];
+            const durations = [...new Set(exs.map(ex => ex.duration))];
+            const authors = [...new Set(exs.map(ex => ex.author))];
+
+            const categoryFilter = document.getElementById('category-filter');
+            const levelFilter = document.getElementById('level-filter');
+            const durationFilter = document.getElementById('duration-filter');
+            const authorFilter = document.getElementById('author-filter');
+
+            categories.forEach(category => {
+                const label = document.createElement('label');
+                label.innerHTML = `<input type="checkbox" value="${category}"> ${category}`;
+                label.addEventListener('change', filterexs);
+                categoryFilter.appendChild(label);
+            });
+
+            levels.forEach(level => {
+                const label = document.createElement('label');
+                label.innerHTML = `<input type="checkbox" value="${level}"> ${level}`;
+                label.addEventListener('change', filterexs);
+                levelFilter.appendChild(label);
+            });
+
+            authors.forEach(author => {
+                const label = document.createElement('label');
+                label.innerHTML = `<input type="checkbox" value="${author}"> ${author}`;
+                label.addEventListener('change', filterexs);
+                authorFilter.appendChild(label);
+            });
+
+            durations.forEach(duration => {
+                const label = document.createElement('label');
+                label.innerHTML = `<input type="checkbox" value="${duration}"> ${duration}`;
+                label.addEventListener('change', filterexs);
+                durationFilter.appendChild(label);
+            });
+
+        }
+
+        // Function to open modal with ex details
+        function openModal(ex) {
+            const modal = document.getElementById('modal');
+            const modalContent = document.querySelector('.modal-header');
+            document.getElementById('modal-title').textContent = ex.title;
+            document.getElementById('modal-summary').innerHTML = ex.summary;
+            document.getElementById('tag-content').textContent = ex.categories.join(', ');
+            document.getElementById('modal-attributes').innerHTML = `
+        <p><img src="images/level.svg"/><br/>${ex.level}</p>
+        <p><img src="images/author.svg"/><br/>${ex.author}</p>
+        <p><img src="images/clock.svg"/><br/>${ex.duration}</p>
+      </div>
+    `;
+            document.getElementById("downloader").href = `lib/scenarios/${ex.image}.ttxf`;
+            document.getElementById("starter").href = `gym?q=${ex.image}`;
+
+            modal.style.display = 'flex';
+            modalContent.style.background = "#ccc";
+            modalContent.style.backgroundImage = `url(lib/images/${ex.image}.png)`;
+            modalContent.style.backgroundSize = "cover";
+            modalContent.style.backgroundPosition = "center";
+            modalContent.style.backgroundBlendMode = "multiply";
+        }
+
+        // Function to close modal
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+
+        handleFileSelect();
+    </script>
+
+    <footer>
+        <p>&copy; 2025 TTX Gym. All rights reserved.</p>
+        <div class="social-links"><a href="mailto:contact@ttxgym.com">contact@ttxgym.com</a>
+        </div>
+    </footer>
+</body>
+
+</html>

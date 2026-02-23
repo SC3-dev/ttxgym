@@ -1,0 +1,136 @@
+! title: Bring your own device
+! summary
+This scenario covers a series of incidents involving employees’ personal devices that are used to access business data and services as part of your organisations Bring Your Own Device policy.
+It discusses the controls and processes your organisation has in place to understand and manage the risk of such a policy, what is required by employees in terms of keeping their devices secure, and training and awareness of employees in respect to using their personal devices securely.
+It also covers the controls your organisation has in place to ensure that corporate data and services are protected and restricted to only authorised employees.
+It discusses how your organisation can ensure data is adequately protected in event of an employee leaving or a device being lost or stolen.
+Discussion of how to respond to a data breach from a personal device, along with the legal and regulatory issues around such a breach is included.
+Finally, the scenario explores how your organisation would respond to an employee’s device getting compromised, and any controls in place to prevent the spread of malicious software through your network or to limit what data an attacker could access from an infected machine.
+
+@ Inject 1: Data Leak
+! content
+Your organisation operates with a Bring Your Own Device policy.
+An employee that uses their personal device at work as part of this policy, reports that a number of sensitive business documents had been uploaded to a family member’s cloud account.
+This occurred during an automatic back-up of their personal laptop, that they occasionally allowed their family member to use.
+# prompts
++ Who in your organisation is responsible for data removal from the cloud account?
++ Do you have a policy requiring the employee to give access to the cloud account?
++ Are there controls in place to prevent sensitive corporate documents being uploaded externally?
++ Do employees store corporate data directly on their personal devices or access it over the network or through a container application?
++ What is the impact in relation to GDPR?
+# discussion
++ What steps would you take to ensure that this data was removed from the cloud account?
++ Do you have a method of tracking business data stored on employees’ personal devices, or restricting access from personal devices to the data and services you are willing to share with BYOD employees?
++ What controls or policies do you have in place to secure corporate data stored on a personal device?
++ What are the regulatory issues around protecting sensitive information stored on a personal device? Would you be required to involve any authorities following this incident?
+? Our organisation tracks or restricts business data stored on personal devices.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+? Our organisation has an efficient process for managing any legal or regulatory issues surrounding the use of personal devices to deliver your business.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+
+@ Inject 2: Malware Infection
+! content
+During an investigation of the laptop following this data leak, it was found that the laptop is infected with malware.
+The infection occurred outside of the office while the user was using their personal laptop at home; however, the device had since been connected to the corporate network.
+# prompts
++ Do you have a method of tracking user permissions?
++ How would you use logs or other monitoring tools to determine if the infection had spread?
++ Does a user need to authenticate before accessing corporate services from a personal device?
++ Are credentials shared between personal devices and the business environment?
++ Who in the organisation is responsible for replacing devices which have been seized for inspection?
+# discussion
++ Do you know which corporate systems and data the laptop had access to?
++ Does your organisation have any method of segregating access to business data and services when a user is using a personal device for corporate or personal activity?
++ Do you have a policy that allows you to seize the device for investigation or wipe data from the device? Are you responsible for providing the employee with a new device while you have possession of their personal device?
+? Our organisation has an effective method of segregating access to corporate data on personal devices.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+? Our organisation has a sensible approach for dealing with security incidents involving personal devices.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+? Our organisation has a clear policy describing procedures in the case a personal device must be seized or wiped.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+
+@ Inject 3: Evaluating BYOD Controls
+! content
+Following this compromise, you evaluate your controls and training around BYOD, in order to minimise the possibility of such an incident occurring in future.
+# prompts
++ How effectively do users keep their devices and software up to date?
++ What happens if an employee’s device fails to meet the minimum-security requirements?
++ Who is legally responsible for protecting data on the device, the data controller or the device owner?
++ What training is made available to employees regarding BYOD?
++ Does the organisation have any methods of detecting an infected personal device?
+# discussion
++ Do you have a policy requiring employees to keep their personal devices at some minimum security standard? Are users required to keep their devices up to date and to use a firewall, for example?
++ What level of liability does your organisation take when advising or configuring a personal device?
++ Do you have any training for employees that use their personal devices for work? Are employees made aware of your BYOD policies and the need to keep their devices secure?
++ What controls does your organisation have in place to prevent the spread of malware if a personal device is infected? Do you have methods in place to protect business data in this situation?
+? Our organisation has a clear policy and guidance on how to secure personal devices.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+? Employees are given training in order to make them aware of BYOD policy and the need to keep their personal devices secure.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+? Our organisation has controls in place to prevent the spread of malware should a personal device become infected.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+
+@ Inject 4: Employee Departure
+! content
+The employee later leaves the organisation, taking their personal laptop with them.
+The employee had been using this laptop to access corporate services and information until their departure.
+# prompts
++ Is there any clearly defined BYOD policy?
++ Are employees aware of the details of the policy?
++ How quickly are user accounts disabled when an employee leaves?
++ Is the device inspected to ensure all corporate data has been removed?
++ Is there a way to remotely remove data from a device that is lost or stolen?
+# discussion
++ What controls are in place at your organisation to minimise the risks of BYOD?
++ How do you ensure that a former employee no longer has access to any corporate systems or data on their personal device once they leave the organisation?
++ Do you have a method to remotely remove business data on an employee’s personal device should they leave the organisation without any of their access being revoked, or should a device be lost or stolen?
+? Our organisation is aware of the positives and negatives of a BYOD policy and has made a well-informed decision to implement this model over alternative ownership models.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+? Our organisation has an effective BYOD policy that protects against unauthorised access to business data.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+? Our organisation has procedures in place to ensure that when staff leave, their access to business services and data via personal devices is revoked.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident

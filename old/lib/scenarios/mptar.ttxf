@@ -1,0 +1,116 @@
+! title: Mobile phone theft and response
+! summary
+This scenario depicts a user losing an organisation-provisioned mobile phone, which is then stolen.
+The exercise explores your organisation's readiness to handle mobile device security, incident response, and communication.
+It is based on the "Mobile phone theft and response" tabletop exercise materials.
+
+@ Inject 1
+! content
+A user travelling by train to a meeting misplaces an organisation-provisioned mobile phone, only noticing after they have left the station.
+Unfortunately, it soon falls into the hands of an opportunistic thief.
+The thief believes it is a personal phone and attempts to access it in case it has saved payment details, or is still logged into an online shop.
+
+# discussion
++ What authentication methods are in use for mobile devices? Are users required to set up a PIN, a password or biometrics to prevent unauthorised access?
++ How does your organisation support users in setting suitably complex PINs and passwords or appropriate biometrics?
++ How does your organisation enforce or measure effective use of these protections?
+
+# prompts
++ What authentication options are users required to use? How is it enforced?
++ Do we teach users the importance of setting a suitably secure password or PIN?
++ Is there any technical enforcement of password or PIN complexity rules? If so, what are they?
++ When are users required to setup authentication? Is it when they are first provided with the device?
++ Is there any way a user could avoid setting up these protections?
+
+? We ensure any portable devices, such as mobile phones, that are used to access business information are suitably protected, for example by a complex PIN, password or secure biometric.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+
+@ Inject 2
+! content
+The thief, having failed to gain access to the phone, sells it on to a dealer who in turn sells it to a criminal hacker who specialises in gaining access to locked devices.
+The hacker makes money by gaining access to devices and selling extracted information, or payment card details.
+An old version of the software running on the device is known to have a security issue that would allow the hacker to bypass the lock screen.
+
+# discussion
++ How regularly are users’ devices updated? Is this enforced or can they delay updates indefinitely?
++ If the hacker was able to gain access to the phone, what information would they be able to access?
++ What would the business impact be of losing control of that information?
+
+# prompts
++ Do we know a typical timescale for devices being updated?
++ What happens if the user never updates their device?
++ What methods do we have for measuring the update status of our devices?
++ What communication apps are available? For example: email, conferencing, telecoms, or project management apps?
++ As well as information, do phones let employees access other systems, such as the ability to make purchases, or control some aspect of operations?
+
+? We ensure software updates for devices and applications are installed as soon as possible.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+
+@ Inject 3
+! content
+Upon being notified that the device has been lost, your organisation presumes it has been stolen and wishes to ensure that information on the phone is not compromised.
+
+# discussion
++ What abilities do you have to remotely disable or wipe the phone? Are there any limitations on these techniques?
++ What data is stored on the phone? What would the impact to the business be if this was compromised?
++ Can you track the device once it has been lost?
+
+# prompts
++ How would you remotely disable or wipe the phone?
++ Does this rely on access to network connectivity?
++ How long is this technique likely to work for?
++ Would you be able to continue normal operation?
++ Do you have this data stored in any other location?
+
+? If a device is lost or stolen, we can remotely track, wipe, or disable it.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+
+? We have a clear idea of what data is on each device or what data it has access to.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+
+@ Inject 4
+! content
+The user mentioned to a supplier that they had misplaced their phone.
+The supplier now contacts your organisation concerned that sensitive information may have been contained on the device.
+
+# discussion
++ How do you respond to your supplier's concern?
++ Do you proactively reach out to other suppliers or customers to let them know what's happened?
++ Do you contact any other organisations, media or unions?
+
+# prompts
++ Which of your suppliers might be involved here?
++ Who would a supplier contact at your organisation?
++ Will that person or team likely be aware of this issue?
++ Do you have a communications plan to execute in the event of a cyber incident?
++ Who will be responsible for contacting suppliers and customers?
+
+? We have a clear process for collating and managing information during incidents.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+
+? We have a clear process for how we communicate with our stakeholders during an incident.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident

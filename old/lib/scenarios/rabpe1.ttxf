@@ -1,0 +1,124 @@
+! title: A ransomware attack delivered by a phishing email
+! summary 
+This scenario presents a common method that attackers use to infect an organisation with ransomware.
+It will help you understand how well-meaning users can fall victim to phishing attacks and what the consequences of that are.
+Additionally, it covers your response in the case of a successful attack, and your ability to recover critical business data from backups.
+
+@ Inject 1: Initial phishing
+! content 
+Your finance team have received an email from a customer, below, stating they've attempted to make a payment but are having trouble.
+The email comes from a different address than the customer typically uses, containing only a slight misspelling of the customer's name.
+%[Example Phishing Email](url/to/phishing_email_image.jpg)
+A file is attached, and the message requests that the finance team open it to help the customer in making their payment.
+# discussion
++ As part of a multi-layered approach, what mechanisms does your organisation have in place to make it difficult for attackers to reach your users?
++ Do we provide any training to users? If so, what is in the training?
++ Is there a documented procedure for if a user suspects the email?
+# prompts
++ Do users feel comfortable reporting phishing emails?
++ Do users feel comfortable reporting what they suspect is a successful phishing attack?
+? We make it difficult for attackers to reach our users with phishing emails.
++ 1. Not at all confident
++ 2. Slightly confident
++ 3. Somewhat confident
++ 4. Fairly confident
++ 5. Completely confident
+? We provide clear training to allow our users to identify and report suspected phishing attacks.
++ 1. Not at all confident
++ 2. Slightly confident
++ 3. Somewhat confident
++ 4. Fairly confident
++ 5. Completely confident
+
+@ Inject 2: Malware protection software
+! content 
+The email recipient from the finance team does not recognise that it is a phishing email and, in trying to help the customer, opens the attached file.
+This immediately opens the file, which contains malware.
+# prompts
++ Is there any malware protection software in use on the user’s system?
++ Are documents received through an email opened in a protected mode?
++ How often is the malware protection software updated?
++ Can users pause or delay updates to the malware protection software?
++ Would the malware protection software have prevented the file from being opened?
+? We effectively detect and prevent malware running on our organisations IT.
++ 1. Not at all confident
++ 2. Slightly confident
++ 3. Somewhat confident
++ 4. Fairly confident
++ 5. Completely confident
+? We have a clear policy for keeping our organisation’s software current and always apply the latest security updates.
++ 1. Not at all confident
++ 2. Slightly confident
++ 3. Somewhat confident
++ 4. Fairly confident
++ 5. Completely confident
+
+@ Inject 3: User permissions
+! content 
+When the attached file is opened, it immediately attempts to infect the computer with malware.
+The infection starts with the same permissions as the user, which gives it the same access level as the user.
+# prompts
++ What permissions do your users have?
++ Do users have administrator permissions?
++ Can users access other users’ files or data?
++ What happens when the user tries to install new software or applications?
++ Is there a list of software that is allowed to run on our computers?
+? We place appropriate limits on the software that can be installed or run on our organisations IT.
++ 1. Not at all confident
++ 2. Slightly confident
++ 3. Somewhat confident
++ 4. Fairly confident
++ 5. Completely confident
+
+@ Inject 4: Ransomware and backups
+! content 
+After several hours, users have started having trouble opening documents and files.
+A message pops up on the computer where the infected software was installed, indicating it has been infected with ransomware.
+The ransomware has encrypted all of your organisation’s business-critical data, so that you can no longer access them and is demanding £150,000 in cryptocurrency to recover the data.
+# prompts
++ How long could you continue to operate without access to that data?
++ Do we have an incident response plan that will help us to deal with this ransomware attack?
++ What data is backed up?
++ Are your backups separate to your normal business systems?
++ How long would it take you retrieve the backed-up data?
+? We have identified our critical systems and data and understand the potential impact of an infection.
++ 1. Not at all confident
++ 2. Slightly confident
++ 3. Somewhat confident
++ 4. Fairly confident
++ 5. Completely confident
+? We have a tested incident response plan that covers key stakeholders, contact details, steps and procedures for dealing with a ransomware attack, and our legal and regulatory requirements.
++ 1. Not at all confident
++ 2. Slightly confident
++ 3. Somewhat confident
++ 4. Fairly confident
++ 5. Completely confident
+? We have access to the resources required to execute the incident response plan in the event that our systems are unavailable.
++ 1. Not at all confident
++ 2. Slightly confident
++ 3. Somewhat confident
++ 4. Fairly confident
++ 5. Completely confident
+? If we lost access to our business-critical data, we could recover from our backups without significant disruption.
++ 1. Not at all confident
++ 2. Slightly confident
++ 3. Somewhat confident
++ 4. Fairly confident
++ 5. Completely confident
+
+@ Inject 5: Ransomware response and communication
+! content 
+Your organisation begins to receive calls from journalists requesting information on rumours that you are suffering from a ransomware attack.
+Over the next few hours stories begin to appear on social media and local industry press suggesting that your organisation has suffered from a ransomware attack.
+# prompts
++ How do you respond to journalists?
++ Do you have a communications plan to execute in the event of a cyber incident?
++ What do you tell your staff, supply chain and customers?
++ Which communications method will you use?
++ How much detail about the attack will you provide?
+? We have a clear and consistent approach for communication with staff, media and stakeholders during an incident.
++ 1. Not at all confident
++ 2. Slightly confident
++ 3. Somewhat confident
++ 4. Fairly confident
++ 5. Completely confident

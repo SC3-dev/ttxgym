@@ -2,361 +2,756 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TTX Gym - How To Use</title>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TTX Gym - How To Use</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* ─── PAGE LAYOUT ─── */
+    .page-wrap {
+      display: flex;
+      flex: 1;
+      max-width: 1100px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+      gap: 3rem;
+      align-items: flex-start;
+    }
+
+    /* ─── SIDEBAR TOC ─── */
+    .toc-sidebar {
+      width: 220px;
+      flex-shrink: 0;
+      position: sticky;
+      top: 80px;
+    }
+
+    .toc-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+      padding-left: 2px;
+    }
+
+    .toc-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+
+    .toc-list a {
+      display: block;
+      text-decoration: none;
+      color: var(--text-secondary);
+      font-size: 13px;
+      padding: 0.3rem 0.6rem;
+      border-radius: var(--radius);
+      border-left: 2px solid transparent;
+      transition: all 0.15s;
+    }
+
+    .toc-list a:hover {
+      color: var(--text-primary);
+      background: var(--surface);
+      border-left-color: var(--accent);
+    }
+
+    /* ─── MAIN CONTENT ─── */
+    .main-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    /* Page title */
+    .page-title {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+      margin-bottom: 0.5rem;
+    }
+
+    .page-subtitle {
+      color: var(--text-secondary);
+      font-size: 15px;
+      margin-bottom: 2.5rem;
+      line-height: 1.7;
+    }
+
+    /* Sections */
+    .guide-section {
+      margin-bottom: 3rem;
+    }
+
+    h2 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.01em;
+      margin-bottom: 0.75rem;
+      margin-top: 2.5rem;
+      padding-bottom: 0.6rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h2:first-child {
+      margin-top: 0;
+    }
+
+    h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+      margin-top: 1.75rem;
+    }
+
+    h4 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--accent);
+      font-family: var(--font-mono);
+      letter-spacing: 0.04em;
+      margin-bottom: 0.4rem;
+      margin-top: 1.5rem;
+      text-transform: uppercase;
+      font-size: 11px;
+    }
+
+    p {
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+      font-size: 15px;
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--accent-hover);
+      text-decoration: underline;
+    }
+
+    strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    em {
+      color: var(--text-secondary);
+      font-style: italic;
+    }
+
+    /* ─── CODE BLOCKS ─── */
+    pre {
+      background: var(--mid);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem 1.5rem;
+      overflow-x: auto;
+      margin: 1rem 0 1.5rem;
+    }
+
+    pre code {
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      color: var(--text-secondary);
+      line-height: 1.75;
+      background: none;
+      padding: 0;
+      border: none;
+    }
+
+    code {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      background: var(--surface-raised);
+      color: var(--green);
+      padding: 0.15em 0.45em;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+    }
+
+    /* ─── SYNTAX HIGHLIGHT IN CODEBLOCKS ─── */
+    .c-directive {
+      color: var(--amber);
+    }
+
+    .c-stage {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .c-array {
+      color: var(--green);
+    }
+
+    .c-question {
+      color: #c792ea;
+    }
+
+    .c-comment {
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    .c-answer {
+      color: var(--text-secondary);
+    }
+
+    /* ─── INFO / TIP CARDS ─── */
+    .info-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+      padding: 1rem 1.25rem;
+      margin: 1.25rem 0;
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .info-card strong {
+      color: var(--accent);
+    }
+
+    .tip-card {
+      background: rgba(62, 201, 200, 0.05);
+      border: 1px solid rgba(62, 201, 200, 0.2);
+      border-left: 3px solid var(--green);
+      border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+      padding: 1rem 1.25rem;
+      margin: 1.25rem 0;
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .tip-card strong {
+      color: var(--green);
+    }
+
+    /* ─── SYNTAX TABLE ─── */
+    .syntax-grid {
+      display: grid;
+      grid-template-columns: auto 1fr 1fr;
+      gap: 0;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin: 1.25rem 0 1.75rem;
+      font-size: 13px;
+    }
+
+    .syntax-grid-header {
+      display: contents;
+    }
+
+    .syntax-grid-header>div {
+      background: var(--mid);
+      padding: 0.6rem 1rem;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .syntax-row {
+      display: contents;
+    }
+
+    .syntax-row>div {
+      padding: 0.65rem 1rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+    }
+
+    .syntax-row:last-child>div {
+      border-bottom: none;
+    }
+
+    .syntax-row>div:first-child {
+      background: var(--surface);
+      font-family: var(--font-mono);
+      font-size: 15px;
+      font-weight: 700;
+      justify-content: center;
+      min-width: 50px;
+    }
+
+
+
+    /* ─── STAGE BADGE (decorative for section headers) ─── */
+    .section-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 600;
+      padding: 0.2rem 0.6rem;
+      border-radius: 99px;
+      background: var(--accent-glow);
+      color: var(--accent);
+      border: 1px solid var(--border-active);
+      letter-spacing: 0.04em;
+      vertical-align: middle;
+      margin-right: 0.5rem;
+    }
+
+    .section-badge.amber {
+      background: rgba(245, 166, 35, 0.1);
+      color: var(--amber);
+      border-color: rgba(245, 166, 35, 0.25);
+    }
+
+    .section-badge.green {
+      background: var(--green-glow);
+      color: var(--green);
+      border-color: rgba(62, 201, 200, 0.3);
+    }
+
+    .section-badge.purple {
+      background: rgba(199, 146, 234, 0.12);
+      color: #c792ea;
+      border-color: rgba(199, 146, 234, 0.3);
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 768px) {
+      .toc-sidebar {
+        display: none;
+      }
+
+      .page-wrap {
+        padding: 2rem 1.25rem;
+        gap: 0;
+      }
+
+      .page-title {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
 </head>
 
 <body>
-    <header>
-        <nav>
-            <div class="logo"><a href="index.html"><svg height="3rem" viewBox="0 0 210 83.999996"
-                        xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
-                        <g>
-                            <path style="fill:#ffffff;stroke-width:0.144177"
-                                d="m 123.95944,30.43245 0.001,-1.117375 5.11724,-6.112717 c 2.81453,-3.361993 5.11729,-6.171028 5.11729,-6.242298 0,-0.07123 -2.30323,-2.881476 -5.1183,-6.244894 l -5.1183,-6.1153013 v -1.086954 -1.086943 l 3.28003,0.0063 3.28005,0.0063 3.8207,4.544782 c 2.10139,2.499633 3.91803,4.6295583 4.03697,4.7331703 0.18592,0.161956 0.77129,-0.476686 4.17186,-4.5515563 l 3.95559,-4.739934 h 3.28934 3.28932 v 1.052384 1.052384 l -5.19039,6.1834383 c -2.85472,3.400899 -5.1886,6.219979 -5.18639,6.264626 0.002,0.04464 2.33524,2.838581 5.18451,6.208731 l 5.18051,6.127543 0.006,1.117375 0.006,1.117376 -3.28004,-0.0032 -3.28003,-0.0032 -4.03542,-4.764205 c -3.77303,-4.454434 -4.04959,-4.7469 -4.25324,-4.498099 -0.1198,0.146359 -1.92418,2.291532 -4.00975,4.767043 l -3.792,4.500917 h -3.23672 -3.23673 l 0.001,-1.117376 z"
-                                id="path220" />
-                            <path style="fill:#ffffff;stroke-width:0.144177"
-                                d="M 103.62935,20.159802 V 8.7697787 h -5.767107 -5.767099 v -3.171906 -3.171905 h 14.634016 14.63402 v 3.171905 3.171906 h -5.69501 -5.69501 V 20.159802 31.549826 h -3.1719 -3.17191 z"
-                                id="path218" />
-                            <path style="fill:#ffffff;stroke-width:0.144177"
-                                d="M 71.045229,20.159802 V 8.7697787 h -5.695017 -5.695007 v -3.171906 -3.171905 h 14.561929 14.561929 v 3.171905 3.171906 H 83.084046 77.38904 V 20.159802 31.549826 h -3.171906 -3.171905 z"
-                                id="path216" />
-                            <path style="fill:#1a6ec0;fill-opacity:1;stroke-width:0.139424"
-                                d="m 56.568246,44.749266 c 0.132103,-1.130608 0.11982,-5.393817 -0.01826,-6.336905 l -0.09381,-0.640428 h 50.057284 50.05728 l -0.0914,0.775254 c -0.14125,1.198686 -0.15482,4.546774 -0.0241,5.932418 l 0.1177,1.247158 H 106.51352 56.453986 Z"
-                                id="path214" />
-                            <path style="fill:#1a6ec0;stroke-width:0.144177;fill-opacity:1"
-                                d="m 200.94868,51.986986 c 0,-0.01984 -0.19934,-0.522652 -0.44235,-1.117376 -0.24303,-0.594734 -0.62663,-1.835993 -0.85249,-2.758363 -1.17752,-4.80902 -0.86406,-9.679602 0.90117,-14.002281 l 0.57405,-1.405726 h 4.0357 4.03569 l -0.26157,0.39649 c -1.23002,1.864399 -2.0063,3.624311 -2.54655,5.77324 -0.26627,1.059149 -0.3139,1.638572 -0.30464,3.706429 0.0142,3.191363 0.30209,4.354515 1.81632,7.340458 l 1.06655,2.103165 h -4.01068 c -2.20589,0 -4.01093,-0.01625 -4.0112,-0.03609 z"
-                                id="path212" />
-                            <path style="fill:#1a6ec0;fill-opacity:1;stroke-width:0.144177"
-                                d="m 3.0885296,51.941186 c 0,-0.04506 0.44678,-0.969549 0.99284,-2.054529 1.56297,-3.105469 1.81674,-4.159426 1.81148,-7.523519 -0.003,-2.117705 -0.0453,-2.529327 -0.38251,-3.748616 -0.62502,-2.259971 -1.27274,-3.70054 -2.47959,-5.514785 l -0.26374,-0.396489 h 4.03913 4.0391284 l 0.508459,1.214635 c 1.175244,2.807495 1.592501,5.008816 1.600805,8.445255 0.0084,3.455866 -0.441579,6.004916 -1.515078,8.583574 l -0.448069,1.076317 H 7.0399596 c -2.17329,0 -3.95143,-0.03683 -3.95143,-0.08188 z"
-                                id="path210" />
-                            <path style="fill:#1a6ec0;stroke-width:0.144177;fill-opacity:1"
-                                d="m 188.14448,64.45835 c -4.60694,-9.066036 -6.34795,-19.950671 -4.79103,-29.952887 0.79263,-5.092105 2.34256,-10.128325 4.37061,-14.201486 l 0.75375,-1.513865 5.15491,-0.03788 5.15492,-0.03788 -1.44187,2.36676 c -1.68405,2.764325 -2.62234,4.771433 -3.60217,7.705364 -1.48568,4.448683 -2.16923,8.595656 -2.16312,13.123333 0.0109,8.068699 2.41694,16.120002 6.77075,22.656654 0.44893,0.674024 0.86412,1.306609 0.92263,1.405726 0.0843,0.142814 -0.97051,0.180221 -5.08108,0.180221 h -5.18744 z"
-                                id="path208" />
-                            <path style="fill:#1a6ec0;fill-opacity:1;stroke-width:0.144177"
-                                d="M 13.442562,64.890886 C 21.430959,52.97521 22.612598,37.550731 16.537975,24.485129 16.224594,23.811095 15.34227,22.237758 14.577265,20.988827 L 13.186333,18.71803 h 5.166097 5.166087 l 0.803415,1.698254 c 5.365207,11.340999 6.308978,24.008992 2.687685,36.076248 -0.753947,2.512395 -1.94733,5.507012 -3.117002,7.821643 l -0.928945,1.838262 h -5.183434 -5.183435 z"
-                                id="path206" />
-                            <path style="fill:#1a6ec0;stroke-width:0.144177;fill-opacity:1"
-                                d="m 174.53173,78.948193 c -5.15518,-8.267119 -8.66247,-19.326858 -9.79592,-30.890037 -0.24331,-2.48236 -0.24156,-10.536496 0.003,-12.975982 1.12233,-11.203007 4.06279,-20.780917 9.1843,-29.9160563 l 1.53618,-2.74015 h 5.47631 5.47631 l -0.49924,0.68484 c -2.41341,3.310656 -5.29765,8.4418153 -7.00382,12.4600833 -6.83569,16.098892 -7.07266,34.022086 -0.66592,50.365278 1.74301,4.446298 4.74992,9.997815 7.52608,13.895014 0.41656,0.58477 0.72226,1.12003 0.67935,1.18946 -0.0429,0.0694 -2.43321,0.12626 -5.31175,0.12626 h -5.23371 z"
-                                id="path204" />
-                            <path style="fill:#ffffff;stroke-width:0.144177"
-                                d="M 121.65153,67.017498 V 52.888101 l 3.13587,5.7e-4 3.13586,5.8e-4 3.17191,3.780699 c 1.74455,2.079391 3.89837,4.64314 4.78628,5.697244 l 1.61436,1.916538 4.77081,-5.697761 4.77081,-5.69787 h 3.16659 3.16657 v 14.129397 14.129405 h -3.09878 -3.09876 l -0.0371,-9.382769 -0.037,-9.382768 -4.75785,5.697085 c -2.61683,3.1334 -4.7903,5.700884 -4.82996,5.705506 -0.0397,0.0042 -2.24556,-2.565511 -4.90203,-5.711405 l -4.82995,-5.719804 -0.037,9.397077 -0.0371,9.397078 h -3.02668 -3.02669 z"
-                                id="path202" />
-                            <path style="fill:#ffffff;stroke-width:0.144177"
-                                d="m 100.45743,75.865912 v -5.280979 l -1.344169,-1.819764 c -0.739298,-1.000858 -3.6589,-4.950452 -6.487984,-8.776859 -2.829095,-3.826422 -5.143811,-6.989316 -5.143811,-7.028665 0,-0.03936 1.617879,-0.07154 3.595271,-0.07154 h 3.595282 l 4.42039,5.550836 c 2.431221,3.05296 4.432961,5.550842 4.448301,5.550842 0.0153,0 2.00418,-2.497006 4.41964,-5.54889 l 4.39174,-5.548884 3.64048,-0.0021 c 2.00227,-0.001 3.64048,0.03218 3.64048,0.07376 0,0.04168 -1.83591,2.555739 -4.0798,5.586882 -2.24389,3.031139 -5.16348,6.979234 -6.48798,8.773567 l -2.40819,3.262401 v 5.280114 5.2801 h -3.09983 -3.09982 z"
-                                id="path200" />
-                            <path style="fill:#ffffff;stroke-width:0.144177"
-                                d="m 62.502123,80.992853 c -1.603358,-0.38525 -3.146168,-1.67929 -3.90041,-3.2715 l -0.460373,-0.97187 v -9.731985 -9.731983 l 0.47064,-0.962093 c 0.817123,-1.670376 2.149173,-2.774973 3.881596,-3.2188 0.768181,-0.196799 2.098574,-0.22127 10.08887,-0.185561 9.200985,0.04115 9.204277,0.04126 10.016894,0.369845 1.187347,0.480148 2.594836,1.823046 3.180052,3.034115 0.444291,0.91942 0.467685,1.054456 0.522915,3.017034 l 0.05783,2.05453 h -3.115852 -3.115852 v -1.153422 -1.153422 h -8.003075 -8.003064 l 0.03725,7.965804 0.03725,7.965814 7.965804,0.03725 7.965804,0.03725 v -2.163882 -2.163893 h -3.027719 -3.02773 v -3.02772 -3.02773 h 6.134855 6.134866 l -0.04337,6.019414 -0.04337,6.019405 -0.463865,0.94788 c -0.594481,1.21481 -1.698782,2.31911 -2.913576,2.91359 l -0.947886,0.46386 -9.443633,0.0241 c -5.211651,0.0133 -9.686177,-0.0342 -9.984879,-0.106 z"
-                                id="path198" />
-                            <path style="fill:#1a6ec0;fill-opacity:1;stroke-width:0.144177"
-                                d="m 25.519705,81.021453 c -0.0439,-0.071 0.03978,-0.28263 0.185983,-0.47036 1.311927,-1.68534 3.639855,-5.502462 5.220114,-8.559464 C 37.220777,59.814061 39.557125,45.873306 37.606851,32.126537 36.200366,22.212685 32.499604,12.59703 26.939043,4.4084047 l -1.3462,-1.982437 5.436392,0.0021 5.436382,0.0021 1.40982,2.557101 c 2.522363,4.575035 4.243812,8.5214633 5.769337,13.2262383 6.107588,18.835993 4.615545,39.223717 -4.167783,56.950123 -0.589373,1.189457 -1.607315,3.006103 -2.262092,4.036963 l -1.190513,1.87431 -5.212463,0.0379 c -2.957294,0.0214 -5.24697,-0.0179 -5.292218,-0.0912 z"
-                                id="path179" />
-                        </g>
-                    </svg></a></div>
-            <div class="menu-open"><a href="#menu">
-                    <span class="material-icons">menu</span>
-                </a>
-            </div>
-            <div id="menu">
-                <div class="menu-close"><a href="#"><span class="material-icons">close</span></a>
-                </div>
-                <ul class="nav-links">
-                    <li><a href="index.html">About</a></li>
-                    <li class="current-link"><a href="guide.html">How To Use</a></li>
-                    <li><a href="library.html">Exercise Library</a></li>
-                    <li><a href="gym/">Launch</a></li>
-                </ul>
-            </div>
-        </nav>
-    </header>
 
-    <section id="about">
-        <h2>How To Use TTX Gym</h2>
-        <p>Running a cyber security exercise is an immersive and effective way for you to evaluate and practise the
-            skills and decision-making mechanisms you need to respond to cyber incidents. However, designing and
-            facilitating an exercise can be a complex and difficult task. TTX Gym helps by
-            providing a custom-designed tool specifically to help produce consistent, effective, and insightful
-            exercising experiences.</p>
-        <p>Exercising is one of the most cost-effective ways an organisation can test its ability to respond to
-            cyber
-            incidents. By running an exercise using TTX Gym, you can establish how effective your current
-            defence
-            and
-            response mechanisms are, improve your colleagues' internal relationships and skills (specifically their
-            ability to deal with an actual cyber attack), and identify areas for further improvement.</p>
-    </section>
+  <!-- ══════════════════════════════════════════
+       NAVIGATION
+       ══════════════════════════════════════════ -->
+  <nav id="site-nav" role="navigation" aria-label="Main navigation">
+    <a href="ttxgym.com" class="nav-logo" aria-label="TTX Gym Home">
+      <svg viewBox="0 0 210 84" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <g>
+          <path style="fill:#ffffff"
+            d="m 123.95944,30.43245 0.001,-1.117375 5.11724,-6.112717 c 2.81453,-3.361993 5.11729,-6.171028 5.11729,-6.242298 0,-0.07123 -2.30323,-2.881476 -5.1183,-6.244894 l -5.1183,-6.1153013 v -1.086954 -1.086943 l 3.28003,0.0063 3.28005,0.0063 3.8207,4.544782 c 2.10139,2.499633 3.91803,4.6295583 4.03697,4.7331703 0.18592,0.161956 0.77129,-0.476686 4.17186,-4.5515563 l 3.95559,-4.739934 h 3.28934 3.28932 v 1.052384 1.052384 l -5.19039,6.1834383 c -2.85472,3.400899 -5.1886,6.219979 -5.18639,6.264626 0.002,0.04464 2.33524,2.838581 5.18451,6.208731 l 5.18051,6.127543 0.006,1.117375 0.006,1.117376 -3.28004,-0.0032 -3.28003,-0.0032 -4.03542,-4.764205 c -3.77303,-4.454434 -4.04959,-4.7469 -4.25324,-4.498099 -0.1198,0.146359 -1.92418,2.291532 -4.00975,4.767043 l -3.792,4.500917 h -3.23672 -3.23673 l 0.001,-1.117376 z" />
+          <path style="fill:#ffffff"
+            d="M 103.62935,20.159802 V 8.7697787 h -5.767107 -5.767099 v -3.171906 -3.171905 h 14.634016 14.63402 v 3.171905 3.171906 h -5.69501 -5.69501 V 20.159802 31.549826 h -3.1719 -3.17191 z" />
+          <path style="fill:#ffffff"
+            d="M 71.045229,20.159802 V 8.7697787 h -5.695017 -5.695007 v -3.171906 -3.171905 h 14.561929 14.561929 v 3.171905 3.171906 H 83.084046 77.38904 V 20.159802 31.549826 h -3.171906 -3.171905 z" />
+          <path style="fill:#1a6ec0"
+            d="m 56.568246,44.749266 c 0.132103,-1.130608 0.11982,-5.393817 -0.01826,-6.336905 l -0.09381,-0.640428 h 50.057284 50.05728 l -0.0914,0.775254 c -0.14125,1.198686 -0.15482,4.546774 -0.0241,5.932418 l 0.1177,1.247158 H 106.51352 56.453986 Z" />
+          <path style="fill:#1a6ec0"
+            d="m 200.94868,51.986986 c 0,-0.01984 -0.19934,-0.522652 -0.44235,-1.117376 -0.24303,-0.594734 -0.62663,-1.835993 -0.85249,-2.758363 -1.17752,-4.80902 -0.86406,-9.679602 0.90117,-14.002281 l 0.57405,-1.405726 h 4.0357 4.03569 l -0.26157,0.39649 c -1.23002,1.864399 -2.0063,3.624311 -2.54655,5.77324 -0.26627,1.059149 -0.3139,1.638572 -0.30464,3.706429 0.0142,3.191363 0.30209,4.354515 1.81632,7.340458 l 1.06655,2.103165 h -4.01068 c -2.20589,0 -4.01093,-0.01625 -4.0112,-0.03609 z" />
+          <path style="fill:#1a6ec0"
+            d="m 3.0885296,51.941186 c 0,-0.04506 0.44678,-0.969549 0.99284,-2.054529 1.56297,-3.105469 1.81674,-4.159426 1.81148,-7.523519 -0.003,-2.117705 -0.0453,-2.529327 -0.38251,-3.748616 -0.62502,-2.259971 -1.27274,-3.70054 -2.47959,-5.514785 l -0.26374,-0.396489 h 4.03913 4.0391284 l 0.508459,1.214635 c 1.175244,2.807495 1.592501,5.008816 1.600805,8.445255 0.0084,3.455866 -0.441579,6.004916 -1.515078,8.583574 l -0.448069,1.076317 H 7.0399596 c -2.17329,0 -3.95143,-0.03683 -3.95143,-0.08188 z" />
+          <path style="fill:#1a6ec0"
+            d="m 188.14448,64.45835 c -4.60694,-9.066036 -6.34795,-19.950671 -4.79103,-29.952887 0.79263,-5.092105 2.34256,-10.128325 4.37061,-14.201486 l 0.75375,-1.513865 5.15491,-0.03788 5.15492,-0.03788 -1.44187,2.36676 c -1.68405,2.764325 -2.62234,4.771433 -3.60217,7.705364 -1.48568,4.448683 -2.16923,8.595656 -2.16312,13.123333 0.0109,8.068699 2.41694,16.120002 6.77075,22.656654 0.44893,0.674024 0.86412,1.306609 0.92263,1.405726 0.0843,0.142814 -0.97051,0.180221 -5.08108,0.180221 h -5.18744 z" />
+          <path style="fill:#1a6ec0"
+            d="M 13.442562,64.890886 C 21.430959,52.97521 22.612598,37.550731 16.537975,24.485129 16.224594,23.811095 15.34227,22.237758 14.577265,20.988827 L 13.186333,18.71803 h 5.166097 5.166087 l 0.803415,1.698254 c 5.365207,11.340999 6.308978,24.008992 2.687685,36.076248 -0.753947,2.512395 -1.94733,5.507012 -3.117002,7.821643 l -0.928945,1.838262 h -5.183434 -5.183435 z" />
+          <path style="fill:#1a6ec0"
+            d="m 174.53173,78.948193 c -5.15518,-8.267119 -8.66247,-19.326858 -9.79592,-30.890037 -0.24331,-2.48236 -0.24156,-10.536496 0.003,-12.975982 1.12233,-11.203007 4.06279,-20.780917 9.1843,-29.9160563 l 1.53618,-2.74015 h 5.47631 5.47631 l -0.49924,0.68484 c -2.41341,3.310656 -5.29765,8.4418153 -7.00382,12.4600833 -6.83569,16.098892 -7.07266,34.022086 -0.66592,50.365278 1.74301,4.446298 4.74992,9.997815 7.52608,13.895014 0.41656,0.58477 0.72226,1.12003 0.67935,1.18946 -0.0429,0.0694 -2.43321,0.12626 -5.31175,0.12626 h -5.23371 z" />
+          <path style="fill:#ffffff"
+            d="M 121.65153,67.017498 V 52.888101 l 3.13587,5.7e-4 3.13586,5.8e-4 3.17191,3.780699 c 1.74455,2.079391 3.89837,4.64314 4.78628,5.697244 l 1.61436,1.916538 4.77081,-5.697761 4.77081,-5.69787 h 3.16659 3.16657 v 14.129397 14.129405 h -3.09878 -3.09876 l -0.0371,-9.382769 -0.037,-9.382768 -4.75785,5.697085 c -2.61683,3.1334 -4.7903,5.700884 -4.82996,5.705506 -0.0397,0.0042 -2.24556,-2.565511 -4.90203,-5.711405 l -4.82995,-5.719804 -0.037,9.397077 -0.0371,9.397078 h -3.02668 -3.02669 z" />
+          <path style="fill:#ffffff"
+            d="m 100.45743,75.865912 v -5.280979 l -1.344169,-1.819764 c -0.739298,-1.000858 -3.6589,-4.950452 -6.487984,-8.776859 -2.829095,-3.826422 -5.143811,-6.989316 -5.143811,-7.028665 0,-0.03936 1.617879,-0.07154 3.595271,-0.07154 h 3.595282 l 4.42039,5.550836 c 2.431221,3.05296 4.432961,5.550842 4.448301,5.550842 0.0153,0 2.00418,-2.497006 4.41964,-5.54889 l 4.39174,-5.548884 3.64048,-0.0021 c 2.00227,-0.001 3.64048,0.03218 3.64048,0.07376 0,0.04168 -1.83591,2.555739 -4.0798,5.586882 -2.24389,3.031139 -5.16348,6.979234 -6.48798,8.773567 l -2.40819,3.262401 v 5.280114 5.2801 h -3.09983 -3.09982 z" />
+          <path style="fill:#ffffff"
+            d="m 62.502123,80.992853 c -1.603358,-0.38525 -3.146168,-1.67929 -3.90041,-3.2715 l -0.460373,-0.97187 v -9.731985 -9.731983 l 0.47064,-0.962093 c 0.817123,-1.670376 2.149173,-2.774973 3.881596,-3.2188 0.768181,-0.196799 2.098574,-0.22127 10.08887,-0.185561 9.200985,0.04115 9.204277,0.04126 10.016894,0.369845 1.187347,0.480148 2.594836,1.823046 3.180052,3.034115 0.444291,0.91942 0.467685,1.054456 0.522915,3.017034 l 0.05783,2.05453 h -3.115852 -3.115852 v -1.153422 -1.153422 h -8.003075 -8.003064 l 0.03725,7.965804 0.03725,7.965814 7.965804,0.03725 7.965804,0.03725 v -2.163882 -2.163893 h -3.027719 -3.02773 v -3.02772 -3.02773 h 6.134855 6.134866 l -0.04337,6.019414 -0.04337,6.019405 -0.463865,0.94788 c -0.594481,1.21481 -1.698782,2.31911 -2.913576,2.91359 l -0.947886,0.46386 -9.443633,0.0241 c -5.211651,0.0133 -9.686177,-0.0342 -9.984879,-0.106 z" />
+          <path style="fill:#1a6ec0"
+            d="m 25.519705,81.021453 c -0.0439,-0.071 0.03978,-0.28263 0.185983,-0.47036 1.311927,-1.68534 3.639855,-5.502462 5.220114,-8.559464 C 37.220777,59.814061 39.557125,45.873306 37.606851,32.126537 36.200366,22.212685 32.499604,12.59703 26.939043,4.4084047 l -1.3462,-1.982437 5.436392,0.0021 5.436382,0.0021 1.40982,2.557101 c 2.522363,4.575035 4.243812,8.5214633 5.769337,13.2262383 6.107588,18.835993 4.615545,39.223717 -4.167783,56.950123 -0.589373,1.189457 -1.607315,3.006103 -2.262092,4.036963 l -1.190513,1.87431 -5.212463,0.0379 c -2.957294,0.0214 -5.24697,-0.0179 -5.292218,-0.0912 z" />
+        </g>
+      </svg>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">About</a></li>
+      <li><a href="guide.html" class="active">How To Use</a></li>
+      <li><a href="library.html">Exercise Library</a></li>
+      <li><a href="editor.html">Exercise Builder</a></li>
+      <li><a href="gym/" class="launch">Launch</a></li>
+    </ul>
+    <button class="nav-hamburger" onclick="document.getElementById('mobile-nav').classList.toggle('open')"
+      aria-label="Toggle menu">&#9776;</button>
+  </nav>
 
-    <section>
-        <div id="kb">
-            <div class="sidebar">
-                <h2>Reference Guide</h2>
-                <ul>
-                    <li><a href="#plan">
-                            Planning your exercise
-                        </a></li>
-                    <li><a href="#lib">
-                            Using the library
-                        </a></li>
-                    <li><a href="#tool">
-                            Using the tool
-                        </a></li>
-                    <li><a href="#scenario">
-                            Creating and modifying scenarios
-                        </a></li>
-                    <li><a href="#structure">
-                            The TTXF file structure and syntax
-                        </a></li>
-                </ul>
-            </div>
-            <div class="info-window">
-                <div id="plan">
-                    <h2>Planning your exercise</h2>
-                    <p>TTX Gym is best suited for use in interactive, facilitator-led training. The tool itself can be
-                        used in a standalone manner, but it is designed to be able to present a 'participant view' to
-                        those interacting with the scenario, as well as a separate 'facilitator' view for the organiser
-                        to control the exercise progression and ensure that appropriate notes and outcomes are recorded.
-                    </p>
-                    <p>The ideal set-up for TTX Gym in 'in-person' sessions is for the facilitator to use a laptop or
-                        device
-                        running TTX Gym, with an additional monitor or TV connected to display the participant view,
-                        which
-                        will
-                        appear as a separate tab or browser window. For 'online' or 'hybrid' exercises, the participant
-                        view
-                        can be presented via screen (or window) sharing from the facilitator's device.</p>
-                </div>
-                <div id="lib">
-                    <h2>Using the Exercise Library</h2>
-                    <p>Choosing an existing exercise from the Exercise Library is the easiest way for beginners to get
-                        started with TTX Gym. The Library is populated with a wide range of scenarios that cover a
-                        variety
-                        of themes and situations, and the exercises themselves can be searched and filtered using the
-                        controls in the sidebar.</p>
-                    <p>To find out more about an exercise, simply click on the thumbnail and a description will appear.
-                        From
-                        here, you can choose to either 'launch' the exercise, which will take you to TTX Gym with the
-                        selected scenario loaded and ready to go, or you can choose to 'download' the scenario file for
-                        modification and customisation. (see <a href="#scenario">below </a>for more on this).</p>
-                </div>
-                <div id="tool">
-                    <h2>Using the TTX Gym tool</h2>
-                    <p>TTX Gym has two views, the primary 'facilitator' window and the 'participant' window. The
-                        facilitator window shows the scenario, laid out in stages. each stage can be expanded to see the
-                        content, facilitator prompts, and questions.</p>
-                    <p>To begin the exercise, use the controls at the bottom to navigate through each stage. The active
-                        stage will be coloured blue, and once all stage questions are answered then the stage will turn
-                        green to indicate completion. Stages can be freely navigated, in any order, and the completion
-                        of stages or the answering of questions is at the discretion of the facilitator.Note that
-                        responses and notes cannot be altered unless the stage is 'active'.</p>
-                    <p>At the completion of the exercise, or when desired by the facilitator, an output report can be
-                        generated to record progress.</p>
-                    <h4>The Participant Window</h4>
-                    <p>The participant window is a key element of TTX Gym. It allows people attending the exercise to
-                        experience a specific, tailored view that relays content stage by stage. The participant view
-                        can be spawned by the facilitator as a separate tab, and presented on a second screen or over
-                        video conferencing. This will automatically update as the facilitator moves through the stages.
-                        At the completion of the exercise, or when desired by the facilitator, an exercise summary can
-                        be shown via the participant window.</p>
-                </div>
-                <div id="scenario">
-                    <h2>Creating and Modifying Scenarios</h2>
-                    <p>TTX Gym uses scenario files formatted in a specific way. These TTXF files use 'Markdown'-style
-                        syntax and so are easy to read,
-                        change, or create from scratch, to offer unlimited customisation of exercises.</p>
-                    <p>A guide to the file format is below. These can simply be loaded directly in to TTX Gym or shared
-                        with others.</p>
-                    <p>For convenience, a 'scenario builder' tool for easily creating ttxf files in the correct format
-                        can be found <a href="editor.html">here</a>.</p>
-                </div>
-                <div id="structure">
-                    <h2>The TTXF file structure and syntax</h2>
-                    <p>This guide explains how to create configuration files that define stages, questions, variables,
-                        and
-                        facilitator prompts with markdown-enhanced content. Follow this structure and syntax to build
-                        properly formatted and feature-rich files.</p>
-                    <h3 id="file-structure">File Structure</h3>
-                    <p>The configuration file is structured into <strong>stages</strong>, which contain
-                        <strong>information content</strong> along with optional <strong>questions</strong>,
-                        <strong>facilitator prompts</strong>, and <strong>discussion points</strong>.
-                        Each
-                        'content' type has specific indicators to denote its purpose (see 'Key-Value Variables' below
-                        for more info).
-                    </p>
-                    <p>Each scenario file should begin with a 'title' and 'summary' variable:</p>
-                    <pre><code>! title: Example Scenario Title
-! summary
+  <div id="mobile-nav" role="navigation" aria-label="Mobile navigation">
+    <a href="index.html">About</a>
+    <a href="guide.html">How To Use</a>
+    <a href="library.html">Exercise Library</a>
+    <a href="editor.html">Exercise Builder</a>
+    <a href="gym/" class="launch">Launch</a>
+  </div>
+
+  <!-- PAGE BODY -->
+  <div class="page-wrap">
+
+    <!-- SIDEBAR TOC -->
+    <aside class="toc-sidebar">
+      <div class="toc-label">On This Page</div>
+      <ul class="toc-list">
+        <li><a href="#plan">Planning your exercise</a></li>
+        <li><a href="#lib">Using the library</a></li>
+        <li><a href="#tool">Using the tool</a></li>
+        <li><a href="#scenario">Creating scenarios</a></li>
+        <li><a href="#structure">TTXF file structure</a></li>
+      </ul>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+      <h1 class="page-title">How To Use TTX Gym</h1>
+      <p class="page-subtitle">
+        Running a cyber security exercise is an immersive and effective way to evaluate and practise the
+        skills and decision-making mechanisms you need to respond to cyber incidents. TTX Gym helps by
+        providing a custom-designed tool to produce consistent, effective, and insightful exercising experiences.
+      </p>
+
+      <!-- PLANNING -->
+      <h2 id="plan">Planning Your Exercise</h2>
+
+      <p>
+        TTX Gym is best suited for use in interactive, facilitator-led training. The tool can be
+        used in a standalone manner, but it is designed to present a <strong>participant view</strong> to
+        those interacting with the scenario, as well as a separate <strong>facilitator view</strong> for the organiser
+        to control exercise progression and ensure appropriate notes and outcomes are recorded.
+      </p>
+
+      <div class="info-card">
+        <strong>Ideal setup:</strong> For in-person sessions, the facilitator uses a laptop running TTX Gym with an
+        additional monitor or TV for the participant view. For online or hybrid exercises, the participant view
+        can be shared via screen sharing.
+      </div>
+
+      <p>
+        Exercising is one of the most cost-effective ways an organisation can test its ability to respond to
+        cyber incidents. By running an exercise using TTX Gym, you can establish how effective your current
+        defence and response mechanisms are, improve colleagues' internal relationships and skills, and
+        identify areas for further improvement.
+      </p>
+
+      <!-- LIBRARY -->
+      <h2 id="lib">Using the Exercise Library</h2>
+
+      <p>
+        Choosing an existing exercise from the Exercise Library is the easiest way for beginners to get
+        started. The Library is populated with a wide range of scenarios covering a variety of themes and
+        situations, and can be searched and filtered using the controls in the sidebar.
+      </p>
+
+      <p>
+        To find out more about an exercise, click on the thumbnail and a description will appear.
+        From here, you can choose to either <strong>launch</strong> the exercise — which will take you to TTX Gym with
+        the
+        selected scenario loaded and ready to go — or choose to <strong>download</strong> the scenario file for
+        modification and customisation (see <a href="#scenario">Creating and Modifying Scenarios</a> below).
+      </p>
+
+      <!-- TOOL -->
+      <h2 id="tool">Using the TTX Gym Tool</h2>
+
+      <p>
+        TTX Gym has two views: the primary <strong>facilitator window</strong> and the <strong>participant
+          window</strong>. The
+        facilitator window shows the scenario laid out in stages — each stage can be expanded to see the
+        content, facilitator prompts, and questions.
+      </p>
+
+      <p>
+        To begin the exercise, use the controls at the bottom to navigate through each stage. The active
+        stage will be coloured blue, and once all stage questions are answered the stage will turn
+        green to indicate completion. Stages can be freely navigated in any order; the completion of stages
+        or the answering of questions is at the discretion of the facilitator. Note that responses and notes
+        cannot be altered unless the stage is active.
+      </p>
+
+      <p>
+        At the completion of the exercise, or when desired by the facilitator, an output report can be
+        generated to record progress.
+      </p>
+
+      <h3>The Participant Window</h3>
+
+      <p>
+        The participant window allows people attending the exercise to experience a specific, tailored view
+        that relays content stage by stage. It can be spawned by the facilitator as a separate tab and
+        presented on a second screen or over video conferencing. This will automatically update as the
+        facilitator moves through the stages. At the completion of the exercise, an exercise summary can
+        be shown via the participant window.
+      </p>
+
+      <!-- SCENARIOS -->
+      <h2 id="scenario">Creating and Modifying Scenarios</h2>
+
+      <p>
+        TTX Gym uses scenario files formatted in a specific way. These <strong>TTXF files</strong> use Markdown-style
+        syntax and so are easy to read, change, or create from scratch, offering unlimited customisation of exercises.
+      </p>
+
+      <p>
+        A guide to the file format is below. Scenario files can be loaded directly into TTX Gym or shared with others.
+      </p>
+
+      <div class="tip-card">
+        <strong>Tip:</strong> For convenience, a scenario builder tool for easily creating TTXF files in the correct
+        format
+        is available at <a href="editor.html">editor.html</a>.
+      </div>
+
+      <!-- STRUCTURE -->
+      <h2 id="structure">The TTXF File Structure and Syntax</h2>
+
+      <p>
+        This guide explains how to create configuration files that define stages, questions, variables, and
+        facilitator prompts with markdown-enhanced content. Follow this structure and syntax to build
+        properly formatted and feature-rich files.
+      </p>
+
+      <p>
+        The configuration file is structured into <strong>stages</strong>, which contain information content along with
+        optional <strong>questions</strong>, <strong>facilitator prompts</strong>, and <strong>discussion
+          points</strong>.
+        Each 'content' type has specific indicators to denote its purpose.
+      </p>
+
+      <p>Each scenario file should begin with a <code>title</code> and <code>summary</code> variable:</p>
+
+      <pre><code><span class="c-directive">! title: Example Scenario Title
+! summary</span>
 Example scenario summary.
-This can spread across multiple lines or paragraphs.
-</code></pre>
-                    <h4 id="1-stages">1. <strong>Stages</strong></h4>
-                    <p>Stages define major sections in your file. Use <code>@</code> followed by the stage name.</p>
-                    <p>Example:</p>
-                    <pre><code>@ Initial Incident
-</code></pre>
-                    <p>Everything after this line belongs to this stage until the next stage declaration.</p>
-                    <p>Each stage can have any of the elements described below, but should always have a 'content'
-                        variable that defines the content to be displayed to participants on the presenter view.</p>
+This can spread across multiple lines or paragraphs.</code></pre>
 
-                    <h4 id="2-key-value-variables">2. <strong>Key-Value Variables</strong></h4>
-                    <p>Define variables using <code>!</code>followed by a key and value separated by a colon
-                        (:). For multi-line values, omit the colon.</p>
-                    <p>Examples:</p>
-                    <pre><code>! author: Jane Doe
-! content
+      <!-- SYNTAX REFERENCE TABLE -->
+      <div class="syntax-grid">
+        <div class="syntax-grid-header">
+          <div>Sigil</div>
+          <div>Purpose</div>
+          <div>Example</div>
+        </div>
+        <div class="syntax-row">
+          <div style="color:var(--amber)">!</div>
+          <div>Metadata / key-value variable</div>
+          <div><code style="color:var(--amber)">! title: My Scenario</code></div>
+        </div>
+        <div class="syntax-row">
+          <div style="color:var(--accent)">@</div>
+          <div>Stage declaration</div>
+          <div><code style="color:var(--accent)">@ Initial Incident</code></div>
+        </div>
+        <div class="syntax-row">
+          <div style="color:var(--green)">#</div>
+          <div>Array block (prompts / discussion)</div>
+          <div><code style="color:var(--green)"># prompts</code></div>
+        </div>
+        <div class="syntax-row">
+          <div style="color:var(--green)">+</div>
+          <div>Array item</div>
+          <div><code style="color:var(--green)">+ Ask about incident response</code></div>
+        </div>
+        <div class="syntax-row">
+          <div style="color:#c792ea">?</div>
+          <div>Assessment question</div>
+          <div><code style="color:#c792ea">? What action is taken first?</code></div>
+        </div>
+        <div class="syntax-row">
+          <div style="color:var(--green)">++</div>
+          <div>Correct answer (quiz mode)</div>
+          <div><code style="color:var(--green)">++ Notify the security team</code></div>
+        </div>
+      </div>
+
+      <h3>1. Stages <span class="section-badge">@ sigil</span></h3>
+
+      <p>
+        Stages define major sections in your file. Use <code>@</code> followed by the stage name.
+        Everything after this line belongs to this stage until the next stage declaration.
+        Each stage should always have a <code>content</code> variable that defines the content displayed
+        to participants on the presenter view.
+      </p>
+
+      <pre><code><span class="c-stage">@ Initial Incident</span></code></pre>
+
+      <h3>2. Key-Value Variables <span class="section-badge amber">! sigil</span></h3>
+
+      <p>
+        Define variables using <code>!</code> followed by a key and value separated by a colon. For multi-line
+        values, omit the colon — everything on subsequent lines until the next directive becomes the value.
+      </p>
+
+      <pre><code><span class="c-directive">! author: Jane Doe
+! content</span>
 This is a multi-line description.
-It continues on multiple lines.
-</code></pre>
+It continues on multiple lines.</code></pre>
 
-                    <h4 id="3-questions">3. <strong>Questions</strong></h4>
-                    <p>Use <code>?</code> to define an assessment question for the stage. Answers are listed under it,
-                        each starting with
-                        <code>+</code>There can be multiple questions per stage, each will contribute towards the
-                        indicative 'score' for the stage. This scoring assumes an order of preference of answer,
-                        increasing from first (0%) to last (100%).
-                    </p>
-                    <p>Example:</p>
-                    <pre><code>? What core systems are included in vulnerability assessments?
-+ None
+      <h3>3. Questions <span class="section-badge purple">? sigil</span></h3>
+
+      <p>
+        Use <code>?</code> to define an assessment question for the stage. Answers are listed under it,
+        each starting with <code>+</code>. There can be multiple questions per stage — each will contribute
+        towards the indicative score for the stage. Scoring assumes an order of preference increasing from
+        first (0%) to last (100%).
+      </p>
+
+      <pre><code><span class="c-question">? What core systems are included in vulnerability assessments?</span>
+<span class="c-answer">+ None
 + Some centrally managed systems
 + Most centrally managed systems
-+ All centrally managed systems
-</code></pre>
++ All centrally managed systems</span></code></pre>
 
-                    <h4 id="4-facilitator-prompts">4. <strong>Facilitator Prompts</strong></h4>
-                    <p>Use <code># prompts</code> to declare facilitator prompts. These prompts will not appear on the
-                        'participant view', but will be shown below the stage content in the 'facilitator view'. Each
-                        prompt starts with
-                        <code>+</code>
-                    </p>
-                    <p>Example:</p>
-                    <pre><code># prompts
-+ Ask the team about their incident response plan.
+      <h3>4. Facilitator Prompts <span class="section-badge amber"># prompts</span></h3>
+
+      <p>
+        Use <code># prompts</code> to declare facilitator prompts. These will <em>not</em> appear on the
+        participant view, but will be shown below the stage content in the facilitator view.
+        Each prompt starts with <code>+</code>.
+      </p>
+
+      <pre><code><span class="c-array"># prompts</span>
+<span class="c-answer">+ Ask the team about their incident response plan.
 + Discuss the potential risks of delaying action.
-+ Encourage brainstorming on containment strategies.
-</code></pre>
++ Encourage brainstorming on containment strategies.</span></code></pre>
 
-                    <h4 id="4-facilitator-prompts">4. <strong>Discussion Points</strong></h4>
-                    <p>Use <code># discussion</code> to declare discussion points. These prompts will appear on the
-                        'participant view', to encourage discussion among participants and enable fuller answers to the
-                        stage questions. Each prompt starts with
-                        <code>+</code>
-                    </p>
-                    <p>Example:</p>
-                    <pre><code># discussion
-+ Do you regularly update and test your incident response plan?
-+ Discuss the potential risks of delaying action
-+ Do you have a designated board member with responsibility for security incidents?
-</code></pre>
+      <h3>5. Discussion Points <span class="section-badge green"># discussion</span></h3>
 
-                    <h3 id="markdown-syntax">Markdown Syntax</h3>
-                    <p>Enhance your stage 'content' using Markdown. Below are supported features:</p>
-                    <h4 id="1-bold-text">1. <strong>Bold Text</strong></h4>
-                    <p>Wrap text in <code>**</code> for bold.</p>
-                    <pre><code>**Important:** Take immediate action.
-</code></pre>
-                    <p>Output:
-                        <strong>Important:</strong> Take immediate action.
-                    </p>
-                    <h4 id="2-italic-text">2. <strong>Italic Text</strong></h4>
-                    <p>Wrap text in <code>*</code> for italics.</p>
-                    <pre><code>This is *italicized* text.
-</code></pre>
-                    <p>Output:
-                        This is <em>italicized</em> text.</p>
-                    <h4 id="3-lists">3. <strong>Lists</strong></h4>
-                    <p>Use <code>-</code> for bullet points and numbers followed by <code>.</code> for numbered lists.
-                    </p>
-                    <pre><code>- Item 1
-- Item 2
+      <p>
+        Use <code># discussion</code> to declare discussion points. These <em>will</em> appear on the
+        participant view, to encourage discussion and enable fuller answers to stage questions.
+        Each prompt starts with <code>+</code>.
+      </p>
 
-1. Step one
-2. Step two
-</code></pre>
-                    <p>Output:</p>
-                    <p>
-                    <ul>
-                        <li>Item 1</li>
-                        <li>Item 2</li>
-                    </ul>
-                    <ol>
-                        <li>Step one</li>
-                        <li>Step two</li>
-                    </ol>
-                    </p>
-                    <h4 id="4-blockquotes">4. <strong>Blockquotes</strong></h4>
-                    <p>Use <code>~</code> for blockquotes.</p>
-                    <pre><code>~ This is a quoted statement.
-</code></pre>
-                    <p>Output:</p>
-                    <blockquote>
-                        <p>This is a quoted statement.</p>
-                    </blockquote>
-                    <h4 id="5-embedded-images">5. <strong>Embedded Images</strong></h4>
-                    <p>Use <code>%</code> to embed an image. Format: <code>%(url)</code></p>
-                    <pre><code>%(https://example.com/image.jpg)
-</code></pre>
-                    <p>Output:
-                        An image appears with the given URL.</p>
+      <pre><code><span class="c-array"># discussion</span>
+<span class="c-answer">+ Do you regularly update and test your incident response plan?
++ Discuss the potential risks of delaying action.
++ Do you have a designated board member with responsibility for security incidents?</span></code></pre>
 
-                    <h3 id="full-example">Full Example</h3>
-                    <p>Here’s a complete configuration file:</p>
-                    <pre><code>! title: Security Breach Response Plan
+      <!-- MARKDOWN SYNTAX -->
+      <h2>Markdown Syntax</h2>
+
+      <p>Enhance your stage content using Markdown. The following features are supported:</p>
+
+      <div class="syntax-grid">
+        <div class="syntax-grid-header">
+          <div>Syntax</div>
+          <div>Description</div>
+          <div>Output</div>
+        </div>
+        <div class="syntax-row">
+          <div><code>**text**</code></div>
+          <div>Bold text</div>
+          <div><strong>Important text</strong></div>
+        </div>
+        <div class="syntax-row">
+          <div><code>*text*</code></div>
+          <div>Italic text</div>
+          <div><em>Italicized text</em></div>
+        </div>
+        <div class="syntax-row">
+          <div><code>- item</code></div>
+          <div>Bullet list</div>
+          <div>• Item</div>
+        </div>
+        <div class="syntax-row">
+          <div><code>1. item</code></div>
+          <div>Numbered list</div>
+          <div>1. Item</div>
+        </div>
+        <div class="syntax-row">
+          <div><code>~ text</code></div>
+          <div>Blockquote</div>
+          <div style="border-left:3px solid var(--accent);padding-left:0.5rem;font-style:italic">Quoted statement</div>
+        </div>
+        <div class="syntax-row">
+          <div><code>%(url)</code></div>
+          <div>Embed image</div>
+          <div style="color:var(--text-muted);font-size:12px">Image rendered from URL</div>
+        </div>
+      </div>
+
+      <!-- FULL EXAMPLE -->
+      <h2>Full Example</h2>
+
+      <p>Here is a complete configuration file demonstrating all features:</p>
+
+      <pre><code><span class="c-directive">! title: Security Breach Response Plan
 ! author: Jane Doe
-! summary
+! summary</span>
 This scenario depicts an unusual login to a critical system.
 
-@ Stage 1: Identification
-! content
+<span class="c-stage">@ Stage 1: Identification</span>
+<span class="c-directive">! content</span>
 An unusual login attempt was detected.
 %(https://example.com/diagram.png)
 The incident response process should be invoked.
 
-# prompts
-+ Ask the team to identify possible attack vectors.
+<span class="c-array"># prompts</span>
+<span class="c-answer">+ Ask the team to identify possible attack vectors.
 + Discuss recent security training and preparedness.
-+ Explore options for immediate response.
++ Explore options for immediate response.</span>
 
-? What action should be taken first?
-+ Notify the security team
-+ Investigate the login origin 
-+ Block the IP address
+<span class="c-question">? What action should be taken first?</span>
+<span class="c-answer">+ Notify the security team
++ Investigate the login origin
++ Block the IP address</span>
 
-@ Stage 2: Containment
-! content
+<span class="c-stage">@ Stage 2: Containment</span>
+<span class="c-directive">! content</span>
 Contain the breach by isolating affected systems.
 
-# prompts
-+ Review logs for additional suspicious activity.
+<span class="c-array"># prompts</span>
+<span class="c-answer">+ Review logs for additional suspicious activity.
 + Coordinate with IT to isolate compromised systems.
-+ Plan a communication strategy for stakeholders.
++ Plan a communication strategy for stakeholders.</span>
 
-? How confident are you in your response procedures
-+ Not at all
+<span class="c-question">? How confident are you in your response procedures?</span>
+<span class="c-answer">+ Not at all
 + Somewhat
 + Mostly
-+ Completely
++ Completely</span></code></pre>
 
-</code></pre>
+      <p>Use this guide to create structured, readable, and actionable configuration files.</p>
 
-                    <p>Use this guide to create structured, readable, and actionable configuration files.</p>
+    </main>
+  </div>
 
-                </div>
-            </div>
-    </section>
+  <!-- ══════════════════════════════════════════
+       FOOTER
+       ══════════════════════════════════════════ -->
+  <footer id="site-footer">
+    <div class="footer-inner">
+      <span class="footer-copy">© 2026 TTX Gym. All rights reserved.</span>
+      <a href="mailto:contact@ttxgym.com" class="footer-contact">contact@ttxgym.com</a>
+    </div>
+  </footer>
 
-
-    <footer>
-        <p>&copy; 2025 TTX Gym. All rights reserved.</p>
-        <div class="social-links"><a href="mailto:contact@ttxgym.com">contact@ttxgym.com</a>
-        </div>
-    </footer>
 </body>
 
 </html>

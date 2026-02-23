@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Top-width-matched-bottom — Inline-block approach</title>
+  <style>
+    :root {
+      --gap: 12px;
+      --pad-y: 8px;
+      --pad-x: 12px;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: #f7f7fb;
+      color: #111;
+      padding: 40px;
+    }
+
+    /* full-width container that centers the shrink-to-fit inner */
+    .wrapper {
+      width: 100%;
+      text-align: center;
+      /* centers the inline-block .inner */
+    }
+
+    /* shrink-to-fit container — its width comes from .top */
+    .inner {
+      display: inline-block;
+      /* <-- shrink-to-fit */
+      text-align: left;
+      /* children align normally inside */
+      vertical-align: top;
+    }
+
+    /* top row: single line of items, unknown count */
+    .top {
+      display: flex;
+      gap: var(--gap);
+      align-items: center;
+      flex-wrap: nowrap;
+      /* keep everything in one line */
+      white-space: nowrap;
+      /* prevents item text from wrapping */
+    }
+
+    .top .item {
+      padding: var(--pad-y) var(--pad-x);
+      background: #fff;
+      border: 1px solid #e0e4ea;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    /* bottom: fills the width of .inner (same width as .top) */
+    .bottom {
+      margin-top: 12px;
+      width: 100%;
+      /* fills the .inner width */
+      box-sizing: border-box;
+      padding: 10px 12px;
+      background: linear-gradient(180deg, #e6f3ff, #d8ecff);
+      border: 1px solid #bcd9ff;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    /* optional small-screen adjustments */
+    @media (max-width:420px) {
+      .top .item {
+        padding: 6px 8px;
+        font-size: 13px;
+      }
+
+      .bottom {
+        padding: 8px 10px;
+        font-size: 13px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrapper">
+    <div class="inner">
+      <div class="top">
+        <div class="item">One</div>
+        <div class="item">Two</div>
+        <div class="item">Three long label</div>
+        <div class="item">Four</div>
+        <!-- add/remove items freely; .inner will grow/shrink -->
+      </div>
+
+      <div class="bottom">
+        Bottom element
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>

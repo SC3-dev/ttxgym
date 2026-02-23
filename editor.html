@@ -2,1463 +2,1944 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TTX Gym Scenario Builder</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TTX Gym - Scenario Builder</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
-        body {
-            font-family: "Montserrat", sans-serif;
-            background: #202634;
-            color: white;
-        }
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* ─── EDITOR LAYOUT ─── */
+    #editor-wrap {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+      height: calc(100vh - 56px);
+    }
 
-        .container {
-            width: var(--setWidth);
-            margin: 0 auto;
-            padding: 20px;
-            display: grid;
-            grid-template-columns: 3fr 2fr;
-            gap: 20px;
-            height: calc(100vh - 6rem);
-        }
+    /* ─── LEFT PANEL ─── */
+    #editor-panel {
+      width: 52%;
+      min-width: 380px;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid var(--border);
+      overflow: hidden;
+    }
 
-        .editor-panel,
-        .preview-panel {
-            background: #293042;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
+    #editor-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1.5rem;
+      height: 52px;
+      border-bottom: 1px solid var(--border);
+      background: var(--mid);
+      flex-shrink: 0;
+      gap: 1rem;
+    }
 
-        .panel-header {
-            background: #171b25;
-            color: white;
-            padding: 16px 20px;
-            font-weight: 600;
-            font-size: 1.1em;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            line-height: 2;
-        }
+    #editor-topbar h1 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.01em;
+    }
 
-        .panel-content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-        }
+    .topbar-actions {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
 
-        .form-group {
-            margin-bottom: 20px;
-        }
+    #editor-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
 
-        label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: white;
-        }
+    /* TTXF syntax accent colours — mirrored from preview panel */
+    :root {
+      --ttxf-directive: var(--amber);
+      /* ! metadata fields    */
+      --ttxf-directive-glow: rgba(245, 166, 35, 0.10);
+      --ttxf-directive-border: rgba(245, 166, 35, 0.25);
+      --ttxf-stage: var(--accent);
+      /* @ stage              */
+      --ttxf-stage-glow: var(--accent-glow);
+      --ttxf-stage-border: var(--border-active);
+      --ttxf-array: var(--green);
+      /* # discussion/prompts */
+      --ttxf-array-glow: var(--green-glow);
+      --ttxf-array-border: rgba(62, 201, 200, 0.3);
+      --ttxf-question: #c792ea;
+      /* ? questions          */
+      --ttxf-question-glow: rgba(199, 146, 234, 0.12);
+      --ttxf-question-border: rgba(199, 146, 234, 0.3);
+    }
 
-        input,
-        textarea,
-        select {
-            width: 100%;
-            padding: 10px 12px;
-            border: 0px solid #1a6ec0;
-            border-radius: 4px;
-            font-size: 14px;
-            transition: all 0.2s;
-            background: #202634;
-            color: white;
-            margin-bottom: 10px;
-        }
+    /* ─── FORM FIELDS ─── */
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
 
-        input:focus,
-        textarea:focus,
-        select:focus {
-            outline: none;
-            border-color: #1a6ec0;
-            box-shadow: 0 0 0 3px rgba(26, 110, 192, 0.2);
-        }
+    /* Moniker prefix shown before each label — maps to TTXF sigil */
+    .field-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding-left: 2px;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
 
-        input::placeholder,
-        textarea::placeholder {
-            color: #888;
-        }
+    .field-label .sigil {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0;
+      opacity: 0.9;
+    }
 
-        textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
+    /* Metadata block (title / author / summary / conclusion) → amber ! */
+    .field-group.meta .field-label {
+      color: var(--ttxf-directive);
+    }
 
-        .bttn {
-            background: #1a6ec0;
-            color: white;
-            border: none;
-            padding: 10px 16px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: 500;
-            font-size: 14px;
-            transition: all 0.2s;
-            margin-right: 8px;
-        }
+    .field-group.meta .field-label .sigil {
+      color: var(--ttxf-directive);
+    }
 
-        .bttn:hover {
-            background: #202634;
-        }
+    .field-group.meta .field-input {
+      border-color: var(--ttxf-directive-border);
+      background: color-mix(in srgb, var(--surface) 92%, var(--amber) 8%);
+    }
 
-        .bttn-secondary {
-            background: #293042;
-            border: 1px solid #1a6ec0;
-        }
+    .field-group.meta .field-input:focus {
+      border-color: var(--ttxf-directive);
+      box-shadow: 0 0 0 3px var(--ttxf-directive-glow);
+    }
 
-        .bttn-secondary:hover {
-            background: #202634;
-        }
+    .field-input {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text-primary);
+      font-family: var(--font-display);
+      font-size: 13.5px;
+      padding: 0.6rem 0.85rem;
+      transition: border-color 0.18s, box-shadow 0.18s;
+      outline: none;
+    }
 
-        .bttn-danger {
-            background: #dc3545;
-        }
+    .field-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
 
-        .bttn-danger:hover {
-            background: #c82333;
-        }
+    .field-input::placeholder {
+      color: var(--text-muted);
+    }
 
-        .bttn-small {
-            padding: 6px 12px;
-            font-size: 12px;
-        }
+    textarea.field-input {
+      min-height: 80px;
+      resize: vertical;
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      line-height: 1.6;
+    }
 
-        .stage {
-            background: #171b25;
-            border: 1px solid #1a6ec0;
-            border-radius: 6px;
-            padding: 0;
-            margin-bottom: 20px;
-            position: relative;
-        }
+    /* ─── SECTION HEADER ─── */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
 
-        .stage-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 20px;
-            border-bottom: 1px solid #1a6ec0;
-            cursor: pointer;
-            user-select: none;
-            background: #293042;
-            border-radius: 6px 6px 0 0;
-        }
+    .section-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ttxf-stage);
+      padding: 0.5rem 0.25rem 0.4rem;
+      border-top: 1px solid rgba(46, 125, 224, 0.2);
+      flex: 1;
+    }
 
-        .stage-header:hover {
-            background: #202634;
-        }
+    /* ─── STAGE CARDS  (@) ─── */
+    #stages-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
 
-        .stage-content {
-            padding: 20px;
-            display: none;
-        }
+    .stage-card {
+      background: var(--mid);
+      border: 1px solid var(--ttxf-stage-border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
 
-        .stage-content.expanded {
-            display: block;
-        }
+    .stage-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.15s;
+      gap: 0.75rem;
+      background: rgba(46, 125, 224, 0.05);
+    }
 
-        .stage-toggle {
-            font-size: 18px;
-            color: #1a6ec0;
-            transition: transform 0.2s;
-        }
+    .stage-card-header:hover {
+      background: rgba(46, 125, 224, 0.1);
+    }
 
-        .stage-toggle.expanded {
-            transform: rotate(180deg);
-        }
+    .stage-card-left {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      min-width: 0;
+      flex: 1;
+    }
 
-        .stage-title {
-            font-size: 1.2em;
-            font-weight: 600;
-            color: white;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+    .stage-num-badge {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 600;
+      padding: 0.2rem 0.5rem;
+      border-radius: 99px;
+      background: var(--ttxf-stage-glow);
+      color: var(--ttxf-stage);
+      flex-shrink: 0;
+      border: 1px solid var(--ttxf-stage-border);
+      letter-spacing: 0.04em;
+    }
 
-        .stage-controls {
-            display: flex;
-            gap: 5px;
-        }
+    /* @ sigil prefix on stage badge */
+    .stage-num-badge::before {
+      content: '@ ';
+      opacity: 0.6;
+    }
 
-        .element {
-            background: #293042;
-            border: 1px solid #1a6ec0;
-            border-radius: 4px;
-            padding: 15px;
-            margin-bottom: 15px;
-        }
+    .stage-card-title-input {
+      background: none;
+      border: none;
+      outline: none;
+      font-family: var(--font-display);
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text-primary);
+      width: 100%;
+      min-width: 0;
+      cursor: text;
+    }
 
-        .element-header {
-            display: flex;
-            justify-content: between;
-            align-items: center;
-            margin-bottom: 10px;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
+    .stage-card-title-input::placeholder {
+      color: rgba(46, 125, 224, 0.35);
+      font-weight: 400;
+    }
 
-        .element-type {
-            font-weight: 600;
-            color: white;
-            font-size: 14px;
-        }
+    .stage-card-actions {
+      display: flex;
+      gap: 0.25rem;
+      align-items: center;
+      flex-shrink: 0;
+    }
 
-        .option-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+    .icon-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 0.25rem 0.4rem;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+      font-size: 14px;
+    }
 
-        .option-item input {
-            flex: 1;
-        }
+    .icon-btn svg {
+      width: 15px;
+      height: 15px;
+      fill: currentColor;
+    }
 
-        .correct-answer-radio {
-            width: auto !important;
-            margin-left: 10px;
-        }
+    .icon-btn:hover {
+      background: var(--ttxf-stage-glow);
+      color: var(--ttxf-stage);
+    }
 
-        .correct-answer-label {
-            color: #1a6ec0;
-            font-weight: 500;
-            font-size: 12px;
-            white-space: nowrap;
-        }
+    .icon-btn.danger:hover {
+      color: var(--red);
+      background: rgba(224, 82, 82, 0.1);
+    }
 
-        .preview-content {
-            font-family: 'Monaco', 'Menlo', monospace;
-            background: #202634;
-            color: white;
-            padding: 20px;
-            white-space: pre-wrap;
-            font-size: 13px;
-            line-height: 1.5;
-            overflow-x: auto;
-        }
+    .stage-card-body {
+      height: 0;
+      overflow: hidden;
+      transition: height 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    }
 
-        .export-bttn {
-            background: #38a169;
-        }
+    .stage-card-inner {
+      padding: 0 1rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      border-top: 1px solid var(--ttxf-stage-border);
+    }
 
-        .export-bttn:hover {
-            background: #2f855a;
-        }
+    /* Stage content field inside a card */
+    .stage-card-inner .field-group:first-child .field-label {
+      color: var(--ttxf-stage);
+    }
 
-        .element-pills {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 20px;
-            padding-top: 15px;
-            border-top: 1px solid #1a6ec0;
-        }
+    /* ─── ARRAY SECTION LABELS  (#) ─── */
+    .array-section-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ttxf-array);
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding-left: 1px;
+      margin-bottom: 0.1rem;
+    }
 
-        .element-pill {
-            background: #1a6ec0;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
+    .array-section-label .sigil {
+      opacity: 0.7;
+      font-size: 12px;
+    }
 
-        .element-pill:hover {
-            background: #007BFF;
-            transform: translateY(-1px);
-        }
+    /* ─── ARRAY FIELDS (discussion points, prompts, answers) ─── */
+    .array-field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
 
-        .element-pill:disabled {
-            background: #6c757d;
-            cursor: not-allowed;
-            transform: none;
-        }
+    .array-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
 
-        .import-modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-        }
+    .array-item .field-input {
+      flex: 1;
+      min-height: unset;
+      resize: none;
+      padding: 0.45rem 0.75rem;
+    }
 
-        .import-modal-content {
-            background-color: #293042;
-            margin: 5% auto;
-            padding: 0;
-            border: 1px solid #1a6ec0;
-            border-radius: 8px;
-            width: 80%;
-            max-width: 800px;
-            max-height: 80%;
-            display: flex;
-            flex-direction: column;
-        }
+    /* Discussion inputs — green tint */
+    .discussion-field .array-item .field-input {
+      border-color: var(--ttxf-array-border);
+      background: color-mix(in srgb, var(--surface) 93%, var(--green) 7%);
+    }
 
-        .import-modal-header {
-            background: #171b25;
-            color: white;
-            padding: 16px 20px;
-            font-weight: 600;
-            border-bottom: 1px solid #1a6ec0;
-            border-radius: 8px 8px 0 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+    .discussion-field .array-item .field-input:focus {
+      border-color: var(--ttxf-array);
+      box-shadow: 0 0 0 3px var(--ttxf-array-glow);
+    }
 
-        .import-file-area {
-            border: 2px dashed #1a6ec0;
-            border-radius: 8px;
-            padding: 40px;
-            text-align: center;
-            margin: 20px;
-            background: #202634;
-            transition: all 0.3s ease;
-        }
+    /* Prompt inputs — amber tint */
+    .prompts-field .array-item .field-input {
+      border-color: var(--ttxf-directive-border);
+      background: color-mix(in srgb, var(--surface) 93%, var(--amber) 7%);
+    }
 
-        .import-file-area:hover {
-            border-color: #007BFF;
-            background: #293042;
-        }
+    .prompts-field .array-item .field-input:focus {
+      border-color: var(--ttxf-directive);
+      box-shadow: 0 0 0 3px var(--ttxf-directive-glow);
+    }
 
-        .import-file-area.dragover {
-            border-color: #007BFF;
-            background: #293042;
-            transform: scale(1.02);
-        }
+    .array-item-remove {
+      flex-shrink: 0;
+      margin-top: 6px;
+    }
 
-        .file-input {
-            display: none;
-        }
+    .add-item-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 11px;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 0.3rem 0.5rem;
+      border-radius: var(--radius);
+      transition: all 0.15s;
+      background: none;
+      border: 1px dashed var(--border);
+      width: 100%;
+      justify-content: center;
+    }
 
-        .file-input-label {
-            display: inline-block;
-            padding: 12px 24px;
-            background: #1a6ec0;
-            color: white;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 500;
-            margin: 10px;
-            transition: background 0.2s;
-        }
+    .add-item-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-glow);
+    }
 
-        .file-input-label:hover {
-            background: #007BFF;
-        }
+    /* Green add buttons for discussion/prompts */
+    .add-discussion-btn:hover {
+      border-color: var(--ttxf-array);
+      color: var(--ttxf-array);
+      background: var(--ttxf-array-glow);
+    }
 
-        .file-info {
-            margin-top: 15px;
-            color: #1a6ec0;
-            font-weight: 500;
-        }
+    .add-prompt-btn:hover {
+      border-color: var(--ttxf-directive);
+      color: var(--ttxf-directive);
+      background: var(--ttxf-directive-glow);
+    }
 
-        .import-modal-footer {
-            padding: 16px 20px;
-            border-top: 1px solid #1a6ec0;
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-        }
+    /* ─── QUESTIONS  (?) ─── */
+    .questions-section {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
 
-        .close-modal {
-            cursor: pointer;
-            font-size: 24px;
-            font-weight: bold;
-            color: white;
-        }
+    .question-section-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ttxf-question);
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding-left: 1px;
+      margin-bottom: 0.1rem;
+    }
 
-        .close-modal:hover {
-            color: #1a6ec0;
-        }
+    .question-section-label .sigil {
+      opacity: 0.7;
+      font-size: 12px;
+    }
 
-        @media (max-width: 1024px) {
-            .container {
-                grid-template-columns: 1fr;
-                height: auto;
-                width: auto;
-            }
+    .question-card {
+      background: color-mix(in srgb, var(--surface) 90%, #c792ea 10%);
+      border: 1px solid var(--ttxf-question-border);
+      border-radius: var(--radius);
+      padding: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
 
-            .import-modal-content {
-                width: 95%;
-                margin: 2% auto;
-                max-height: 95%;
-            }
-        }
-    </style>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    .question-card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .q-type-toggle {
+      display: flex;
+      background: var(--surface-raised);
+      border-radius: 99px;
+      border: 1px solid var(--ttxf-question-border);
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .q-type-toggle button {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      padding: 0.2rem 0.6rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .q-type-toggle button.active {
+      background: var(--ttxf-question-glow);
+      color: var(--ttxf-question);
+    }
+
+    .q-type-toggle button.active.quiz-type {
+      background: var(--green-glow);
+      color: var(--green);
+    }
+
+    /* Question text input */
+    .question-card .field-input {
+      border-color: var(--ttxf-question-border);
+      background: color-mix(in srgb, var(--surface) 94%, #c792ea 6%);
+    }
+
+    .question-card .field-input:focus {
+      border-color: var(--ttxf-question);
+      box-shadow: 0 0 0 3px var(--ttxf-question-glow);
+    }
+
+    .answers-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .answer-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .answer-correct-toggle {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      background: none;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .answer-correct-toggle.correct {
+      border-color: var(--green);
+      background: var(--green-glow);
+    }
+
+    .answer-correct-toggle.correct::after {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background: var(--green);
+      border-radius: 50%;
+      display: block;
+    }
+
+    .answer-item .field-input {
+      flex: 1;
+      padding: 0.35rem 0.65rem;
+      font-size: 12px;
+    }
+
+    /* ++ correct answer input */
+    .answer-item:has(.answer-correct-toggle.correct) .field-input {
+      border-color: var(--ttxf-array-border);
+      color: var(--ttxf-array);
+    }
+
+    .add-question-btn:hover {
+      border-color: var(--ttxf-question);
+      color: var(--ttxf-question);
+      background: var(--ttxf-question-glow);
+    }
+
+    /* ─── BUTTONS ─── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.45rem 0.9rem;
+      border-radius: var(--radius);
+      font-family: var(--font-display);
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.18s;
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+
+    .btn svg {
+      width: 14px;
+      height: 14px;
+      fill: currentColor;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+    }
+
+    .btn-ghost {
+      background: var(--surface);
+      color: var(--text-secondary);
+      border-color: var(--border);
+    }
+
+    .btn-ghost:hover {
+      background: var(--surface-raised);
+      color: var(--text-primary);
+    }
+
+    .btn-green {
+      background: var(--green-glow);
+      color: var(--green);
+      border-color: rgba(62, 201, 200, 0.3);
+    }
+
+    .btn-green:hover {
+      background: var(--green);
+      color: #fff;
+    }
+
+    .btn-add-stage {
+      background: var(--surface);
+      border: 1px dashed var(--border);
+      color: var(--text-secondary);
+      width: 100%;
+      justify-content: center;
+      padding: 0.65rem;
+      font-size: 13px;
+    }
+
+    .btn-add-stage:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-glow);
+    }
+
+    /* ─── RIGHT PANEL (preview) ─── */
+    #preview-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-width: 0;
+    }
+
+    #preview-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1.5rem;
+      height: 52px;
+      border-bottom: 1px solid var(--border);
+      background: var(--mid);
+      flex-shrink: 0;
+      gap: 1rem;
+    }
+
+    #preview-action-group {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .tab-group {
+      display: flex;
+      gap: 0.15rem;
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 0.2rem;
+      border: 1px solid var(--border);
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 0.3rem 0.75rem;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .tab-btn.active {
+      background: var(--accent-glow);
+      color: var(--accent);
+    }
+
+    #preview-content {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .preview-pane {
+      position: absolute;
+      inset: 0;
+      overflow-y: auto;
+      padding: 1.5rem;
+      display: none;
+    }
+
+    .preview-pane.active {
+      display: block;
+    }
+
+    /* TTXF preview (raw text) */
+    #pane-preview pre {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      line-height: 1.7;
+      color: var(--text-secondary);
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    /* Syntax highlight colours */
+    .ttxf-directive {
+      color: var(--amber);
+    }
+
+    .ttxf-stage {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .ttxf-array {
+      color: var(--green);
+    }
+
+    .ttxf-item {
+      color: var(--text-secondary);
+    }
+
+    .ttxf-question {
+      color: #c792ea;
+    }
+
+    .ttxf-correct {
+      color: var(--green);
+    }
+
+    .ttxf-comment {
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    /* Visual preview */
+    #pane-visual .preview-stage {
+      background: var(--mid);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      margin-bottom: 1rem;
+      overflow: hidden;
+    }
+
+    #pane-visual .preview-stage-header {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    #pane-visual .preview-stage-num {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      padding: 0.2rem 0.5rem;
+      border-radius: 99px;
+      background: var(--surface-raised);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+    }
+
+    #pane-visual .preview-stage-title {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    #pane-visual .preview-stage-body {
+      padding: 0.75rem 1rem;
+    }
+
+    #pane-visual .preview-section-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin: 0.5rem 0 0.3rem;
+    }
+
+    #pane-visual .preview-discussion-item {
+      font-size: 12.5px;
+      color: var(--text-secondary);
+      padding: 0.25rem 0 0.25rem 1rem;
+      border-left: 2px solid var(--accent);
+      margin-bottom: 0.3rem;
+    }
+
+    /* Talk / discussion block — matches tool's .talk */
+    #pane-visual .preview-talk {
+      margin: 0.5rem 0.75rem 0.5rem;
+      padding: 0.75rem 0.85rem;
+      background: rgba(0, 51, 102, 0.25);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      display: flex;
+      gap: 0.65rem;
+    }
+
+    #pane-visual .preview-talk-icon {
+      flex-shrink: 0;
+    }
+
+    #pane-visual .preview-talk-icon svg {
+      fill: var(--accent);
+      width: 16px;
+      height: 16px;
+      margin-top: 2px;
+    }
+
+    #pane-visual .preview-talk ul {
+      padding-left: 1rem;
+      font-size: 12.5px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      list-style: disc;
+    }
+
+    #pane-visual .preview-talk ul li {
+      margin-bottom: 0.25rem;
+    }
+
+    /* Prompt block — matches tool's .prompt */
+    #pane-visual .preview-prompt {
+      margin: 0.5rem 0.75rem 0.5rem;
+      padding: 0.75rem 0.85rem;
+      background: rgba(245, 166, 35, 0.06);
+      border-left: 3px solid var(--amber);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      display: flex;
+      gap: 0.65rem;
+    }
+
+    #pane-visual .preview-prompt-icon {
+      flex-shrink: 0;
+    }
+
+    #pane-visual .preview-prompt-icon svg {
+      fill: var(--amber);
+      width: 16px;
+      height: 16px;
+      margin-top: 2px;
+    }
+
+    #pane-visual .preview-prompt ul {
+      padding-left: 1rem;
+      font-size: 12.5px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      list-style: disc;
+    }
+
+    #pane-visual .preview-prompt ul li {
+      margin-bottom: 0.25rem;
+    }
+
+    #pane-visual .preview-question {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: var(--radius);
+      padding: 0.65rem 0.85rem;
+      margin-bottom: 0.5rem;
+    }
+
+    #pane-visual .preview-question.quiz-q {
+      border-left-color: var(--green);
+    }
+
+    #pane-visual .preview-q-text {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.4rem;
+    }
+
+    #pane-visual .preview-answers {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+    }
+
+    #pane-visual .preview-answer {
+      font-size: 11.5px;
+      padding: 0.25rem 0.6rem;
+      border-radius: 99px;
+      border: 1px solid var(--border);
+      background: var(--surface-raised);
+      color: var(--text-secondary);
+      font-style: italic;
+    }
+
+    #pane-visual .preview-answer.correct {
+      border-color: rgba(62, 201, 200, 0.4);
+      color: var(--green);
+      background: var(--green-glow);
+    }
+
+    /* ─── EMPTY STATE ─── */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      gap: 0.75rem;
+      color: var(--text-muted);
+      text-align: center;
+      padding: 2rem;
+    }
+
+    .empty-state svg {
+      fill: var(--text-muted);
+      width: 36px;
+      height: 36px;
+      opacity: 0.4;
+    }
+
+    .empty-state p {
+      font-size: 13px;
+    }
+
+    /* ─── MODAL ─── */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 13, 20, 0.8);
+      backdrop-filter: blur(6px);
+      z-index: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+
+    .modal-backdrop.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal-card {
+      background: var(--mid);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 460px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .modal-header h2 {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .modal-body {
+      padding: 1.5rem 1.25rem;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+      padding: 1rem 1.25rem;
+      border-top: 1px solid var(--border);
+      background: rgba(0, 0, 0, 0.15);
+    }
+
+    .drop-zone {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius-lg);
+      padding: 2.5rem 1.5rem;
+      text-align: center;
+      color: var(--text-muted);
+      transition: all 0.18s;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .drop-zone:hover,
+    .drop-zone.dragover {
+      border-color: var(--accent);
+      background: var(--accent-glow);
+      color: var(--accent);
+    }
+
+    .drop-zone svg {
+      fill: currentColor;
+      width: 32px;
+      height: 32px;
+      margin-bottom: 0.75rem;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 768px) {
+      #site-nav .nav-links {
+        display: none;
+      }
+
+      #site-nav .nav-hamburger {
+        display: block;
+      }
+
+      #editor-panel {
+        width: 100%;
+        min-width: unset;
+        border-right: none;
+      }
+
+      #preview-panel {
+        display: none;
+      }
+
+      #editor-wrap {
+        height: calc(100vh - 56px);
+      }
+    }
+  </style>
 </head>
 
 <body>
 
-    <header>
+  <!-- ══════════════════════════════════════════
+       NAVIGATION
+       ══════════════════════════════════════════ -->
+  <nav id="site-nav" role="navigation" aria-label="Main navigation">
+    <a href="ttxgym.com" class="nav-logo" aria-label="TTX Gym Home">
+      <svg viewBox="0 0 210 84" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <g>
+          <path style="fill:#ffffff"
+            d="m 123.95944,30.43245 0.001,-1.117375 5.11724,-6.112717 c 2.81453,-3.361993 5.11729,-6.171028 5.11729,-6.242298 0,-0.07123 -2.30323,-2.881476 -5.1183,-6.244894 l -5.1183,-6.1153013 v -1.086954 -1.086943 l 3.28003,0.0063 3.28005,0.0063 3.8207,4.544782 c 2.10139,2.499633 3.91803,4.6295583 4.03697,4.7331703 0.18592,0.161956 0.77129,-0.476686 4.17186,-4.5515563 l 3.95559,-4.739934 h 3.28934 3.28932 v 1.052384 1.052384 l -5.19039,6.1834383 c -2.85472,3.400899 -5.1886,6.219979 -5.18639,6.264626 0.002,0.04464 2.33524,2.838581 5.18451,6.208731 l 5.18051,6.127543 0.006,1.117375 0.006,1.117376 -3.28004,-0.0032 -3.28003,-0.0032 -4.03542,-4.764205 c -3.77303,-4.454434 -4.04959,-4.7469 -4.25324,-4.498099 -0.1198,0.146359 -1.92418,2.291532 -4.00975,4.767043 l -3.792,4.500917 h -3.23672 -3.23673 l 0.001,-1.117376 z" />
+          <path style="fill:#ffffff"
+            d="M 103.62935,20.159802 V 8.7697787 h -5.767107 -5.767099 v -3.171906 -3.171905 h 14.634016 14.63402 v 3.171905 3.171906 h -5.69501 -5.69501 V 20.159802 31.549826 h -3.1719 -3.17191 z" />
+          <path style="fill:#ffffff"
+            d="M 71.045229,20.159802 V 8.7697787 h -5.695017 -5.695007 v -3.171906 -3.171905 h 14.561929 14.561929 v 3.171905 3.171906 H 83.084046 77.38904 V 20.159802 31.549826 h -3.171906 -3.171905 z" />
+          <path style="fill:#1a6ec0"
+            d="m 56.568246,44.749266 c 0.132103,-1.130608 0.11982,-5.393817 -0.01826,-6.336905 l -0.09381,-0.640428 h 50.057284 50.05728 l -0.0914,0.775254 c -0.14125,1.198686 -0.15482,4.546774 -0.0241,5.932418 l 0.1177,1.247158 H 106.51352 56.453986 Z" />
+          <path style="fill:#1a6ec0"
+            d="m 200.94868,51.986986 c 0,-0.01984 -0.19934,-0.522652 -0.44235,-1.117376 -0.24303,-0.594734 -0.62663,-1.835993 -0.85249,-2.758363 -1.17752,-4.80902 -0.86406,-9.679602 0.90117,-14.002281 l 0.57405,-1.405726 h 4.0357 4.03569 l -0.26157,0.39649 c -1.23002,1.864399 -2.0063,3.624311 -2.54655,5.77324 -0.26627,1.059149 -0.3139,1.638572 -0.30464,3.706429 0.0142,3.191363 0.30209,4.354515 1.81632,7.340458 l 1.06655,2.103165 h -4.01068 c -2.20589,0 -4.01093,-0.01625 -4.0112,-0.03609 z" />
+          <path style="fill:#1a6ec0"
+            d="m 3.0885296,51.941186 c 0,-0.04506 0.44678,-0.969549 0.99284,-2.054529 1.56297,-3.105469 1.81674,-4.159426 1.81148,-7.523519 -0.003,-2.117705 -0.0453,-2.529327 -0.38251,-3.748616 -0.62502,-2.259971 -1.27274,-3.70054 -2.47959,-5.514785 l -0.26374,-0.396489 h 4.03913 4.0391284 l 0.508459,1.214635 c 1.175244,2.807495 1.592501,5.008816 1.600805,8.445255 0.0084,3.455866 -0.441579,6.004916 -1.515078,8.583574 l -0.448069,1.076317 H 7.0399596 c -2.17329,0 -3.95143,-0.03683 -3.95143,-0.08188 z" />
+          <path style="fill:#1a6ec0"
+            d="m 188.14448,64.45835 c -4.60694,-9.066036 -6.34795,-19.950671 -4.79103,-29.952887 0.79263,-5.092105 2.34256,-10.128325 4.37061,-14.201486 l 0.75375,-1.513865 5.15491,-0.03788 5.15492,-0.03788 -1.44187,2.36676 c -1.68405,2.764325 -2.62234,4.771433 -3.60217,7.705364 -1.48568,4.448683 -2.16923,8.595656 -2.16312,13.123333 0.0109,8.068699 2.41694,16.120002 6.77075,22.656654 0.44893,0.674024 0.86412,1.306609 0.92263,1.405726 0.0843,0.142814 -0.97051,0.180221 -5.08108,0.180221 h -5.18744 z" />
+          <path style="fill:#1a6ec0"
+            d="M 13.442562,64.890886 C 21.430959,52.97521 22.612598,37.550731 16.537975,24.485129 16.224594,23.811095 15.34227,22.237758 14.577265,20.988827 L 13.186333,18.71803 h 5.166097 5.166087 l 0.803415,1.698254 c 5.365207,11.340999 6.308978,24.008992 2.687685,36.076248 -0.753947,2.512395 -1.94733,5.507012 -3.117002,7.821643 l -0.928945,1.838262 h -5.183434 -5.183435 z" />
+          <path style="fill:#1a6ec0"
+            d="m 174.53173,78.948193 c -5.15518,-8.267119 -8.66247,-19.326858 -9.79592,-30.890037 -0.24331,-2.48236 -0.24156,-10.536496 0.003,-12.975982 1.12233,-11.203007 4.06279,-20.780917 9.1843,-29.9160563 l 1.53618,-2.74015 h 5.47631 5.47631 l -0.49924,0.68484 c -2.41341,3.310656 -5.29765,8.4418153 -7.00382,12.4600833 -6.83569,16.098892 -7.07266,34.022086 -0.66592,50.365278 1.74301,4.446298 4.74992,9.997815 7.52608,13.895014 0.41656,0.58477 0.72226,1.12003 0.67935,1.18946 -0.0429,0.0694 -2.43321,0.12626 -5.31175,0.12626 h -5.23371 z" />
+          <path style="fill:#ffffff"
+            d="M 121.65153,67.017498 V 52.888101 l 3.13587,5.7e-4 3.13586,5.8e-4 3.17191,3.780699 c 1.74455,2.079391 3.89837,4.64314 4.78628,5.697244 l 1.61436,1.916538 4.77081,-5.697761 4.77081,-5.69787 h 3.16659 3.16657 v 14.129397 14.129405 h -3.09878 -3.09876 l -0.0371,-9.382769 -0.037,-9.382768 -4.75785,5.697085 c -2.61683,3.1334 -4.7903,5.700884 -4.82996,5.705506 -0.0397,0.0042 -2.24556,-2.565511 -4.90203,-5.711405 l -4.82995,-5.719804 -0.037,9.397077 -0.0371,9.397078 h -3.02668 -3.02669 z" />
+          <path style="fill:#ffffff"
+            d="m 100.45743,75.865912 v -5.280979 l -1.344169,-1.819764 c -0.739298,-1.000858 -3.6589,-4.950452 -6.487984,-8.776859 -2.829095,-3.826422 -5.143811,-6.989316 -5.143811,-7.028665 0,-0.03936 1.617879,-0.07154 3.595271,-0.07154 h 3.595282 l 4.42039,5.550836 c 2.431221,3.05296 4.432961,5.550842 4.448301,5.550842 0.0153,0 2.00418,-2.497006 4.41964,-5.54889 l 4.39174,-5.548884 3.64048,-0.0021 c 2.00227,-0.001 3.64048,0.03218 3.64048,0.07376 0,0.04168 -1.83591,2.555739 -4.0798,5.586882 -2.24389,3.031139 -5.16348,6.979234 -6.48798,8.773567 l -2.40819,3.262401 v 5.280114 5.2801 h -3.09983 -3.09982 z" />
+          <path style="fill:#ffffff"
+            d="m 62.502123,80.992853 c -1.603358,-0.38525 -3.146168,-1.67929 -3.90041,-3.2715 l -0.460373,-0.97187 v -9.731985 -9.731983 l 0.47064,-0.962093 c 0.817123,-1.670376 2.149173,-2.774973 3.881596,-3.2188 0.768181,-0.196799 2.098574,-0.22127 10.08887,-0.185561 9.200985,0.04115 9.204277,0.04126 10.016894,0.369845 1.187347,0.480148 2.594836,1.823046 3.180052,3.034115 0.444291,0.91942 0.467685,1.054456 0.522915,3.017034 l 0.05783,2.05453 h -3.115852 -3.115852 v -1.153422 -1.153422 h -8.003075 -8.003064 l 0.03725,7.965804 0.03725,7.965814 7.965804,0.03725 7.965804,0.03725 v -2.163882 -2.163893 h -3.027719 -3.02773 v -3.02772 -3.02773 h 6.134855 6.134866 l -0.04337,6.019414 -0.04337,6.019405 -0.463865,0.94788 c -0.594481,1.21481 -1.698782,2.31911 -2.913576,2.91359 l -0.947886,0.46386 -9.443633,0.0241 c -5.211651,0.0133 -9.686177,-0.0342 -9.984879,-0.106 z" />
+          <path style="fill:#1a6ec0"
+            d="m 25.519705,81.021453 c -0.0439,-0.071 0.03978,-0.28263 0.185983,-0.47036 1.311927,-1.68534 3.639855,-5.502462 5.220114,-8.559464 C 37.220777,59.814061 39.557125,45.873306 37.606851,32.126537 36.200366,22.212685 32.499604,12.59703 26.939043,4.4084047 l -1.3462,-1.982437 5.436392,0.0021 5.436382,0.0021 1.40982,2.557101 c 2.522363,4.575035 4.243812,8.5214633 5.769337,13.2262383 6.107588,18.835993 4.615545,39.223717 -4.167783,56.950123 -0.589373,1.189457 -1.607315,3.006103 -2.262092,4.036963 l -1.190513,1.87431 -5.212463,0.0379 c -2.957294,0.0214 -5.24697,-0.0179 -5.292218,-0.0912 z" />
+        </g>
+      </svg>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">About</a></li>
+      <li><a href="guide.html">How To Use</a></li>
+      <li><a href="library.html">Exercise Library</a></li>
+      <li><a href="editor.html" class="active">Exercise Builder</a></li>
+      <li><a href="gym/" class="launch">Launch</a></li>
+    </ul>
+    <button class="nav-hamburger" onclick="document.getElementById('mobile-nav').classList.toggle('open')"
+      aria-label="Toggle menu">&#9776;</button>
+  </nav>
 
-        <nav>
-            <div class="logo"><a href="index.html"><svg height="3rem" viewBox="0 0 210 83.999996"
-                        xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
-                        <g>
-                            <path style="fill:#ffffff;stroke-width:0.144177"
-                                d="m 123.95944,30.43245 0.001,-1.117375 5.11724,-6.112717 c 2.81453,-3.361993 5.11729,-6.171028 5.11729,-6.242298 0,-0.07123 -2.30323,-2.881476 -5.1183,-6.244894 l -5.1183,-6.1153013 v -1.086954 -1.086943 l 3.28003,0.0063 3.28005,0.0063 3.8207,4.544782 c 2.10139,2.499633 3.91803,4.6295583 4.03697,4.7331703 0.18592,0.161956 0.77129,-0.476686 4.17186,-4.5515563 l 3.95559,-4.739934 h 3.28934 3.28932 v 1.052384 1.052384 l -5.19039,6.1834383 c -2.85472,3.400899 -5.1886,6.219979 -5.18639,6.264626 0.002,0.04464 2.33524,2.838581 5.18451,6.208731 l 5.18051,6.127543 0.006,1.117375 0.006,1.117376 -3.28004,-0.0032 -3.28003,-0.0032 -4.03542,-4.764205 c -3.77303,-4.454434 -4.04959,-4.7469 -4.25324,-4.498099 -0.1198,0.146359 -1.92418,2.291532 -4.00975,4.767043 l -3.792,4.500917 h -3.23672 -3.23673 l 0.001,-1.117376 z"
-                                id="path220" />
-                            <path style="fill:#ffffff;stroke-width:0.144177"
-                                d="M 103.62935,20.159802 V 8.7697787 h -5.767107 -5.767099 v -3.171906 -3.171905 h 14.634016 14.63402 v 3.171905 3.171906 h -5.69501 -5.69501 V 20.159802 31.549826 h -3.1719 -3.17191 z"
-                                id="path218" />
-                            <path style="fill:#ffffff;stroke-width:0.144177"
-                                d="M 71.045229,20.159802 V 8.7697787 h -5.695017 -5.695007 v -3.171906 -3.171905 h 14.561929 14.561929 v 3.171905 3.171906 H 83.084046 77.38904 V 20.159802 31.549826 h -3.171906 -3.171905 z"
-                                id="path216" />
-                            <path style="fill:#1a6ec0;fill-opacity:1;stroke-width:0.139424"
-                                d="m 56.568246,44.749266 c 0.132103,-1.130608 0.11982,-5.393817 -0.01826,-6.336905 l -0.09381,-0.640428 h 50.057284 50.05728 l -0.0914,0.775254 c -0.14125,1.198686 -0.15482,4.546774 -0.0241,5.932418 l 0.1177,1.247158 H 106.51352 56.453986 Z"
-                                id="path214" />
-                            <path style="fill:#1a6ec0;stroke-width:0.144177;fill-opacity:1"
-                                d="m 200.94868,51.986986 c 0,-0.01984 -0.19934,-0.522652 -0.44235,-1.117376 -0.24303,-0.594734 -0.62663,-1.835993 -0.85249,-2.758363 -1.17752,-4.80902 -0.86406,-9.679602 0.90117,-14.002281 l 0.57405,-1.405726 h 4.0357 4.03569 l -0.26157,0.39649 c -1.23002,1.864399 -2.0063,3.624311 -2.54655,5.77324 -0.26627,1.059149 -0.3139,1.638572 -0.30464,3.706429 0.0142,3.191363 0.30209,4.354515 1.81632,7.340458 l 1.06655,2.103165 h -4.01068 c -2.20589,0 -4.01093,-0.01625 -4.0112,-0.03609 z"
-                                id="path212" />
-                            <path style="fill:#1a6ec0;fill-opacity:1;stroke-width:0.144177"
-                                d="m 3.0885296,51.941186 c 0,-0.04506 0.44678,-0.969549 0.99284,-2.054529 1.56297,-3.105469 1.81674,-4.159426 1.81148,-7.523519 -0.003,-2.117705 -0.0453,-2.529327 -0.38251,-3.748616 -0.62502,-2.259971 -1.27274,-3.70054 -2.47959,-5.514785 l -0.26374,-0.396489 h 4.03913 4.0391284 l 0.508459,1.214635 c 1.175244,2.807495 1.592501,5.008816 1.600805,8.445255 0.0084,3.455866 -0.441579,6.004916 -1.515078,8.583574 l -0.448069,1.076317 H 7.0399596 c -2.17329,0 -3.95143,-0.03683 -3.95143,-0.08188 z"
-                                id="path210" />
-                            <path style="fill:#1a6ec0;stroke-width:0.144177;fill-opacity:1"
-                                d="m 188.14448,64.45835 c -4.60694,-9.066036 -6.34795,-19.950671 -4.79103,-29.952887 0.79263,-5.092105 2.34256,-10.128325 4.37061,-14.201486 l 0.75375,-1.513865 5.15491,-0.03788 5.15492,-0.03788 -1.44187,2.36676 c -1.68405,2.764325 -2.62234,4.771433 -3.60217,7.705364 -1.48568,4.448683 -2.16923,8.595656 -2.16312,13.123333 0.0109,8.068699 2.41694,16.120002 6.77075,22.656654 0.44893,0.674024 0.86412,1.306609 0.92263,1.405726 0.0843,0.142814 -0.97051,0.180221 -5.08108,0.180221 h -5.18744 z"
-                                id="path208" />
-                            <path style="fill:#1a6ec0;fill-opacity:1;stroke-width:0.144177"
-                                d="M 13.442562,64.890886 C 21.430959,52.97521 22.612598,37.550731 16.537975,24.485129 16.224594,23.811095 15.34227,22.237758 14.577265,20.988827 L 13.186333,18.71803 h 5.166097 5.166087 l 0.803415,1.698254 c 5.365207,11.340999 6.308978,24.008992 2.687685,36.076248 -0.753947,2.512395 -1.94733,5.507012 -3.117002,7.821643 l -0.928945,1.838262 h -5.183434 -5.183435 z"
-                                id="path206" />
-                            <path style="fill:#1a6ec0;stroke-width:0.144177;fill-opacity:1"
-                                d="m 174.53173,78.948193 c -5.15518,-8.267119 -8.66247,-19.326858 -9.79592,-30.890037 -0.24331,-2.48236 -0.24156,-10.536496 0.003,-12.975982 1.12233,-11.203007 4.06279,-20.780917 9.1843,-29.9160563 l 1.53618,-2.74015 h 5.47631 5.47631 l -0.49924,0.68484 c -2.41341,3.310656 -5.29765,8.4418153 -7.00382,12.4600833 -6.83569,16.098892 -7.07266,34.022086 -0.66592,50.365278 1.74301,4.446298 4.74992,9.997815 7.52608,13.895014 0.41656,0.58477 0.72226,1.12003 0.67935,1.18946 -0.0429,0.0694 -2.43321,0.12626 -5.31175,0.12626 h -5.23371 z"
-                                id="path204" />
-                            <path style="fill:#ffffff;stroke-width:0.144177"
-                                d="M 121.65153,67.017498 V 52.888101 l 3.13587,5.7e-4 3.13586,5.8e-4 3.17191,3.780699 c 1.74455,2.079391 3.89837,4.64314 4.78628,5.697244 l 1.61436,1.916538 4.77081,-5.697761 4.77081,-5.69787 h 3.16659 3.16657 v 14.129397 14.129405 h -3.09878 -3.09876 l -0.0371,-9.382769 -0.037,-9.382768 -4.75785,5.697085 c -2.61683,3.1334 -4.7903,5.700884 -4.82996,5.705506 -0.0397,0.0042 -2.24556,-2.565511 -4.90203,-5.711405 l -4.82995,-5.719804 -0.037,9.397077 -0.0371,9.397078 h -3.02668 -3.02669 z"
-                                id="path202" />
-                            <path style="fill:#ffffff;stroke-width:0.144177"
-                                d="m 100.45743,75.865912 v -5.280979 l -1.344169,-1.819764 c -0.739298,-1.000858 -3.6589,-4.950452 -6.487984,-8.776859 -2.829095,-3.826422 -5.143811,-6.989316 -5.143811,-7.028665 0,-0.03936 1.617879,-0.07154 3.595271,-0.07154 h 3.595282 l 4.42039,5.550836 c 2.431221,3.05296 4.432961,5.550842 4.448301,5.550842 0.0153,0 2.00418,-2.497006 4.41964,-5.54889 l 4.39174,-5.548884 3.64048,-0.0021 c 2.00227,-0.001 3.64048,0.03218 3.64048,0.07376 0,0.04168 -1.83591,2.555739 -4.0798,5.586882 -2.24389,3.031139 -5.16348,6.979234 -6.48798,8.773567 l -2.40819,3.262401 v 5.280114 5.2801 h -3.09983 -3.09982 z"
-                                id="path200" />
-                            <path style="fill:#ffffff;stroke-width:0.144177"
-                                d="m 62.502123,80.992853 c -1.603358,-0.38525 -3.146168,-1.67929 -3.90041,-3.2715 l -0.460373,-0.97187 v -9.731985 -9.731983 l 0.47064,-0.962093 c 0.817123,-1.670376 2.149173,-2.774973 3.881596,-3.2188 0.768181,-0.196799 2.098574,-0.22127 10.08887,-0.185561 9.200985,0.04115 9.204277,0.04126 10.016894,0.369845 1.187347,0.480148 2.594836,1.823046 3.180052,3.034115 0.444291,0.91942 0.467685,1.054456 0.522915,3.017034 l 0.05783,2.05453 h -3.115852 -3.115852 v -1.153422 -1.153422 h -8.003075 -8.003064 l 0.03725,7.965804 0.03725,7.965814 7.965804,0.03725 7.965804,0.03725 v -2.163882 -2.163893 h -3.027719 -3.02773 v -3.02772 -3.02773 h 6.134855 6.134866 l -0.04337,6.019414 -0.04337,6.019405 -0.463865,0.94788 c -0.594481,1.21481 -1.698782,2.31911 -2.913576,2.91359 l -0.947886,0.46386 -9.443633,0.0241 c -5.211651,0.0133 -9.686177,-0.0342 -9.984879,-0.106 z"
-                                id="path198" />
-                            <path style="fill:#1a6ec0;fill-opacity:1;stroke-width:0.144177"
-                                d="m 25.519705,81.021453 c -0.0439,-0.071 0.03978,-0.28263 0.185983,-0.47036 1.311927,-1.68534 3.639855,-5.502462 5.220114,-8.559464 C 37.220777,59.814061 39.557125,45.873306 37.606851,32.126537 36.200366,22.212685 32.499604,12.59703 26.939043,4.4084047 l -1.3462,-1.982437 5.436392,0.0021 5.436382,0.0021 1.40982,2.557101 c 2.522363,4.575035 4.243812,8.5214633 5.769337,13.2262383 6.107588,18.835993 4.615545,39.223717 -4.167783,56.950123 -0.589373,1.189457 -1.607315,3.006103 -2.262092,4.036963 l -1.190513,1.87431 -5.212463,0.0379 c -2.957294,0.0214 -5.24697,-0.0179 -5.292218,-0.0912 z"
-                                id="path179" />
-                        </g>
-                    </svg></a></div>
-            <div class="menu-open"><a href="#menu">
-                    <span class="material-icons">menu</span>
-                </a>
-            </div>
-            <div id="menu">
-                <div class="menu-close"><a href="#"><span class="material-icons">close</span></a>
-                </div>
-                <ul class="nav-links">
-                    <li><a href="index.html#about">About</a></li>
-                    <li><a href="guide.html">How To Use</a></li>
-                    <li><a href="library.html">Exercise Library</a></li>
-                    <li><a href="gym/">Launch</a></li>
-                </ul>
-            </div>
+  <div id="mobile-nav" role="navigation" aria-label="Mobile navigation">
+    <a href="index.html">About</a>
+    <a href="guide.html">How To Use</a>
+    <a href="library.html">Exercise Library</a>
+    <a href="editor.html">Exercise Builder</a>
+    <a href="gym/" class="launch">Launch</a>
+  </div>
 
-        </nav>
-    </header>
+  <!-- ══════════════════════════════════════════
+       EDITOR
+       ══════════════════════════════════════════ -->
+  <div id="editor-wrap">
 
-    <div class="container">
-        <div class="editor-panel">
-            <div class="panel-header">
-                <span>TTX Scenario Editor</span>
-            </div>
-            <div class="panel-content">
-                <!-- File Info Section -->
-                <div class="form-group">
-                    <label for="title">Scenario Title</label>
-                    <input type="text" id="title" placeholder="Enter scenario title" oninput="updatePreview()">
-                </div>
+    <!-- ── LEFT: EDITOR PANEL ── -->
+    <div id="editor-panel">
+      <div id="editor-topbar">
+        <h1>TTX Scenario Builder</h1>
+        <div class="topbar-actions">
+          <button class="btn btn-ghost" onclick="openImportModal()">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
+              <path
+                d="M440-320v-326L336-542l-56-58 200-200 200 200-56 58-104-104v326h-80ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z" />
+            </svg>
+            Import
+          </button>
+          <button class="btn btn-green" onclick="exportTTXF()">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
+              <path
+                d="M480-320 280-520l56-58 104 104v-326h80v326l104-104 56 58-200 200ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z" />
+            </svg>
+            Export
+          </button>
+        </div>
+      </div>
 
-                <div class="form-group">
-                    <label for="author">Author (Optional)</label>
-                    <input type="text" id="author" placeholder="Enter author name" oninput="updatePreview()">
-                </div>
+      <div id="editor-scroll">
 
-                <div class="form-group">
-                    <label for="summary">Summary</label>
-                    <textarea id="summary" placeholder="Enter scenario summary" oninput="updatePreview()"></textarea>
-                </div>
-
-                <!-- Stages Section -->
-                <div style="display: flex; justify-content: space-between; align-items: center; margin: 30px 0 20px 0;">
-                    <h3>Stages</h3>
-                </div>
-
-                <div id="stages-container"></div>
-
-                <div style="text-align: center; margin: 20px 0;">
-                    <button class="bttn" onclick="addStage()">+ Add Stage</button>
-                </div>
-            </div>
+        <!-- Scenario metadata -->
+        <div class="field-group meta">
+          <label class="field-label" for="f-title"><span class="sigil">!</span> Scenario Title</label>
+          <input id="f-title" class="field-input" type="text" placeholder="e.g. Ransomware Attack Response"
+            oninput="scheduleUpdate()">
         </div>
 
-        <div class="preview-panel">
-            <div class="panel-header">
-                <span>Scenario File Preview</span>
-                <div>
-                    <button class="bttn bttn-small" onclick="importFromFile()">Import</button>
-                    <button class="bttn bttn-small" onclick="postToNewTab()">Preview</button>
-                    <button class="bttn bttn-small export-bttn" onclick="exportMarkdown()">Export</button>
-                </div>
-            </div>
-            <div class="panel-content">
-                <div class="preview-content" id="preview"></div>
-            </div>
+        <div class="field-group meta">
+          <label class="field-label" for="f-author"><span class="sigil">!</span> Author <span
+              style="opacity:0.5">(optional)</span></label>
+          <input id="f-author" class="field-input" type="text" placeholder="e.g. Jane Smith" oninput="scheduleUpdate()">
         </div>
+
+        <div class="field-group meta">
+          <label class="field-label" for="f-summary"><span class="sigil">!</span> Summary</label>
+          <textarea id="f-summary" class="field-input" placeholder="Brief overview of this exercise scenario…"
+            oninput="scheduleUpdate()"></textarea>
+        </div>
+
+        <div class="field-group meta">
+          <label class="field-label" for="f-conclusion"><span class="sigil">!</span> Conclusion <span
+              style="opacity:0.5">(optional)</span></label>
+          <textarea id="f-conclusion" class="field-input" placeholder="Custom debrief text shown on the finish screen…"
+            oninput="scheduleUpdate()"></textarea>
+        </div>
+
+        <!-- Stages -->
+        <div>
+          <div class="section-header">
+            <div class="section-label">@ Stages</div>
+          </div>
+          <div id="stages-list"></div>
+          <button class="btn btn-add-stage" onclick="addStage()" style="margin-top:0.75rem">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"
+              style="width:16px;height:16px;fill:currentColor">
+              <path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z" />
+            </svg>
+            Add Stage
+          </button>
+        </div>
+
+      </div>
     </div>
 
-    <!-- Import Modal -->
-    <div id="import-modal" class="import-modal">
-        <div class="import-modal-content">
-            <div class="import-modal-header">
-                <span>Import TTXF File</span>
-                <span class="close-modal" onclick="closeImportModal()">&times;</span>
-            </div>
-            <div class="import-file-area" id="file-drop-area">
-                <div>
-                    <h3 style="color: white; margin-bottom: 20px;">Upload TTXF File</h3>
-                    <p style="color: #888; margin-bottom: 20px;">Drag and drop a .ttxf file here, or click to select</p>
+    <!-- ── RIGHT: PREVIEW PANEL ── -->
+    <div id="preview-panel">
+      <div id="preview-topbar">
+        <div id="preview-action-group">
+          <div class="tab-group">
+            <button class="tab-btn active" data-tab="pane-preview" onclick="switchTab(this)">TTXF</button>
+            <button class="tab-btn" data-tab="pane-visual" onclick="switchTab(this)">Visual</button>
+          </div>
 
-                    <input type="file" id="file-input" class="file-input" accept=".ttxf,.txt,.md"
-                        onchange="handleFileSelect(event)">
-                    <label for="file-input" class="file-input-label">Choose File</label>
-
-                    <div id="file-info" class="file-info" style="display: none;"></div>
-                </div>
-            </div>
-            <div class="import-modal-footer">
-                <button class="bttn bttn-secondary" onclick="closeImportModal()">Cancel</button>
-                <button class="bttn" id="import-bttn" onclick="processFileImport()" disabled>Import</button>
-            </div>
+          <button class="btn btn-ghost" onclick="postToNewTab()">
+            Preview in TTX GYM
+          </button>
         </div>
+        <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted)" id="preview-filename">
+          untitled.ttxf</div>
+      </div>
+
+      <div id="preview-content">
+        <div id="pane-preview" class="preview-pane active">
+          <pre
+            id="ttxf-output"><span style="color:var(--text-muted);font-style:italic">// Start filling in the form to see your scenario file here…</span></pre>
+        </div>
+        <div id="pane-visual" class="preview-pane">
+          <div id="visual-output"></div>
+        </div>
+      </div>
     </div>
 
-    <script>
-        let stageCounter = 0;
-        let elementCounter = 0;
+  </div>
 
-        // Initialize with one stage
-        document.addEventListener('DOMContentLoaded', function () {
-            addStage();
-            // Show the first stage expanded by default and set correct arrow
-            const firstContent = document.getElementById('content-1');
-            const firstToggle = document.getElementById('toggle-1');
-            if (firstContent && firstToggle) {
-                firstContent.classList.add('expanded');
-                firstToggle.textContent = '▲'; // Up arrow for expanded state
-                firstToggle.classList.add('expanded');
-            }
-            updatePreview();
+  <!-- ══════════════════════════════════════════
+       IMPORT MODAL
+       ══════════════════════════════════════════ -->
+  <div id="import-modal" class="modal-backdrop" onclick="handleModalBackdropClick(event)">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Import TTXF File</h2>
+        <button class="icon-btn" onclick="closeImportModal()" aria-label="Close">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
+            <path
+              d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z" />
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="drop-zone" id="drop-zone" onclick="document.getElementById('import-file-input').click()"
+          ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
+            <path
+              d="M440-320v-326L336-542l-56-58 200-200 200 200-56 58-104-104v326h-80ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z" />
+          </svg>
+          <div>Drag and drop a <code
+              style="font-family:var(--font-mono);font-size:11px;background:var(--surface-raised);padding:2px 6px;border-radius:4px;">.ttxf</code>
+            file here, or click to select</div>
+          <input type="file" id="import-file-input" accept=".ttxf,.txt" style="display:none"
+            onchange="handleImportFile(event)">
+        </div>
+        <div id="import-status"
+          style="margin-top:0.75rem;font-size:12px;font-family:var(--font-mono);color:var(--text-muted);min-height:1.2em">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeImportModal()">Cancel</button>
+        <button class="btn btn-primary" id="import-confirm-btn" onclick="confirmImport()" disabled
+          style="opacity:0.5">Import</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* =============================================
+       STATE
+       ============================================= */
+    let stages = [];
+    let updateTimer = null;
+    let pendingImportData = null;
+    let _idCounter = 1;
+    function nextId() { return _idCounter++; }
+
+    /* =============================================
+       STAGE MODEL
+       ============================================= */
+    function makeStage() {
+      return {
+        id: nextId(),
+        title: '',
+        content: '',
+        discussion: [],
+        prompts: [],
+        questions: []
+      };
+    }
+
+    function makeQuestion() {
+      return { id: nextId(), text: '', type: 'rating', answers: ['', ''], quiz: '' };
+    }
+
+    /* =============================================
+       STAGE MANAGEMENT
+       ============================================= */
+    function addStage(data) {
+      const stage = data || makeStage();
+      stages.push(stage);
+      renderStage(stage, stages.length - 1);
+      scheduleUpdate();
+    }
+
+    function removeStage(id) {
+      id = +id;
+      stages = stages.filter(s => s.id !== id);
+      renderAllStages();
+      scheduleUpdate();
+    }
+
+    function moveStage(id, dir) {
+      id = +id;
+      const i = stages.findIndex(s => s.id === id);
+      const j = i + dir;
+      if (j < 0 || j >= stages.length) return;
+      [stages[i], stages[j]] = [stages[j], stages[i]];
+      renderAllStages();
+      scheduleUpdate();
+    }
+
+    function renderAllStages() {
+      const list = document.getElementById('stages-list');
+      list.innerHTML = '';
+      stages.forEach((s, i) => renderStage(s, i));
+    }
+
+    function renderStage(stage, idx) {
+      const list = document.getElementById('stages-list');
+      const card = document.createElement('div');
+      card.className = 'stage-card';
+      card.id = 'stage-card-' + stage.id;
+
+      card.innerHTML = `
+    <div class="stage-card-header" onclick="toggleStageCard('${stage.id}')">
+      <div class="stage-card-left">
+        <span class="stage-num-badge">Stage ${idx + 1}</span>
+        <input class="stage-card-title-input" type="text" placeholder="Stage title…"
+               value="${escH(stage.title)}"
+               onclick="event.stopPropagation()"
+               oninput="updateStageField('${stage.id}','title',this.value)">
+      </div>
+      <div class="stage-card-actions">
+        <button class="icon-btn" onclick="event.stopPropagation();moveStage('${stage.id}',-1)" title="Move up">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M440-160v-487L216-423l-56-57 320-320 320 320-56 57-224-224v487h-80Z"/></svg>
+        </button>
+        <button class="icon-btn" onclick="event.stopPropagation();moveStage('${stage.id}',1)" title="Move down">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M440-800v487L216-537l-56 57 320 320 320-320-56-57-224 224v-487h-80Z"/></svg>
+        </button>
+        <button class="icon-btn danger" onclick="event.stopPropagation();removeStage('${stage.id}')" title="Remove stage">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/></svg>
+        </button>
+        <button class="icon-btn sc_toggle-btn" onclick="event.stopPropagation();toggleStageCard('${stage.id}')">▼</button>
+      </div>
+    </div>
+    <div class="stage-card-body" id="stage-body-${stage.id}">
+      <div class="stage-card-inner">
+
+        <div class="field-group" style="margin-top:0.5rem">
+          <label class="field-label" style="color:var(--ttxf-stage)"><span class="sigil">@</span> Stage Content</label>
+          <textarea class="field-input" placeholder="Scenario content for this stage…" rows="3"
+                    oninput="updateStageField('${stage.id}','content',this.value)">${escH(stage.content)}</textarea>
+        </div>
+
+        <div class="field-group">
+          <div class="array-section-label"><span class="sigil">#</span> Discussion Points</div>
+          <div class="array-field discussion-field" id="discussion-${stage.id}">
+            ${stage.discussion.map((d, i) => discussionItemHTML(stage.id, i, d)).join('')}
+          </div>
+          <button class="add-item-btn add-discussion-btn" onclick="addDiscussionItem('${stage.id}')">+ Add Discussion Point</button>
+        </div>
+
+        <div class="field-group">
+          <div class="array-section-label" style="color:var(--ttxf-directive)"><span class="sigil" style="color:var(--ttxf-directive)">!</span> Facilitator Prompts</div>
+          <div class="array-field prompts-field" id="prompts-${stage.id}">
+            ${stage.prompts.map((p, i) => promptItemHTML(stage.id, i, p)).join('')}
+          </div>
+          <button class="add-item-btn add-prompt-btn" onclick="addPromptItem('${stage.id}')">+ Add Prompt</button>
+        </div>
+
+        <div class="field-group">
+          <div class="question-section-label"><span class="sigil">?</span> Questions</div>
+          <div class="questions-section" id="questions-${stage.id}">
+            ${stage.questions.map((q, i) => questionCardHTML(stage.id, i, q)).join('')}
+          </div>
+          <button class="add-item-btn add-question-btn" onclick="addQuestion('${stage.id}')">+ Add Question</button>
+        </div>
+
+      </div>
+    </div>
+  `;
+
+      list.appendChild(card);
+
+      // Auto-expand newly added stages
+      const body = card.querySelector('.stage-card-body');
+      requestAnimationFrame(() => {
+        body.style.height = body.scrollHeight + 'px';
+        setTimeout(() => { if (body.style.height !== '0px') body.style.height = 'auto'; }, 300);
+      });
+    }
+
+    function discussionItemHTML(stageId, idx, val) {
+      return `<div class="array-item" id="disc-item-${stageId}-${idx}">
+    <input class="field-input" type="text" placeholder="Discussion point…" value="${escH(val)}"
+           oninput="updateArrayItem('${stageId}','discussion',${idx},this.value)">
+    <button class="icon-btn danger array-item-remove" onclick="removeArrayItem('${stageId}','discussion',${idx})">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg>
+    </button>
+  </div>`;
+    }
+
+    function promptItemHTML(stageId, idx, val) {
+      return `<div class="array-item" id="prompt-item-${stageId}-${idx}">
+    <input class="field-input" type="text" placeholder="Facilitator prompt…" value="${escH(val)}"
+           oninput="updateArrayItem('${stageId}','prompts',${idx},this.value)">
+    <button class="icon-btn danger array-item-remove" onclick="removeArrayItem('${stageId}','prompts',${idx})">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg>
+    </button>
+  </div>`;
+    }
+
+    function questionCardHTML(stageId, qIdx, q) {
+      const isQuiz = q.type === 'quiz';
+      return `<div class="question-card" id="qcard-${q.id}">
+    <div class="question-card-header">
+      <div class="q-type-toggle">
+        <button class="${!isQuiz ? 'active' : ''}" onclick="setQuestionType('${stageId}','${q.id}','rating')">Rating</button>
+        <button class="${isQuiz ? 'active quiz-type' : ''}" onclick="setQuestionType('${stageId}','${q.id}','quiz')">Quiz</button>
+      </div>
+      <input class="field-input" type="text" placeholder="Question text…" value="${escH(q.text)}"
+             style="flex:1;margin-left:0.5rem"
+             oninput="updateQuestionField('${stageId}','${q.id}','text',this.value)">
+      <button class="icon-btn danger" style="margin-left:0.25rem" onclick="removeQuestion('${stageId}','${q.id}')">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg>
+      </button>
+    </div>
+    <div class="answers-list" id="answers-${q.id}">
+      ${q.answers.map((a, ai) => answerHTML(stageId, q, ai, a)).join('')}
+    </div>
+    <button class="add-item-btn" onclick="addAnswer('${stageId}','${q.id}')">+ Add Answer</button>
+  </div>`;
+    }
+
+    function answerHTML(stageId, q, ai, val) {
+      const isCorrect = q.type === 'quiz' && q.quiz === val && val !== '';
+      return `<div class="answer-item" id="ans-${q.id}-${ai}">
+    ${q.type === 'quiz'
+          ? `<button class="answer-correct-toggle ${isCorrect ? 'correct' : ''}"
+               title="Mark as correct answer"
+               onclick="setCorrectAnswer('${stageId}','${q.id}',${ai})"></button>`
+          : `<span style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);padding:0 0.25rem;flex-shrink:0">${ai + 1}</span>`}
+    <input class="field-input" type="text" placeholder="Answer option…" value="${escH(val)}"
+           oninput="updateAnswer('${stageId}','${q.id}',${ai},this.value)">
+    <button class="icon-btn danger array-item-remove" onclick="removeAnswer('${stageId}','${q.id}',${ai})">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg>
+    </button>
+  </div>`;
+    }
+
+    /* =============================================
+       STAGE COLLAPSIBLE
+       ============================================= */
+    function toggleStageCard(id) {
+      const body = document.getElementById('stage-body-' + id);
+      const btn = document.querySelector('#stage-card-' + id + ' .sc_toggle-btn');
+      const isOpen = body.style.height !== '0px' && body.style.height !== '';
+      if (isOpen) {
+        if (body.style.height === 'auto') {
+          body.style.height = body.scrollHeight + 'px';
+          body.getBoundingClientRect();
+        }
+        body.style.height = '0px';
+        if (btn) btn.textContent = '▼';
+      } else {
+        body.style.height = body.scrollHeight + 'px';
+        if (btn) btn.textContent = '▲';
+        setTimeout(() => { if (body.style.height !== '0px') body.style.height = 'auto'; }, 300);
+      }
+    }
+
+    /* =============================================
+       FIELD UPDATES
+       ============================================= */
+    function updateStageField(id, field, val) {
+      const s = stages.find(s => s.id == id);
+      if (s) { s[field] = val; scheduleUpdate(); }
+    }
+
+    function updateArrayItem(stageId, field, idx, val) {
+      const s = stages.find(s => s.id == stageId);
+      if (s) { s[field][idx] = val; scheduleUpdate(); }
+    }
+
+    function removeArrayItem(stageId, field, idx) {
+      const s = stages.find(s => s.id == stageId);
+      if (!s) return;
+      s[field].splice(idx, 1);
+      const container = document.getElementById(field === 'discussion' ? 'discussion-' + stageId : 'prompts-' + stageId);
+      container.innerHTML = s[field].map((v, i) =>
+        field === 'discussion' ? discussionItemHTML(stageId, i, v) : promptItemHTML(stageId, i, v)
+      ).join('');
+      scheduleUpdate();
+    }
+
+    function addDiscussionItem(stageId) {
+      const s = stages.find(s => s.id == stageId);
+      if (!s) return;
+      s.discussion.push('');
+      const container = document.getElementById('discussion-' + stageId);
+      const idx = s.discussion.length - 1;
+      container.insertAdjacentHTML('beforeend', discussionItemHTML(stageId, idx, ''));
+      container.lastElementChild.querySelector('input').focus();
+      reheatCard(stageId);
+      scheduleUpdate();
+    }
+
+    function addPromptItem(stageId) {
+      const s = stages.find(s => s.id == stageId);
+      if (!s) return;
+      s.prompts.push('');
+      const container = document.getElementById('prompts-' + stageId);
+      const idx = s.prompts.length - 1;
+      container.insertAdjacentHTML('beforeend', promptItemHTML(stageId, idx, ''));
+      container.lastElementChild.querySelector('input').focus();
+      reheatCard(stageId);
+      scheduleUpdate();
+    }
+
+    function updateQuestionField(stageId, qId, field, val) {
+      const s = stages.find(s => s.id == stageId);
+      if (!s) return;
+      const q = s.questions.find(q => q.id == qId);
+      if (q) { q[field] = val; scheduleUpdate(); }
+    }
+
+    function setQuestionType(stageId, qId, type) {
+      const s = stages.find(s => s.id == stageId);
+      if (!s) return;
+      const q = s.questions.find(q => q.id == qId);
+      if (!q) return;
+      q.type = type;
+      if (type === 'rating') q.quiz = '';
+      const card = document.getElementById('qcard-' + qId);
+      if (card) card.outerHTML = questionCardHTML(stageId, null, q);
+      reheatCard(stageId);
+      scheduleUpdate();
+    }
+
+    function setCorrectAnswer(stageId, qId, ai) {
+      const s = stages.find(s => s.id == stageId);
+      if (!s) return;
+      const q = s.questions.find(q => q.id == qId);
+      if (!q) return;
+      q.quiz = q.answers[ai];
+      const container = document.getElementById('answers-' + qId);
+      if (container) container.innerHTML = q.answers.map((a, i) => answerHTML(stageId, q, i, a)).join('');
+      scheduleUpdate();
+    }
+
+    function addQuestion(stageId) {
+      const s = stages.find(s => s.id == stageId);
+      if (!s) return;
+      const q = makeQuestion();
+      s.questions.push(q);
+      const container = document.getElementById('questions-' + stageId);
+      container.insertAdjacentHTML('beforeend', questionCardHTML(stageId, s.questions.length - 1, q));
+      reheatCard(stageId);
+      scheduleUpdate();
+    }
+
+    function removeQuestion(stageId, qId) {
+      const s = stages.find(s => s.id == stageId);
+      if (!s) return;
+      s.questions = s.questions.filter(q => q.id != qId);
+      const container = document.getElementById('questions-' + stageId);
+      container.innerHTML = s.questions.map((q, i) => questionCardHTML(stageId, i, q)).join('');
+      reheatCard(stageId);
+      scheduleUpdate();
+    }
+
+    function updateAnswer(stageId, qId, ai, val) {
+      const s = stages.find(s => s.id == stageId);
+      if (!s) return;
+      const q = s.questions.find(q => q.id == qId);
+      if (!q) return;
+      const wasCorrect = q.quiz === q.answers[ai];
+      q.answers[ai] = val;
+      if (wasCorrect) q.quiz = val;
+      scheduleUpdate();
+    }
+
+    function addAnswer(stageId, qId) {
+      const s = stages.find(s => s.id == stageId);
+      if (!s) return;
+      const q = s.questions.find(q => q.id == qId);
+      if (!q) return;
+      q.answers.push('');
+      const container = document.getElementById('answers-' + qId);
+      const ai = q.answers.length - 1;
+      container.insertAdjacentHTML('beforeend', answerHTML(stageId, q, ai, ''));
+      container.lastElementChild.querySelector('input').focus();
+      reheatCard(stageId);
+      scheduleUpdate();
+    }
+
+    function removeAnswer(stageId, qId, ai) {
+      const s = stages.find(s => s.id == stageId);
+      if (!s) return;
+      const q = s.questions.find(q => q.id == qId);
+      if (!q) return;
+      if (q.answers.length <= 2) return; // minimum 2 answers
+      if (q.quiz === q.answers[ai]) q.quiz = '';
+      q.answers.splice(ai, 1);
+      const container = document.getElementById('answers-' + qId);
+      container.innerHTML = q.answers.map((a, i) => answerHTML(stageId, q, i, a)).join('');
+      reheatCard(stageId);
+      scheduleUpdate();
+    }
+
+    // Re-measure card height after DOM mutations
+    function reheatCard(stageId) {
+      const body = document.getElementById('stage-body-' + stageId);
+      if (!body || body.style.height === '0px') return;
+      body.style.height = 'auto';
+    }
+
+    /* =============================================
+       TTXF GENERATION
+       ============================================= */
+    function buildTTXF() {
+      const title = document.getElementById('f-title').value.trim();
+      const author = document.getElementById('f-author').value.trim();
+      const summary = document.getElementById('f-summary').value.trim();
+      const conclusion = document.getElementById('f-conclusion').value.trim();
+
+      let lines = [];
+      if (title) lines.push('! title: ' + title);
+      if (author) lines.push('! author: ' + author);
+      if (summary) {
+        if (summary.includes('\n')) {
+          lines.push('! summary'); lines.push(summary); lines.push('');
+        } else {
+          lines.push('! summary: ' + summary);
+        }
+      }
+      if (conclusion) {
+        if (conclusion.includes('\n')) {
+          lines.push('! conclusion'); lines.push(conclusion); lines.push('');
+        } else {
+          lines.push('! conclusion: ' + conclusion);
+        }
+      }
+
+      stages.forEach(s => {
+        lines.push('');
+        lines.push('@ ' + (s.title || 'Untitled Stage'));
+        if (s.content.trim()) {
+          if (s.content.includes('\n')) {
+            lines.push('! content');
+            lines.push(s.content.trim());
+            lines.push('');
+          } else {
+            lines.push('! content: ' + s.content.trim());
+          }
+        }
+        if (s.discussion.filter(d => d.trim()).length) {
+          lines.push('# discussion');
+          s.discussion.filter(d => d.trim()).forEach(d => lines.push('+ ' + d));
+        }
+        if (s.prompts.filter(p => p.trim()).length) {
+          lines.push('# prompts');
+          s.prompts.filter(p => p.trim()).forEach(p => lines.push('+ ' + p));
+        }
+        s.questions.forEach(q => {
+          if (!q.text.trim() && !q.answers.filter(a => a.trim()).length) return;
+          lines.push('? ' + (q.text || 'Question'));
+          q.answers.forEach(a => {
+            if (!a.trim()) return;
+            lines.push((q.type === 'quiz' && q.quiz === a ? '++ ' : '+ ') + a);
+          });
         });
+      });
 
-        function toggleStage(stageId) {
-            const content = document.getElementById(`content-${stageId}`);
-            const toggle = document.getElementById(`toggle-${stageId}`);
+      return lines.join('\n');
+    }
 
-            if (content.classList.contains('expanded')) {
-                // Currently expanded, so collapse it
-                content.classList.remove('expanded');
-                toggle.textContent = '▼'; // Show down arrow when collapsed
-                toggle.classList.remove('expanded');
-            } else {
-                // Currently collapsed, so expand it
-                content.classList.add('expanded');
-                toggle.textContent = '▲'; // Show up arrow when expanded
-                toggle.classList.add('expanded');
+    /* =============================================
+       PREVIEW UPDATE
+       ============================================= */
+    function scheduleUpdate() {
+      clearTimeout(updateTimer);
+      updateTimer = setTimeout(updatePreviews, 120);
+    }
+
+    function updatePreviews() {
+      const ttxf = buildTTXF();
+      const title = document.getElementById('f-title').value.trim();
+      document.getElementById('preview-filename').textContent = (title || 'untitled').toLowerCase().replace(/\s+/g, '-') + '.ttxf';
+      document.getElementById('ttxf-output').innerHTML = syntaxHighlight(ttxf);
+      buildVisualPreview();
+    }
+
+    function syntaxHighlight(text) {
+      return text.split('\n').map(line => {
+        const t = line.trim();
+        if (t.startsWith('//')) return `<span class="ttxf-comment">${escH(line)}</span>`;
+        if (t.startsWith('! ')) return `<span class="ttxf-directive">${escH(line)}</span>`;
+        if (t.startsWith('@ ')) return `<span class="ttxf-stage">${escH(line)}</span>`;
+        if (t.startsWith('# ')) return `<span class="ttxf-array">${escH(line)}</span>`;
+        if (t.startsWith('++ ')) return `<span class="ttxf-correct">${escH(line)}</span>`;
+        if (t.startsWith('+ ')) return `<span class="ttxf-item">${escH(line)}</span>`;
+        if (t.startsWith('? ')) return `<span class="ttxf-question">${escH(line)}</span>`;
+        return `<span class="ttxf-item">${escH(line)}</span>`;
+      }).join('\n');
+    }
+
+    function buildVisualPreview() {
+      const out = document.getElementById('visual-output');
+      if (!stages.length) {
+        out.innerHTML = `<div class="empty-state">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M320-400h80v-80q0-17 11.5-28.5T440-520h80v80l120-120-120-120v80h-80q-50 0-85 35t-35 85v80ZM160-240q-33 0-56.5-23.5T80-320v-440q0-33 23.5-56.5T160-840h640q33 0 56.5 23.5T880-760v440q0 33-23.5 56.5T800-240H240L80-80Zm0-80h640v-440H160v440Z"/></svg>
+      <p>Add stages to see a visual preview</p>
+    </div>`;
+        return;
+      }
+
+      const chatIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M240-400h320v-80H240v80Zm0-120h480v-80H240v80Zm0-120h480v-80H240v80ZM80-80v-720q0-33 23.5-56.5T160-880h640q33 0 56.5 23.5T880-800v480q0 33-23.5 56.5T800-240H240L80-80Zm126-240h594v-480H160v525l46-45Zm-46 0v-480 480Z"/></svg>`;
+      const promptIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M480-360q17 0 28.5-11.5T520-400q0-17-11.5-28.5T480-440q-17 0-28.5 11.5T440-400q0 17 11.5 28.5T480-360Zm-40-160h80v-240h-80v240ZM80-80v-720q0-33 23.5-56.5T160-880h640q33 0 56.5 23.5T880-800v480q0 33-23.5 56.5T800-240H240L80-80Zm126-240h594v-480H160v525l46-45Zm-46 0v-480 480Z"/></svg>`;
+
+      out.innerHTML = stages.map((s, i) => {
+        const hasDiscussion = s.discussion.filter(d => d.trim()).length > 0;
+        const hasPrompts = s.prompts.filter(p => p.trim()).length > 0;
+        const hasQuestions = s.questions.filter(q => q.text.trim()).length > 0;
+
+        return `
+    <div class="preview-stage">
+      <div class="preview-stage-header">
+        <span class="preview-stage-num">Stage ${i + 1}</span>
+        <span class="preview-stage-title">${escH(s.title || 'Untitled Stage')}</span>
+      </div>
+      <div class="preview-stage-body">
+        ${s.content.trim() ? `<div style="font-size:12.5px;color:var(--text-secondary);line-height:1.7;margin-bottom:0.5rem;padding:0 0.25rem">${escH(s.content)}</div>` : ''}
+        ${hasDiscussion ? `
+          <div class="preview-talk">
+            <div class="preview-talk-icon">${chatIcon}</div>
+            <ul>${s.discussion.filter(d => d.trim()).map(d => `<li>${escH(d)}</li>`).join('')}</ul>
+          </div>` : ''}
+        ${hasPrompts ? `
+          <div class="preview-prompt">
+            <div class="preview-prompt-icon">${promptIcon}</div>
+            <ul>${s.prompts.filter(p => p.trim()).map(p => `<li>${escH(p)}</li>`).join('')}</ul>
+          </div>` : ''}
+        ${hasQuestions ? s.questions.filter(q => q.text.trim()).map(q => `
+          <div class="preview-question ${q.type === 'quiz' ? 'quiz-q' : ''}">
+            <div class="preview-q-text">${escH(q.text)}</div>
+            <div class="preview-answers">
+              ${q.answers.filter(a => a.trim()).map(a =>
+          `<span class="preview-answer ${q.type === 'quiz' && q.quiz === a ? 'correct' : ''}">${escH(a)}</span>`
+        ).join('')}
+            </div>
+          </div>
+        `).join('') : ''}
+      </div>
+    </div>`;
+      }).join('');
+    }
+
+    /* =============================================
+       TABS
+       ============================================= */
+    function switchTab(btn) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.preview-pane').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.tab).classList.add('active');
+      if (btn.dataset.tab === 'pane-visual') buildVisualPreview();
+    }
+
+    /* =============================================
+       IMPORT / EXPORT
+       ============================================= */
+    function openImportModal() { document.getElementById('import-modal').classList.add('open'); }
+    function closeImportModal() {
+      document.getElementById('import-modal').classList.remove('open');
+      document.getElementById('import-status').textContent = '';
+      document.getElementById('import-confirm-btn').disabled = true;
+      document.getElementById('import-confirm-btn').style.opacity = '0.5';
+      pendingImportData = null;
+    }
+
+    function handleModalBackdropClick(e) { if (e.target === document.getElementById('import-modal')) closeImportModal(); }
+
+    function handleDragOver(e) { e.preventDefault(); document.getElementById('drop-zone').classList.add('dragover'); }
+    function handleDragLeave() { document.getElementById('drop-zone').classList.remove('dragover'); }
+
+    function handleDrop(e) {
+      e.preventDefault();
+      document.getElementById('drop-zone').classList.remove('dragover');
+      const file = e.dataTransfer.files[0];
+      if (file) readImportFile(file);
+    }
+
+    function handleImportFile(e) {
+      const file = e.target.files[0];
+      if (file) readImportFile(file);
+    }
+
+    function readImportFile(file) {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        pendingImportData = e.target.result;
+        document.getElementById('import-status').textContent = '✓ Ready to import: ' + file.name;
+        document.getElementById('import-status').style.color = 'var(--green)';
+        document.getElementById('import-confirm-btn').disabled = false;
+        document.getElementById('import-confirm-btn').style.opacity = '1';
+      };
+      reader.readAsText(file);
+    }
+
+    function confirmImport() {
+      if (!pendingImportData) return;
+      parseTTXF(pendingImportData);
+      closeImportModal();
+    }
+
+    function parseTTXF(text) {
+      const lines = text.split(/\r?\n/);
+      stages = [];
+      document.getElementById('f-title').value = '';
+      document.getElementById('f-author').value = '';
+      document.getElementById('f-summary').value = '';
+      document.getElementById('f-conclusion').value = '';
+
+      let currentStage = null, currentArray = null, currentQuestion = null;
+      let multiKey = null, multiVal = '';
+
+      function flushMulti(target) {
+        if (!multiKey || !target) return;
+        target[multiKey] = multiVal.trim();
+        multiKey = null; multiVal = '';
+      }
+
+      lines.forEach(line => {
+        const t = line.trim();
+        if (t.startsWith('//')) return;
+
+        const isDirective = t.startsWith('! ') || t.startsWith('@ ') || t.startsWith('# ') ||
+          t.startsWith('+ ') || t.startsWith('++ ') || t.startsWith('? ');
+
+        if (multiKey && (isDirective || t === '')) {
+          flushMulti(currentStage || {
+            set: (k, v) => {
+              if (k === 'title') document.getElementById('f-title').value = v;
+              else if (k === 'author') document.getElementById('f-author').value = v;
+              else if (k === 'summary') document.getElementById('f-summary').value = v;
+              else if (k === 'conclusion') document.getElementById('f-conclusion').value = v;
             }
+          });
+          if (multiKey === null && !currentStage) { /* already flushed to inputs above */ }
         }
 
-        function updateStageTitle(stageId) {
-            const titleInput = document.getElementById(`stage-title-${stageId}`);
-            const displayTitle = document.getElementById(`stage-display-title-${stageId}`);
-
-            if (titleInput.value.trim()) {
-                displayTitle.textContent = titleInput.value;
-            } else {
-                displayTitle.textContent = 'New Stage';
-            }
+        if (t.startsWith('! ')) {
+          const rest = t.slice(2);
+          const ci = rest.indexOf(':');
+          if (ci > -1) {
+            const k = rest.slice(0, ci).trim();
+            const v = rest.slice(ci + 1).trim();
+            if (!currentStage) {
+              if (k === 'title') document.getElementById('f-title').value = v;
+              else if (k === 'author') document.getElementById('f-author').value = v;
+              else if (k === 'summary') document.getElementById('f-summary').value = v;
+              else if (k === 'conclusion') document.getElementById('f-conclusion').value = v;
+              else if (currentStage) currentStage[k] = v;
+            } else { currentStage[k] = v; }
+          } else {
+            multiKey = rest.trim(); multiVal = '';
+          }
+          currentArray = null; currentQuestion = null;
+        } else if (t.startsWith('@ ')) {
+          flushMulti(currentStage);
+          currentStage = makeStage();
+          currentStage.title = t.slice(2).trim();
+          currentStage.id = nextId();
+          stages.push(currentStage);
+          currentArray = null; currentQuestion = null;
+        } else if (t.startsWith('# ')) {
+          currentArray = t.slice(2).trim();
+          currentQuestion = null;
+        } else if (t.startsWith('? ')) {
+          currentQuestion = makeQuestion();
+          currentQuestion.text = t.slice(2).trim();
+          if (currentStage) currentStage.questions.push(currentQuestion);
+          currentArray = null;
+        } else if (t.startsWith('++ ') && currentQuestion) {
+          const v = t.slice(3).trim();
+          currentQuestion.answers.push(v);
+          currentQuestion.quiz = v;
+          currentQuestion.type = 'quiz';
+        } else if (t.startsWith('+ ')) {
+          const v = t.slice(2).trim();
+          if (currentQuestion) {
+            currentQuestion.answers.push(v);
+          } else if (currentArray && currentStage) {
+            if (!currentStage[currentArray]) currentStage[currentArray] = [];
+            currentStage[currentArray].push(v);
+          }
+        } else if (multiKey) {
+          multiVal += (multiVal ? '\n' : '') + line;
         }
-
-        let selectedFile = null;
-
-        function importFromFile() {
-            document.getElementById('import-modal').style.display = 'block';
-            setupDragAndDrop();
-        }
-
-        function closeImportModal() {
-            document.getElementById('import-modal').style.display = 'none';
-            selectedFile = null;
-            document.getElementById('file-input').value = '';
-            document.getElementById('file-info').style.display = 'none';
-            document.getElementById('import-bttn').disabled = true;
-        }
-
-        function setupDragAndDrop() {
-            const dropArea = document.getElementById('file-drop-area');
-
-            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                dropArea.addEventListener(eventName, preventDefaults, false);
-            });
-
-            function preventDefaults(e) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
-
-            ['dragenter', 'dragover'].forEach(eventName => {
-                dropArea.addEventListener(eventName, highlight, false);
-            });
-
-            ['dragleave', 'drop'].forEach(eventName => {
-                dropArea.addEventListener(eventName, unhighlight, false);
-            });
-
-            function highlight(e) {
-                dropArea.classList.add('dragover');
-            }
-
-            function unhighlight(e) {
-                dropArea.classList.remove('dragover');
-            }
-
-            dropArea.addEventListener('drop', handleDrop, false);
-
-            function handleDrop(e) {
-                const dt = e.dataTransfer;
-                const files = dt.files;
-
-                if (files.length > 0) {
-                    handleFileSelection(files[0]);
-                }
-            }
-        }
-
-        function handleFileSelect(event) {
-            const file = event.target.files[0];
-            if (file) {
-                handleFileSelection(file);
-            }
-        }
-
-        function handleFileSelection(file) {
-            // Validate file type
-            const validExtensions = ['.ttxf', '.txt', '.md'];
-            const fileName = file.name.toLowerCase();
-            const isValidFile = validExtensions.some(ext => fileName.endsWith(ext));
-
-            if (!isValidFile) {
-                alert('Please select a valid file (.ttxf, .txt, or .md)');
-                return;
-            }
-
-            // Validate file size (max 1MB)
-            if (file.size > 1024 * 1024) {
-                alert('File size must be less than 1MB');
-                return;
-            }
-
-            selectedFile = file;
-
-            // Show file info
-            const fileInfo = document.getElementById('file-info');
-            fileInfo.innerHTML = `
-                <strong>Selected:</strong> ${file.name}<br>
-                <strong>Size:</strong> ${(file.size / 1024).toFixed(1)} KB<br>
-                <strong>Type:</strong> ${file.type || 'text/plain'}
-            `;
-            fileInfo.style.display = 'block';
-
-            // Enable import button
-            document.getElementById('import-bttn').disabled = false;
-        }
-
-        function processFileImport() {
-            if (!selectedFile) {
-                alert('Please select a file first.');
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                try {
-                    const markdownText = e.target.result.trim();
-                    if (!markdownText) {
-                        alert('The file appears to be empty.');
-                        return;
-                    }
-
-                    parseAndRebuild(markdownText);
-                    closeImportModal();
-                } catch (error) {
-                    alert('Error parsing file: ' + error.message);
-                }
-            };
-
-            reader.onerror = function () {
-                alert('Error reading file. Please try again.');
-            };
-
-            reader.readAsText(selectedFile);
-        }
-
-        function processImport() {
-            const markdownText = document.getElementById('import-textarea').value.trim();
-            if (!markdownText) {
-                alert('Please paste some markdown to import.');
-                return;
-            }
-
-            try {
-                parseAndRebuild(markdownText);
-                closeImportModal();
-                alert('Markdown imported successfully!');
-            } catch (error) {
-                alert('Error parsing markdown: ' + error.message + '(line ' + error.lineNumber + ')');
-            }
-        }
-
-        function parseAndRebuild(markdown) {
-            // Clear existing content
-            clearAll();
-
-            const lines = markdown.split('\n');
-            let currentStage = null;
-            let currentElement = null;
-            let multiLineValue = '';
-            let isMultiLine = false;
-            let multiLineKey = '';
-
-            for (let i = 0; i < lines.length; i++) {
-                const line = lines[i];
-
-                // Handle multi-line values
-                if (isMultiLine) {
-                    if (line.startsWith('!') || line.startsWith('@') || line.startsWith('?') || line.startsWith('#') || i === lines.length - 1) {
-                        // End of multi-line, process the accumulated value
-                        if (i === lines.length - 1 && !line.startsWith('!') && !line.startsWith('@') && !line.startsWith('?') && !line.startsWith('#')) {
-                            multiLineValue += (multiLineValue ? '\n' : '') + line;
-                        }
-
-                        if (multiLineKey === 'summary') {
-                            document.getElementById('summary').value = multiLineValue.trim();
-                        } else if (multiLineKey === 'content' && currentStage) {
-                            document.getElementById(`stage-content-${currentStage}`).value = multiLineValue.trim();
-                        }
-
-                        isMultiLine = false;
-                        multiLineValue = '';
-                        multiLineKey = '';
-
-                        // Don't skip this line, process it normally
-                        if (line.startsWith('!') || line.startsWith('@') || line.startsWith('?') || line.startsWith('#')) {
-                            i--; // Reprocess this line
-                            continue;
-                        }
-                    } else {
-                        multiLineValue += (multiLineValue ? '\n' : '') + line;
-                        continue;
-                    }
-                }
-
-                // Skip empty lines
-                if (!line.trim()) continue;
-
-                // Handle key-value pairs
-                if (line.startsWith('!')) {
-                    const colonIndex = line.indexOf(':');
-                    if (colonIndex > 1) {
-                        // Single line key-value
-                        const key = line.substring(1, colonIndex).trim();
-                        const value = line.substring(colonIndex + 1).trim();
-
-                        if (key === 'title') {
-                            document.getElementById('title').value = value;
-                        } else if (key === 'author') {
-                            document.getElementById('author').value = value;
-                        }
-                    } else {
-                        // Multi-line key
-                        const key = line.substring(1).trim();
-                        if (key === 'summary' || key === 'content') {
-                            isMultiLine = true;
-                            multiLineKey = key;
-                            multiLineValue = '';
-                        }
-                    }
-                }
-
-                // Handle stages
-                else if (line.startsWith('@')) {
-                    // First, finalize any pending question from previous stage
-                    if (currentElement && currentElement.type === 'question' && currentElement.options.length > 0) {
-                        finalizeQuestion(currentStage, currentElement);
-                        currentElement = null;
-                    }
-
-                    const stageTitle = line.substring(1).trim();
-                    addStage();
-                    currentStage = stageCounter;
-
-                    document.getElementById(`stage-title-${currentStage}`).value = stageTitle;
-                    updateStageTitle(currentStage);
-                }
-
-                // Handle questions
-                else if (line.startsWith('?')) {
-                    if (!currentStage) continue;
-
-                    // Finalize any previous question before starting a new one
-                    if (currentElement && currentElement.type === 'question' && currentElement.options.length > 0) {
-                        finalizeQuestion(currentStage, currentElement);
-                    }
-
-                    const question = line.substring(1).trim();
-                    // We'll determine if it's single-answer based on whether we find '++' options
-                    const tempElement = {
-                        type: 'question',
-                        question: question,
-                        options: [],
-                        hasCorrectAnswer: false
-                    };
-                    currentElement = tempElement;
-                }
-
-                // Handle options, prompts, discussions
-                else if (line.startsWith('++')) {
-                    const item = line.substring(2).trim();
-
-                    if (currentElement && currentElement.type === 'question') {
-                        currentElement.options.push({ text: item, correct: true });
-                        currentElement.hasCorrectAnswer = true;
-                    }
-                }
-                else if (line.startsWith('+')) {
-                    const item = line.substring(1).trim();
-
-                    if (currentElement && currentElement.type === 'question') {
-                        currentElement.options.push({ text: item, correct: false });
-                    } else if (currentElement && currentElement.type === 'prompts') {
-                        currentElement.items.push(item);
-                        updatePromptsWithItems(currentElement.id, currentElement.items);
-                    } else if (currentElement && currentElement.type === 'discussion') {
-                        currentElement.items.push(item);
-                        updateDiscussionWithItems(currentElement.id, currentElement.items);
-                    }
-                }
-
-                // Handle section headers
-                else if (line.startsWith('#')) {
-                    if (!currentStage) continue;
-
-                    // First, finalize any pending question
-                    if (currentElement && currentElement.type === 'question' && currentElement.options.length > 0) {
-                        finalizeQuestion(currentStage, currentElement);
-                        currentElement = null;
-                    }
-
-                    const section = line.substring(1).trim();
-                    if (section === 'prompts') {
-                        addElement(currentStage, 'prompt');
-                        currentElement = {
-                            type: 'prompts',
-                            id: elementCounter,
-                            items: []
-                        };
-                    } else if (section === 'discussion') {
-                        addElement(currentStage, 'discussion');
-                        currentElement = {
-                            type: 'discussion',
-                            id: elementCounter,
-                            items: []
-                        };
-                    }
-                }
-            }
-
-            // Finalize any remaining question at the end
-            if (currentElement && currentElement.type === 'question' && currentElement.options.length > 0) {
-                finalizeQuestion(currentStage, currentElement);
-            }
-
-            updatePreview();
-        }
-
-        function finalizeQuestion(stageId, questionElement) {
-            const questionType = questionElement.hasCorrectAnswer ? 'single-answer' : 'question';
-            addElement(stageId, questionType);
-
-            document.getElementById(`question-${elementCounter}`).value = questionElement.question;
-
-            if (questionType === 'single-answer') {
-                updateSingleAnswerWithOptions(elementCounter, questionElement.options);
-            } else {
-                updateQuestionWithOptions(elementCounter, questionElement.options.map(opt => opt.text));
-            }
-        }
-
-        function updateSingleAnswerWithOptions(elementId, options) {
-            const select = document.getElementById(`options-count-${elementId}`);
-            select.value = options.length;
-            updateSingleAnswerOptions(elementId);
-
-            const optionsContainer = document.getElementById(`options-${elementId}`);
-            const optionItems = optionsContainer.querySelectorAll('.option-item');
-
-            options.forEach((option, index) => {
-                if (optionItems[index]) {
-                    const input = optionItems[index].querySelector('input[type="text"]');
-                    const radio = optionItems[index].querySelector('.correct-answer-radio');
-
-                    if (input) input.value = option.text;
-                    if (radio) radio.checked = option.correct;
-                }
-            });
-        }
-
-        function clearAll() {
-            // Clear basic fields
-            document.getElementById('title').value = '';
-            document.getElementById('author').value = '';
-            document.getElementById('summary').value = '';
-
-            // Remove all stages except keep the container
-            const stagesContainer = document.getElementById('stages-container');
-            stagesContainer.innerHTML = '';
-
-            // Reset counters
-            stageCounter = 0;
-            elementCounter = 0;
-        }
-
-        function updateQuestionWithOptions(elementId, options) {
-            const select = document.getElementById(`options-count-${elementId}`);
-            select.value = options.length;
-            updateQuestionOptions(elementId);
-
-            const optionsContainer = document.getElementById(`options-${elementId}`);
-            const inputs = optionsContainer.querySelectorAll('input[type="text"]');
-            options.forEach((option, index) => {
-                if (inputs[index]) {
-                    inputs[index].value = option;
-                }
-            });
-        }
-
-        function updatePromptsWithItems(elementId, items) {
-            const select = document.getElementById(`prompts-count-${elementId}`);
-            select.value = Math.max(items.length, 1);
-            updatePromptItems(elementId);
-
-            const container = document.getElementById(`prompts-${elementId}`);
-            const inputs = container.querySelectorAll('input');
-            items.forEach((item, index) => {
-                if (inputs[index]) {
-                    inputs[index].value = item;
-                }
-            });
-        }
-
-        function updateDiscussionWithItems(elementId, items) {
-            const select = document.getElementById(`discussion-count-${elementId}`);
-            select.value = Math.max(items.length, 1);
-            updateDiscussionItems(elementId);
-
-            const container = document.getElementById(`discussion-${elementId}`);
-            const inputs = container.querySelectorAll('input');
-            items.forEach((item, index) => {
-                if (inputs[index]) {
-                    inputs[index].value = item;
-                }
-            });
-        }
-
-        function addStage() {
-            stageCounter++;
-            const stagesContainer = document.getElementById('stages-container');
-
-            const stageDiv = document.createElement('div');
-            stageDiv.className = 'stage';
-            stageDiv.id = `stage-${stageCounter}`;
-
-            stageDiv.innerHTML = `
-                <div class="stage-header" onclick="toggleStage(${stageCounter})">
-                    <div class="stage-title">
-                        <span class="stage-toggle" id="toggle-${stageCounter}">▼</span>
-                        <span id="stage-display-title-${stageCounter}">New Stage</span>
-                    </div>
-                    <div class="stage-controls" onclick="event.stopPropagation()">
-                        <button class="bttn bttn-small bttn-secondary" onclick="moveStageUp(${stageCounter})">↑</button>
-                        <button class="bttn bttn-small bttn-secondary" onclick="moveStageDown(${stageCounter})">↓</button>
-                        <button class="bttn bttn-small bttn-danger" onclick="removeStage(${stageCounter})">Remove</button>
-                    </div>
-                </div>
-                
-                <div class="stage-content" id="content-${stageCounter}">
-                    <div class="form-group">
-                        <label>Stage Title</label>
-                        <input type="text" id="stage-title-${stageCounter}" placeholder="Enter stage title" oninput="updateStageTitle(${stageCounter}); updatePreview()">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Stage Content</label>
-                        <textarea id="stage-content-${stageCounter}" placeholder="Enter stage content. Use **bold**, *italics*, %(image-url), ~ for quotes, - for bullets, 1. for numbered lists" oninput="updatePreview()"></textarea>
-                    </div>
-                    
-                    <div id="elements-${stageCounter}"></div>
-
-                    <div class="element-pills">
-                        <button class="element-pill" onclick="addElement(${stageCounter}, 'question')">+ Rating Question</button>
-                        <button class="element-pill" onclick="addElement(${stageCounter}, 'single-answer')">+ Quiz Question</button>
-                        <button class="element-pill" onclick="addElement(${stageCounter}, 'prompt')" id="prompt-pill-${stageCounter}">+ Facilitator Prompts</button>
-                        <button class="element-pill" onclick="addElement(${stageCounter}, 'discussion')" id="discussion-pill-${stageCounter}">+ Discussion Points</button>
-                    </div>
-                </div>
-            `;
-
-            stagesContainer.appendChild(stageDiv);
-            updatePreview();
-        }
-
-        function removeStage(stageId) {
-            const stage = document.getElementById(`stage-${stageId}`);
-            stage.remove();
-            updatePreview();
-        }
-
-        function moveStageUp(stageId) {
-            const stage = document.getElementById(`stage-${stageId}`);
-            const previousStage = stage.previousElementSibling;
-            if (previousStage) {
-                stage.parentNode.insertBefore(stage, previousStage);
-                updatePreview();
-            }
-        }
-
-        function moveStageDown(stageId) {
-            const stage = document.getElementById(`stage-${stageId}`);
-            const nextStage = stage.nextElementSibling;
-            if (nextStage) {
-                stage.parentNode.insertBefore(nextStage, stage);
-                updatePreview();
-            }
-        }
-
-
-
-        function addElement(stageId, type) {
-            // Check if prompt or discussion already exists for this stage
-            if (type === 'prompt') {
-                const existingPrompt = document.querySelector(`#elements-${stageId} .element:has(#prompts-count-${stageId})`);
-                if (document.querySelector(`#elements-${stageId} [id*="prompts-count"]`)) {
-                    alert('Only one Facilitator Prompts list is allowed per stage.');
-                    return;
-                }
-            }
-
-            if (type === 'discussion') {
-                if (document.querySelector(`#elements-${stageId} [id*="discussion-count"]`)) {
-                    alert('Only one Discussion Points list is allowed per stage.');
-                    return;
-                }
-            }
-
-            elementCounter++;
-            const elementsContainer = document.getElementById(`elements-${stageId}`);
-
-            const elementDiv = document.createElement('div');
-            elementDiv.className = 'element';
-            elementDiv.id = `element-${elementCounter}`;
-            elementDiv.setAttribute('data-stage', stageId);
-            elementDiv.setAttribute('data-type', type);
-
-            let elementContent = '';
-
-            if (type === 'question') {
-                elementContent = `
-                    <div class="element-header">
-                        <div class="element-type">Rating Question</div>
-                        <button class="bttn bttn-small bttn-danger" onclick="removeElement(${elementCounter})">Remove</button>
-                    </div>
-                    <div class="form-group">
-                        <label>Question</label>
-                        <input type="text" id="question-${elementCounter}" placeholder="Enter your question" oninput="updatePreview()">
-                    </div>
-                    <div class="form-group">
-                        <label>Number of Options</label>
-                        <select id="options-count-${elementCounter}" onchange="updateQuestionOptions(${elementCounter})" oninput="updatePreview()">
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                            <option value="4">4</option>
-                            <option value="5" selected>5</option>
-                            <option value="6">6</option>
-                        </select>
-                    </div>
-                    <div id="options-${elementCounter}"></div>
-                `;
-            } else if (type === 'single-answer') {
-                elementContent = `
-                    <div class="element-header">
-                        <div class="element-type">Quiz Question</div>
-                        <button class="bttn bttn-small bttn-danger" onclick="removeElement(${elementCounter})">Remove</button>
-                    </div>
-                    <div class="form-group">
-                        <label>Question</label>
-                        <input type="text" id="question-${elementCounter}" placeholder="Enter your question" oninput="updatePreview()">
-                    </div>
-                    <div class="form-group">
-                        <label>Number of Options</label>
-                        <select id="options-count-${elementCounter}" onchange="updateSingleAnswerOptions(${elementCounter})" oninput="updatePreview()">
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                            <option value="4" selected>4</option>
-                            <option value="5">5</option>
-                            <option value="6">6</option>
-                        </select>
-                    </div>
-                    <div id="options-${elementCounter}"></div>
-                `;
-            } else if (type === 'prompt') {
-                elementContent = `
-                    <div class="element-header">
-                        <div class="element-type">Facilitator Prompts</div>
-                        <button class="bttn bttn-small bttn-danger" onclick="removeElement(${elementCounter})">Remove</button>
-                    </div>
-                    <div class="form-group">
-                        <label>Number of Prompts</label>
-                        <select id="prompts-count-${elementCounter}" onchange="updatePromptItems(${elementCounter})" oninput="updatePreview()">
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3" selected>3</option>
-                            <option value="4">4</option>
-                            <option value="5">5</option>
-                        </select>
-                    </div>
-                    <div id="prompts-${elementCounter}"></div>
-                `;
-            } else if (type === 'discussion') {
-                elementContent = `
-                    <div class="element-header">
-                        <div class="element-type">Discussion Points</div>
-                        <button class="bttn bttn-small bttn-danger" onclick="removeElement(${elementCounter})">Remove</button>
-                    </div>
-                    <div class="form-group">
-                        <label>Number of Discussion Points</label>
-                        <select id="discussion-count-${elementCounter}" onchange="updateDiscussionItems(${elementCounter})" oninput="updatePreview()">
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3" selected>3</option>
-                            <option value="4">4</option>
-                            <option value="5">5</option>
-                        </select>
-                    </div>
-                    <div id="discussion-${elementCounter}"></div>
-                `;
-            }
-
-            elementDiv.innerHTML = elementContent;
-            elementsContainer.appendChild(elementDiv);
-
-            // Initialize options/prompts based on type
-            if (type === 'question') {
-                updateQuestionOptions(elementCounter);
-            } else if (type === 'single-answer') {
-                updateSingleAnswerOptions(elementCounter);
-            } else if (type === 'prompt') {
-                updatePromptItems(elementCounter);
-                // Disable the prompt pill
-                const promptPill = document.getElementById(`prompt-pill-${stageId}`);
-                if (promptPill) promptPill.disabled = true;
-            } else if (type === 'discussion') {
-                updateDiscussionItems(elementCounter);
-                // Disable the discussion pill
-                const discussionPill = document.getElementById(`discussion-pill-${stageId}`);
-                if (discussionPill) discussionPill.disabled = true;
-            }
-
-            updatePreview();
-        }
-
-        function removeElement(elementId) {
-            const element = document.getElementById(`element-${elementId}`);
-            const stageId = element.getAttribute('data-stage');
-            const type = element.getAttribute('data-type');
-
-            element.remove();
-
-            // Re-enable the pill if we removed a prompt or discussion
-            if (type === 'prompt') {
-                const promptPill = document.getElementById(`prompt-pill-${stageId}`);
-                if (promptPill) promptPill.disabled = false;
-            } else if (type === 'discussion') {
-                const discussionPill = document.getElementById(`discussion-pill-${stageId}`);
-                if (discussionPill) discussionPill.disabled = false;
-            }
-
-            updatePreview();
-        }
-
-        function updateSingleAnswerOptions(elementId) {
-            const count = parseInt(document.getElementById(`options-count-${elementId}`).value);
-            const optionsContainer = document.getElementById(`options-${elementId}`);
-
-            optionsContainer.innerHTML = '';
-
-            for (let i = 1; i <= count; i++) {
-                const optionDiv = document.createElement('div');
-                optionDiv.className = 'option-item';
-                const isFirst = i === 1;
-                optionDiv.innerHTML = `
-                    <input type="text" placeholder="Option ${i}" oninput="updatePreview()">
-                    <input type="radio" name="correct-answer-${elementId}" class="correct-answer-radio" ${isFirst ? 'checked' : ''} onchange="updatePreview()">
-                    <label class="correct-answer-label">Correct Answer</label>
-                `;
-                optionsContainer.appendChild(optionDiv);
-            }
-            updatePreview();
-        }
-
-
-
-        function updateQuestionOptions(elementId) {
-            const count = parseInt(document.getElementById(`options-count-${elementId}`).value);
-            const optionsContainer = document.getElementById(`options-${elementId}`);
-
-            optionsContainer.innerHTML = '';
-
-            // Default confidence rating options for 5 options
-            const defaultOptions = [
-                "Not at all confident",
-                "Slightly confident",
-                "Somewhat confident",
-                "Fairly confident",
-                "Completely confident"
-            ];
-
-            for (let i = 1; i <= count; i++) {
-                const optionDiv = document.createElement('div');
-                optionDiv.className = 'option-item';
-
-                // Use default option if available, otherwise use placeholder
-                const defaultValue = (count === 5 && i <= defaultOptions.length) ? defaultOptions[i - 1] : '';
-                const placeholder = defaultValue || `Option ${i}`;
-
-                optionDiv.innerHTML = `
-                    <input type="text" placeholder="${placeholder}" value="${defaultValue}" oninput="updatePreview()">
-                `;
-                optionsContainer.appendChild(optionDiv);
-            }
-            updatePreview();
-        }
-
-        function updatePromptItems(elementId) {
-            const count = parseInt(document.getElementById(`prompts-count-${elementId}`).value);
-            const promptsContainer = document.getElementById(`prompts-${elementId}`);
-
-            promptsContainer.innerHTML = '';
-
-            for (let i = 1; i <= count; i++) {
-                const promptDiv = document.createElement('div');
-                promptDiv.className = 'prompt-item';
-                promptDiv.innerHTML = `
-                    <input type="text" placeholder="Facilitator prompt ${i}" oninput="updatePreview()">
-                `;
-                promptsContainer.appendChild(promptDiv);
-            }
-            updatePreview();
-        }
-
-        function updateDiscussionItems(elementId) {
-            const count = parseInt(document.getElementById(`discussion-count-${elementId}`).value);
-            const discussionContainer = document.getElementById(`discussion-${elementId}`);
-
-            discussionContainer.innerHTML = '';
-
-            for (let i = 1; i <= count; i++) {
-                const discussionDiv = document.createElement('div');
-                discussionDiv.className = 'prompt-item';
-                discussionDiv.innerHTML = `
-                    <input type="text" placeholder="Discussion point ${i}" oninput="updatePreview()">
-                `;
-                discussionContainer.appendChild(discussionDiv);
-            }
-            updatePreview();
-        }
-
-        function updatePreview() {
-            let markdown = '';
-
-            // Title and Summary
-            const title = document.getElementById('title').value;
-            const author = document.getElementById('author').value;
-            const summary = document.getElementById('summary').value;
-
-            if (title) {
-                markdown += `! title: ${title}\n`;
-            }
-
-            if (author) {
-                markdown += `! author: ${author}\n`;
-            }
-
-            if (summary) {
-                markdown += `! summary\n${summary}\n\n`;
-            }
-
-            // Stages
-            const stages = document.querySelectorAll('.stage');
-            stages.forEach(stage => {
-                const stageId = stage.id.split('-')[1];
-                const stageTitle = document.getElementById(`stage-title-${stageId}`)?.value;
-                const stageContent = document.getElementById(`stage-content-${stageId}`)?.value;
-
-                if (stageTitle) {
-                    markdown += `@ ${stageTitle}\n`;
-
-                    if (stageContent) {
-                        markdown += `! content\n${stageContent}\n\n`;
-                    }
-
-                    // Process elements in this stage
-                    const elementsContainer = document.getElementById(`elements-${stageId}`);
-                    if (elementsContainer) {
-                        const elements = elementsContainer.children;
-
-                        for (let element of elements) {
-                            const elementId = element.id.split('-')[1];
-
-                            // Check element type and process accordingly
-                            if (element.querySelector(`#question-${elementId}`)) {
-                                // Question element
-                                const question = document.getElementById(`question-${elementId}`)?.value;
-                                if (question) {
-                                    markdown += `? ${question}\n`;
-
-                                    const options = element.querySelectorAll('.option-item');
-                                    options.forEach(optionItem => {
-                                        const input = optionItem.querySelector('input[type="text"]');
-                                        const radio = optionItem.querySelector('.correct-answer-radio');
-
-                                        if (input && input.value) {
-                                            if (radio && radio.checked) {
-                                                // This is a single correct answer question
-                                                markdown += `++ ${input.value}\n`;
-                                            } else {
-                                                // Regular multiple choice or incorrect option
-                                                markdown += `+ ${input.value}\n`;
-                                            }
-                                        }
-                                    });
-                                    markdown += '\n';
-                                }
-                            } else if (element.querySelector(`#prompts-${elementId}`)) {
-                                // Prompts element
-                                const prompts = element.querySelectorAll('.prompt-item input');
-                                let hasPrompts = false;
-
-                                prompts.forEach(prompt => {
-                                    if (prompt.value) {
-                                        if (!hasPrompts) {
-                                            markdown += '# prompts\n';
-                                            hasPrompts = true;
-                                        }
-                                        markdown += `+ ${prompt.value}\n`;
-                                    }
-                                });
-
-                                if (hasPrompts) {
-                                    markdown += '\n';
-                                }
-                            } else if (element.querySelector(`#discussion-${elementId}`)) {
-                                // Discussion element
-                                const discussions = element.querySelectorAll('.prompt-item input');
-                                let hasDiscussions = false;
-
-                                discussions.forEach(discussion => {
-                                    if (discussion.value) {
-                                        if (!hasDiscussions) {
-                                            markdown += '# discussion\n';
-                                            hasDiscussions = true;
-                                        }
-                                        markdown += `+ ${discussion.value}\n`;
-                                    }
-                                });
-
-                                if (hasDiscussions) {
-                                    markdown += '\n';
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-
-            document.getElementById('preview').textContent = markdown;
-        }
-
-        function exportMarkdown() {
-            const markdown = document.getElementById('preview').textContent;
-            const title = document.getElementById('title').value || 'scenario';
-
-            const blob = new Blob([markdown], { type: 'text/markdown' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.ttxf`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
-
-        // Close import modal when clicking outside
-        document.addEventListener('click', function (event) {
-            // Close import modal when clicking outside
-            const modal = document.getElementById('import-modal');
-            if (event.target === modal) {
-                closeImportModal();
-            }
+      });
+
+      // Trim placeholder empty answers from import
+      stages.forEach(s => {
+        s.questions.forEach(q => {
+          q.answers = q.answers.filter(a => a.trim());
+          if (q.answers.length < 2) while (q.answers.length < 2) q.answers.push('');
         });
+      });
 
+      renderAllStages();
+      updatePreviews();
+    }
 
+    function exportTTXF() {
+      const content = buildTTXF();
+      const title = document.getElementById('f-title').value.trim() || 'scenario';
+      const filename = title.toLowerCase().replace(/\s+/g, '-') + '.ttxf';
+      const blob = new Blob([content], { type: 'text/plain' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = filename;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+    }
 
-        function postToNewTab() {
+    function postToNewTab() {
 
-            // Store text in localStorage
-            localStorage.setItem("preview", document.getElementById('preview').textContent);
+      // Store text in localStorage
+      localStorage.setItem("preview", buildTTXF());
 
-            // Open receiver page in a new tab
-            window.open("gym/", "_blank");
+      // Open receiver page in a new tab
+      window.open("gym/", "_blank");
 
-        }
-    </script>
+    }
 
+    /* =============================================
+       UTILS
+       ============================================= */
+    function escH(str) {
+      return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function toggleMobileNav() {
+      // stub for mobile nav
+    }
+
+    /* =============================================
+       INIT
+       ============================================= */
+    updatePreviews();
+  </script>
 </body>
 
 </html>

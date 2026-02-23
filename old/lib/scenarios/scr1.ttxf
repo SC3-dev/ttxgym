@@ -1,0 +1,198 @@
+! title: Supply Chain Ransomware
+! summary
+This scenario explores an incident in which a major supplier integrated with your operations is subject to a ransomware attack.
+The ransomware subsequently spreads to your organisation.
+The commercialisation of Ransomware as a Service (RaaS) by criminals has been a significant factor in the growth of ransomware attacks.
+You should be prepared to respond to a ransomware attack to ensure that you can limit the impact to operations.
+You are encouraged to discuss how you will respond, initially to the supplier incident and then to your incident, and your response to subsequent demands for payment from criminals.
+You can also discuss your approach to cyber insurance, and your communications in response to a leak of sensitive data.
+
+@ Inject 1: Supply chain impacted by ransomware
+! content
+One of your major suppliers is reportedly dealing with an ongoing ransomware incident.
+They have contacted their customers to inform them that it is a significant attack by an advanced adversary and expect operations to be affected for a period of time.
+
+# prompts
++ Ask the team how long they can continue to operate without the supplier.
++ Discuss if they have alternative suppliers.
++ Can participants identify their critical suppliers?
++ Discuss if the supplier holds any of the organisation's data.
++ Do they have an emergency point of contact for their major suppliers?
+
+# discussion
++ Is your supply chain robust enough to manage the temporary loss of a major supplier?
++ What level of risk, from a cyber perspective, does your organisation have to the supplier?
++ What steps can you take internally to ensure that your systems are not impacted?
++ Do you have an emergency point of contact for your major suppliers?
+
+? We understand how a ransomware infection to one of our suppliers can impact our organisation.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+
+? Our risk management plan encompasses the discussion points and will help to minimise the impact to business operations.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+
+? We have a comprehensive and up-to-date list of emergency points of contact for each of our major suppliers.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+
+@ Inject 2: Incident management
+! content
+Ransomware is now also propagating through your network.
+Some significant infrastructure has been affected and your staff cannot log on.
+The organisation is at a standstill.
+
+# prompts
++ Where is the incident management plan located and is there an offline copy?
++ Discuss what significant gaps were identified when the plan was last exercised.
++ What technical measures are in place to mitigate the spread of ransomware?
++ Can they isolate key parts of their network?
++ Are they confident their backups will remain unaffected?
+
+# discussion
++ Does your incident management plan cover this type of attack?
++ What defensive processes and technical measures do you have in your network that may help to mitigate the spread of the ransomware?
++ Do you have Incident Response playbooks for a ransomware attack?
++ Have you been keeping offline backups? Are you confident that your backups will remain unaffected by a ransomware attack?
++ Do you know where you can go to report the incident and get advice?
+
+? We are confident our Incident Management plan will be effective in this scenario.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+
+? Our organisation has effective defence-in-depth to be able to mitigate a ransomware attack.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+
+? We are confident our ransomware focused Incident Response playbook is up to date and would be effective.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+
+@ Inject 3: Pay or not to pay
+! content
+The cyber crime group associated with the ransomware attack have contacted you to discuss payment options.
+They are stating that if they do not receive payment within the next 24 hours they are going to start leaking your sensitive data, making it publicly accessible.
+
+# prompts
++ What is your company policy on paying the ransom?
++ Would you trust a cyber criminal to decrypt your files after payment?
++ Do they have the capability to recover systems themselves?
++ Are endpoint/network logs secure and unaffected?
++ Are they aware of any good online sources for guidance?
+
+# discussion
++ Do you pay the ransom? What is the impact if you do? What is the impact if you don’t?
++ Are you in a position to aid the recovery of systems and gather evidence to support analysis?
++ Are there any external sources you will use for help or guidance?
++ What will be the impact to your organisation if your sensitive data is posted onto the Internet?
++ If you have cyber insurance, what does this cover and what do you expect it to cover?
+
+? We understand the implications of paying the ransom.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+
+? We can identify all our sensitive data.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+
+? We understand the impact of the sensitive data being made available online.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+
+@ Inject 4: Cyber insurance
+! content
+Recovery from a ransomware attack can be complex and costly for organisations.
+Although it cannot prevent cyber attacks, cyber insurance can help to speed up recovery time in the event of a cyber incident.
+
+# prompts
++ Discuss if cyber insurance would be beneficial for the organisation.
++ Might the board get complacent with cyber security if they have cyber insurance?
++ What key questions would they ask a potential insurance supplier about cover for compensation claims by third parties?
++ What services would they expect the insurer to provide during/after an attack?
++ Who in the organisation would be brought together to assess a potential policy?
+
+# discussion
++ Have you considered the benefits and drawbacks of cyber insurance?
++ What key questions will you want to know from any potential insurance supplier?
++ Who in your organisation will you bring together to assess a potential insurance policy?
+
+? We understand what may and may not be covered by cyber insurance.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+
+? We have considered the benefits and drawbacks of cyber insurance to manage our cyber risk.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+
+@ Inject 5: Communication plan
+! content
+The cyber crime group involved in attacking your network has posted some of your most sensitive information onto a public Internet forum.
+The media have started contacting your organisation for comment.
+
+# prompts
++ Do they have a communications lead nominated?
++ Are there contractual obligations to inform certain customers or partners?
++ How might the organisation's reputation be impacted by the data release?
++ Could the data disclosed embarrass or harm customers?
++ How would they communicate with staff if the network is down?
+
+# discussion
++ Do you have a communications plan or communications section in your Incident Management plan?
++ How damaging will the release of this data be to your organisation?
++ What is your messaging to internal employees?
++ What is your messaging to external parties, media, suppliers and customers?
+
+? We are confident that our communications plan will be effective in this scenario.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+
+? Our organisation has mechanisms in place to support employees during the incident.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+
+? Our communications plan will be effective in reassuring suppliers and customers.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident

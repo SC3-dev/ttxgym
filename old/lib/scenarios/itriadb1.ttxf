@@ -1,0 +1,123 @@
+! title: Insider threat resulting in a data breach
+! summary
+An exercise covering the events following the discovery that a user has shared sensitive documents with an unauthorised third party.
+It discusses the processes your organisation has in place to verify the source of leaked information and determine if its exposure was malicious or due to user error.
+The use of USB and removable media within the organisation and associated security policies is also discussed.
+Finally, the scenario asks you to consider the regulatory impact of a data breach, in this scenario following a compromise by an insider, and how your organisation would respond.
+
+@ Inject 1
+! content
+A user reports that, while browsing an online social media platform, they have discovered some commercially sensitive documents that appear to have originated from your organisation.
+# discussion
++ Do you have a method for users to report a suspected data breach?
++ How would you verify that a document originated from within your organisation?
++ Do you have any way of determining where in your systems or network these documents were stored?
+# prompts
++ How is a suspected data breach reported by users?
++ How would you verify that a document originated from within your organisation?
++ How do you determine where in your systems these documents were stored?
++ Do you have any way of tracking data leaving your network?
++ Is it easy to see what data you store?
+? We have a clear method for reporting security incidents or data breaches.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+? We have an effective way to track and monitor data being removed from our network.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+
+@ Inject 2
+! content
+You have identified the original version of the leaked documents on a file server within your organisation’s network.
+# discussion
++ How would you determine which users within your organisation have access to these files?
++ How would you approach determining if the sharing of these documents with an unauthorised third party was user error or malice?
++ How would you respond to a user found to be responsible for this data breach?
+# prompts
++ How would you determine which users within your organisation have access to these files?
++ Does your logging system tie events like file access to individual users?
++ Can you see which files have been downloaded or accessed by a particular user?
++ Can you determine the difference between ‘unauthorised’, ‘user error’ and ‘malicious’ activity?
++ How would you respond to a user found to be responsible for this data breach?
+? We can effectively identify the unauthorised or accidental misuse of systems or data.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+? We can tie users to such activity and determine where data has been sent via audit trails/logs with a high level of accuracy.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+? We have a clear user security policy and users are made aware of the impacts of misuse of business systems.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+
+@ Inject 3
+! content
+Investigation suggests that an individual has been sharing internal documents with a third party, to help them bid for contracts.
+The documents were transferred from the organisation on a personal USB device.
+In response to this incident, a decision is made to place stricter controls on the use of removable media within your organisation.
+# discussion
++ Do you have a corporate policy on the use of removable media (such as USB devices) within your organisation?
++ Is the use of removable media or file sharing monitored, audited and reported?
++ What measures do you have in place to protect sensitive data on removable media or data in transit?
++ What would be the impact of completely banning removable media in your organisation?
++ If users moved to other means of file transfer, how would your organisation deal with this?
+# prompts
++ Do you currently have a corporate policy on the use of removable media within your organisation, such as USB?
++ Is the use of removable media or file sharing monitored, audited and reported?
++ Are file transfers to removable media or file hosting sites monitored and audited?
++ What measures do you have in place to protect sensitive data on removable media or data in transit?
++ What would be the impact of completely banning removable media?
+? We have a clear corporate policy controlling the use of removable media.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+? We have a clear corporate policy managing the use and sharing of sensitive information, and activity is monitored.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+
+@ Inject 4
+! content
+The leaked documents have been widely viewed on the social media platform and the media have picked up on the story.
+Your organisation prepares its response to the breach from a regulatory and corporate communications perspective.
+# discussion
++ How would you determine the regulatory impacts of the data breach, for example in relation to GDPR?
++ Which authorities would your organisation involve?
++ Who would be responsible for this within your organisation?
++ How would you respond to media enquiries?
++ What do you tell your staff, supply chain and customers?
+# prompts
++ How would you determine the regulatory impacts of the data breach, for example in relation to GDPR?
++ What are the organisation’s reporting requirements?
++ Which authorities would your organisation involve?
++ How would you respond to media enquiries?
++ How would you communicate the incident to your staff, supply chain and customers?
+? We have an agreed approach to reporting data breaches, which includes an understanding of our regulatory obligations.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+? We have an effective communication plan that covers cyber incidents, to communicate with the media and public when needed.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident

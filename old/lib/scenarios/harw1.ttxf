@@ -1,0 +1,135 @@
+! title: Home and remote working
+! summary
+This scenario explores the events that take place where employees in your organisation need to work remotely at short notice and require access to the IT services used by your organisation.
+It includes connecting your employees to the systems used by your organisation via non-corporate internet connections, the processes and monitoring in place to enable secure distributed communication amongst your users using various online systems, and your processes for handling the compromise of information from your organisation when working remotely.
+Discussion of the above topics will help you explore the controls your organisation has in place to facilitate effective distributed working and to identify and respond to the compromise of information from your organisation.
+
+@ Inject 1: Moving to remote working
+! content
+Employees in your organisation need to work remotely at short notice and in order to continue working they require access to the IT services used by your organisation.
+Some of your employees do not have access to any computer equipment issued by your organisation such as laptops or tablets, or do not have a reliable internet connection available at home.
+
+# discussion
++ Does your organisation have a Bring Your Own Device policy where suitable equipment issued by your organisation is not available to employees?
++ Does your organisation have procedures in place to ensure employees working remotely connect safely and securely to your organisation’s IT services?
++ Where the internet connection relied upon becomes slow, unreliable or unavailable do your employees understand what they are authorised to do in order to reconnect to the organisation’s IT services to continue their work?
++ Are policies in place to provide guidance on connecting personal peripherals to organisation devices, for example mice and keyboards, monitors, and printers?
++ Does your organisation have the appropriate network monitoring in place to be able to detect malicious remote connections or identify infected remote hosts?
+
+# prompts
++ Do all your employees have access to suitable devices issued by your organisation to effectively work remotely?
++ If you are using a BYOD policy, how does your organisation ensure that user devices and software are kept up to date?
++ Does your organisation mandate or provide a VPN solution to access your organisation’s IT services?
++ Do employees understand the risks of connecting unapproved hardware to organisation assets?
++ Are you able to log user actions?
+
+? How confident are you that you have effective controls in place for employees using personal devices to access our organisation’s IT services?
++ 1. Not at all confident
++ 2. Slightly confident
++ 3. Somewhat confident
++ 4. Fairly confident
++ 5. Completely confident
+? How confident are you that your organisation provides policies and guidelines to employees regarding connecting to IT Services remotely?
++ 1. Not at all confident
++ 2. Slightly confident
++ 3. Somewhat confident
++ 4. Fairly confident
++ 5. Completely confident
+? How confident are you that you have the ability to monitor for any malicious actions taken by authorised and unauthorised remote users?
++ 1. Not at all confident
++ 2. Slightly confident
++ 3. Somewhat confident
++ 4. Fairly confident
++ 5. Completely confident
+? How confident are you that you can support your employees as they transition to remote working?
++ 1. Not at all confident
++ 2. Slightly confident
++ 3. Somewhat confident
++ 4. Fairly confident
++ 5. Completely confident
+
+@ Inject 2: Employee collaboration
+! content
+In the absence of effective collaboration software in your organisation, some employees start to conduct meetings and handle organisation information using conferencing and instant messaging software and systems that are not from approved sources or providers.
+
+# discussion
++ Do you provide your employees with details of approved collaboration services and systems that they can use to conduct business for your organisation?
++ Are your employees making use of video conferencing systems and applications to carry out their work and collaborate with colleagues remotely?
++ Do you have any automated or manual monitoring in place to detect when employees are not using approved services from recognised sources?
++ What controls and procedures do you have regarding acceptable discussion or processing of your organisation’s information or data by your employees?
+
+# prompts
++ Is there a procedure for employees to suggest additional software or services that may be required?
++ Do your employees need to contact any customers or suppliers that may require new or unexpected use of alternative distributed systems remotely?
++ Are there effective controls for who can join any video conferencing meetings that are scheduled or have started?
++ Have your employees agreed and signed any policies outlining approved services and applications for remote working?
++ Can you detect if your organisation’s data is being accessed by or uploaded to unapproved services?
+
+? How confident are you that you have an approved list of collaboration services that users can use?
++ 1. Not at all confident
++ 2. Slightly confident
++ 3. Somewhat confident
++ 4. Fairly confident
++ 5. Completely confident
+? How confident are you that your organisation has effective video conferencing controls in place?
++ 1. Not at all confident
++ 2. Slightly confident
++ 3. Somewhat confident
++ 4. Fairly confident
++ 5. Completely confident
+? How confident are you that you have the ability to detect the use of unauthorised services or software?
++ 1. Not at all confident
++ 2. Slightly confident
++ 3. Somewhat confident
++ 4. Fairly confident
++ 5. Completely confident
+? How confident are you that you have appropriate controls in place to manage our organisation information and its processing in a remote working environment?
++ 1. Not at all confident
++ 2. Slightly confident
++ 3. Somewhat confident
++ 4. Fairly confident
++ 5. Completely confident
+
+@ Inject 3: Incident handling
+! content
+An employee believes that they have clicked on a phishing link when working remotely.
+They report that they received an email from IT asking them to the click the link urgently to verify their remote connection or they will lose access to your corporate systems.
+The link took them to what looked like the corporate logon page and they entered their credentials.
+
+# discussion
++ Would your employees know what to do if they suspected that they had clicked on a link or opened an attachment from a suspicious email?
++ Do you have any controls to identify, detect and respond to potential compromise or loss of data from organisation systems?
++ What protective monitoring do you have in place to detect when your organisation's information or data is being accessed by an unauthorised remote user?
++ How effective are your procedures and alerts, should your organisation’s data be compromised while employees are working remotely and where you can’t physically access the device?
+
+# prompts
++ Do users know who to report phishing attacks to?
++ Do users feel they may face disciplinary action as a result of falling victim to a phishing attack?
++ How do we feedback lessons learned from phishing attacks, whether they are successful or near-misses?
++ Are operating systems, software and VPNs patched and updated?
++ If organisation systems had to be recovered from a backup, how would this be achieved?
+
+? How confident are you that you know what to do when we receive suspicious emails or identify potential security issues?
++ 1. Not at all confident
++ 2. Slightly confident
++ 3. Somewhat confident
++ 4. Fairly confident
++ 5. Completely confident
+? How confident are you that you know what to do where a suspicious link or attachment has been actioned?
++ 1. Not at all confident
++ 2. Slightly confident
++ 3. Somewhat confident
++ 4. Fairly confident
++ 5. Completely confident
+? How confident are you that our organisation monitors for and can detect unusual remote logons?
++ 1. Not at all confident
++ 2. Slightly confident
++ 3. Somewhat confident
++ 4. Fairly confident
++ 5. Completely confident
+? How confident are you that you are able to respond effectively to a remote worker security incident?
++ 1. Not at all confident
++ 2. Slightly confident
++ 3. Somewhat confident
++ 4. Fairly confident
++ 5. Completely confident
