@@ -8,8 +8,9 @@ Additionally, it covers your response in the case of a successful attack, and yo
 ! content 
 Your finance team have received an email from a customer, below, stating they've attempted to make a payment but are having trouble.
 The email comes from a different address than the customer typically uses, containing only a slight misspelling of the customer's name.
-%[Example Phishing Email](url/to/phishing_email_image.jpg)
+
 A file is attached, and the message requests that the finance team open it to help the customer in making their payment.
+
 # discussion
 + As part of a multi-layered approach, what mechanisms does your organisation have in place to make it difficult for attackers to reach your users?
 + Do we provide any training to users? If so, what is in the training?
