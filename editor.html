@@ -1816,8 +1816,17 @@
       let multiKey = null, multiVal = '';
 
       function flushMulti(target) {
-        if (!multiKey || !target) return;
-        target[multiKey] = multiVal.trim();
+        if (!multiKey) return;
+        if (target) {
+          target[multiKey] = multiVal.trim();
+        } else {
+          // Global metadata — write directly to the DOM inputs
+          const v = multiVal.trim();
+          if (multiKey === 'title') document.getElementById('f-title').value = v;
+          else if (multiKey === 'author') document.getElementById('f-author').value = v;
+          else if (multiKey === 'summary') document.getElementById('f-summary').value = v;
+          else if (multiKey === 'conclusion') document.getElementById('f-conclusion').value = v;
+        }
         multiKey = null; multiVal = '';
       }
 
@@ -1829,15 +1838,7 @@
           t.startsWith('+ ') || t.startsWith('++ ') || t.startsWith('? ');
 
         if (multiKey && (isDirective || t === '')) {
-          flushMulti(currentStage || {
-            set: (k, v) => {
-              if (k === 'title') document.getElementById('f-title').value = v;
-              else if (k === 'author') document.getElementById('f-author').value = v;
-              else if (k === 'summary') document.getElementById('f-summary').value = v;
-              else if (k === 'conclusion') document.getElementById('f-conclusion').value = v;
-            }
-          });
-          if (multiKey === null && !currentStage) { /* already flushed to inputs above */ }
+          flushMulti(currentStage);
         }
 
         if (t.startsWith('! ')) {

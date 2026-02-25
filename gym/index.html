@@ -1705,7 +1705,7 @@ p{margin:0 0 0.75rem;line-height:1.7}
   blockquote{padding:1rem 1.25rem;margin:1rem 0;background:rgba(30,75,86,.5);border-left:3px solid var(--green);border-radius:0 4px 4px 0}
   .SFmedia{display:block;margin:1em auto;max-width:min(100%,32em);height:auto;border-radius:6px;object-fit:contain}
   #discussionWrap{margin:.75rem 0 0;padding:.75rem 1rem;background:rgba(0,51,102,.3);border-left:3px solid var(--accent);border-radius:0 4px 4px 0;display:none;gap:.75rem;align-items:flex-start}
-  #discussionWrap.show{display:flex}
+  #discussionWrap.show{display:flex;    align-items: center;}
   #discussionWrap svg{fill:var(--accent);width:18px;height:18px;flex-shrink:0;margin-top:2px}
   #discussion{font-style:italic;color:var(--text);padding-left:1rem}
   #discussion li{margin-bottom:.4rem}
@@ -1847,7 +1847,12 @@ function toggleFullscreen(){var d=window.document,el=d.documentElement,req=el.re
       fileName = targetFile + '.ttxf';
       fetch('../lib/scenarios/' + targetFile + '.ttxf')
         .then(r => { if (!r.ok) throw new Error(r.statusText); return r.text(); })
-        .then(d => { rawFileData = d; fileContent = parseConfigToJSON(d); populateScenario(); })
+        .then(d => {
+          rawFileData = d; fileContent = parseConfigToJSON(d); populateScenario();
+          sessionKey = btoa(fileName).replace(/[^a-z0-9]/gi, '').substring(0, 20);
+          const saved = localStorage.getItem('ttxgym_autosave_' + sessionKey);
+          if (saved) { setTimeout(() => restoreSession(saved), 50); }
+        })
         .catch(e => showParseError('Could not load scenario file: ' + e.message));
     }
 
