@@ -1,5 +1,5 @@
 ! title: Threatened leak of sensitive data
-! author: NCSC
+! author: Exercise adapted from NCSC 'Exercise-in-a-Box'
 ! summary
 This tabletop exercise scenario covers the events following an anonymous email being received by an employee threatening to release sensitive information about your organisation’s employees.
 It includes discussion around logging and monitoring of internal sensitive documents, processes for securely offboarding a disgruntled employee, escalating a security incident internally, and potential legal activities following such an incident.

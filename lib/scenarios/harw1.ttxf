@@ -1,4 +1,5 @@
 ! title: Home and remote working
+! author: Exercise adapted from NCSC 'Exercise-in-a-Box'
 ! summary
 This scenario explores the events that take place where employees in your organisation need to work remotely at short notice and require access to the IT services used by your organisation.
 It includes connecting your employees to the systems used by your organisation via non-corporate internet connections, the processes and monitoring in place to enable secure distributed communication amongst your users using various online systems, and your processes for handling the compromise of information from your organisation when working remotely.

@@ -1,5 +1,5 @@
 ! title: Supply Chain Software Cyber Attack Exercise
-! author: NCSC
+! author: Exercise adapted from NCSC 'Exercise-in-a-Box'
 ! summary
 This scenario explores an incident in which third-party software that is critical in your organisation is determined to have been compromised and can enable remote access by unauthorised users.
 This can lead to a serious cyber incident, for example, ransomware can be deployed effectively via the supply chain.

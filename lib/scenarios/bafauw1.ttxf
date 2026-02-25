@@ -1,4 +1,5 @@
 ! title: Being attacked from an unknown wifi network
+! author: Exercise adapted from NCSC 'Exercise-in-a-Box'
 ! summary
 This exercise scenario covers the entire sequence of events that could occur when a user connects to an unknown wifi network.
 It discusses the risks taken when connected to such a wifi network and how an attacker may use that to access a user’s device, such as a laptop.

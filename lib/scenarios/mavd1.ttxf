@@ -1,5 +1,5 @@
 ! title: Managing a vulnerability disclosure
-! author: UK Crown Copyright / NCSC
+! author: Exercise adapted from NCSC 'Exercise-in-a-Box'
 ! summary
 This scenario covers the events following the disclosure of a vulnerability in a public facing web application run by your organisation.
 It includes managing communication between your organisation and a person reporting a vulnerability.

@@ -1,4 +1,5 @@
 ! title: Insider threat resulting in a data breach
+! author: Exercise adapted from NCSC 'Exercise-in-a-Box'
 ! summary
 An exercise covering the events following the discovery that a user has shared sensitive documents with an unauthorised third party.
 It discusses the processes your organisation has in place to verify the source of leaked information and determine if its exposure was malicious or due to user error.

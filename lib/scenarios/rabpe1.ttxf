@@ -1,125 +1,140 @@
 ! title: A ransomware attack delivered by a phishing email
-! summary 
+! author: Exercise adapted from NCSC 'Exercise-in-a-Box'
+! summary
 This scenario presents a common method that attackers use to infect an organisation with ransomware.
 It will help you understand how well-meaning users can fall victim to phishing attacks and what the consequences of that are.
 Additionally, it covers your response in the case of a successful attack, and your ability to recover critical business data from backups.
 
+
 @ Inject 1: Initial phishing
-! content 
+! content
 Your finance team have received an email from a customer, below, stating they've attempted to make a payment but are having trouble.
 The email comes from a different address than the customer typically uses, containing only a slight misspelling of the customer's name.
-
-A file is attached, and the message requests that the finance team open it to help the customer in making their payment.
+%(https://ttxgym.com/lib/exercise_data/phish_screenshot.png)
 
 # discussion
-+ As part of a multi-layered approach, what mechanisms does your organisation have in place to make it difficult for attackers to reach your users?
-+ Do we provide any training to users? If so, what is in the training?
-+ Is there a documented procedure for if a user suspects the email?
++ What mechanisms does your organisation have in place to make it difficult for attackers to reach your users — both technical controls such as email filtering and domain authentication, and human controls such as user awareness training?
++ Is there a documented procedure for what a user should do if they suspect an email is malicious? Is that procedure easy to find and follow in the moment?
++ Do users feel comfortable reporting a suspected phishing attack — including one they may have already fallen for — without fear of blame?
 # prompts
-+ Do users feel comfortable reporting phishing emails?
-+ Do users feel comfortable reporting what they suspect is a successful phishing attack?
++ Encourage the group to think beyond spam filters. A convincing email may still reach an inbox if it comes from a compromised legitimate account or passes authentication checks. What happens when the technical controls don't catch it?
++ Probe whether awareness training is genuinely embedded in culture or treated as a box-ticking exercise. Ask how the organisation measures whether training is effective.
++ If participants are unsure about specific controls, note these as gaps to follow up after the exercise.
 ? We make it difficult for attackers to reach our users with phishing emails.
-+ 1. Not at all confident
-+ 2. Slightly confident
-+ 3. Somewhat confident
-+ 4. Fairly confident
-+ 5. Completely confident
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
 ? We provide clear training to allow our users to identify and report suspected phishing attacks.
-+ 1. Not at all confident
-+ 2. Slightly confident
-+ 3. Somewhat confident
-+ 4. Fairly confident
-+ 5. Completely confident
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
 
 @ Inject 2: Malware protection software
-! content 
+! content
 The email recipient from the finance team does not recognise that it is a phishing email and, in trying to help the customer, opens the attached file.
 This immediately opens the file, which contains malware.
+
+# discussion
++ What malware protection or endpoint detection software is deployed across your organisation's devices? Is coverage consistent, or are there gaps — for example on personal devices used for work, or on older systems?
++ Are documents received by email opened in a protected or sandboxed mode by default, so that potentially dangerous content is isolated before it can interact with wider systems?
++ What is your process for keeping security software up to date, and are users able to pause or defer updates?
 # prompts
-+ Is there any malware protection software in use on the user’s system?
-+ Are documents received through an email opened in a protected mode?
-+ How often is the malware protection software updated?
-+ Can users pause or delay updates to the malware protection software?
-+ Would the malware protection software have prevented the file from being opened?
-? We effectively detect and prevent malware running on our organisations IT.
-+ 1. Not at all confident
-+ 2. Slightly confident
-+ 3. Somewhat confident
-+ 4. Fairly confident
-+ 5. Completely confident
-? We have a clear policy for keeping our organisation’s software current and always apply the latest security updates.
-+ 1. Not at all confident
-+ 2. Slightly confident
-+ 3. Somewhat confident
-+ 4. Fairly confident
-+ 5. Completely confident
++ Ask whether participants know this from tested evidence or assumption — confidence in controls that have never been tested is a common and significant gap.
++ Probe for coverage edge cases: laptops managed by IT may be well-protected, while devices used by remote workers or contractors may not be.
++ Would the malware protection software actually have prevented this file from being opened? Push for a specific answer rather than a general assurance.
+? We effectively detect and prevent malware running on our organisation's IT.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+? We have a clear policy for keeping our organisation's software current and always apply the latest security updates.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
 
 @ Inject 3: User permissions
-! content 
+! content
 When the attached file is opened, it immediately attempts to infect the computer with malware.
 The infection starts with the same permissions as the user, which gives it the same access level as the user.
+
+# discussion
++ Are users given only the access they need to perform their role, or do most users have broad access to systems and data? Do any standard accounts have local administrator privileges?
++ What happens when a user attempts to install new software — is this permitted by default, or does it require approval?
++ Does your organisation use application whitelisting or similar controls to restrict which programmes are permitted to execute on your systems?
 # prompts
-+ What permissions do your users have?
-+ Do users have administrator permissions?
-+ Can users access other users’ files or data?
-+ What happens when the user tries to install new software or applications?
-+ Is there a list of software that is allowed to run on our computers?
-? We place appropriate limits on the software that can be installed or run on our organisations IT.
-+ 1. Not at all confident
-+ 2. Slightly confident
-+ 3. Somewhat confident
-+ 4. Fairly confident
-+ 5. Completely confident
++ Ask participants to consider specifically what the malware would have been able to reach given the permissions of a typical finance team member — shared drives, customer data, financial records.
++ The principle of least privilege is often poorly implemented in practice. Acknowledge the tension between security and operational convenience: the goal is deliberate, documented decisions about access — not locking everything down.
++ If permissions have not been reviewed recently, flag this as a priority action to take forward after the exercise.
+? We place appropriate limits on the software that can be installed or run on our organisation's IT.
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
 
 @ Inject 4: Ransomware and backups
-! content 
+! content
 After several hours, users have started having trouble opening documents and files.
 A message pops up on the computer where the infected software was installed, indicating it has been infected with ransomware.
-The ransomware has encrypted all of your organisation’s business-critical data, so that you can no longer access them and is demanding £150,000 in cryptocurrency to recover the data.
+The ransomware has encrypted all of your organisation's business-critical data, so that you can no longer access them and is demanding £150,000 in cryptocurrency to recover the data.
+
+# discussion
++ Do you have a tested incident response plan that covers ransomware? When was it last reviewed, who is responsible for executing it, and — critically — is it accessible if your systems are unavailable?
++ What data is backed up and how frequently? Are your backups genuinely isolated from your main systems, so that an attacker who reached your network could not also encrypt or delete them?
++ How long would it take to restore your data from backups, and has this been tested under realistic conditions?
 # prompts
-+ How long could you continue to operate without access to that data?
-+ Do we have an incident response plan that will help us to deal with this ransomware attack?
-+ What data is backed up?
-+ Are your backups separate to your normal business systems?
-+ How long would it take you retrieve the backed-up data?
++ Use the £150,000 ransom figure deliberately — ask participants directly whether they would pay, and what factors would drive that decision. Paying does not guarantee recovery and may invite further attacks.
++ The most common backup failure is untested restoration. Ask not just whether backups exist, but how long recovery actually took the last time it was tested.
++ Flag any legal or regulatory obligations raised here — such as GDPR breach notification — as a lead-in to the next stage on communications.
 ? We have identified our critical systems and data and understand the potential impact of an infection.
-+ 1. Not at all confident
-+ 2. Slightly confident
-+ 3. Somewhat confident
-+ 4. Fairly confident
-+ 5. Completely confident
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
 ? We have a tested incident response plan that covers key stakeholders, contact details, steps and procedures for dealing with a ransomware attack, and our legal and regulatory requirements.
-+ 1. Not at all confident
-+ 2. Slightly confident
-+ 3. Somewhat confident
-+ 4. Fairly confident
-+ 5. Completely confident
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
 ? We have access to the resources required to execute the incident response plan in the event that our systems are unavailable.
-+ 1. Not at all confident
-+ 2. Slightly confident
-+ 3. Somewhat confident
-+ 4. Fairly confident
-+ 5. Completely confident
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
 ? If we lost access to our business-critical data, we could recover from our backups without significant disruption.
-+ 1. Not at all confident
-+ 2. Slightly confident
-+ 3. Somewhat confident
-+ 4. Fairly confident
-+ 5. Completely confident
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
 
 @ Inject 5: Ransomware response and communication
-! content 
+! content
 Your organisation begins to receive calls from journalists requesting information on rumours that you are suffering from a ransomware attack.
 Over the next few hours stories begin to appear on social media and local industry press suggesting that your organisation has suffered from a ransomware attack.
+
+# discussion
++ Does your organisation have a pre-prepared communications plan for a cyber incident, including a designated spokesperson and a holding statement that can be issued while the situation is still being assessed?
++ In what order would you communicate — to staff, customers and partners, regulators, and the media? What are the risks of getting that order wrong?
++ What are your regulatory obligations for notifying affected parties and relevant authorities, and are these understood by the people who would be managing the response?
 # prompts
-+ How do you respond to journalists?
-+ Do you have a communications plan to execute in the event of a cyber incident?
-+ What do you tell your staff, supply chain and customers?
-+ Which communications method will you use?
-+ How much detail about the attack will you provide?
++ Use the journalist scenario to make the pressure feel real: the organisation is no longer controlling the narrative. Ask how participants would respond right now, before any holding statement exists.
++ Remind the group that GDPR requires notification to the ICO within 72 hours of becoming aware of a personal data breach — this runs in parallel with the technical response, regardless of how chaotic things are.
++ Probe whether the communications plan and contact details are held offline. A plan stored only on the network is inaccessible during a ransomware attack.
++ Close the exercise by summarising the key themes and gaps identified across all five stages, and agree on priority actions to take forward.
 ? We have a clear and consistent approach for communication with staff, media and stakeholders during an incident.
-+ 1. Not at all confident
-+ 2. Slightly confident
-+ 3. Somewhat confident
-+ 4. Fairly confident
-+ 5. Completely confident
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident

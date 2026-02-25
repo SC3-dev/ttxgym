@@ -1,5 +1,5 @@
 ! title: Third party software compromise
-! author: NCSC 2024
+! author: Exercise adapted from NCSC 'Exercise-in-a-Box'
 ! summary
 This scenario explores the compromise of an online third-party tool your organisation uses.
 It examines the risks of third-party software and how an attacker might use stolen credentials to access your network.

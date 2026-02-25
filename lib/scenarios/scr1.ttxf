@@ -1,4 +1,5 @@
 ! title: Supply Chain Ransomware
+! author: Exercise adapted from NCSC 'Exercise-in-a-Box'
 ! summary
 This scenario explores an incident in which a major supplier integrated with your operations is subject to a ransomware attack.
 The ransomware subsequently spreads to your organisation.
