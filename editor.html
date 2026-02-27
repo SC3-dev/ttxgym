@@ -560,6 +560,14 @@
       background: var(--ttxf-question-glow);
     }
 
+    .q-hidden-active {
+      color: var(--amber) !important;
+    }
+    .q-hidden-active:hover {
+      background: rgba(245,166,35,0.12) !important;
+      color: var(--amber) !important;
+    }
+
     /* ─── BUTTONS ─── */
     .btn {
       display: inline-flex;
@@ -779,6 +787,41 @@
 
     #pane-visual .preview-stage-body {
       padding: 0.75rem 1rem;
+    }
+
+    #pane-visual .preview-content {
+      font-size: 12.5px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 0.5rem;
+      padding: 0 0.25rem;
+    }
+
+    #pane-visual .preview-content p {
+      margin-bottom: 0.5rem;
+    }
+
+    #pane-visual .preview-content p:empty {
+      margin-bottom: 0;
+      min-height: 0.5rem;
+    }
+
+    #pane-visual .preview-content p:last-child {
+      margin-bottom: 0;
+    }
+
+    #pane-visual .preview-content strong {
+      color: var(--text-primary);
+    }
+
+    #pane-visual .preview-content ul,
+    #pane-visual .preview-content ol {
+      padding-left: 1.25rem;
+      margin-bottom: 0.5rem;
+    }
+
+    #pane-visual .preview-content li {
+      margin-bottom: 0.2rem;
     }
 
     #pane-visual .preview-section-label {
@@ -1157,6 +1200,16 @@
             oninput="scheduleUpdate()"></textarea>
         </div>
 
+        <div class="field-group meta">
+          <label class="field-label" for="f-image"><span class="sigil">!</span> Scenario Image URL <span
+              style="opacity:0.5">(optional)</span></label>
+          <input id="f-image" class="field-input" type="url" placeholder="https://example.com/image.jpg — shown as thumbnail in facilitator sidebar and blurred background on participant screen"
+            oninput="scheduleUpdate(); previewScenarioImage()">
+          <div id="f-image-preview" style="display:none;margin-top:0.4rem;border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);aspect-ratio:16/9">
+            <img id="f-image-thumb" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:block" onerror="this.parentElement.style.display='none'">
+          </div>
+        </div>
+
         <!-- Stages -->
         <div>
           <div class="section-header">
@@ -1269,7 +1322,7 @@
     }
 
     function makeQuestion() {
-      return { id: nextId(), text: '', type: 'rating', answers: ['', ''], quiz: '' };
+      return { id: nextId(), text: '', type: 'rating', answers: ['', ''], quiz: '', participantHidden: false };
     }
 
     /* =============================================
@@ -1402,6 +1455,7 @@
 
     function questionCardHTML(stageId, qIdx, q) {
       const isQuiz = q.type === 'quiz';
+      const isHidden = !!q.participantHidden;
       return `<div class="question-card" id="qcard-${q.id}">
     <div class="question-card-header">
       <div class="q-type-toggle">
@@ -1411,6 +1465,10 @@
       <input class="field-input" type="text" placeholder="Question text…" value="${escH(q.text)}"
              style="flex:1;margin-left:0.5rem"
              oninput="updateQuestionField('${stageId}','${q.id}','text',this.value)">
+      <button class="icon-btn${isHidden ? ' q-hidden-active' : ''}" style="margin-left:0.25rem" title="${isHidden ? 'Currently hidden from participants — click to show' : 'Visible on participant screen — click to hide'}"
+              onclick="toggleQuestionHidden('${stageId}','${q.id}')">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="${isHidden ? 'M480-320q75 0 127.5-52.5T660-500q0-75-52.5-127.5T480-680q-75 0-127.5 52.5T300-500q0 75 52.5 127.5T480-320Zm0-72q-45 0-76.5-31.5T372-500q0-45 31.5-76.5T480-608q45 0 76.5 31.5T588-500q0 45-31.5 76.5T480-392Zm0 192q-146 0-266-81.5T40-500q54-137 174-218.5T480-800q146 0 266 81.5T920-500q-54 137-174 218.5T480-200Zm0-300Zm0 220q113 0 207.5-59.5T832-500q-50-101-144.5-160.5T480-720q-113 0-207.5 59.5T128-500q50 101 144.5 160.5T480-280Z' : 'm644-428-58-58q9-47-27-88t-93-32l-58-58q17-8 34.5-12t37.5-4q75 0 127.5 52.5T660-500q0 20-4 37.5T644-428Zm128 126-58-56q38-29 67.5-63.5T832-500q-50-101-144.5-160.5T480-720q-26 0-51 4t-49 12l-58-56q57-20 118-20 121 0 220 81.5T920-500q-24 61-67 113.5T772-302Zm20 246L624-222q-35 11-70.5 16.5T480-200q-121 0-220-81.5T40-500q24-60 67-112t100-86L56-846l56-56 736 736-56 56ZM222-624q-47 35-84 78.5T78-500q49 101 144.5 160.5T480-280q22 0 43.5-3t42.5-9L434-440q-12 14-21 33t-13 40q-19-6-34-16.5T342-408q-9-17-15.5-37T320-490q0-13 1.5-26t6.5-26l-106-82Zm180 190Z'}"/></svg>
+      </button>
       <button class="icon-btn danger" style="margin-left:0.25rem" onclick="removeQuestion('${stageId}','${q.id}')">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg>
       </button>
@@ -1538,6 +1596,18 @@
       scheduleUpdate();
     }
 
+    function toggleQuestionHidden(stageId, qId) {
+      const s = stages.find(s => s.id == stageId);
+      if (!s) return;
+      const q = s.questions.find(q => q.id == qId);
+      if (!q) return;
+      q.participantHidden = !q.participantHidden;
+      const card = document.getElementById('qcard-' + qId);
+      if (card) card.outerHTML = questionCardHTML(stageId, null, q);
+      reheatCard(stageId);
+      scheduleUpdate();
+    }
+
     function addQuestion(stageId) {
       const s = stages.find(s => s.id == stageId);
       if (!s) return;
@@ -1613,10 +1683,12 @@
       const author = document.getElementById('f-author').value.trim();
       const summary = document.getElementById('f-summary').value.trim();
       const conclusion = document.getElementById('f-conclusion').value.trim();
+      const image = document.getElementById('f-image').value.trim();
 
       let lines = [];
       if (title) lines.push('! title: ' + title);
       if (author) lines.push('! author: ' + author);
+      if (image) lines.push('! image: ' + image);
       if (summary) {
         if (summary.includes('\n')) {
           lines.push('! summary'); lines.push(summary); lines.push('');
@@ -1638,7 +1710,7 @@
         if (s.content.trim()) {
           if (s.content.includes('\n')) {
             lines.push('! content');
-            lines.push(s.content.trim());
+            lines.push(s.content);
             lines.push('');
           } else {
             lines.push('! content: ' + s.content.trim());
@@ -1654,7 +1726,8 @@
         }
         s.questions.forEach(q => {
           if (!q.text.trim() && !q.answers.filter(a => a.trim()).length) return;
-          lines.push('? ' + (q.text || 'Question'));
+          const sigil = q.participantHidden ? '?- ' : '? ';
+          lines.push(sigil + (q.text || 'Question'));
           q.answers.forEach(a => {
             if (!a.trim()) return;
             lines.push((q.type === 'quiz' && q.quiz === a ? '++ ' : '+ ') + a);
@@ -1690,6 +1763,7 @@
         if (t.startsWith('# ')) return `<span class="ttxf-array">${escH(line)}</span>`;
         if (t.startsWith('++ ')) return `<span class="ttxf-correct">${escH(line)}</span>`;
         if (t.startsWith('+ ')) return `<span class="ttxf-item">${escH(line)}</span>`;
+        if (t.startsWith('?- ')) return `<span class="ttxf-question" style="opacity:0.55">${escH(line)}</span>`;
         if (t.startsWith('? ')) return `<span class="ttxf-question">${escH(line)}</span>`;
         return `<span class="ttxf-item">${escH(line)}</span>`;
       }).join('\n');
@@ -1720,7 +1794,7 @@
         <span class="preview-stage-title">${escH(s.title || 'Untitled Stage')}</span>
       </div>
       <div class="preview-stage-body">
-        ${s.content.trim() ? `<div style="font-size:12.5px;color:var(--text-secondary);line-height:1.7;margin-bottom:0.5rem;padding:0 0.25rem">${escH(s.content)}</div>` : ''}
+        ${s.content.trim() ? `<div class="preview-content">${processMarkdown(s.content)}</div>` : ''}
         ${hasDiscussion ? `
           <div class="preview-talk">
             <div class="preview-talk-icon">${chatIcon}</div>
@@ -1733,7 +1807,7 @@
           </div>` : ''}
         ${hasQuestions ? s.questions.filter(q => q.text.trim()).map(q => `
           <div class="preview-question ${q.type === 'quiz' ? 'quiz-q' : ''}">
-            <div class="preview-q-text">${escH(q.text)}</div>
+            <div class="preview-q-text">${escH(q.text)}${q.participantHidden ? ' <span style="font-size:10px;font-family:var(--font-mono);font-weight:400;opacity:0.6;border:1px solid var(--border);border-radius:99px;padding:1px 6px;vertical-align:middle;margin-left:4px">participant hidden</span>' : ''}</div>
             <div class="preview-answers">
               ${q.answers.filter(a => a.trim()).map(a =>
           `<span class="preview-answer ${q.type === 'quiz' && q.quiz === a ? 'correct' : ''}">${escH(a)}</span>`
@@ -1811,6 +1885,8 @@
       document.getElementById('f-author').value = '';
       document.getElementById('f-summary').value = '';
       document.getElementById('f-conclusion').value = '';
+      document.getElementById('f-image').value = '';
+      document.getElementById('f-image-preview').style.display = 'none';
 
       let currentStage = null, currentArray = null, currentQuestion = null;
       let multiKey = null, multiVal = '';
@@ -1820,12 +1896,12 @@
         if (target) {
           target[multiKey] = multiVal.trim();
         } else {
-          // Global metadata — write directly to the DOM inputs
           const v = multiVal.trim();
           if (multiKey === 'title') document.getElementById('f-title').value = v;
           else if (multiKey === 'author') document.getElementById('f-author').value = v;
           else if (multiKey === 'summary') document.getElementById('f-summary').value = v;
           else if (multiKey === 'conclusion') document.getElementById('f-conclusion').value = v;
+          else if (multiKey === 'image') { document.getElementById('f-image').value = v; previewScenarioImage(); }
         }
         multiKey = null; multiVal = '';
       }
@@ -1835,9 +1911,9 @@
         if (t.startsWith('//')) return;
 
         const isDirective = t.startsWith('! ') || t.startsWith('@ ') || t.startsWith('# ') ||
-          t.startsWith('+ ') || t.startsWith('++ ') || t.startsWith('? ');
+          t.startsWith('+ ') || t.startsWith('++ ') || t.startsWith('? ') || t.startsWith('?- ');
 
-        if (multiKey && (isDirective || t === '')) {
+        if (multiKey && isDirective) {
           flushMulti(currentStage);
         }
 
@@ -1852,7 +1928,7 @@
               else if (k === 'author') document.getElementById('f-author').value = v;
               else if (k === 'summary') document.getElementById('f-summary').value = v;
               else if (k === 'conclusion') document.getElementById('f-conclusion').value = v;
-              else if (currentStage) currentStage[k] = v;
+              else if (k === 'image') { document.getElementById('f-image').value = v; previewScenarioImage(); }
             } else { currentStage[k] = v; }
           } else {
             multiKey = rest.trim(); multiVal = '';
@@ -1868,6 +1944,12 @@
         } else if (t.startsWith('# ')) {
           currentArray = t.slice(2).trim();
           currentQuestion = null;
+        } else if (t.startsWith('?- ')) {
+          currentQuestion = makeQuestion();
+          currentQuestion.text = t.slice(3).trim();
+          currentQuestion.participantHidden = true;
+          if (currentStage) currentStage.questions.push(currentQuestion);
+          currentArray = null;
         } else if (t.startsWith('? ')) {
           currentQuestion = makeQuestion();
           currentQuestion.text = t.slice(2).trim();
@@ -1887,9 +1969,12 @@
             currentStage[currentArray].push(v);
           }
         } else if (multiKey) {
+          // Use raw line to preserve blank lines
           multiVal += (multiVal ? '\n' : '') + line;
         }
       });
+
+      flushMulti(currentStage);
 
       // Trim placeholder empty answers from import
       stages.forEach(s => {
@@ -1928,6 +2013,68 @@
     /* =============================================
        UTILS
        ============================================= */
+    function processMarkdown(text) {
+      let result = '';
+      const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
+      let bulletItems = [], numberedItems = [];
+      let lastWasBlank = false;
+
+      function flushLists() {
+        if (bulletItems.length) { result += '<ul>' + bulletItems.map(i => `<li>${i}</li>`).join('') + '</ul>'; bulletItems = []; }
+        if (numberedItems.length) { result += '<ol>' + numberedItems.map(i => `<li>${i}</li>`).join('') + '</ol>'; numberedItems = []; }
+      }
+
+      function applyInline(str) {
+        let s = escH(str);
+        s = s.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        s = s.replace(/\*(.*?)\*/g, '<em>$1</em>');
+        s = s.replace(/%\(([^|)]+?)(?:\|\s*([^)]+?))?\)/g, (_, src, scale) => {
+          const style = scale ? ` style="width:${scale.trim()};max-width:${scale.trim()};max-height:none"` : '';
+          return `<img src="${src.trim()}" alt="" style="display:block;margin:0.75rem auto;max-width:100%;height:auto;border-radius:4px;object-fit:contain${scale ? ';width:' + scale.trim() + ';max-height:none' : ''}" onload="(function(i){var s=i.getAttribute('data-scale');if(!s)return;var p=parseFloat(s);if(!isNaN(p)){var px=Math.round(i.naturalWidth*(p/100));i.style.width=px+'px';i.style.maxWidth=px+'px';}else{i.style.width=s;i.style.maxWidth=s;}})(this)" data-scale="${scale ? scale.trim() : ''}">`;
+        });
+        return s;
+      }
+
+      // Trim leading/trailing blank lines
+      let start = 0, end = lines.length - 1;
+      while (start <= end && lines[start].trim() === '') start++;
+      while (end >= start && lines[end].trim() === '') end--;
+
+      for (let i = start; i <= end; i++) {
+        const line = lines[i];
+        const isBlank = line.trim() === '';
+        if (isBlank) {
+          if (!lastWasBlank) { flushLists(); result += '<p></p>'; }
+          lastWasBlank = true;
+          continue;
+        }
+        lastWasBlank = false;
+        if (/^\s*-\s+/.test(line)) {
+          bulletItems.push(applyInline(line.replace(/^\s*-\s+/, '')));
+        } else if (/^\s*\d+\.\s+/.test(line)) {
+          numberedItems.push(applyInline(line.replace(/^\s*\d+\.\s+/, '')));
+        } else {
+          flushLists();
+          if (/^~/.test(line.trim())) {
+            result += `<blockquote style="padding:0.75rem 1rem;margin:0.5rem 0;background:rgba(62,201,200,0.06);border-left:3px solid var(--green);border-radius:0 4px 4px 0">${applyInline(line.trim().slice(1).trim())}</blockquote>`;
+          } else {
+            result += `<p>${applyInline(line)}</p>`;
+          }
+        }
+      }
+      flushLists();
+      return result;
+    }
+
+    function previewScenarioImage() {
+      const url = document.getElementById('f-image').value.trim();
+      const wrap = document.getElementById('f-image-preview');
+      const thumb = document.getElementById('f-image-thumb');
+      if (!url) { wrap.style.display = 'none'; return; }
+      thumb.src = url;
+      wrap.style.display = 'block';
+    }
+
     function escH(str) {
       return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }

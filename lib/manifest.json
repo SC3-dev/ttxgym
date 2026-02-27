@@ -163,4 +163,18 @@
     "duration": "90 mins",
     "summary": "<p>An exercise covering the events following the discovery that a user has **shared sensitive documents with an unauthorised third party**.</p><p>It discusses the processes your organisation has in place to **verify the source of leaked information** and determine if its exposure was malicious or due to user error. The use of **USB and removable media** within the organisation and associated security policies is also discussed.</p><p>Finally, the scenario asks you to consider the **regulatory impact of a data breach**, in this scenario following a compromise by an insider, and how your organisation would respond.</p><p>Discussing these events will help you explore the **risks and impact of an Insider Threat** resulting in a data breach. You will be able to discuss the procedures you have in place to **trace the source of leaked information** and how removable media and file sharing services are used and managed within your organisation. You should also discuss how your organisation would **respond to a data breach**, which may include the relevant authorities to contact, your communications approach following a breach to staff and customers and how this risk can be reduced in the future.</p><p><b>(Exercise content translated from NCSC's 'Exercise-in-a-Box' materials - www.ncsc.gov.uk)</b></p>"
   }
+,
+  {
+    "title": "Exercise 'Cold Start'",
+    "author": "SC3",
+    "image": "cold_start",
+    "categories": [
+      "Insider Threat",
+      "Data Loss",
+      "Data Breach"
+    ],
+    "level": "Operational",
+    "duration": "90 mins",
+    "summary": "<p>This exercise is designed to explore the impact of a cyber attack that results in the loss of a critical IT function that supports the Business Area. This loss could either be as a direct result of the cyber incident or a containment put in place removing the service to enable forensic investigation.</p><p>The scenario is fictitious although plausible. It is designed to encourage thoughtful responses and values everyone’s views during the exercise.</p><p>For each inject, a Quiz response question is posed to get the conversation started. This is followed by some specific discussion questions to broaden the discussion.</p>"
+  }
 ]

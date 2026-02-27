@@ -218,8 +218,7 @@
 
     #file-name {
       display: flex;
-      align-items: center;
-      gap: 0.5rem;
+      flex-direction: column;
       font-size: 12px;
       font-family: var(--font-mono);
       color: var(--green);
@@ -228,13 +227,29 @@
       border: 1px solid rgba(62, 201, 200, 0.2);
       border-radius: var(--radius);
       margin-bottom: 0.5rem;
+      overflow: hidden;
     }
 
-    #file-name svg {
+    #file-name-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    #file-name-row svg {
       fill: var(--green);
       width: 14px;
       height: 14px;
       flex-shrink: 0;
+    }
+
+    #scenario-thumbnail {
+      width: calc(100% + 1rem);
+      margin: -0.4rem -0.5rem 0.5rem;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+      border-radius: var(--radius) var(--radius) 0 0;
+      display: block;
     }
 
     .stat {
@@ -622,6 +637,11 @@
       margin-bottom: 0.6rem;
     }
 
+    .sc_content p:empty {
+      margin-bottom: 0;
+      min-height: 0.6rem;
+    }
+
     .sc_content p:last-child {
       margin-bottom: 0;
     }
@@ -797,7 +817,8 @@
       text-transform: uppercase;
       padding: 0.15rem 0.45rem;
       border-radius: 99px;
-      margin-bottom: 0.45rem;
+      flex-shrink: 0;
+      align-self: center;
     }
 
     .question-type-badge.rating {
@@ -812,11 +833,17 @@
       border: 1px solid rgba(62, 201, 200, 0.3);
     }
 
+    .question-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.65rem;
+    }
+
     .question-label {
       font-size: 13px;
       font-weight: 600;
       color: var(--text-primary);
-      margin-bottom: 0.65rem;
       line-height: 1.5;
     }
 
@@ -906,6 +933,48 @@
       color: var(--red);
     }
 
+    /* Participant-hidden question indicator */
+    .question-hidden-badge {
+      font-size: 10px;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      border-radius: 99px;
+      padding: 0.12rem 0.4rem;
+      flex-shrink: 0;
+      align-self: center;
+    }
+
+    /* Clear answer button */
+    .clear-answer-btn {
+      margin-top: 0.5rem;
+      font-size: 11px;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      transition: color 0.15s;
+      display: none;
+    }
+
+    .clear-answer-btn.visible {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .clear-answer-btn:hover {
+      color: var(--red);
+      background: none;
+      border: none;
+    }
+
+    .round:not(.active) .clear-answer-btn {
+      display: none !important;
+    }
+
     /* =============================================
        FOOTER / STAGE NAVIGATION
        ============================================= */
@@ -923,11 +992,10 @@
       height: 52px;
       gap: 0;
       overflow-x: auto;
-      scrollbar-width: none;
     }
 
     .footer-bar::-webkit-scrollbar {
-      display: none;
+      height: 4px;
     }
 
     .stage {
@@ -1687,20 +1755,23 @@ p{margin:0 0 0.75rem;line-height:1.7}
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
   <title>TTX Gym — Participant Window</title>
   <style>
-  *{box-sizing:border-box;margin:0;padding:0}
+  *{box-sizing:border-box;margin:0}
   :root{--back:#141820;--mid:#1e2535;--accent:#2e7de0;--green:#3ec9c8;--text:#e8ecf2;--text2:rgba(232,236,242,0.55)}
   body{font-family:"Montserrat",sans-serif;background:var(--back);background-image:radial-gradient(circle at 82% 60%,rgba(59,59,59,.06) 0,rgba(59,59,59,.06) 69%,transparent 69%),linear-gradient(135deg,#141c33 0%,#0d2040 100%);height:100vh;width:100vw;display:flex;align-items:center;justify-content:center;color:var(--text)}
+  #bgimg{position:fixed;inset:0;z-index:0;background-size:cover;background-position:center;filter:blur(8px) brightness(0.35);transform:scale(1.08);display:none}
+  #bgimg.show{display:block}
+  .container{position:relative;z-index:1;background:rgba(30,37,53,0.96);border:1px solid rgba(255,255,255,.07);border-radius:12px;width:84%;height:84%;padding:0 2rem 1.5rem;display:grid;grid-template-rows:auto 1fr auto;gap:0;overflow:hidden;font-size:inherit}
   ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-thumb{background:rgba(46,125,224,.4);border-radius:99px}
   #pause{position:absolute;inset:0;z-index:9;display:flex;align-items:center;justify-content:center;background:rgba(20,24,32,.85);backdrop-filter:blur(6px)}
   #pause.hidden-overlay{display:none}
   .overlay-card{background:var(--mid);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:2.5rem 3rem;display:flex;flex-direction:column;align-items:center;gap:.75rem;text-align:center}
   .overlay-card svg{fill:rgba(232,236,242,.4);width:40px;height:40px}
   .overlay-card h2{font-size:18px;font-weight:700}
-  .container{background:var(--mid);border:1px solid rgba(255,255,255,.07);border-radius:12px;width:84%;height:84%;padding:0 2rem 1.5rem;display:grid;grid-template-rows:auto 1fr auto;gap:0;overflow:hidden;font-size:inherit}
   h1{text-align:center;font-size:1.7em;font-weight:800;color:rgba(232,236,242,.9);padding:1.5rem 0 .75rem;border-bottom:1px solid rgba(255,255,255,.07)}
   #middleWrap{overflow-y:auto;padding:.5rem 0}
   #content{padding:.75rem 0;line-height:1.8;color:var(--text2);font-size:1em}
   #content p{margin-bottom:.75rem}
+  #content p:empty{margin-bottom:0;min-height:.75rem}
   #content strong{color:var(--text)}
   blockquote{padding:1rem 1.25rem;margin:1rem 0;background:rgba(30,75,86,.5);border-left:3px solid var(--green);border-radius:0 4px 4px 0}
   .SFmedia{display:block;margin:1em auto;max-width:min(100%,32em);height:auto;border-radius:6px;object-fit:contain}
@@ -1726,9 +1797,21 @@ p{margin:0 0 0.75rem;line-height:1.7}
   .chart-title{display:flex;justify-content:space-evenly;margin-top:.25em}
   .chart-title div{flex:1;text-align:center;font-size:0.7em;color:rgba(232,236,242,.5)}
   .outer h3{margin:0;font-size:0.7em;color:rgba(232,236,242,.5)}
+  #questionsWrap{margin:.75rem 0 0;display:none;flex-direction:column;gap:.6rem}
+  #questionsWrap.show{display:flex}
+  .pq{background:rgba(44,54,80,.7);border:1px solid rgba(255,255,255,.07);border-left:3px solid #2e7de0;border-radius:6px;padding:.7rem .9rem}
+  .pq.pq-quiz{border-left-color:#3ec9c8}
+  .pq-header{display:flex;align-items:center;gap:.45rem;margin-bottom:.5rem}
+  .pq-badge{display:inline-block;font-size:0.62em;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:.12rem .4rem;border-radius:99px;flex-shrink:0;align-self:center}
+  .pq-badge.rating{background:rgba(46,125,224,.12);color:#2e7de0;border:1px solid rgba(46,125,224,.25)}
+  .pq-badge.quiz{background:rgba(62,201,200,.12);color:#3ec9c8;border:1px solid rgba(62,201,200,.28)}
+  .pq-label{font-size:.88em;font-weight:600;color:rgba(232,236,242,.9);line-height:1.45}
+  .pq-choices{display:flex;flex-wrap:wrap;gap:.4rem}
+  .pq-choice{font-size:.78em;font-style:italic;color:rgba(232,236,242,.55);padding:.28rem .65rem;border-radius:99px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04)}
   </style>
 </head>
 <body>
+<div id="bgimg"></div>
 <div id="pause" class="hidden-overlay">
   <div class="overlay-card">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M360-320h80v-320h-80v320Zm160 0h80v-320h-80v320ZM480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"/></svg>
@@ -1744,6 +1827,7 @@ p{margin:0 0 0.75rem;line-height:1.7}
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M240-400h320v-80H240v80Zm0-120h480v-80H240v80Zm0-120h480v-80H240v80ZM80-80v-720q0-33 23.5-56.5T160-880h640q33 0 56.5 23.5T880-800v480q0 33-23.5 56.5T800-240H240L80-80Zm126-240h594v-480H160v525l46-45Zm-46 0v-480 480Z"/></svg>
         <ol id="discussion"></ol>
       </div>
+      <div id="questionsWrap"></div>
     </div>
   </div>
   <div id="control">
@@ -1770,9 +1854,46 @@ bc.onmessage=function(ev){
       dw.classList.add('show');
       ev.data.discussion.forEach(function(item){var li=document.createElement('li');li.innerHTML=item;dl.appendChild(li);});
     }else{dw.classList.remove('show');}
+    var qw=document.getElementById('questionsWrap');
+    qw.innerHTML='';
+    if(ev.data.questions&&ev.data.questions.length){
+      qw.classList.add('show');
+      ev.data.questions.forEach(function(q){
+        var isQuiz=!!q.quiz;
+        var pq=document.createElement('div');
+        pq.className='pq'+(isQuiz?' pq-quiz':'');
+        var pqHeader=document.createElement('div');
+        pqHeader.className='pq-header';
+        var badge=document.createElement('div');
+        badge.className='pq-badge '+(isQuiz?'quiz':'rating');
+        badge.textContent=isQuiz?'Quiz':'Rating';
+        var label=document.createElement('div');
+        label.className='pq-label';
+        label.textContent=q.question;
+        pqHeader.appendChild(badge);
+        pqHeader.appendChild(label);
+        var choices=document.createElement('div');
+        choices.className='pq-choices';
+        (q.answers||[]).forEach(function(a){
+          var span=document.createElement('span');
+          span.className='pq-choice';
+          span.textContent=a;
+          choices.appendChild(span);
+        });
+        pq.appendChild(pqHeader);
+        pq.appendChild(choices);
+        qw.appendChild(pq);
+      });
+    }else{qw.classList.remove('show');}
+    if(ev.data.image){
+      var bg=document.getElementById('bgimg');
+      bg.style.backgroundImage='url('+ev.data.image+')';
+      bg.classList.add('show');
+    }
   }
 };
   var cont=document.body;
+function applySFmediaScale(img){var s=img.getAttribute('data-scale');if(!s)return;var pct=parseFloat(s);if(isNaN(pct)){img.style.width=s;img.style.maxWidth=s;img.style.maxHeight='none';}else{var px=Math.round(img.naturalWidth*(pct/100));img.style.width=px+'px';img.style.maxWidth=px+'px';img.style.maxHeight='none';}}
 function changeSizeBySlider(){
   var val=document.getElementById('slider').value+'px';
   // Apply to container so all content text scales correctly
@@ -1904,7 +2025,15 @@ function toggleFullscreen(){var d=window.document,el=d.documentElement,req=el.re
           const container = document.getElementById('questionsContainer');
           Object.entries(d.answers).forEach(([name, val]) => {
             const el = container.querySelector(`input[name="${name}"][value="${val}"]`);
-            if (el) el.checked = true;
+            if (el) {
+              el.checked = true;
+              // Show the clear button for this question
+              const qDiv = el.closest('.question');
+              if (qDiv) {
+                const btn = qDiv.querySelector('.clear-answer-btn');
+                if (btn) btn.classList.add('visible');
+              }
+            }
           });
         }
         if (d.stageTime) {
@@ -2025,7 +2154,8 @@ function toggleFullscreen(){var d=window.document,el=d.documentElement,req=el.re
         type: "update",
         title: fileContent.title || 'Exercise',
         content: fileContent.summary || '',
-        discussion: fileContent.topics
+        discussion: fileContent.topics,
+        image: fileContent.image || null
       };
 
       if (fileContent.conclusion) finish.content = fileContent.conclusion;
@@ -2120,7 +2250,7 @@ function toggleFullscreen(){var d=window.document,el=d.documentElement,req=el.re
       confirmer.innerHTML = '';
       const fileInfo = document.createElement('div');
       fileInfo.id = 'file-name';
-      fileInfo.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h440l200 200v440q0 33-23.5 56.5T760-120H200Zm0-80h560v-400H600v-160H200v560Zm80-80h400v-80H280v80Zm0-320h200v-80H280v80Zm0 160h400v-80H280v80Zm-80-320v160-160 560-560Z"/></svg><span>${fileName}</span>`;
+      fileInfo.innerHTML = `<div id="file-name-row"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h440l200 200v440q0 33-23.5 56.5T760-120H200Zm0-80h560v-400H600v-160H200v560Zm80-80h400v-80H280v80Zm0-320h200v-80H280v80Zm0 160h400v-80H280v80Zm-80-320v160-160 560-560Z"/></svg><span>${fileName}</span></div>`;
 
       const stagesStat = document.createElement('div');
       stagesStat.className = 'stat';
@@ -2133,6 +2263,16 @@ function toggleFullscreen(){var d=window.document,el=d.documentElement,req=el.re
       confirmer.appendChild(fileInfo);
       confirmer.appendChild(stagesStat);
       confirmer.appendChild(qStat);
+
+      // Scenario image thumbnail — inserted inside the file-name bubble, above the filename
+      if (fileContent.image) {
+        const thumb = document.createElement('img');
+        thumb.id = 'scenario-thumbnail';
+        thumb.alt = 'Scenario image';
+        thumb.src = fileContent.image;
+        thumb.onerror = () => thumb.remove();
+        fileInfo.prepend(thumb);
+      }
 
       // Title bar
       document.getElementById('title-text').innerHTML = `<strong>${escapeHTML(fileContent.title || '')}</strong>`;
@@ -2378,18 +2518,30 @@ function toggleFullscreen(){var d=window.document,el=d.documentElement,req=el.re
       const qDiv = document.createElement('div');
       qDiv.className = 'question' + (isQuiz ? ' question-quiz' : '');
 
+      const labelId = `qlabel_${questionCounter}`;
+
+      const qHeader = document.createElement('div');
+      qHeader.className = 'question-header';
+
       const badge = document.createElement('div');
       badge.className = 'question-type-badge ' + (isQuiz ? 'quiz' : 'rating');
       badge.textContent = isQuiz ? 'Quiz' : 'Rating';
-      qDiv.appendChild(badge);
-
-      const labelId = `qlabel_${questionCounter}`;
 
       const qLabel = document.createElement('div');
       qLabel.className = 'question-label';
       qLabel.id = labelId;
       qLabel.textContent = item.question;
-      qDiv.appendChild(qLabel);
+
+      qHeader.appendChild(badge);
+      qHeader.appendChild(qLabel);
+      if (item.participantHidden) {
+        const hiddenBadge = document.createElement('span');
+        hiddenBadge.className = 'question-hidden-badge';
+        hiddenBadge.title = 'Hidden from participant screen';
+        hiddenBadge.textContent = 'participant hidden';
+        qHeader.appendChild(hiddenBadge);
+      }
+      qDiv.appendChild(qHeader);
 
       qList[`question_${questionCounter}`] = item.question;
 
@@ -2437,6 +2589,31 @@ function toggleFullscreen(){var d=window.document,el=d.documentElement,req=el.re
         feedback.className = 'quiz-feedback';
         qDiv.appendChild(feedback);
       }
+
+      // Clear answer button
+      const clearBtn = document.createElement('button');
+      clearBtn.className = 'clear-answer-btn';
+      clearBtn.setAttribute('aria-label', 'Clear answer');
+      clearBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" width="12" height="12" style="fill:currentColor"><path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/></svg>Clear`;
+      const qName = `question_${questionCounter}`;
+      clearBtn.addEventListener('click', () => {
+        // Uncheck all radios for this question
+        choices.querySelectorAll(`input[name="${qName}"]`).forEach(r => r.checked = false);
+        // Clear quiz feedback if present
+        const feedback = qDiv.querySelector('.quiz-feedback');
+        if (feedback) { feedback.textContent = ''; feedback.className = 'quiz-feedback'; }
+        // Hide the button
+        clearBtn.classList.remove('visible');
+        // Trigger recalculations
+        document.getElementById('questionsContainer').dispatchEvent(new Event('change'));
+      });
+
+      // Show clear button whenever an answer is selected
+      choices.addEventListener('change', () => {
+        clearBtn.classList.add('visible');
+      });
+
+      qDiv.appendChild(clearBtn);
 
       questionCounter++;
       return qDiv;
@@ -2567,7 +2744,7 @@ function toggleFullscreen(){var d=window.document,el=d.documentElement,req=el.re
         }
         setActiveStage(ActiveStage);
         scrollRoundIntoView(ActiveStage);
-        bc.postMessage({ type: "update", title: data[ActiveStage - 1].stage, content: data[ActiveStage - 1].content, discussion: data[ActiveStage - 1].discussion });
+        bc.postMessage({ type: "update", title: data[ActiveStage - 1].stage, content: data[ActiveStage - 1].content, discussion: data[ActiveStage - 1].discussion, questions: (data[ActiveStage - 1].questions || []).filter(q => !q.participantHidden), image: (fileContent && fileContent.image) || null });
       } else {
         ActiveStage = roundCounter + 1;
         setActiveStage(ActiveStage);
@@ -2580,7 +2757,7 @@ function toggleFullscreen(){var d=window.document,el=d.documentElement,req=el.re
         ActiveStage--;
         setActiveStage(ActiveStage);
         scrollRoundIntoView(ActiveStage);
-        bc.postMessage({ type: "update", title: data[ActiveStage - 1].stage, content: data[ActiveStage - 1].content, discussion: data[ActiveStage - 1].discussion });
+        bc.postMessage({ type: "update", title: data[ActiveStage - 1].stage, content: data[ActiveStage - 1].content, discussion: data[ActiveStage - 1].discussion, questions: (data[ActiveStage - 1].questions || []).filter(q => !q.participantHidden), image: (fileContent && fileContent.image) || null });
       } else {
         ActiveStage = 0;
         setActiveStage(ActiveStage);
@@ -2598,7 +2775,7 @@ function toggleFullscreen(){var d=window.document,el=d.documentElement,req=el.re
         }
         setActiveStage(ActiveStage);
         scrollRoundIntoView(ActiveStage);
-        bc.postMessage({ type: "update", title: data[ActiveStage - 1].stage, content: data[ActiveStage - 1].content, discussion: data[ActiveStage - 1].discussion });
+        bc.postMessage({ type: "update", title: data[ActiveStage - 1].stage, content: data[ActiveStage - 1].content, discussion: data[ActiveStage - 1].discussion, questions: (data[ActiveStage - 1].questions || []).filter(q => !q.participantHidden), image: (fileContent && fileContent.image) || null });
       } else if (stage === 0) {
         setActiveStage(ActiveStage);
         bc.postMessage(start);
@@ -2839,11 +3016,14 @@ function toggleFullscreen(){var d=window.document,el=d.documentElement,req=el.re
           if (uniqueQuestions.length === 0) sScore = 100;
           const isFullyAnswered = answeredQuestions === uniqueQuestions.length;
           completion = completion && isFullyAnswered;
+          const m = document.getElementById('marker' + tick);
+          const r = document.getElementById('round' + tick);
           if (isFullyAnswered) {
-            const m = document.getElementById('marker' + tick);
             if (m) m.classList.add('complete');
-            const r = document.getElementById('round' + tick);
             if (r) r.classList.add('complete');
+          } else {
+            if (m) m.classList.remove('complete');
+            if (r) r.classList.remove('complete');
           }
           totalSectionScores += parseFloat(totalScore);
           totalSections += answeredQuestions;
@@ -2856,6 +3036,11 @@ function toggleFullscreen(){var d=window.document,el=d.documentElement,req=el.re
           reportProgress.appendChild(sectionProgress.cloneNode(true));
           reportDiv.appendChild(reportProgress);
         } else {
+          // No answers at all — ensure complete is removed
+          const m = document.getElementById('marker' + tick);
+          const r = document.getElementById('round' + tick);
+          if (m) m.classList.remove('complete');
+          if (r) r.classList.remove('complete');
           if (ta && ta.value) reportDiv.appendChild(reportProgress);
           SectionScores.push({ name: 'Stage ' + tick, value: null, time: Number(stageTime[tick] || 0) });
         }
@@ -3030,7 +3215,7 @@ function toggleFullscreen(){var d=window.document,el=d.documentElement,req=el.re
         const t = line.trim();
 
         // Flush multiline if new directive starts
-        if (multiLineKey && (t.startsWith('! ') || t.startsWith('# ') || t.startsWith('? ') || t.startsWith('@ ') || t.startsWith('+ '))) {
+        if (multiLineKey && (t.startsWith('! ') || t.startsWith('# ') || t.startsWith('? ') || t.startsWith('?- ') || t.startsWith('@ ') || t.startsWith('+ '))) {
           const target = currentStage || json;
           target[multiLineKey] = processMarkdown(multiLineValue.trim());
           multiLineKey = null; multiLineValue = '';
@@ -3052,6 +3237,14 @@ function toggleFullscreen(){var d=window.document,el=d.documentElement,req=el.re
           currentKey = t.slice(2).trim();
           (currentStage || json)[currentKey] = [];
           currentQuestion = null; currentArrayContext = currentKey;
+
+        } else if (t.startsWith('?- ')) {
+          const qText = t.slice(3).trim();
+          currentQuestion = { question: escapeHTML(qText), answers: [], participantHidden: true };
+          if (!currentStage) json.questions = json.questions || [];
+          else currentStage.questions = currentStage.questions || [];
+          (currentStage ? currentStage.questions : json.questions).push(currentQuestion);
+          currentKey = null; currentArrayContext = null;
 
         } else if (t.startsWith('? ')) {
           const qText = t.slice(2).trim();
@@ -3084,7 +3277,7 @@ function toggleFullscreen(){var d=window.document,el=d.documentElement,req=el.re
           }
 
         } else if (multiLineKey) {
-          if (multiLineValue.length + t.length <= MAX_ML) multiLineValue += t + '\n';
+          if (multiLineValue.length + line.length <= MAX_ML) multiLineValue += line + '\n';
         }
       });
 
@@ -3098,31 +3291,81 @@ function toggleFullscreen(){var d=window.document,el=d.documentElement,req=el.re
 
     function processMarkdown(text) {
       let result = '';
-      const paragraphs = text.split(/\n\n+/);
-      paragraphs.forEach(para => {
-        let processed = escapeHTML(para.trim());
-        processed = processed.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-        processed = processed.replace(/\*(.*?)\*/g, '<em>$1</em>');
-        processed = processed.replace(/%\((.*?)\)/g, '<img class="SFmedia" src="$1" alt="">');
+      const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
+      let bulletItems = [], numberedItems = [];
+      let lastWasBlank = false;
 
-        let bulletItems = [], numberedItems = [];
-        const lines = processed.split('\n');
-        lines.forEach(ln => {
-          if (/^\s*-\s+(.*)$/.test(ln)) {
-            bulletItems.push(ln.replace(/^\s*-\s+/, ''));
-          } else if (/^\s*\d+\.\s+(.*)$/.test(ln)) {
-            numberedItems.push(ln.replace(/^\s*\d+\.\s+/, ''));
-          } else {
-            if (bulletItems.length) { result += '<ul>' + bulletItems.map(i => `<li>${i}</li>`).join('') + '</ul>'; bulletItems = []; }
-            if (numberedItems.length) { result += '<ol>' + numberedItems.map(i => `<li>${i}</li>`).join('') + '</ol>'; numberedItems = []; }
-            result += `<p>${ln}</p>`;
-          }
+      function flushLists() {
+        if (bulletItems.length) { result += '<ul>' + bulletItems.map(i => `<li>${i}</li>`).join('') + '</ul>'; bulletItems = []; }
+        if (numberedItems.length) { result += '<ol>' + numberedItems.map(i => `<li>${i}</li>`).join('') + '</ol>'; numberedItems = []; }
+      }
+
+      function applyInline(str) {
+        let s = escapeHTML(str);
+        s = s.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        s = s.replace(/\*(.*?)\*/g, '<em>$1</em>');
+        s = s.replace(/%\(([^|)]+?)(?:\|\s*([^)]+?))?\)/g, (_, src, scale) => {
+          const scaleAttr = scale ? ` data-scale="${scale.trim()}"` : '';
+          return `<img class="SFmedia" src="${src.trim()}" alt=""${scaleAttr} onload="applySFmediaScale(this)">`;
         });
-        if (bulletItems.length) result += '<ul>' + bulletItems.map(i => `<li>${i}</li>`).join('') + '</ul>';
-        if (numberedItems.length) result += '<ol>' + numberedItems.map(i => `<li>${i}</li>`).join('') + '</ol>';
-      });
-      result = result.replace(/<p>~(.*?)<\/p>/g, '<blockquote>$1</blockquote>');
+        return s;
+      }
+
+      // Trim leading/trailing blank lines only
+      let start = 0, end = lines.length - 1;
+      while (start <= end && lines[start].trim() === '') start++;
+      while (end >= start && lines[end].trim() === '') end--;
+
+      for (let i = start; i <= end; i++) {
+        const line = lines[i];
+        const isBlank = line.trim() === '';
+
+        if (isBlank) {
+          if (!lastWasBlank) {
+            flushLists();
+            result += '<p></p>';
+          }
+          lastWasBlank = true;
+          continue;
+        }
+
+        lastWasBlank = false;
+        const processed = applyInline(line);
+
+        if (/^\s*-\s+/.test(line)) {
+          bulletItems.push(applyInline(line.replace(/^\s*-\s+/, '')));
+        } else if (/^\s*\d+\.\s+/.test(line)) {
+          numberedItems.push(applyInline(line.replace(/^\s*\d+\.\s+/, '')));
+        } else {
+          flushLists();
+          if (/^~/.test(line.trim())) {
+            result += `<blockquote>${applyInline(line.trim().slice(1).trim())}</blockquote>`;
+          } else {
+            result += `<p>${processed}</p>`;
+          }
+        }
+      }
+
+      flushLists();
       return result;
+    }
+
+    function applySFmediaScale(img) {
+      const scaleStr = img.getAttribute('data-scale');
+      if (!scaleStr) return;
+      const pct = parseFloat(scaleStr);
+      if (isNaN(pct)) {
+        // Non-percentage value (px, em, etc.) — apply directly
+        img.style.width = scaleStr;
+        img.style.maxWidth = scaleStr;
+        img.style.maxHeight = 'none';
+      } else {
+        // Percentage — scale relative to the image's own natural width
+        const px = Math.round(img.naturalWidth * (pct / 100));
+        img.style.width = px + 'px';
+        img.style.maxWidth = px + 'px';
+        img.style.maxHeight = 'none';
+      }
     }
 
     function escapeHTML(unsafe) {

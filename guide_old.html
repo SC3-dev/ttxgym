@@ -423,8 +423,6 @@
         <li><a href="#tool">Using the tool</a></li>
         <li><a href="#scenario">Creating scenarios</a></li>
         <li><a href="#structure">TTXF file structure</a></li>
-        <li><a href="#markdown">Markdown syntax</a></li>
-        <li><a href="#example">Full example</a></li>
       </ul>
     </aside>
 
@@ -545,10 +543,9 @@
         Each 'content' type has specific indicators to denote its purpose.
       </p>
 
-      <p>Each scenario file should begin with a <code>title</code> and <code>summary</code> variable. An optional <code>image</code> variable can also be provided — if present, it will appear as a thumbnail in the facilitator sidebar and as a blurred background on the participant screen:</p>
+      <p>Each scenario file should begin with a <code>title</code> and <code>summary</code> variable:</p>
 
       <pre><code><span class="c-directive">! title: Example Scenario Title
-! image: https://example.com/cover.jpg
 ! summary</span>
 Example scenario summary.
 This can spread across multiple lines or paragraphs.</code></pre>
@@ -582,23 +579,13 @@ This can spread across multiple lines or paragraphs.</code></pre>
         </div>
         <div class="syntax-row">
           <div style="color:#c792ea">?</div>
-          <div>Assessment question (shown on participant screen)</div>
+          <div>Assessment question</div>
           <div><code style="color:#c792ea">? What action is taken first?</code></div>
-        </div>
-        <div class="syntax-row">
-          <div style="color:#c792ea;opacity:0.6">?-</div>
-          <div>Assessment question <em>(hidden from participant screen)</em></div>
-          <div><code style="color:#c792ea;opacity:0.7">?- Internal facilitator question</code></div>
         </div>
         <div class="syntax-row">
           <div style="color:var(--green)">++</div>
           <div>Correct answer (quiz mode)</div>
           <div><code style="color:var(--green)">++ Notify the security team</code></div>
-        </div>
-        <div class="syntax-row">
-          <div style="color:var(--amber)">! image</div>
-          <div>Scenario cover image URL — shown as thumbnail in facilitator sidebar and blurred background on participant screen</div>
-          <div><code style="color:var(--amber)">! image: https://example.com/img.jpg</code></div>
         </div>
       </div>
 
@@ -618,44 +605,12 @@ This can spread across multiple lines or paragraphs.</code></pre>
       <p>
         Define variables using <code>!</code> followed by a key and value separated by a colon. For multi-line
         values, omit the colon — everything on subsequent lines until the next directive becomes the value.
-        Blank lines within a multi-line value are preserved and rendered as paragraph breaks.
       </p>
 
       <pre><code><span class="c-directive">! author: Jane Doe
 ! content</span>
-This is the first paragraph of a description.
-
-A blank line above creates a new paragraph.
-This line continues the same paragraph.</code></pre>
-
-      <p>The following global variables are recognised at the top of the file (before any <code>@</code> stage declarations):</p>
-
-      <div class="syntax-grid" style="grid-template-columns: auto 1fr; margin-bottom: 1.5rem">
-        <div class="syntax-grid-header">
-          <div>Variable</div>
-          <div>Purpose</div>
-        </div>
-        <div class="syntax-row">
-          <div style="color:var(--amber);font-size:12px">! title</div>
-          <div>Scenario name — shown in the facilitator title bar</div>
-        </div>
-        <div class="syntax-row">
-          <div style="color:var(--amber);font-size:12px">! author</div>
-          <div>Scenario author name (optional)</div>
-        </div>
-        <div class="syntax-row">
-          <div style="color:var(--amber);font-size:12px">! summary</div>
-          <div>Introductory content shown on the first screen before stages begin</div>
-        </div>
-        <div class="syntax-row">
-          <div style="color:var(--amber);font-size:12px">! conclusion</div>
-          <div>Custom debrief text shown on the finish screen (optional)</div>
-        </div>
-        <div class="syntax-row">
-          <div style="color:var(--amber);font-size:12px">! image</div>
-          <div>URL of a cover image — displayed as a 16:9 thumbnail in the facilitator sidebar and as a blurred background on the participant screen (optional)</div>
-        </div>
-      </div>
+This is a multi-line description.
+It continues on multiple lines.</code></pre>
 
       <h3>3. Questions <span class="section-badge purple">? sigil</span></h3>
 
@@ -673,23 +628,12 @@ This line continues the same paragraph.</code></pre>
 + All centrally managed systems</span></code></pre>
 
       <p>
-        By default all questions are shown on both the facilitator view and the participant screen. To define a
-        question that is <strong>only visible to the facilitator</strong> — for example an internal scoring note
-        or a question you don't want to prompt participants with — use <code>?-</code> instead of <code>?</code>.
-        The question will still be answered and scored normally, but will not appear on the participant screen.
-      </p>
-
-      <pre><code><span class="c-question" style="opacity:0.65">?- How would you rate the team's overall response readiness?</span>
-<span class="c-answer">+ Poor
-+ Developing
-+ Proficient
-+ Exemplary</span></code></pre>
-
-      <p>
-        'Quiz' style questions are also supported, where only one option is correct and the rest are false.
-        For these question types, answers are scored as 100% for a correct answer and 0% for an incorrect one.
-        To use this type, define a question as normal but denote the correct answer using
+        However, 'quiz' style questions are also supported, where only one option is correct, and the rest are false.
+        For these question types, answers are simply scored as 100% for a right answer, and 0% if a
+        wrong answer is selected.
+        To use this type of question, simply deifne a question as normal but denote the correct answer using
         <code>++</code> instead of <code>+</code>.
+        This will then be treated as a quiz question.
       </p>
 
       <h3>4. Facilitator Prompts <span class="section-badge amber"># prompts</span></h3>
@@ -719,9 +663,9 @@ This line continues the same paragraph.</code></pre>
 + Do you have a designated board member with responsibility for security incidents?</span></code></pre>
 
       <!-- MARKDOWN SYNTAX -->
-      <h2 id="markdown">Markdown Syntax</h2>
+      <h2>Markdown Syntax</h2>
 
-      <p>Enhance your stage content using Markdown. The following features are supported within multi-line content fields:</p>
+      <p>Enhance your stage content using Markdown. The following features are supported:</p>
 
       <div class="syntax-grid">
         <div class="syntax-grid-header">
@@ -756,65 +700,36 @@ This line continues the same paragraph.</code></pre>
         </div>
         <div class="syntax-row">
           <div><code>%(url)</code></div>
-          <div>Embed image at full width</div>
+          <div>Embed image</div>
           <div style="color:var(--text-muted);font-size:12px">Image rendered from URL</div>
         </div>
-        <div class="syntax-row">
-          <div><code>%(url | 50%)</code></div>
-          <div>Embed image scaled to a percentage of its natural size, or at an absolute size (e.g. <code>200px</code>). Uses a pipe <code>|</code> as delimiter to avoid conflicts with URLs containing commas</div>
-          <div style="color:var(--text-muted);font-size:12px">Image at specified scale</div>
-        </div>
-        <div class="syntax-row">
-          <div style="font-size:12px;font-family:var(--font-mono);text-align:center;color:var(--text-muted)">(blank line)</div>
-          <div>A blank line between paragraphs of content creates a visible paragraph break when rendered. Lines without a blank line between them are joined into one paragraph</div>
-          <div style="color:var(--text-muted);font-size:12px">Paragraph spacing</div>
-        </div>
-      </div>
-
-      <div class="tip-card">
-        <strong>Tip:</strong> The pipe character (<code>|</code>) was chosen as the image scale delimiter because it is not a valid unencoded character in URLs — so even URLs containing commas will be parsed correctly. For example: <code>%(https://cdn.example.com/img?a=1,b=2 | 60%)</code>
       </div>
 
       <!-- FULL EXAMPLE -->
-      <h2 id="example">Full Example</h2>
+      <h2>Full Example</h2>
 
       <p>Here is a complete configuration file demonstrating all features:</p>
 
       <pre><code><span class="c-directive">! title: Security Breach Response Plan
 ! author: Jane Doe
-! image: https://example.com/cover-photo.jpg
 ! summary</span>
 This scenario depicts an unusual login to a critical system.
-Participants will be asked to consider their organisation's response procedures.
 
 <span class="c-stage">@ Stage 1: Identification</span>
 <span class="c-directive">! content</span>
-An unusual login attempt was detected on a critical system at 02:14.
-
-A blank line above creates a new paragraph when rendered.
-%(https://example.com/diagram.png | 80%)
-
-The incident response process should be invoked immediately.
+An unusual login attempt was detected.
+%(https://example.com/diagram.png)
+The incident response process should be invoked.
 
 <span class="c-array"># prompts</span>
 <span class="c-answer">+ Ask the team to identify possible attack vectors.
 + Discuss recent security training and preparedness.
 + Explore options for immediate response.</span>
 
-<span class="c-array"># discussion</span>
-<span class="c-answer">+ What does your incident response plan say about out-of-hours alerts?
-+ Who holds the authority to invoke the response process?</span>
-
 <span class="c-question">? What action should be taken first?</span>
 <span class="c-answer">+ Notify the security team
 + Investigate the login origin
 + Block the IP address</span>
-
-<span class="c-question" style="opacity:0.65">?- How would you rate the team's initial response readiness?</span>
-<span class="c-answer">+ Poor
-+ Developing
-+ Proficient
-+ Exemplary</span>
 
 <span class="c-stage">@ Stage 2: Containment</span>
 <span class="c-directive">! content</span>
@@ -829,15 +744,9 @@ Contain the breach by isolating affected systems.
 <span class="c-answer">+ Not at all
 + Somewhat
 + Mostly
-+ Completely</span>
++ Completely</span></code></pre>
 
-<span class="c-question">? Which system was used to detect the initial alert?</span>
-<span class="c-answer">+ No detection system in place
-+ Manual log review</span>
-<span class="c-answer" style="color:var(--green)">++ SIEM / automated monitoring</span>
-<span class="c-answer">+ Third-party managed detection</span></code></pre>
-
-      <p>Use this guide to create structured, readable, and actionable scenario files.</p>
+      <p>Use this guide to create structured, readable, and actionable configuration files.</p>
 
     </main>
   </div>

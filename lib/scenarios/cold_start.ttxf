@@ -1,0 +1,255 @@
+! title: Exercise Cold Start - Business Area Disruption
+! author: Scottish Cyber Coordination Centre
+! image: https://ttxgym.com/lib/images/cold_start.jpg
+! summary
+This exercise is designed to explore the impact of a cyber attack that results in the loss of a critical IT function that supports the Business Area. This loss could either be as a direct result of the cyber incident or a containment put in place removing the service to enable forensic investigation.
+
+**Scenario Purpose**
+The scenario is fictitious although plausible. It is designed to encourage thoughtful responses and values everyone’s views during the exercise.
+**Non-binding Decisions**
+Decisions made during the exercise do not set precedents or bind future actions.
+**Objective Thinking**
+The exercise is designed to flex participant thinking, not to test individuals.
+**Engagement Mindset**
+Participants should engage with the scenario without resisting its plausibility.
+** Inject Structure**
+For each inject we will pose a Quiz response question to get the conversation started. There is an Optimal Answer albeit in reality, this is often qualified by "it depends" - but play along. This will be followed by some specific discussion questions to broaden the discussion.
+
+! conclusion
+~**Key Insights**
+**Early-stage uncertainty:** Initial investigations often lack verified information, creating decision-making challenges under pressure.
+**Service disruption risk:** Critical services may remain offline with no clear restoration timeline, requiring robust contingency planning.
+**Business Continuity and Resilience:** Plans and **Business Impact Assessments** should address extended outages, alternative workflows, and prioritisation of recovery activities.
+**Communication strategy:** Must include staff, stakeholders, media, and potential threat actor engagement, ensuring consistent and secure messaging.
+**Data integrity concerns:** Organisations increasingly choose rebuild over restore when integrity cannot be assured, emphasizing the need for validated backups.
+**Scenario-based exercising:** Exercises expose strengths and weaknesses in plans, roles, and decision-making, enabling targeted improvements.
+**Additional considerations:**
+- Integrate legal/regulatory reporting obligations (e.g. GDPR, law enforcement).
+- Address third-party dependencies and supplier coordination.
+- Prepare leadership for high-stakes decisions under uncertainty with - predefined escalation criteria.
+- Include cyber-specific continuity measures: offline recovery, secure communications, and integration with incident response.
+
+
+@ Exercise Aims and Objectives
+! content
+**AIMS**
+1. Test operational and service-led decision-making under conditions of uncertainty in an emerging cyber incident.
+2. Assess how effectively crisis response and business continuity measures support service delivery when core systems fail.
+3. Expose gaps in communication, escalation, and incident governance.
+4. Build realistic understanding of prolonged service disruption, data integrity risks, and data exfiltration impacts.
+**OBJECTIVES**
+Participants should be able to:
+- Identify immediate operational and service impacts following an unexpected cyber incident disruption.
+- Demonstrate appropriate escalation and reporting actions.
+- Apply business continuity arrangements using realistic fallback options.
+- Understand obligations relating to integrity failure, data loss, and exfiltration.
+- Communicate effectively with senior leaders, staff, partners, and—if appropriate—the public.
+- Participate constructively in organisation-wide incident coordination.
+
+
+@ DETECTION AND IMMEDIATE SYSTEM SHUTDOWN
+! content
+%(https://ttxgym.com/lib/exercise_data/TTXGYM_Warning_red.png | 10%)
+The IT Team has detected suspicious activity on the core operational system. Indicators include unusual authentication attempts and abnormal database queries.
+
+Security initiates an immediate shutdown of the system to contain and prevent possible wider propagation.
+
+Your team have been notified of the shutdown, and there is no timeline for restoration of services.
+
+
+
+# discussion
++ What is the immediate impact of the system outage and what is your first operational response?
++ What is the process for activating your Business Continuity Plans and where do they live?
++ Who do you notify within the first 15 mins of loss of service and how and what will be communicated to the staff?
+# prompts
++ Answer 1: Delays continuity and creates confusion; unacceptable for critical services.
++ Answer 2: Close, but wording suggests acting blindly without alignment to the incident’s facts or scope.
++ Answer 3: Contradicts the shutdown order and increases risk; “normal” operations are not possible or safe.
++ Answer 4: OPTIMAL ANSWER - the service lead’s priority is continuity of critical services and clear situational communication.
+? What is your immediate action as a service lead?
++ 1. Wait for more information before doing anything.
++ 2. Activate business continuity processes immediately, even if you’re unsure.
++ 3. Email IT asking for an Estimated Time for Recovery and carry on as normal until response.
+++ 4. Inform staff the system is down and improvise temporary workarounds.
+?- How confident are you that the decision to deny access to critical systems to contain a threat rests with the  person best qualified to understand that risk, and is not delayed by the need to seek permission from a higher authority?
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+
+@ EARLY FORENSIC AMBIGUITY
+! content
+%(https://ttxgym.com/lib/exercise_data/TTXGYM_Forensic_teal.png | 10%)
+~**Scenario Update**
+Forensic triage begins. Early signs are as follows:
+
+- Unauthorised access is likely to have occurred.
+- Database behaviour is “not normal”.
+- Data integrity cannot be confirmed.
+- No timeline for restoration can be provided at this stage.
+
+There is no clarity yet on what was accessed, changed, or stolen.
+
+# discussion
++ How do you communicate uncertainty without misleading or panicking staff?
++ Do you escalate the incident now, if so, what's the process?
++ How do you deliver the service without trusting the system?
++ What immediate decisions do you need from your senior leadership?
+# prompts
++ Answer 1: Inaccurate and risky—there are known risk indicators; carrying on normally could propagate harm.
++ Answer 2: Operationally sensible, but as a briefing it misses crucial context and can sound speculative. You should activate continuity, but frame it within known facts.
++ Answer 3: Vague and minimising—erodes trust, could lead to complacency, and lacks practical guidance.
++ Answer 4: OPTIMAL ANSWER Your team needs clear, honest, and actionable information without speculation.
+? How do you brief your team at this stage?
++ We don’t know anything yet - carry on.
++ Assume this will last a while - activate Business Continuity Arrangements.
++ We think there’s been a hack but don’t worry.
+++ We are working with incomplete information; here’s what we do know.
+
+@ CONFIRMED DATA INTEGRITY FAILURE
+! content
+~**Scenario Update**
+Digital Forensic investigation confirms that:
+- Data has been altered and or deleted.
+- You cannot trust any dataset in the system.
+- It is unclear how long this has been the case.
+
+# discussion
++ What critical decisions rely on accurate data?
++ How do you operate when data cannot be trusted?
++ Who needs to be informed immediately?
+# prompts
++ Answer 1: Dangerous and non-compliant — integrity failure means nothing can be assumed safe.
++ Answer 2: OPTIMAL ANSWER - the risk profile changes dramatically, trust that the data is gone and immediate containment  is required.
++ Answer 3: Premature—restoration requires forensic clearance and clean backup validation; doing this now risks reinfection or rollback to an already compromised state.
++ Answer 4: Important, but not sufficient as an immediate operational action. You should do this after pausing risky activities and activating continuity.
+? Which of these actions is most appropriate at this early stage?
++ 1: Continue operations and assume most records are probably fine.
+++ 2: Pause all data-dependent activities and switch to manual processes.
++ 3: Ask the IT team to restore from backup immediately.
++ 4: Notify senior leadership that key decisions can’t be safely made.
+
+@ CONFIRMED DATA EXFILTRATION
+! content
+~**Scenario Update**
+The investigation confirms that data has been exfiltrated (stolen).
+The volume of data stolen, the content of the data, and its recipients remain unknown at this time.
+
+** Consider the impact of notifying the following groups, and which group should you notify first.**
+
+# discussion
++ What risks exist if data on systems within your business area are stolen and or published as a result of an attack?
++ How do you manage reputational risk to your business area?
++ What internal and external communications are required today and how do you contribute to this?
++ What are your notification duties (ICO, regulators, commissioners)?
+# prompts
++ Answer 1: Premature and risky—public disclosure without clarity can cause panic, misinformation, and reputational harm. Public comms should follow regulatory and leadership guidance.
++ Answer 2: OPTIMAL ANSWER - When data exfiltration is confirmed, even without knowing the volume or recipients, you have a legal, regulatory, and governance obligation to escalate immediately.
++ Answer 3: Staff need guidance, but first priority is compliance and governance. Internal comms come after initial escalation.
++ Answer 4: Non-compliant—waiting for full clarity breaches regulatory timelines and increases liability.
+? Who needs to be notified first?
++ The public / clients.
+++ Regulators, IG, and senior management.
++ Staff only—don’t leak information prematurely.
++ No one until the forensics team confirm exactly what was stolen.
+
+@ SUPPLIER UNCERTAINTY AND CONTRACTUAL GAPS
+! content
+%(https://ttxgym.com/lib/exercise_data/TTXGYM_Chain_teal.png | 10%)
+**For the purposes of this part of the exercise assume the primary IT system affected is provided by an external supplier.**
+~**Scenario Update**
+Your system supplier advises that:
+- They cannot confirm root cause.
+- They cannot give a restoration timeline.
+- Contractual obligations are “under review”.
+
+# discussion
++ What contractual obligations exist for Incident Response, Recovery Time Objective, and reporting of incidents to you?
++ How do you escalate poor supplier performance?
++ What evidence do you need to hold suppliers accountable?
++ Do you explore alternative technical options?
+# prompts
++ Answer 1: Passive and high-risk—service continuity and compliance obligations require proactive escalation.
++ Answer 2: OPTIMAL ANSWER - When a supplier signals root cause unknown, no restoration timeline, and contractual obligations under review, this is a critical risk escalation point 1: Passive and high-risk—service continuity and compliance obligations require proactive escalation.
++ Answer 3: Unrealistic and unenforceable without clarity on root cause; could damage supplier relationship without improving outcome.
++ Answer 4: Important, but should follow formal escalation first. Legal / Information Governance engagement is part of the escalation process, not the initial step alone.
+? Supplier tells you they “need more time”. What do you do?
++ Accept this and wait.
+++ Escalate via formal contract management channels.
++ Demand restoration within 24 hours / or the agreed contractual obligation.
++ Contact legal / Information Governance and raise and record their non-compliance.
+
+@  RESTORATION WILL TAKE WEEKS OR MONTHS
+! content
+~**Scenario Update**
+The Cyber Security team informs you:
+- A full forensic investigation is required.
+- System rebuild must occur from "gold images" (known secured copy of standard safe build image of your IT system).
+- Data integrity must be checked before go-live.
+- Likely downtime: several weeks to multiple months.
+
+# discussion
++ How do you maintain service with reduced capability, and what's the impact on staff welfare?
++ What legally cannot stop, and what can?
++ What additional resources are needed to maintain service?
++ How do you explain a multi-week outage to senior leaders and the public?
+# prompts
++ Answer 1: Not viable: existing data is untrusted until integrity is validated; normal service would be unsafe and non compliant.
++ Answer 2: OPTIMAL ANSWER  - the only credible posture is to continue essential services via manual/approved offline processes with strict controls.
++ Answer 3: Sometimes necessary for non critical functions, but public services typically must maintain a minimum viable service for duty of care and statutory obligations.
++ Answer 4: Rarely feasible at short notice: procurement, data protection agreements, technical integration, and onboarding usually exceed a one month horizon.
+? What is the most realistic service posture for the next month?
++ Full normal service using existing data.
+++ Severely reduced capability relying on manual processes.
++ Complete shutdown until the system returns.
++ Outsource everything temporarily.
+
+@ ORGANISATIONAL INCIDENT COORDINATION (Strategic, Operations and Technical)
+! content
+%(https://ttxgym.com/lib/exercise_data/TTXGYM_Documents_teal.png | 10%)
+~**Scenario Update**
+A major incident is declared. Service leads must:
+- Provide a Situation Report (SITREP) on the impact on their Business Area.
+- Attend coordination meetings.
+- Represent risks, impacts, and priorities.
+- Feed decisions back to teams.
+
+# discussion
++ What decisions do you require from senior leadership?
++ How do you coordinate with other services?
++ What dependencies need escalation?
++ What organisational risks does your service loss/reduction create?
+# prompts
++ Answer 1: Too technical for Gold/Silver; belongs in SOC/forensics reports, not executive coordination.
++ Answer 2: Irrelevant and unhelpful for structured incident management.
++ Answer  3: OPTIMAL ANSWER  - The goal is to enable rapid prioritisation and resource allocation, not overwhelm with logs or speculation.
++ Answer 4: Incorrect—there is always something known (impacts, risks, actions underway). This erodes confidence and delays decisions.
+? Your SITREP should contain which three things?
++ Detailed root cause, technical logs, and firewall analysis.
++ Staff feelings, internal politics, and assumptions.
+++ Key impacts, key risks, and immediate decisions needed
++ “We don’t know anything yet.”
+
+@ SERVICE RECOVERY
+! content
+%(https://ttxgym.com/lib/exercise_data/TTXGYM_Shield_teal.png | 10%)
+A week has passed without full IT service functionality. Fortunately the forensic examination identified the threat, it was contained and eliminated. Data integrity was established from a clean back up and a Statement of Assurance has been provided by the Cyber Incident Response Specialist undertaking the investigation which attests to the resumed integrity of the system.
+
+# discussion
++ How would you assess the reputational impact of this prolonged disruption on your stakeholders (customers, regulators, partners), and what proactive steps could have been taken to maintain trust during the outage?
++ Based on this experience, how confident are you in the robustness of your business continuity plans and third-party contract arrangements—did they deliver what was expected, and where were the gaps?
++ What are the top three lessons from this disruption that should inform future planning, investment, and leadership decision-making?
+? How confident are you that your business area currently has in place Business Continuity Plans that are 'match fit' to respond to a sustained loss of a critical IT system which could run into weeks or months?
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
+? Having undergone this exercise how confident are you with your current area Business Impact Assessment?
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
