@@ -1758,9 +1758,9 @@ p{margin:0 0 0.75rem;line-height:1.7}
   *{box-sizing:border-box;margin:0}
   :root{--back:#141820;--mid:#1e2535;--accent:#2e7de0;--green:#3ec9c8;--text:#e8ecf2;--text2:rgba(232,236,242,0.55)}
   body{font-family:"Montserrat",sans-serif;background:var(--back);background-image:radial-gradient(circle at 82% 60%,rgba(59,59,59,.06) 0,rgba(59,59,59,.06) 69%,transparent 69%),linear-gradient(135deg,#141c33 0%,#0d2040 100%);height:100vh;width:100vw;display:flex;align-items:center;justify-content:center;color:var(--text)}
-  #bgimg{position:fixed;inset:0;z-index:0;background-size:cover;background-position:center;filter:blur(8px) brightness(0.35);transform:scale(1.08);display:none}
+  #bgimg{position:fixed;inset:0;z-index:0;background-size:cover;background-position:center;filter:blur(8px) brightness(0.6);transform:scale(1.08);display:none}
   #bgimg.show{display:block}
-  .container{position:relative;z-index:1;background:rgba(30,37,53,0.96);border:1px solid rgba(255,255,255,.07);border-radius:12px;width:84%;height:84%;padding:0 2rem 1.5rem;display:grid;grid-template-rows:auto 1fr auto;gap:0;overflow:hidden;font-size:inherit}
+  .container{position:relative;z-index:1;background:rgba(30,37,53,0.96);border:1px solid rgba(255,255,255,.1);border-radius:12px;width:84%;height:84%;padding:0 2rem 1.5rem;display:grid;grid-template-rows:auto 1fr auto;gap:0;overflow:hidden;font-size:inherit}
   ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-thumb{background:rgba(46,125,224,.4);border-radius:99px}
   #pause{position:absolute;inset:0;z-index:9;display:flex;align-items:center;justify-content:center;background:rgba(20,24,32,.85);backdrop-filter:blur(6px)}
   #pause.hidden-overlay{display:none}
@@ -1769,7 +1769,7 @@ p{margin:0 0 0.75rem;line-height:1.7}
   .overlay-card h2{font-size:18px;font-weight:700}
   h1{text-align:center;font-size:1.7em;font-weight:800;color:rgba(232,236,242,.9);padding:1.5rem 0 .75rem;border-bottom:1px solid rgba(255,255,255,.07)}
   #middleWrap{overflow-y:auto;padding:.5rem 0}
-  #content{padding:.75rem 0;line-height:1.8;color:var(--text2);font-size:1em}
+  #content{padding:.75rem 0;line-height:1.8;font-size:1em}
   #content p{margin-bottom:.75rem}
   #content p:empty{margin-bottom:0;min-height:.75rem}
   #content strong{color:var(--text)}
@@ -1807,7 +1807,7 @@ p{margin:0 0 0.75rem;line-height:1.7}
   .pq-badge.quiz{background:rgba(62,201,200,.12);color:#3ec9c8;border:1px solid rgba(62,201,200,.28)}
   .pq-label{font-size:.88em;font-weight:600;color:rgba(232,236,242,.9);line-height:1.45}
   .pq-choices{display:flex;flex-wrap:wrap;gap:.4rem}
-  .pq-choice{font-size:.78em;font-style:italic;color:rgba(232,236,242,.55);padding:.28rem .65rem;border-radius:99px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04)}
+  .pq-choice{font-size:.78em;font-style:italic;padding:.28rem .65rem;border-radius:99px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04)}
   </style>
 </head>
 <body>
@@ -1913,13 +1913,14 @@ function toggleFullscreen(){var d=window.document,el=d.documentElement,req=el.re
       title: "Exercise Outcomes",
       content: `<p>Finish the exercise by discussing and collating what you learned, how your understanding of this scenario has changed, and what processes you might update as a result.</p>
 <p>Make recommendations that will develop confidence in areas identified as having scope for improvement. Allocate recommendations to the people in your organisation who can facilitate change and action improvement.</p>
-<p>Discuss the risks associated with not addressing the recommendations. Ensure any recommendations are implemented and, when ready, run the exercise again to see how those changes have impacted your organisation.</p>`,
-      discussion: [
-        "What did you learn from running the exercise?",
-        "How has your understanding of this scenario changed?",
-        "What will you look to change or implement across your organisation?",
-        "How can recommendations be assigned and tracked within your organisation?"
-      ]
+<p>Discuss the risks associated with not addressing the recommendations. Ensure any recommendations are implemented and, when ready, run the exercise again to see how those changes have impacted your organisation.</p>
+<blockquote><ul>
+<li>What did you learn from running the exercise?</li>
+<li>How has your understanding of this scenario changed?</li>
+<li>What will you look to change or implement across your organisation?</li>
+<li>How can recommendations be assigned and tracked within your organisation?</li>
+</ul></blockquote>`,
+      discussion: []
     };
 
     /* =============================================
@@ -2158,7 +2159,9 @@ function toggleFullscreen(){var d=window.document,el=d.documentElement,req=el.re
         image: fileContent.image || null
       };
 
-      if (fileContent.conclusion) finish.content = fileContent.conclusion;
+      if (fileContent.conclusion) {
+        finish.content = fileContent.conclusion;
+      }
 
       const container = document.getElementById('questionsContainer');
       container.innerHTML = '';
@@ -2234,7 +2237,7 @@ function toggleFullscreen(){var d=window.document,el=d.documentElement,req=el.re
         'round-finish', 'Finish',
         finish.title || 'Exercise Outcomes',
         finish.content,
-        finish.discussion || []
+        []
       );
       container.appendChild(outroCard);
 
@@ -2385,6 +2388,24 @@ function toggleFullscreen(){var d=window.document,el=d.documentElement,req=el.re
         talkContent.appendChild(talkList);
         talkDiv.appendChild(talkContent);
         wrapper.appendChild(talkDiv);
+      }
+
+      // Facilitator notes panel — shown only on the intro card
+      if (id === 'round0') {
+        const introNotes = document.createElement('div');
+        introNotes.className = 'prompt';
+        introNotes.innerHTML = `<div class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" aria-hidden="true"><path d="M480-360q17 0 28.5-11.5T520-400q0-17-11.5-28.5T480-440q-17 0-28.5 11.5T440-400q0 17 11.5 28.5T480-360Zm-40-160h80v-240h-80v240ZM80-80v-720q0-33 23.5-56.5T160-880h640q33 0 56.5 23.5T880-800v480q0 33-23.5 56.5T800-240H240L80-80Zm126-240h594v-480H160v525l46-45Zm-46 0v-480 480Z"/></svg></div>`;
+        const introNotesContent = document.createElement('div');
+        introNotesContent.style.fontSize = '13px';
+        introNotesContent.style.lineHeight = '1.7';
+        introNotesContent.innerHTML = `<strong style="display:block;margin-bottom:.35rem;">Facilitator Notes</strong>
+<ul style="padding-left:1.1rem;margin:0;">
+  <li>Open a <strong>Participant Window</strong> from the sidebar to display content to your audience on a second screen or projector.</li>
+  <li>Use the <strong>Next</strong> button in the bottom bar to advance through stages in sequence, or click any stage marker to jump directly to it.</li>
+  <li>Facilitator notes and participant answers can only be edited while a stage is <strong>live</strong> (i.e. currently active).</li>
+</ul>`;
+        introNotes.appendChild(introNotesContent);
+        wrapper.appendChild(introNotes);
       }
 
       roundDiv.appendChild(wrapper);
