@@ -1,5 +1,6 @@
 ! title: A ransomware attack delivered by a phishing email
 ! author: Exercise adapted from NCSC 'Exercise-in-a-Box'
+! image: https://ttxgym.com/lib/images/rabpe1.jpg
 ! summary
 This scenario presents a common method that attackers use to infect an organisation with ransomware.
 It will help you understand how well-meaning users can fall victim to phishing attacks and what the consequences of that are.
