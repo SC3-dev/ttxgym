@@ -4,8 +4,7 @@
     "author": "NCSC",
     "image": "byod1",
     "categories": [
-      "Devices",
-      "Policy"
+      "Devices"
     ],
     "level": "Operational",
     "duration": "45 mins",
@@ -27,8 +26,7 @@
     "author": "NCSC",
     "image": "scs1",
     "categories": [
-      "Supply Chain",
-      "Policy"
+      "Supply Chain"
     ],
     "level": "Strategic",
     "duration": "90 mins",
@@ -50,7 +48,6 @@
     "author": "NCSC",
     "image": "mavd1",
     "categories": [
-      "Policy",
       "Media"
     ],
     "level": "Strategic",
@@ -65,7 +62,7 @@
       "Insider Threat",
       "Media",
       "Communications",
-      "Data Breach",
+      "Data Loss",
       "Access Control"
     ],
     "level": "Strategic",
@@ -91,8 +88,7 @@
     "categories": [
       "Supply Chain",
       "Communications",
-      "Data Breach",
-      "Policy"
+      "Data Loss"
     ],
     "level": "Executive",
     "duration": "60 mins",
@@ -118,7 +114,6 @@
     "image": "mptar",
     "categories": [
       "Devices",
-      "Policy",
       "Data Loss",
       "Communications"
     ],
@@ -132,7 +127,6 @@
     "image": "bafauw1",
     "categories": [
       "Devices",
-      "Policy",
       "Data Loss"
     ],
     "level": "Operational",
@@ -156,8 +150,7 @@
     "image": "itriadb1",
     "categories": [
       "Insider Threat",
-      "Data Loss",
-      "Data Breach"
+      "Data Loss"
     ],
     "level": "Executive",
     "duration": "90 mins",
@@ -170,7 +163,7 @@
     "categories": [
       "Policy",
       "Media",
-      "Data Breach",
+      "Data Loss",
       "Communications",
       "Backups"
     ],
