@@ -1,12 +1,13 @@
 ! title: Mobile phone theft and response
 ! author: Exercise adapted from NCSC 'Exercise-in-a-Box'
-! image: https://ttxgym.com/lib/images/mptar.jpg
+! image: ../lib/images/mptar.jpg
 ! summary
 This scenario depicts a user losing an organisation-provisioned mobile phone, which is then stolen.
 The exercise explores your organisation's readiness to handle mobile device security, incident response, and communication.
 It is based on the "Mobile phone theft and response" tabletop exercise materials.
 
 @ Inject 1
+! duration: 10 mins
 ! content
 A user travelling by train to a meeting misplaces an organisation-provisioned mobile phone, only noticing after they have left the station.
 Unfortunately, it soon falls into the hands of an opportunistic thief.
@@ -32,6 +33,7 @@ The thief believes it is a personal phone and attempts to access it in case it h
 + Completely confident
 
 @ Inject 2
+! duration: 10 mins
 ! content
 The thief, having failed to gain access to the phone, sells it on to a dealer who in turn sells it to a criminal hacker who specialises in gaining access to locked devices.
 The hacker makes money by gaining access to devices and selling extracted information, or payment card details.
@@ -57,6 +59,7 @@ An old version of the software running on the device is known to have a security
 + Completely confident
 
 @ Inject 3
+! duration: 10 mins
 ! content
 Upon being notified that the device has been lost, your organisation presumes it has been stolen and wishes to ensure that information on the phone is not compromised.
 
@@ -87,6 +90,7 @@ Upon being notified that the device has been lost, your organisation presumes it
 + Completely confident
 
 @ Inject 4
+! duration: 10 mins
 ! content
 The user mentioned to a supplier that they had misplaced their phone.
 The supplier now contacts your organisation concerned that sensitive information may have been contained on the device.

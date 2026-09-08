@@ -1,6 +1,6 @@
 ! title: Heightened cyber threat
 ! author: Exercise adapted from NCSC 'Exercise-in-a-Box'
-! image: https://ttxgym.com/lib/images/hct1.jpg
+! image: ../lib/images/hct1.jpg
 ! summary
 This scenario explores an incident which leads to an increased threat of cyber attack.
 This could be the result of a new zero-day exploit that is actively being used, negative press surrounding your organisation or geo-political tensions between your country and another nation state.
@@ -9,6 +9,7 @@ You are encouraged to discuss how this would impact your organisation, including
 You can also discuss your approach to cyber insurance, and long-term resilience planning.
 
 @ Stage 1: Fundamentals
+! duration: 10 mins
 ! content
 In ‘business as usual’ circumstances it is important to ensure some fundamental cyber security controls are in-place to reduce the risk of a cyber attack.
 Understanding your current cyber posture will help you to effectively respond to reports of a heightened cyber threat situation.
@@ -28,34 +29,35 @@ This section explores your cyber posture, your approach to asset management, mon
 + Where are your backups? On your network? In the cloud? At an offsite location?
 
 ? How confident are you in the following statement: Our assets are recorded and we have a good understanding of patch levels.
-+ 1. Not at all confident
-+ 2. Slightly confident
-+ 3. Somewhat confident
-+ 4. Fairly confident
-+ 5. Completely confident
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
 
 ? How confident are you in the following statement: We are confident with the visibility we have of activity on our networks.
-+ 1. Not at all confident
-+ 2. Slightly confident
-+ 3. Somewhat confident
-+ 4. Fairly confident
-+ 5. Completely confident
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
 
 ? How confident are you in the following statement: We are confident in our incident response plans.
-+ 1. Not at all confident
-+ 2. Slightly confident
-+ 3. Somewhat confident
-+ 4. Fairly confident
-+ 5. Completely confident
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
 
 ? How confident are you in the following statement: Our tested backup methods are effective.
-+ 1. Not at all confident
-+ 2. Slightly confident
-+ 3. Somewhat confident
-+ 4. Fairly confident
-+ 5. Completely confident
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
 
 @ Stage 2: Increased cyber threat
+! duration: 10 mins
 ! content
 Geo-political tensions have heightened the cyber threat level.
 There has not been any direct threat to your organisation however it is believed that organisations in the same sector as you are likely to be targeted.
@@ -78,34 +80,35 @@ Recalling any past examples of a potential threat, or actual attack, may help th
 + Who in your organisation will be required to support the heightened posture?
 
 ? How confident are you in the following statement: We know where to get threat information and guidance.
-+ 1. Not at all confident
-+ 2. Slightly confident
-+ 3. Somewhat confident
-+ 4. Fairly confident
-+ 5. Completely confident
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
 
 ? How confident are you in the following statement: Our organisation will respond to guidance around an increased cyber threat.
-+ 1. Not at all confident
-+ 2. Slightly confident
-+ 3. Somewhat confident
-+ 4. Fairly confident
-+ 5. Completely confident
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
 
 ? How confident are you in the following statement: We understand the pressures that heightened posture might bring to our organisation.
-+ 1. Not at all confident
-+ 2. Slightly confident
-+ 3. Somewhat confident
-+ 4. Fairly confident
-+ 5. Completely confident
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
 
 ? How confident are you in the following statement: We understand what may and may not be covered by cyber insurance.
-+ 1. Not at all confident
-+ 2. Slightly confident
-+ 3. Somewhat confident
-+ 4. Fairly confident
-+ 5. Completely confident
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
 
 @ Stage 3: Government and media reporting
+! duration: 10 mins
 ! content
 The media are reporting several websites and local government services have been taken offline and are not accessible.
 It is reported that widespread cyber attacks are taking place in the form of Distributed Denial of Service (DDoS), website defacements, and ransomware attacks.
@@ -127,28 +130,29 @@ This information can then be used to defend your organisation more effectively.
 + Do you have an up-to-date emergency point of contact for each of your suppliers?
 
 ? How confident are you in the following statement: We consume and share threat intelligence data.
-+ 1. Not at all confident
-+ 2. Slightly confident
-+ 3. Somewhat confident
-+ 4. Fairly confident
-+ 5. Completely confident
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
 
 ? How confident are you in the following statement: Our supply chain risks are fully understood.
-+ 1. Not at all confident
-+ 2. Slightly confident
-+ 3. Somewhat confident
-+ 4. Fairly confident
-+ 5. Completely confident
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
 
 ? How confident are you in the following statement: Our organisation has robust business continuity plans in place.
-+ 1. Not at all confident
-+ 2. Slightly confident
-+ 3. Somewhat confident
-+ 4. Fairly confident
-+ 5. Completely confident
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
 
 @ Stage 4: Increased targeting
-! conten
+! duration: 10 mins
+! content
  Your IT Security are reporting an increase in external scanning against your systems and have also detected a significant increase in phishing emails to several of your employees.
 This section examines how your organisation can detect and respond to actions carried out by potential adversaries.
 It aims to get the participants thinking about how cyber attacks can be detected, if there is sufficient monitoring in place and what gaps may exist.
@@ -169,27 +173,28 @@ It also explores the procedures that you have for sharing threat data with other
 + Are your incident response playbooks reviewed regularly?
 
 ? How confident are you in the following statement: We can identify malicious activity in all our internet facing systems.
-+ 1. Not at all confident
-+ 2. Slightly confident
-+ 3. Somewhat confident
-+ 4. Fairly confident
-+ 5. Completely confident
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
 
 ? How confident are you in the following statement: We are confident our incident response playbooks are up-to-date and effective.
-+ 1. Not at all confident
-+ 2. Slightly confident
-+ 3. Somewhat confident
-+ 4. Fairly confident
-+ 5. Completely confident
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
 
 ? How confident are you in the following statement: We routinely consider sharing appropriate threat intelligence data with others.
-+ 1. Not at all confident
-+ 2. Slightly confident
-+ 3. Somewhat confident
-+ 4. Fairly confident
-+ 5. Completely confident
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
 
 @ Stage 5: Long term planning
+! duration: 10 mins
 ! content
 Your organisation has been at a heightened posture for several months now.
 Geo-political tensions have not scaled back and there has been little to no reduction in external system scanning and the phishing attacks appear to be becoming more sophisticated.
@@ -210,22 +215,22 @@ Questions will examine mechanisms in-place within your organisation that will he
 + Would you delay significant system changes that are not security related?
 
 ? How confident are you in the following statement: We are confident that employees across our organisation will be informed and alert over an extended period of heightened posture.
-+ 1. Not at all confident
-+ 2. Slightly confident
-+ 3. Somewhat confident
-+ 4. Fairly confident
-+ 5. Completely confident
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
 
 ? How confident are you in the following statement: We understand steps we can take to minimise fatigue in our cyber security teams.
-+ 1. Not at all confident
-+ 2. Slightly confident
-+ 3. Somewhat confident
-+ 4. Fairly confident
-+ 5. Completely confident
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
 
 ? How confident are you in the following statement: We can manage the pressure and impact to our organisation while operating at a heightened posture.
-+ 1. Not at all confident
-+ 2. Slightly confident
-+ 3. Somewhat confident
-+ 4. Fairly confident
-+ 5. Completely confident
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident

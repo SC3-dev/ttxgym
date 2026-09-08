@@ -5,12 +5,22 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TTX Gym - Exercise Library</title>
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
-    rel="stylesheet">
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <meta name="description" content="A free library of ready-to-run cyber tabletop exercise scenarios, adapted from NCSC Exercise-in-a-Box and others. Filter by level, duration and topic.">
+  <link rel="canonical" href="https://ttxgym.com/library.html">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <meta name="theme-color" content="#141820">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="TTX Gym">
+  <meta property="og:title" content="Exercise Library — TTX Gym">
+  <meta property="og:description" content="A free library of ready-to-run cyber tabletop exercise scenarios, adapted from NCSC Exercise-in-a-Box and others. Filter by level, duration and topic.">
+  <meta property="og:url" content="https://ttxgym.com/library.html">
+  <meta property="og:image" content="https://ttxgym.com/hero.png">
+  <meta property="og:image:alt" content="The TTX Gym exercise interface, showing a scenario stage and facilitator notes.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Exercise Library — TTX Gym">
+  <meta name="twitter:description" content="A free library of ready-to-run cyber tabletop exercise scenarios, adapted from NCSC Exercise-in-a-Box and others. Filter by level, duration and topic.">
+  <meta name="twitter:image" content="https://ttxgym.com/hero.png">
+  <link rel="stylesheet" href="css/fonts.css">
 
   <link rel="stylesheet" href="style.css">
   <style>
@@ -20,6 +30,7 @@
       display: flex;
       overflow: hidden;
       height: calc(100vh - 56px);
+      height: calc(100dvh - 56px);
     }
 
     /* ─── SIDEBAR / FILTERS ─── */
@@ -175,6 +186,99 @@
       display: flex;
       flex-direction: column;
       overflow: hidden;
+    }
+
+    /* Same 1.5rem gutter and full-width rule as .modal-actions, .modal-tags,
+       #modal-summary and .modal-meta, so it reads as one more band of the modal
+       rather than something bolted on underneath. */
+    #modal-inside {
+      padding: 0.9rem 1.5rem 1rem;
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    #modal-inside:empty {
+      display: none;
+    }
+
+    .inside-head {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.3rem;
+    }
+
+    .inside-counts {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 0.6rem;
+    }
+
+    .inside-loading {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    .inside-stages {
+      margin: 0;
+      padding-left: 1.2rem;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .inside-stages li {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .inside-stages li:last-child {
+      margin-bottom: 0;
+    }
+
+    .inside-stages li::marker {
+      color: var(--text-muted);
+      font-size: 11px;
+    }
+
+    .inside-dur {
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .lib-topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    #clear-filters {
+      display: none;
+      font-family: inherit;
+      font-size: 11.5px;
+      color: var(--text-secondary);
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.25rem 0.6rem;
+      cursor: pointer;
+    }
+
+    #clear-filters.visible {
+      display: inline-block;
+    }
+
+    #clear-filters:hover {
+      color: var(--text-primary);
+      border-color: var(--accent);
     }
 
     #lib-topbar {
@@ -418,7 +522,7 @@
       padding: 1rem 1.5rem;
       font-size: 13px;
       line-height: 1.7;
-      flex: 1;
+      flex-shrink: 0;
     }
 
     #modal-summary p {
@@ -432,10 +536,10 @@
     .modal-meta {
       display: flex;
       gap: 0.75rem;
-      padding: 0 1.5rem 1rem;
+      padding: 0.75rem 1.5rem 1.25rem;
       flex-wrap: wrap;
       border-top: 1px solid var(--border);
-      padding-top: 0.75rem;
+      margin-top: auto;
       flex-shrink: 0;
     }
 
@@ -541,7 +645,7 @@
 
       .modal-content {
         width: 100%;
-        max-height: 100vh;
+        max-height: 100dvh;
         border-radius: 0;
       }
     }
@@ -669,7 +773,10 @@
     <div id="lib-main">
       <div id="lib-topbar">
         <h1>Exercise Library</h1>
-        <span id="result-count"></span>
+        <div class="lib-topbar-right">
+          <button type="button" id="clear-filters" onclick="clearFilters()">Clear filters</button>
+          <span id="result-count"></span>
+        </div>
       </div>
       <div id="gallery-scroll">
         <div id="gallery"></div>
@@ -694,7 +801,11 @@
             </svg>
             Launch
           </a>
-          <a id="downloader" href="#" download class="btn btn-secondary">
+              <a id="customiser" href="#" class="btn btn-secondary">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" style="width:16px;height:16px;fill:currentColor"><path d="M200-200h57l391-391-57-57-391 391v57Zm-80 80v-170l528-527q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L290-120H120Zm640-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z"/></svg>
+            Customise
+          </a>
+      <a id="downloader" href="#" download class="btn btn-secondary">
             <svg viewBox="0 0 24 24">
               <path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 4v-2h14v2H5z" />
             </svg>
@@ -706,6 +817,7 @@
           <div id="tag-content"></div>
         </div>
         <p id="modal-summary"></p>
+        <div id="modal-inside"></div>
         <div class="modal-meta" id="modal-attributes"></div>
       </div>
     </div>
@@ -721,8 +833,35 @@
     </div>
   </footer>
 
+  <script src="js/ttxf.js"></script>
   <script>
     var exs = [];
+    var esc = TTXF.escapeHTML;
+
+    // Scenario bodies, fetched once in the background. They power two things the
+    // manifest alone cannot: showing what is actually inside a scenario before you
+    // commit an hour to it, and searching the stages rather than just the blurb.
+    var bodies = {};        // image key -> { doc, text }
+    var bodiesReady = false;
+
+    function loadScenarioBodies(list) {
+      return Promise.all(list.map(ex =>
+        fetch('lib/scenarios/' + ex.image + '.ttxf')
+          .then(r => (r.ok ? r.text() : null))
+          .then(text => { if (text) bodies[ex.image] = { doc: TTXF.parse(text).doc, text: text }; })
+          .catch(() => { /* a scenario that will not load simply has no detail */ })
+      )).then(() => { bodiesReady = true; });
+    }
+
+    function insideOf(key) {
+      const b = bodies[key];
+      if (!b) return null;
+      const doc = b.doc;
+      const questions = doc.stages.reduce((n, st) => n + st.questions.length, 0);
+      const quizzes = doc.stages.reduce((n, st) => n + st.questions.filter(q => q.quizIndex > -1).length, 0);
+      const seconds = doc.stages.reduce((n, st) => n + TTXF.durationToSeconds(st.duration), 0);
+      return { doc, questions, quizzes, seconds };
+    }
 
     // SVG icons inline
     const iconLevel = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:12px;height:12px;fill:currentColor;opacity:0.5"><path d="M4 20v-4h4v4H4zm6 0V12h4v8h-4zm6 0V4h4v16h-4z"/></svg>`;
@@ -740,15 +879,27 @@
           initializeFilters();
           displayexs(exs);
 
+          loadScenarioBodies(exs).then(() => {
+            const search = document.getElementById('search');
+            if (search.value.trim()) filterexs();     // re-run against the fuller index
+          });
+
           // Auto-open modal if ?q= param is present in URL
           const urlParams = new URLSearchParams(window.location.search);
           const qParam = urlParams.get('q');
           if (qParam) {
-            const match = exs.find(ex => ex.image === qParam || ex.id === qParam);
-            if (match) openModal(match);
+            const match = exs.find(ex => ex.image === qParam);
+            if (match) openModal(match, true);
           }
         })
-        .catch(err => console.error('Fetch error:', err));
+        .catch(err => {
+          console.error('Fetch error:', err);
+          document.getElementById('result-count').textContent = '';
+          document.getElementById('gallery').innerHTML = `<div class="empty-state">
+            <svg viewBox="0 0 24 24"><path d="M12 9v4m0 4h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+            <p>The scenario library could not be loaded. Check your connection and refresh the page.</p>
+          </div>`;
+        });
     }
 
     function displayexs(list) {
@@ -775,19 +926,19 @@
         }
 
         tile.innerHTML = `
-          <h3>${ex.title}</h3>
+          <h3>${esc(ex.title)}</h3>
           <div class="ex-attributes">
             <div class="ex-attr">
               ${iconLevel}
-              <span class="ex-attr-val">${ex.level || '—'}</span>
+              <span class="ex-attr-val">${esc(ex.level) || '—'}</span>
             </div>
             <div class="ex-attr">
               ${iconAuthor}
-              <span class="ex-attr-val">${ex.author || '—'}</span>
+              <span class="ex-attr-val">${esc(ex.author) || '—'}</span>
             </div>
             <div class="ex-attr">
               ${iconClock}
-              <span class="ex-attr-val">${ex.duration || '—'}</span>
+              <span class="ex-attr-val">${esc(ex.duration) || '—'}</span>
             </div>
           </div>
         `;
@@ -808,11 +959,53 @@
         const matchesLevel = selectedLevels.length === 0 || selectedLevels.includes(ex.level);
         const matchesAuthor = selectedAuthors.length === 0 || selectedAuthors.includes(ex.author);
         const matchesDuration = selectedDurations.length === 0 || selectedDurations.includes(ex.duration);
-        const matchesSearch = ex.title.toLowerCase().includes(searchValue) || (ex.summary && ex.summary.toLowerCase().includes(searchValue));
+        const matchesSearch = !searchValue || searchHaystack(ex).includes(searchValue);
         return matchesCategory && matchesLevel && matchesDuration && matchesSearch && matchesAuthor;
       });
 
       displayexs(filtered);
+      syncClearFilters();
+    }
+
+    // Searching only the blurb missed scenarios whose stages are entirely about the
+    // thing being searched for. Falls back to title and summary until the bodies
+    // have arrived.
+    function searchHaystack(ex) {
+      if (ex._haystack) return ex._haystack;
+      const b = bodies[ex.image];
+      let text = stripTags((ex.title || '') + ' ' + (ex.summary || ''));
+      if (b) {
+        const d = b.doc;
+        text += ' ' + [d.summary, d.conclusion].filter(Boolean).join(' ');
+        d.stages.forEach(st => {
+          text += ' ' + stripTags([st.stage, st.content, st.discussion.join(' '),
+            st.prompts.join(' '), st.questions.map(q => q.question).join(' ')].join(' '));
+        });
+        ex._haystack = text.toLowerCase();   // only cache once the body is in
+        return ex._haystack;
+      }
+      return text.toLowerCase();
+    }
+
+    // Summaries are HTML; searching them raw let a query of "p" or "b" match
+    // every scenario via the markup rather than the words.
+    function stripTags(html) {
+      const d = document.createElement('div');
+      d.innerHTML = TTXF.sanitizeHTML(html);
+      return d.textContent || '';
+    }
+
+    function clearFilters() {
+      document.querySelectorAll('.filter-group input:checked').forEach(el => { el.checked = false; });
+      document.getElementById('search').value = '';
+      filterexs();
+    }
+
+    // Only offer the escape hatch when there is something to escape from.
+    function syncClearFilters() {
+      const active = document.querySelectorAll('.filter-group input:checked').length
+        || document.getElementById('search').value.trim().length;
+      document.getElementById('clear-filters').classList.toggle('visible', !!active);
     }
 
     function initializeFilters() {
@@ -825,7 +1018,7 @@
         const container = document.getElementById(containerId);
         values.forEach(val => {
           const label = document.createElement('label');
-          label.innerHTML = `<input type="checkbox" value="${val}"> ${val}`;
+          label.innerHTML = `<input type="checkbox" value="${esc(val)}"> ${esc(val)}`;
           label.querySelector('input').addEventListener('change', filterexs);
           container.appendChild(label);
         });
@@ -837,23 +1030,26 @@
       addCheckboxes('duration-filter', durations);
     }
 
-    function openModal(ex) {
+    function openModal(ex, skipHistory) {
       document.getElementById('modal-title').textContent = ex.title;
-      document.getElementById('modal-summary').innerHTML = ex.summary || '';
+      document.getElementById('modal-summary').innerHTML = TTXF.sanitizeHTML(ex.summary || '');
 
       // Tags
       const tagContent = document.getElementById('tag-content');
-      tagContent.innerHTML = (ex.categories || []).map(c => `<span class="tag-chip">${c}</span>`).join(' ');
+      tagContent.innerHTML = (ex.categories || []).map(c => `<span class="tag-chip">${esc(c)}</span>`).join(' ');
 
       // Attributes
       document.getElementById('modal-attributes').innerHTML = `
-        <div class="meta-pill">${iconLevel} ${ex.level || '—'}</div>
-        <div class="meta-pill">${iconAuthor} ${ex.author || '—'}</div>
-        <div class="meta-pill">${iconClock} ${ex.duration || '—'}</div>
+        <div class="meta-pill">${iconLevel} ${esc(ex.level) || '—'}</div>
+        <div class="meta-pill">${iconAuthor} ${esc(ex.author) || '—'}</div>
+        <div class="meta-pill">${iconClock} ${esc(ex.duration) || '—'}</div>
       `;
 
       document.getElementById('downloader').href = `lib/scenarios/${ex.image}.ttxf`;
-      document.getElementById('starter').href = `gym?q=${ex.image}`;
+      // Tailoring a library scenario to your own organisation should be one click,
+      // not download-then-import.
+      document.getElementById('customiser').href = `editor.html?load=${encodeURIComponent(ex.image)}`;
+      document.getElementById('starter').href = `gym/?q=${encodeURIComponent(ex.image)}`;
 
       // Modal header background
       const header = document.getElementById('modal-header');
@@ -869,14 +1065,60 @@
         header.style.backgroundBlendMode = 'normal';
       }
 
+      renderInside(ex.image);
       document.getElementById('modal').classList.add('open');
-      history.pushState({ q: ex.image }, '', '?q=' + encodeURIComponent(ex.image));
+      if (!skipHistory) history.pushState({ q: ex.image }, '', '?q=' + encodeURIComponent(ex.image));
     }
 
-    function closeModal() {
-      document.getElementById('modal').classList.remove('open');
-      history.pushState({}, '', window.location.pathname);
+    // Stage titles say more about whether a scenario fits your session than any
+    // amount of summary prose.
+    function renderInside(key) {
+      const wrap = document.getElementById('modal-inside');
+      const inside = insideOf(key);
+      if (!inside) {
+        wrap.innerHTML = bodiesReady ? '' : '<div class="inside-loading">Loading scenario details…</div>';
+        if (!bodiesReady) {
+          loadScenarioBodies(exs).then(() => {
+            if (document.getElementById('modal').classList.contains('open')) renderInside(key);
+          });
+        }
+        return;
+      }
+      const mins = Math.round(inside.seconds / 60);
+      const counts = [
+        inside.doc.stages.length + ' stage' + (inside.doc.stages.length === 1 ? '' : 's'),
+        inside.questions + ' question' + (inside.questions === 1 ? '' : 's'),
+      ];
+      if (inside.quizzes) counts.push(inside.quizzes + ' with a right answer');
+      if (mins) counts.push(mins + ' mins of planned discussion');
+
+      wrap.innerHTML =
+        '<div class="inside-head">What\u2019s inside</div>' +
+        '<div class="inside-counts">' + esc(counts.join(' \u00b7 ')) + '</div>' +
+        '<ol class="inside-stages">' + inside.doc.stages.map(st => {
+          const d = TTXF.durationToSeconds(st.duration);
+          return '<li><span>' + esc(st.stage) + '</span>' +
+            (d ? '<span class="inside-dur">' + Math.round(d / 60) + ' min</span>' : '') + '</li>';
+        }).join('') + '</ol>';
     }
+
+    function closeModal(skipHistory) {
+      document.getElementById('modal').classList.remove('open');
+      if (!skipHistory) history.pushState({}, '', window.location.pathname);
+    }
+
+    // Back/forward must actually open and close the modal, not just rewrite the URL.
+    window.addEventListener('popstate', (e) => {
+      const q = (e.state && e.state.q) || new URLSearchParams(window.location.search).get('q');
+      const match = q && exs.find(ex => ex.image === q);
+      if (match) openModal(match, true);
+      else closeModal(true);
+    });
+
+    // Escape closes the modal, as every other dialog on the site does.
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && document.getElementById('modal').classList.contains('open')) closeModal();
+    });
 
     function toggleMobileNav() {
       const links = document.getElementById('main-nav-links');

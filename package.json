@@ -1,0 +1,12 @@
+{
+  "name": "ttxgym",
+  "private": true,
+  "description": "TTX Gym — a browser-based tabletop exercise tool. The site itself is static and dependency-free; jsdom is used only to run the tests.",
+  "scripts": {
+    "build": "node tools/build-standalone.js",
+    "test": "node tests/run.js"
+  },
+  "devDependencies": {
+    "jsdom": "^24.0.0"
+  }
+}

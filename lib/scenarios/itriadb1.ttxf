@@ -1,6 +1,6 @@
 ! title: Insider threat resulting in a data breach
 ! author: Exercise adapted from NCSC 'Exercise-in-a-Box'
-! image: https://ttxgym.com/lib/images/itriadb1.jpg
+! image: ../lib/images/itriadb1.jpg
 ! summary
 An exercise covering the events following the discovery that a user has shared sensitive documents with an unauthorised third party.
 It discusses the processes your organisation has in place to verify the source of leaked information and determine if its exposure was malicious or due to user error.
@@ -8,6 +8,7 @@ The use of USB and removable media within the organisation and associated securi
 Finally, the scenario asks you to consider the regulatory impact of a data breach, in this scenario following a compromise by an insider, and how your organisation would respond.
 
 @ Inject 1
+! duration: 20 mins
 ! content
 A user reports that, while browsing an online social media platform, they have discovered some commercially sensitive documents that appear to have originated from your organisation.
 # discussion
@@ -34,6 +35,7 @@ A user reports that, while browsing an online social media platform, they have d
 + Completely confident
 
 @ Inject 2
+! duration: 20 mins
 ! content
 You have identified the original version of the leaked documents on a file server within your organisation’s network.
 # discussion
@@ -66,6 +68,7 @@ You have identified the original version of the leaked documents on a file serve
 + Completely confident
 
 @ Inject 3
+! duration: 20 mins
 ! content
 Investigation suggests that an individual has been sharing internal documents with a third party, to help them bid for contracts.
 The documents were transferred from the organisation on a personal USB device.
@@ -96,6 +99,7 @@ In response to this incident, a decision is made to place stricter controls on t
 + Completely confident
 
 @ Inject 4
+! duration: 20 mins
 ! content
 The leaked documents have been widely viewed on the social media platform and the media have picked up on the story.
 Your organisation prepares its response to the breach from a regulatory and corporate communications perspective.

@@ -5,12 +5,22 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TTX Gym - How To Use</title>
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
-    rel="stylesheet">
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <meta name="description" content="How to plan, run and debrief a tabletop exercise with TTX Gym, plus the full .ttxf scenario file syntax reference.">
+  <link rel="canonical" href="https://ttxgym.com/guide.html">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <meta name="theme-color" content="#141820">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="TTX Gym">
+  <meta property="og:title" content="How To Use — TTX Gym">
+  <meta property="og:description" content="How to plan, run and debrief a tabletop exercise with TTX Gym, plus the full .ttxf scenario file syntax reference.">
+  <meta property="og:url" content="https://ttxgym.com/guide.html">
+  <meta property="og:image" content="https://ttxgym.com/hero.png">
+  <meta property="og:image:alt" content="The TTX Gym exercise interface, showing a scenario stage and facilitator notes.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="How To Use — TTX Gym">
+  <meta name="twitter:description" content="How to plan, run and debrief a tabletop exercise with TTX Gym, plus the full .ttxf scenario file syntax reference.">
+  <meta name="twitter:image" content="https://ttxgym.com/hero.png">
+  <link rel="stylesheet" href="css/fonts.css">
 
   <link rel="stylesheet" href="style.css">
   <style>
@@ -424,6 +434,9 @@
         <li><a href="#scenario">Creating scenarios</a></li>
         <li><a href="#structure">TTXF file structure</a></li>
         <li><a href="#markdown">Markdown syntax</a></li>
+        <li><a href="#running">Running the room</a></li>
+        <li><a href="#recording">Recording what happened</a></li>
+        <li><a href="#validation">Checking your file</a></li>
         <li><a href="#example">Full example</a></li>
       </ul>
     </aside>
@@ -462,6 +475,13 @@
       </p>
 
       <!-- LIBRARY -->
+      <div class="tip-card">
+        <strong>New to the tool?</strong> Open <a href="gym/">TTX Gym</a> and choose
+        <strong>Try a demo exercise</strong> — a short built-in scenario that takes about five
+        minutes to click through, so you can see how everything fits together before loading a
+        scenario of your own.
+      </div>
+
       <h2 id="lib">Using the Exercise Library</h2>
 
       <p>
@@ -472,10 +492,11 @@
 
       <p>
         To find out more about an exercise, click on the thumbnail and a description will appear.
-        From here, you can choose to either <strong>launch</strong> the exercise — which will take you to TTX Gym with
-        the
-        selected scenario loaded and ready to go — or choose to <strong>download</strong> the scenario file for
-        modification and customisation (see <a href="#scenario">Creating and Modifying Scenarios</a> below).
+        From here you have three choices. <strong>Run Exercise</strong> opens TTX Gym with the scenario
+        loaded and ready to go. <strong>Customise</strong> opens it in the Exercise Builder, so you can
+        tailor it to your own organisation — swapping in the names of your systems, teams and suppliers —
+        before you run it. <strong>Download</strong> saves the <code>.ttxf</code> file to edit or share
+        however you like (see <a href="#scenario">Creating and Modifying Scenarios</a> below).
       </p>
 
       <!-- TOOL -->
@@ -513,6 +534,15 @@
 
       <!-- SCENARIOS -->
       <h2 id="scenario">Creating and Modifying Scenarios</h2>
+
+      <div class="tip-card">
+        <strong>Answer presets:</strong> almost every rating question in a tabletop uses the same
+        five-point confidence scale, so new questions in the Exercise Builder start with it
+        already filled in. The <strong>Answers</strong> dropdown on each question swaps it for
+        agreement, maturity, frequency or yes/no scales, or clears it so you can write your own.
+        <strong>Duplicate stage</strong> copies a whole stage — content, timing, prompts and
+        questions — which is usually faster than building the next one from scratch.
+      </div>
 
       <p>
         TTX Gym uses scenario files formatted in a specific way. These <strong>TTXF files</strong> use Markdown-style
@@ -657,6 +687,25 @@ This line continues the same paragraph.</code></pre>
         </div>
       </div>
 
+      <p>
+        Inside a stage, one further key is recognised:
+      </p>
+
+      <div class="syntax-grid">
+        <div class="syntax-grid-header">
+          <div>Variable</div>
+          <div>Purpose</div>
+          <div>Output</div>
+        </div>
+        <div class="syntax-row">
+          <div><code>! duration</code></div>
+          <div>How long you plan to spend on this stage — <code>10 mins</code>, <code>1h 30m</code>,
+            or a bare number for minutes. Optional. The facilitator's timer shows elapsed time
+            against it, turning amber at 80% and red once you run over</div>
+          <div style="color:var(--text-muted);font-size:12px">03:21 / 10:00</div>
+        </div>
+      </div>
+
       <h3>3. Questions <span class="section-badge purple">? sigil</span></h3>
 
       <p>
@@ -760,9 +809,25 @@ This line continues the same paragraph.</code></pre>
           <div style="color:var(--text-muted);font-size:12px">Image rendered from URL</div>
         </div>
         <div class="syntax-row">
+          <div><code>\ text</code></div>
+          <div>Escapes a content line that would otherwise be read as a directive. Use it
+            when a line has to begin with <code>#</code>, <code>+</code>, <code>?</code>,
+            <code>@</code> or <code>!</code> — the backslash is stripped and the rest of the
+            line is kept as content</div>
+          <div style="color:var(--text-muted);font-size:12px"># Renders as a literal hash</div>
+        </div>
+        <div class="syntax-row">
           <div><code>%(url | 50%)</code></div>
           <div>Embed image scaled to a percentage of its natural size, or at an absolute size (e.g. <code>200px</code>). Uses a pipe <code>|</code> as delimiter to avoid conflicts with URLs containing commas</div>
           <div style="color:var(--text-muted);font-size:12px">Image at specified scale</div>
+        </div>
+        <div class="syntax-row">
+          <div><code>%(../lib/images/x.jpg)</code></div>
+          <div>Image paths may be relative to the TTX Gym page as well as absolute, so a
+            scenario and its images work from a local copy or offline. Relative paths are
+            resolved to absolute ones before they reach the participant window or an
+            exported report</div>
+          <div style="color:var(--text-muted);font-size:12px">Works offline</div>
         </div>
         <div class="syntax-row">
           <div style="font-size:12px;font-family:var(--font-mono);text-align:center;color:var(--text-muted)">(blank line)</div>
@@ -773,6 +838,168 @@ This line continues the same paragraph.</code></pre>
 
       <div class="tip-card">
         <strong>Tip:</strong> The pipe character (<code>|</code>) was chosen as the image scale delimiter because it is not a valid unencoded character in URLs — so even URLs containing commas will be parsed correctly. For example: <code>%(https://cdn.example.com/img?a=1,b=2 | 60%)</code>
+      </div>
+
+      <!-- RUNNING THE ROOM -->
+      <h2 id="running">Running the Room</h2>
+
+      <p>
+        Everything below is in the facilitator sidebar, and none of it changes the scenario
+        file — it is all about driving the session in front of you.
+      </p>
+
+      <h3>Moving through stages</h3>
+      <p>
+        As well as the <strong>Next</strong> and <strong>Prev</strong> buttons, the exercise
+        responds to <code>Page Down</code> / <code>Page Up</code> and the arrow keys, so a
+        presenter remote works without any setup. Keys are ignored while you are typing in
+        notes or actions.
+      </p>
+
+      <h3>The participant view mirror</h3>
+      <p>
+        A small live copy of the participant screen sits in the bottom-right of the facilitator
+        window, so you can see exactly what the room sees without switching windows. Collapse it
+        with the <code>–</code> button if it is in the way.
+      </p>
+
+      <h3>Blanking the screen</h3>
+      <p>
+        <strong>Blank Screen</strong> — or pressing <code>B</code> — covers the participant
+        display for a break or a side conversation, without losing your place. Press it again to
+        bring the content back.
+      </p>
+
+      <h3>Running it offline</h3>
+      <p>
+        <a href="gym/standalone.html" download="ttxgym.html">Download the tool as a single
+        HTML file</a> and open it from your own machine — useful if the exercise is being run
+        somewhere without reliable network, or if your organisation would rather it never
+        touched the internet at all. Everything works: load a scenario, drive the participant
+        window, capture notes and actions, export the report.
+      </p>
+      <p>
+        Two caveats. Scenario cover images and any embedded pictures still come from the
+        network, so scenarios that use them will show the text without the images. And some
+        browsers refuse to let a page opened from a <code>file://</code> path save anything
+        locally, which turns off autosave — TTX Gym will tell you if that happens, and
+        <strong>Save Session</strong> still writes a file you can keep.
+      </p>
+
+      <h3>The facilitator pack</h3>
+      <p>
+        Under <strong>More</strong>, <strong>Facilitator Pack</strong> lays the whole scenario
+        out as a single document — every stage in order with its planned duration, content,
+        discussion points, facilitator prompts and questions, with correct quiz answers marked.
+        It is meant for the hour before the exercise: read it through, or print it and take it
+        into the room. Prompts are labelled as not shown to participants, so there is no risk of
+        putting the wrong page on the projector.
+      </p>
+
+      <h3>Ad-hoc injects</h3>
+      <p>
+        Exercises rarely go exactly to plan. <strong>Send Inject</strong> pushes a one-off line
+        of text to the participant screen — "the press have just called", "your primary site has
+        lost power" — without editing the scenario. Moving to the next stage clears it.
+      </p>
+
+      <h3>Projector theme</h3>
+      <p>
+        The participant window opens in a dark theme, which suits a laptop or a large screen but
+        washes out on a projector in a lit room. The half-moon icon in the bottom-right of the
+        participant window switches to a light, high-contrast theme, and remembers your choice.
+      </p>
+
+      <!-- RECORDING -->
+      <h2 id="recording">Recording What Happened</h2>
+
+      <h3>Responses are a tally, not a single answer</h3>
+      <p>
+        Each answer option is a button, and every click records one response. Click once and it
+        behaves like a simple choice; take a show of hands and click an option once per hand, and
+        the exercise records the spread. The small <code>−</code> on an option removes a response
+        if you over-count.
+      </p>
+      <p>
+        This matters because the interesting signal in a tabletop is usually disagreement. If half
+        the room is confident and half is not, that gap is the finding — and a single answer would
+        have averaged it away before anyone saw it.
+      </p>
+
+      <h3>Where you are</h3>
+      <p>
+        The participant screen shows the current stage and a marker for each stage of the
+        exercise, so the room can see how far through they are without asking.
+      </p>
+
+      <h3>Actions</h3>
+      <p>
+        Every stage has an <strong>Actions</strong> panel for what needs to happen afterwards, with
+        an owner and a due date. These are collected into a table at the top of the exported report,
+        which is usually the part of the report anyone actually acts on.
+      </p>
+
+      <h3>Session details</h3>
+      <p>
+        The intro card carries the date, facilitator, attendees, and the objectives and scope of the
+        exercise. Filling these in turns the report from a printout into a record of what was tested,
+        by whom, and what was deliberately left out.
+      </p>
+
+      <h3>Confidence and quiz accuracy are reported separately</h3>
+      <p>
+        Rating questions measure what the room believes about itself. Quiz questions measure whether
+        someone knew a fact. These are different things, so the summary reports them as two numbers
+        and never averages them together. The report leads with the questions the room was
+        <em>least</em> confident about, because that is the list worth taking away.
+      </p>
+      <p>
+        Treat the confidence figure as a map of where to look, not as a grade. A low score on a
+        well-run exercise is a good outcome — it means people were honest.
+      </p>
+
+      <h3>Saving and resuming a session</h3>
+      <p>
+        <strong>Save Session</strong> writes a <code>.ttxs</code> file containing everything: the
+        scenario itself, every response, your notes, the actions and the timings. Because the
+        scenario travels inside it, <strong>Open Session</strong> will resume the exercise on any
+        machine — useful for handing over to a co-facilitator, or for finishing a session that ran
+        out of time.
+      </p>
+      <p>
+        <strong>Compare With Previous Run</strong> loads an older <code>.ttxs</code> alongside the
+        current one and shows the movement in confidence since then. Running the same scenario a
+        year later and seeing where the numbers moved is the point of exercising in the first place.
+      </p>
+
+      <!-- VALIDATION -->
+      <h2 id="validation">Checking Your File</h2>
+
+      <p>
+        Both the Exercise Builder and the TTX Gym player check a scenario as they read it,
+        and report anything that looks wrong rather than failing silently. The Builder shows
+        this in a strip above the preview as you type; the player shows it above the stage
+        list when a file is loaded.
+      </p>
+
+      <p>Things they will tell you about:</p>
+
+      <ul>
+        <li>An unrecognised <code>!</code> key — a mistyped <code>! conten</code> would
+          otherwise leave that stage blank on screen with no warning at all.</li>
+        <li>A stage with no <code>! content</code>, so participants would see an empty screen.</li>
+        <li>A question with fewer than two answers, which cannot be scored.</li>
+        <li>A question where two answers share the same text and one of them is marked correct,
+          so the right option is ambiguous.</li>
+        <li>More than one answer marked with <code>++</code>.</li>
+        <li>A <code>+</code> item or <code>#</code> list that has no question or stage above it.</li>
+        <li>A line that is not part of any directive and is being ignored.</li>
+        <li>A multi-line value long enough to be cut short.</li>
+      </ul>
+
+      <div class="tip-card">
+        <strong>Tip:</strong> Warnings are shown in amber and problems in red. A scenario with
+        warnings still runs — they are things worth a second look, not blockers.
       </div>
 
       <!-- FULL EXAMPLE -->
@@ -788,6 +1015,7 @@ This scenario depicts an unusual login to a critical system.
 Participants will be asked to consider their organisation's response procedures.
 
 <span class="c-stage">@ Stage 1: Identification</span>
+<span class="c-directive">! duration: 15 mins</span>
 <span class="c-directive">! content</span>
 An unusual login attempt was detected on a critical system at 02:14.
 

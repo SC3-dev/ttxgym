@@ -1,6 +1,6 @@
 ! title: Managing a vulnerability disclosure
 ! author: Exercise adapted from NCSC 'Exercise-in-a-Box'
-! image: https://ttxgym.com/lib/images/mavd1.jpg
+! image: ../lib/images/mavd1.jpg
 ! summary
 This scenario covers the events following the disclosure of a vulnerability in a public facing web application run by your organisation.
 It includes managing communication between your organisation and a person reporting a vulnerability.
@@ -8,6 +8,7 @@ It also covers the process of responding to a vulnerability disclosure.
 Finally, it looks at mitigating further problems by implementing an effective vulnerability disclosure process.
 
 @ Inject 1: Vulnerability disclosure received
+! duration: 20 mins
 ! content
 An employee manages your organisation’s official social media account and receives the following message:
 "beta.example.com points to a cloud instance that can be registered by an attacker to take over the domain.
@@ -60,6 +61,7 @@ This is of major concern. Thanks."
 + Completely confident
 
 @ Inject 2: Vulnerability exploitation
+! duration: 20 mins
 ! content
 24 hours after receiving the message from social media,
 someone has taken over the vulnerable subdomain and is hosting phishing and social engineering content from a third-party site.
@@ -95,6 +97,7 @@ You do not immediately notice this but reports pertaining to the malicious conte
 + Completely confident
 
 @  Inject 3: Public and media reaction
+! duration: 20 mins
 ! content
 Your organisation is now receiving numerous calls every hour from concerned and angry users stating that they are being redirected to a malicious website.
 Some calls are also from media organisations asking for comment.
@@ -127,6 +130,7 @@ Some calls are also from media organisations asking for comment.
 + Completely confident
 
 @ Inject 4: Post-incident review and remediation
+! duration: 20 mins
 ! content
 72 hours after the vulnerability was reported to your organisation your team has now mitigated the vulnerability and online services have been restored.
 The Post Incident Review (PIR) highlights that if the organisation had identified and responded to the initial vulnerability report, the incident could potentially have been avoided.

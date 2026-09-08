@@ -1,11 +1,12 @@
 ! title: Third party software compromise
 ! author: Exercise adapted from NCSC 'Exercise-in-a-Box'
-! image: https://ttxgym.com/lib/images/tpsc1.jpg
+! image: ../lib/images/tpsc1.jpg
 ! summary
 This scenario explores the compromise of an online third-party tool your organisation uses.
 It examines the risks of third-party software and how an attacker might use stolen credentials to access your network.
 The exercise covers detection, response, potential mitigations, and managing business disruption.
 @ Inject 1: Supplier compromise
+! duration: 20 mins
 ! content
 Your organisation uses a third party e-commerce tool as part of its business process.
 The company running the tool have contacted you via email to inform you that they have been compromised.
@@ -27,6 +28,7 @@ All user information stored by the organisation, including usernames and passwor
 + Fairly confident
 + Completely confident
 @ Inject 2: Password stuffing attack
+! duration: 20 mins
 ! content
 The attacker uses the credentials stolen from the third party supplier in an attack known as “password stuffing”.
 This involves the attacker sending automated login requests using these credentials to other services you use, such as your HR web portal or your remote worker interface, in the hope that they can use the same credentials to gain access.
@@ -59,6 +61,7 @@ This involves the attacker sending automated login requests using these credenti
 + Fairly confident
 + Completely confident
 @ Inject 3: Network access
+! duration: 20 mins
 ! content
 The attacker has gained access to your network via an unidentified external interface using the obtained credentials and is now seeking to get access to sensitive data on your network.
 # discussion
@@ -98,6 +101,7 @@ The attacker has gained access to your network via an unidentified external inte
 + Fairly confident
 + Completely confident
 @ Inject 4: Service Disruption
+! duration: 20 mins
 ! content
 Your technical team detects this malicious activity and prevents the attack by temporarily blocking access from the compromised accounts.
 All users whose credentials were exposed in the initial password stuffing attack have also changed their passwords.

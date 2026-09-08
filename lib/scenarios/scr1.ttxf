@@ -1,6 +1,6 @@
 ! title: Supply Chain Ransomware
 ! author: Exercise adapted from NCSC 'Exercise-in-a-Box'
-! image: https://ttxgym.com/lib/images/scr1.jpg
+! image: ../lib/images/scr1.jpg
 ! summary
 This scenario explores an incident in which a major supplier integrated with your operations is subject to a ransomware attack.
 The ransomware subsequently spreads to your organisation.
@@ -10,6 +10,7 @@ You are encouraged to discuss how you will respond, initially to the supplier in
 You can also discuss your approach to cyber insurance, and your communications in response to a leak of sensitive data.
 
 @ Inject 1: Supply chain impacted by ransomware
+! duration: 15 mins
 ! content
 One of your major suppliers is reportedly dealing with an ongoing ransomware incident.
 They have contacted their customers to inform them that it is a significant attack by an advanced adversary and expect operations to be affected for a period of time.
@@ -49,6 +50,7 @@ They have contacted their customers to inform them that it is a significant atta
 + Completely confident
 
 @ Inject 2: Incident management
+! duration: 15 mins
 ! content
 Ransomware is now also propagating through your network.
 Some significant infrastructure has been affected and your staff cannot log on.
@@ -90,6 +92,7 @@ The organisation is at a standstill.
 + Completely confident
 
 @ Inject 3: Pay or not to pay
+! duration: 15 mins
 ! content
 The cyber crime group associated with the ransomware attack have contacted you to discuss payment options.
 They are stating that if they do not receive payment within the next 24 hours they are going to start leaking your sensitive data, making it publicly accessible.
@@ -130,6 +133,7 @@ They are stating that if they do not receive payment within the next 24 hours th
 + Completely confident
 
 @ Inject 4: Cyber insurance
+! duration: 15 mins
 ! content
 Recovery from a ransomware attack can be complex and costly for organisations.
 Although it cannot prevent cyber attacks, cyber insurance can help to speed up recovery time in the event of a cyber incident.
@@ -161,6 +165,7 @@ Although it cannot prevent cyber attacks, cyber insurance can help to speed up r
 + Completely confident
 
 @ Inject 5: Communication plan
+! duration: 15 mins
 ! content
 The cyber crime group involved in attacking your network has posted some of your most sensitive information onto a public Internet forum.
 The media have started contacting your organisation for comment.

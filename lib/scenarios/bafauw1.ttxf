@@ -1,11 +1,12 @@
 ! title: Being attacked from an unknown wifi network
 ! author: Exercise adapted from NCSC 'Exercise-in-a-Box'
-! image: https://ttxgym.com/lib/images/bafauw1.jpg
+! image: ../lib/images/bafauw1.jpg
 ! summary
 This exercise scenario covers the entire sequence of events that could occur when a user connects to an unknown wifi network.
 It discusses the risks taken when connected to such a wifi network and how an attacker may use that to access a user’s device, such as a laptop.
 The use of outdated software is also covered as a method of the attacker compromising the user’s device.
 @ Inject 1: Wifi Connection
+! duration: 10 mins
 ! content
 While waiting for a meeting, a user connects to the free, unsecured wifi available at a coffee shop.
 They are using their device with the intention of editing documents and responding to emails.
@@ -28,6 +29,7 @@ They are using their device with the intention of editing documents and respondi
 + Fairly confident
 + Completely confident
 @ Inject 2: Software Updates
+! duration: 10 mins
 ! content
 Unbeknownst to the user, the wifi network is actually operated by a hacker trying to catch unsuspecting business users.
 They scan the user’s laptop for outdated software and try to attack any vulnerable software that they can identify.
@@ -48,6 +50,7 @@ They scan the user’s laptop for outdated software and try to attack any vulner
 + Fairly confident
 + Completely confident
 @ Inject 3: User Permissions
+! duration: 10 mins
 ! content
 The hacker identifies some outdated software on the user’s device and uses an exploit to compromise the device.
 They now have access to everything on the device, including any accounts the user is logged in to, such as email and file sharing services.

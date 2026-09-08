@@ -1,6 +1,6 @@
 ! title: A ransomware attack delivered by a phishing email
 ! author: Exercise adapted from NCSC 'Exercise-in-a-Box'
-! image: https://ttxgym.com/lib/images/rabpe1.jpg
+! image: ../lib/images/rabpe1.jpg
 ! summary
 This scenario presents a common method that attackers use to infect an organisation with ransomware.
 It will help you understand how well-meaning users can fall victim to phishing attacks and what the consequences of that are.
@@ -8,10 +8,11 @@ Additionally, it covers your response in the case of a successful attack, and yo
 
 
 @ Inject 1: Initial phishing
+! duration: 10 mins
 ! content
 Your finance team have received an email from a customer, below, stating they've attempted to make a payment but are having trouble.
 The email comes from a different address than the customer typically uses, containing only a slight misspelling of the customer's name.
-%(https://ttxgym.com/lib/exercise_data/phish_screenshot.png)
+%(../lib/exercise_data/phish_screenshot.png)
 
 # discussion
 + What mechanisms does your organisation have in place to make it difficult for attackers to reach your users — both technical controls such as email filtering and domain authentication, and human controls such as user awareness training?
@@ -35,6 +36,7 @@ The email comes from a different address than the customer typically uses, conta
 + Completely confident
 
 @ Inject 2: Malware protection software
+! duration: 10 mins
 ! content
 The email recipient from the finance team does not recognise that it is a phishing email and, in trying to help the customer, opens the attached file.
 This immediately opens the file, which contains malware.
@@ -61,6 +63,7 @@ This immediately opens the file, which contains malware.
 + Completely confident
 
 @ Inject 3: User permissions
+! duration: 10 mins
 ! content
 When the attached file is opened, it immediately attempts to infect the computer with malware.
 The infection starts with the same permissions as the user, which gives it the same access level as the user.
@@ -81,6 +84,7 @@ The infection starts with the same permissions as the user, which gives it the s
 + Completely confident
 
 @ Inject 4: Ransomware and backups
+! duration: 10 mins
 ! content
 After several hours, users have started having trouble opening documents and files.
 A message pops up on the computer where the infected software was installed, indicating it has been infected with ransomware.
@@ -120,6 +124,7 @@ The ransomware has encrypted all of your organisation's business-critical data, 
 + Completely confident
 
 @ Inject 5: Ransomware response and communication
+! duration: 10 mins
 ! content
 Your organisation begins to receive calls from journalists requesting information on rumours that you are suffering from a ransomware attack.
 Over the next few hours stories begin to appear on social media and local industry press suggesting that your organisation has suffered from a ransomware attack.

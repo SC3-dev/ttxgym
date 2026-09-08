@@ -1,12 +1,13 @@
 ! title: Home and remote working
 ! author: Exercise adapted from NCSC 'Exercise-in-a-Box'
-! image: https://ttxgym.com/lib/images/harw1.jpg
+! image: ../lib/images/harw1.jpg
 ! summary
 This scenario explores the events that take place where employees in your organisation need to work remotely at short notice and require access to the IT services used by your organisation.
 It includes connecting your employees to the systems used by your organisation via non-corporate internet connections, the processes and monitoring in place to enable secure distributed communication amongst your users using various online systems, and your processes for handling the compromise of information from your organisation when working remotely.
 Discussion of the above topics will help you explore the controls your organisation has in place to facilitate effective distributed working and to identify and respond to the compromise of information from your organisation.
 
 @ Inject 1: Moving to remote working
+! duration: 10 mins
 ! content
 Employees in your organisation need to work remotely at short notice and in order to continue working they require access to the IT services used by your organisation.
 Some of your employees do not have access to any computer equipment issued by your organisation such as laptops or tablets, or do not have a reliable internet connection available at home.
@@ -26,31 +27,32 @@ Some of your employees do not have access to any computer equipment issued by yo
 + Are you able to log user actions?
 
 ? How confident are you that you have effective controls in place for employees using personal devices to access our organisation’s IT services?
-+ 1. Not at all confident
-+ 2. Slightly confident
-+ 3. Somewhat confident
-+ 4. Fairly confident
-+ 5. Completely confident
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
 ? How confident are you that your organisation provides policies and guidelines to employees regarding connecting to IT Services remotely?
-+ 1. Not at all confident
-+ 2. Slightly confident
-+ 3. Somewhat confident
-+ 4. Fairly confident
-+ 5. Completely confident
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
 ? How confident are you that you have the ability to monitor for any malicious actions taken by authorised and unauthorised remote users?
-+ 1. Not at all confident
-+ 2. Slightly confident
-+ 3. Somewhat confident
-+ 4. Fairly confident
-+ 5. Completely confident
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
 ? How confident are you that you can support your employees as they transition to remote working?
-+ 1. Not at all confident
-+ 2. Slightly confident
-+ 3. Somewhat confident
-+ 4. Fairly confident
-+ 5. Completely confident
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
 
 @ Inject 2: Employee collaboration
+! duration: 10 mins
 ! content
 In the absence of effective collaboration software in your organisation, some employees start to conduct meetings and handle organisation information using conferencing and instant messaging software and systems that are not from approved sources or providers.
 
@@ -68,31 +70,32 @@ In the absence of effective collaboration software in your organisation, some em
 + Can you detect if your organisation’s data is being accessed by or uploaded to unapproved services?
 
 ? How confident are you that you have an approved list of collaboration services that users can use?
-+ 1. Not at all confident
-+ 2. Slightly confident
-+ 3. Somewhat confident
-+ 4. Fairly confident
-+ 5. Completely confident
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
 ? How confident are you that your organisation has effective video conferencing controls in place?
-+ 1. Not at all confident
-+ 2. Slightly confident
-+ 3. Somewhat confident
-+ 4. Fairly confident
-+ 5. Completely confident
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
 ? How confident are you that you have the ability to detect the use of unauthorised services or software?
-+ 1. Not at all confident
-+ 2. Slightly confident
-+ 3. Somewhat confident
-+ 4. Fairly confident
-+ 5. Completely confident
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
 ? How confident are you that you have appropriate controls in place to manage our organisation information and its processing in a remote working environment?
-+ 1. Not at all confident
-+ 2. Slightly confident
-+ 3. Somewhat confident
-+ 4. Fairly confident
-+ 5. Completely confident
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
 
 @ Inject 3: Incident handling
+! duration: 10 mins
 ! content
 An employee believes that they have clicked on a phishing link when working remotely.
 They report that they received an email from IT asking them to the click the link urgently to verify their remote connection or they will lose access to your corporate systems.
@@ -112,26 +115,26 @@ The link took them to what looked like the corporate logon page and they entered
 + If organisation systems had to be recovered from a backup, how would this be achieved?
 
 ? How confident are you that you know what to do when we receive suspicious emails or identify potential security issues?
-+ 1. Not at all confident
-+ 2. Slightly confident
-+ 3. Somewhat confident
-+ 4. Fairly confident
-+ 5. Completely confident
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
 ? How confident are you that you know what to do where a suspicious link or attachment has been actioned?
-+ 1. Not at all confident
-+ 2. Slightly confident
-+ 3. Somewhat confident
-+ 4. Fairly confident
-+ 5. Completely confident
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
 ? How confident are you that our organisation monitors for and can detect unusual remote logons?
-+ 1. Not at all confident
-+ 2. Slightly confident
-+ 3. Somewhat confident
-+ 4. Fairly confident
-+ 5. Completely confident
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident
 ? How confident are you that you are able to respond effectively to a remote worker security incident?
-+ 1. Not at all confident
-+ 2. Slightly confident
-+ 3. Somewhat confident
-+ 4. Fairly confident
-+ 5. Completely confident
++ Not at all confident
++ Slightly confident
++ Somewhat confident
++ Fairly confident
++ Completely confident

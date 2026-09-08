@@ -5,12 +5,22 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TTX Gym - Scenario Builder</title>
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
-    rel="stylesheet">
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <meta name="description" content="Build and edit your own .ttxf tabletop exercise scenarios in the browser, with a live preview of exactly what facilitators and participants will see.">
+  <link rel="canonical" href="https://ttxgym.com/editor.html">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <meta name="theme-color" content="#141820">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="TTX Gym">
+  <meta property="og:title" content="Scenario Builder — TTX Gym">
+  <meta property="og:description" content="Build and edit your own .ttxf tabletop exercise scenarios in the browser, with a live preview of exactly what facilitators and participants will see.">
+  <meta property="og:url" content="https://ttxgym.com/editor.html">
+  <meta property="og:image" content="https://ttxgym.com/hero.png">
+  <meta property="og:image:alt" content="The TTX Gym exercise interface, showing a scenario stage and facilitator notes.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Scenario Builder — TTX Gym">
+  <meta name="twitter:description" content="Build and edit your own .ttxf tabletop exercise scenarios in the browser, with a live preview of exactly what facilitators and participants will see.">
+  <meta name="twitter:image" content="https://ttxgym.com/hero.png">
+  <link rel="stylesheet" href="css/fonts.css">
 
   <link rel="stylesheet" href="style.css">
   <style>
@@ -20,6 +30,7 @@
       display: flex;
       overflow: hidden;
       height: calc(100vh - 56px);
+      height: calc(100dvh - 56px);
     }
 
     /* ─── LEFT PANEL ─── */
@@ -164,6 +175,46 @@
     }
 
     /* ─── SECTION HEADER ─── */
+    .answer-preset-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin: 0.5rem 0 0.35rem;
+    }
+
+    .answer-preset-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .answer-preset {
+      font-family: inherit;
+      font-size: 11.5px;
+      color: var(--text-secondary);
+      background: var(--back);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.2rem 0.4rem;
+      cursor: pointer;
+      color-scheme: dark;
+    }
+
+    .answer-preset:hover,
+    .answer-preset:focus {
+      color: var(--text-primary);
+      border-color: var(--accent);
+      outline: none;
+    }
+
+    .section-summary {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
     .section-header {
       display: flex;
       align-items: center;
@@ -693,6 +744,76 @@
       color: var(--accent);
     }
 
+    #draft-notice {
+      display: none;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.55rem 1rem;
+      font-size: 12.5px;
+      background: rgba(62, 201, 200, 0.1);
+      border-bottom: 1px solid rgba(62, 201, 200, 0.3);
+      color: var(--text-primary);
+    }
+
+    #draft-notice.visible {
+      display: flex;
+    }
+
+    #draft-notice span {
+      flex: 1;
+    }
+
+    #draft-notice button {
+      font-family: inherit;
+      font-size: 12px;
+      color: var(--text-secondary);
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.28rem 0.7rem;
+      cursor: pointer;
+    }
+
+    #draft-notice button:hover {
+      color: var(--text-primary);
+    }
+
+    #validation-panel {
+      display: none;
+      flex-shrink: 0;
+      max-height: 30%;
+      overflow-y: auto;
+      padding: 0.7rem 1rem;
+      font-size: 12px;
+      line-height: 1.55;
+      border-bottom: 1px solid var(--border);
+      background: rgba(245, 166, 35, 0.08);
+      color: var(--amber);
+    }
+
+    #validation-panel.visible {
+      display: block;
+    }
+
+    #validation-panel.has-errors {
+      background: rgba(224, 82, 82, 0.09);
+      color: var(--red);
+    }
+
+    #validation-panel.clean {
+      background: rgba(62, 201, 200, 0.08);
+      color: var(--green);
+    }
+
+    #validation-panel ul {
+      margin: 0.35rem 0 0;
+      padding-left: 1.1rem;
+    }
+
+    #validation-panel li {
+      margin-bottom: 0.2rem;
+    }
+
     #preview-content {
       flex: 1;
       overflow: hidden;
@@ -1083,6 +1204,7 @@
 
       #editor-wrap {
         height: calc(100vh - 56px);
+      height: calc(100dvh - 56px);
       }
     }
   </style>
@@ -1148,6 +1270,11 @@
   <!-- ══════════════════════════════════════════
        EDITOR
        ══════════════════════════════════════════ -->
+  <div id="draft-notice" role="status">
+    <span id="draft-notice-text"></span>
+    <button type="button" onclick="discardDraft()">Start a new scenario</button>
+  </div>
+
   <div id="editor-wrap">
 
     <!-- ── LEFT: EDITOR PANEL ── -->
@@ -1214,6 +1341,7 @@
         <div>
           <div class="section-header">
             <div class="section-label">@ Stages</div>
+            <div class="section-summary" id="stages-summary"></div>
           </div>
           <div id="stages-list"></div>
           <button class="btn btn-add-stage" onclick="addStage()" style="margin-top:0.75rem">
@@ -1244,6 +1372,8 @@
         <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted)" id="preview-filename">
           untitled.ttxf</div>
       </div>
+
+      <div id="validation-panel" role="status"></div>
 
       <div id="preview-content">
         <div id="pane-preview" class="preview-pane active">
@@ -1297,23 +1427,90 @@
     </div>
   </div>
 
+  <script src="js/ttxf.js"></script>
   <script>
     /* =============================================
        STATE
        ============================================= */
+    /* =============================================
+       ANSWER PRESETS
+       133 of the 140 questions in the shipped library use the same five-point
+       confidence scale, and there are only 9 distinct answer sets across all of
+       them. Retyping those five options for every question was the single biggest
+       piece of friction in authoring a scenario.
+       ============================================= */
+    const ANSWER_PRESETS = {
+      confidence5: {
+        label: 'Confidence (5-point)',
+        answers: ['Not at all confident', 'Slightly confident', 'Somewhat confident',
+                  'Fairly confident', 'Completely confident'],
+      },
+      agreement5: {
+        label: 'Agreement (5-point)',
+        answers: ['Strongly disagree', 'Disagree', 'Neither agree nor disagree',
+                  'Agree', 'Strongly agree'],
+      },
+      maturity4: {
+        label: 'Maturity (4-point)',
+        answers: ['Not in place', 'Partially in place', 'Mostly in place', 'Fully in place'],
+      },
+      frequency4: {
+        label: 'Frequency (4-point)',
+        answers: ['Never', 'Occasionally', 'Usually', 'Always'],
+      },
+      yesno: {
+        label: 'Yes / No / Unsure',
+        answers: ['Yes', 'No', 'Unsure'],
+      },
+      blank: {
+        label: 'Write my own',
+        answers: ['', ''],
+      },
+    };
+
+    // What a new rating question starts with, because it is what almost every real
+    // question turns out to be.
+    const DEFAULT_PRESET = 'confidence5';
+
+    function presetKeyFor(answers) {
+      const joined = (answers || []).join('\u0000');
+      return Object.keys(ANSWER_PRESETS).find(k =>
+        ANSWER_PRESETS[k].answers.join('\u0000') === joined) || '';
+    }
+
+    function applyPreset(stageId, qId, key) {
+      const s = stages.find(x => x.id == stageId);
+      if (!s) return;
+      const q = s.questions.find(x => x.id == qId);
+      if (!q || !ANSWER_PRESETS[key]) return;
+      q.answers = ANSWER_PRESETS[key].answers.slice();
+      // a quiz still needs exactly one marked answer, and the old index may be gone
+      if (q.quizIndex > -1) q.quizIndex = Math.min(q.quizIndex, q.answers.length - 1);
+      const card = document.getElementById('qcard-' + qId);
+      if (card) card.outerHTML = questionCardHTML(stageId, null, q);
+      reheatCard(stageId);
+      scheduleUpdate();
+    }
+
     let stages = [];
     let updateTimer = null;
     let pendingImportData = null;
+    let importErrors = [];
+    let draftTimer = null;
+    let dirty = false;
+    const DRAFT_KEY = 'ttxgym_editor_draft';
     let _idCounter = 1;
     function nextId() { return _idCounter++; }
 
     /* =============================================
        STAGE MODEL
        ============================================= */
+    // Same shape as TTXF.parse()/TTXF.serialize() use, plus an `id` for DOM
+    // bookkeeping, so there is no editor-specific model to keep in sync.
     function makeStage() {
       return {
         id: nextId(),
-        title: '',
+        stage: '',
         content: '',
         discussion: [],
         prompts: [],
@@ -1321,8 +1518,15 @@
       };
     }
 
-    function makeQuestion() {
-      return { id: nextId(), text: '', type: 'rating', answers: ['', ''], quiz: '', participantHidden: false };
+    // quizIndex is the position of the correct answer, or -1 for a rating
+    // question. Storing the answer *text* meant duplicate options both showed as
+    // correct, and an empty correct answer could never be marked at all.
+    function makeQuestion(answers) {
+      return {
+        id: nextId(), question: '',
+        answers: (answers || ANSWER_PRESETS[DEFAULT_PRESET].answers).slice(),
+        quizIndex: -1, participantHidden: false,
+      };
     }
 
     /* =============================================
@@ -1340,6 +1544,25 @@
       stages = stages.filter(s => s.id !== id);
       renderAllStages();
       scheduleUpdate();
+    }
+
+    function duplicateStage(id) {
+      id = +id;
+      const i = stages.findIndex(s => s.id === id);
+      if (i === -1) return;
+      const copy = JSON.parse(JSON.stringify(stages[i]));
+      copy.id = nextId();
+      copy.stage = (copy.stage || 'Untitled Stage') + ' (copy)';
+      copy.questions.forEach(q => { q.id = nextId(); });
+      stages.splice(i + 1, 0, copy);
+      renderAllStages();
+      scheduleUpdate();
+      const card = document.getElementById('stage-card-' + copy.id);
+      if (card) {
+        card.scrollIntoView({ block: 'nearest' });
+        const title = card.querySelector('.stage-card-title-input');
+        if (title) { title.focus(); title.select(); }
+      }
     }
 
     function moveStage(id, dir) {
@@ -1369,9 +1592,9 @@
       <div class="stage-card-left">
         <span class="stage-num-badge">Stage ${idx + 1}</span>
         <input class="stage-card-title-input" type="text" placeholder="Stage title…"
-               value="${escH(stage.title)}"
+               value="${escH(stage.stage)}"
                onclick="event.stopPropagation()"
-               oninput="updateStageField('${stage.id}','title',this.value)">
+               oninput="updateStageField('${stage.id}','stage',this.value)">
       </div>
       <div class="stage-card-actions">
         <button class="icon-btn" onclick="event.stopPropagation();moveStage('${stage.id}',-1)" title="Move up">
@@ -1379,6 +1602,9 @@
         </button>
         <button class="icon-btn" onclick="event.stopPropagation();moveStage('${stage.id}',1)" title="Move down">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M440-800v487L216-537l-56 57 320 320 320-320-56-57-224 224v-487h-80Z"/></svg>
+        </button>
+        <button class="icon-btn" onclick="event.stopPropagation();duplicateStage('${stage.id}')" title="Duplicate stage">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M360-240q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480ZM200-80q-33 0-56.5-23.5T120-160v-560h80v560h440v80H200Zm160-240v-480 480Z"/></svg>
         </button>
         <button class="icon-btn danger" onclick="event.stopPropagation();removeStage('${stage.id}')" title="Remove stage">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/></svg>
@@ -1393,6 +1619,13 @@
           <label class="field-label" style="color:var(--ttxf-stage)"><span class="sigil">@</span> Stage Content</label>
           <textarea class="field-input" placeholder="Scenario content for this stage…" rows="3"
                     oninput="updateStageField('${stage.id}','content',this.value)">${escH(stage.content)}</textarea>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" style="color:var(--ttxf-directive)"><span class="sigil">!</span> Planned Duration</label>
+          <input class="field-input" type="text" placeholder="e.g. 10 mins — optional; shown as a target on the facilitator's timer"
+                 value="${escH(stage.duration || '')}"
+                 oninput="updateStageField('${stage.id}','duration',this.value)">
         </div>
 
         <div class="field-group">
@@ -1454,7 +1687,7 @@
     }
 
     function questionCardHTML(stageId, qIdx, q) {
-      const isQuiz = q.type === 'quiz';
+      const isQuiz = q.quizIndex > -1;
       const isHidden = !!q.participantHidden;
       return `<div class="question-card" id="qcard-${q.id}">
     <div class="question-card-header">
@@ -1462,9 +1695,9 @@
         <button class="${!isQuiz ? 'active' : ''}" onclick="setQuestionType('${stageId}','${q.id}','rating')">Rating</button>
         <button class="${isQuiz ? 'active quiz-type' : ''}" onclick="setQuestionType('${stageId}','${q.id}','quiz')">Quiz</button>
       </div>
-      <input class="field-input" type="text" placeholder="Question text…" value="${escH(q.text)}"
+      <input class="field-input" type="text" placeholder="Question text…" value="${escH(q.question)}"
              style="flex:1;margin-left:0.5rem"
-             oninput="updateQuestionField('${stageId}','${q.id}','text',this.value)">
+             oninput="updateQuestionField('${stageId}','${q.id}','question',this.value)">
       <button class="icon-btn${isHidden ? ' q-hidden-active' : ''}" style="margin-left:0.25rem" title="${isHidden ? 'Currently hidden from participants — click to show' : 'Visible on participant screen — click to hide'}"
               onclick="toggleQuestionHidden('${stageId}','${q.id}')">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="${isHidden ? 'M480-320q75 0 127.5-52.5T660-500q0-75-52.5-127.5T480-680q-75 0-127.5 52.5T300-500q0 75 52.5 127.5T480-320Zm0-72q-45 0-76.5-31.5T372-500q0-45 31.5-76.5T480-608q45 0 76.5 31.5T588-500q0 45-31.5 76.5T480-392Zm0 192q-146 0-266-81.5T40-500q54-137 174-218.5T480-800q146 0 266 81.5T920-500q-54 137-174 218.5T480-200Zm0-300Zm0 220q113 0 207.5-59.5T832-500q-50-101-144.5-160.5T480-720q-113 0-207.5 59.5T128-500q50 101 144.5 160.5T480-280Z' : 'm644-428-58-58q9-47-27-88t-93-32l-58-58q17-8 34.5-12t37.5-4q75 0 127.5 52.5T660-500q0 20-4 37.5T644-428Zm128 126-58-56q38-29 67.5-63.5T832-500q-50-101-144.5-160.5T480-720q-26 0-51 4t-49 12l-58-56q57-20 118-20 121 0 220 81.5T920-500q-24 61-67 113.5T772-302Zm20 246L624-222q-35 11-70.5 16.5T480-200q-121 0-220-81.5T40-500q24-60 67-112t100-86L56-846l56-56 736 736-56 56ZM222-624q-47 35-84 78.5T78-500q49 101 144.5 160.5T480-280q22 0 43.5-3t42.5-9L434-440q-12 14-21 33t-13 40q-19-6-34-16.5T342-408q-9-17-15.5-37T320-490q0-13 1.5-26t6.5-26l-106-82Zm180 190Z'}"/></svg>
@@ -1472,6 +1705,15 @@
       <button class="icon-btn danger" style="margin-left:0.25rem" onclick="removeQuestion('${stageId}','${q.id}')">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg>
       </button>
+    </div>
+    <div class="answer-preset-row">
+      <label class="answer-preset-label" for="preset-${q.id}">Answers</label>
+      <select class="answer-preset" id="preset-${q.id}"
+              onchange="applyPreset('${stageId}','${q.id}',this.value)">
+        ${presetKeyFor(q.answers) ? '' : '<option value="" selected>Custom</option>'}
+        ${Object.entries(ANSWER_PRESETS).map(([k, p]) =>
+          `<option value="${k}"${presetKeyFor(q.answers) === k ? ' selected' : ''}>${escH(p.label)}</option>`).join('')}
+      </select>
     </div>
     <div class="answers-list" id="answers-${q.id}">
       ${q.answers.map((a, ai) => answerHTML(stageId, q, ai, a)).join('')}
@@ -1481,9 +1723,10 @@
     }
 
     function answerHTML(stageId, q, ai, val) {
-      const isCorrect = q.type === 'quiz' && q.quiz === val && val !== '';
+      const isQuiz = q.quizIndex > -1;
+      const isCorrect = isQuiz && q.quizIndex === ai;
       return `<div class="answer-item" id="ans-${q.id}-${ai}">
-    ${q.type === 'quiz'
+    ${isQuiz
           ? `<button class="answer-correct-toggle ${isCorrect ? 'correct' : ''}"
                title="Mark as correct answer"
                onclick="setCorrectAnswer('${stageId}','${q.id}',${ai})"></button>`
@@ -1577,8 +1820,10 @@
       if (!s) return;
       const q = s.questions.find(q => q.id == qId);
       if (!q) return;
-      q.type = type;
-      if (type === 'rating') q.quiz = '';
+      // A quiz question always has a marked answer — the format expresses "quiz"
+      // by marking one option with ++, so an unmarked quiz would serialise back
+      // out as a rating question.
+      q.quizIndex = (type === 'quiz') ? Math.max(0, q.quizIndex) : -1;
       const card = document.getElementById('qcard-' + qId);
       if (card) card.outerHTML = questionCardHTML(stageId, null, q);
       reheatCard(stageId);
@@ -1590,7 +1835,7 @@
       if (!s) return;
       const q = s.questions.find(q => q.id == qId);
       if (!q) return;
-      q.quiz = q.answers[ai];
+      q.quizIndex = ai;
       const container = document.getElementById('answers-' + qId);
       if (container) container.innerHTML = q.answers.map((a, i) => answerHTML(stageId, q, i, a)).join('');
       scheduleUpdate();
@@ -1634,9 +1879,7 @@
       if (!s) return;
       const q = s.questions.find(q => q.id == qId);
       if (!q) return;
-      const wasCorrect = q.quiz === q.answers[ai];
-      q.answers[ai] = val;
-      if (wasCorrect) q.quiz = val;
+      q.answers[ai] = val;   // correctness is positional, so nothing to fix up
       scheduleUpdate();
     }
 
@@ -1660,8 +1903,10 @@
       const q = s.questions.find(q => q.id == qId);
       if (!q) return;
       if (q.answers.length <= 2) return; // minimum 2 answers
-      if (q.quiz === q.answers[ai]) q.quiz = '';
       q.answers.splice(ai, 1);
+      // keep the correct answer pointing at the same option
+      if (q.quizIndex === ai) q.quizIndex = 0;
+      else if (q.quizIndex > ai) q.quizIndex--;
       const container = document.getElementById('answers-' + qId);
       container.innerHTML = q.answers.map((a, i) => answerHTML(stageId, q, i, a)).join('');
       reheatCard(stageId);
@@ -1679,63 +1924,18 @@
        TTXF GENERATION
        ============================================= */
     function buildTTXF() {
-      const title = document.getElementById('f-title').value.trim();
-      const author = document.getElementById('f-author').value.trim();
-      const summary = document.getElementById('f-summary').value.trim();
-      const conclusion = document.getElementById('f-conclusion').value.trim();
-      const image = document.getElementById('f-image').value.trim();
+      return TTXF.serialize(currentDoc());
+    }
 
-      let lines = [];
-      if (title) lines.push('! title: ' + title);
-      if (author) lines.push('! author: ' + author);
-      if (image) lines.push('! image: ' + image);
-      if (summary) {
-        if (summary.includes('\n')) {
-          lines.push('! summary'); lines.push(summary); lines.push('');
-        } else {
-          lines.push('! summary: ' + summary);
-        }
-      }
-      if (conclusion) {
-        if (conclusion.includes('\n')) {
-          lines.push('! conclusion'); lines.push(conclusion); lines.push('');
-        } else {
-          lines.push('! conclusion: ' + conclusion);
-        }
-      }
-
-      stages.forEach(s => {
-        lines.push('');
-        lines.push('@ ' + (s.title || 'Untitled Stage'));
-        if (s.content.trim()) {
-          if (s.content.includes('\n')) {
-            lines.push('! content');
-            lines.push(s.content);
-            lines.push('');
-          } else {
-            lines.push('! content: ' + s.content.trim());
-          }
-        }
-        if (s.discussion.filter(d => d.trim()).length) {
-          lines.push('# discussion');
-          s.discussion.filter(d => d.trim()).forEach(d => lines.push('+ ' + d));
-        }
-        if (s.prompts.filter(p => p.trim()).length) {
-          lines.push('# prompts');
-          s.prompts.filter(p => p.trim()).forEach(p => lines.push('+ ' + p));
-        }
-        s.questions.forEach(q => {
-          if (!q.text.trim() && !q.answers.filter(a => a.trim()).length) return;
-          const sigil = q.participantHidden ? '?- ' : '? ';
-          lines.push(sigil + (q.text || 'Question'));
-          q.answers.forEach(a => {
-            if (!a.trim()) return;
-            lines.push((q.type === 'quiz' && q.quiz === a ? '++ ' : '+ ') + a);
-          });
-        });
-      });
-
-      return lines.join('\n');
+    function currentDoc() {
+      return {
+        title: document.getElementById('f-title').value.trim(),
+        author: document.getElementById('f-author').value.trim(),
+        image: document.getElementById('f-image').value.trim(),
+        summary: document.getElementById('f-summary').value.trim(),
+        conclusion: document.getElementById('f-conclusion').value.trim(),
+        stages: stages,
+      };
     }
 
     /* =============================================
@@ -1749,9 +1949,147 @@
     function updatePreviews() {
       const ttxf = buildTTXF();
       const title = document.getElementById('f-title').value.trim();
-      document.getElementById('preview-filename').textContent = (title || 'untitled').toLowerCase().replace(/\s+/g, '-') + '.ttxf';
+      document.getElementById('preview-filename').textContent = safeFilename(title);
       document.getElementById('ttxf-output').innerHTML = syntaxHighlight(ttxf);
       buildVisualPreview();
+      renderValidation(ttxf);
+      renderStagesSummary();
+      saveDraftSoon();
+    }
+
+    // An author cannot otherwise tell whether they have written a 45-minute
+    // exercise or a three-hour one.
+    function renderStagesSummary() {
+      const el = document.getElementById('stages-summary');
+      if (!el) return;
+      if (!stages.length) { el.textContent = ''; return; }
+      const questions = stages.reduce((n, s) => n + s.questions.filter(q => q.question.trim()).length, 0);
+      const seconds = stages.reduce((n, s) => n + TTXF.durationToSeconds(s.duration), 0);
+      const bits = [
+        `${stages.length} stage${stages.length === 1 ? '' : 's'}`,
+        `${questions} question${questions === 1 ? '' : 's'}`,
+      ];
+      if (seconds) {
+        const mins = Math.round(seconds / 60);
+        bits.push(mins >= 60
+          ? `${Math.floor(mins / 60)}h ${String(mins % 60).padStart(2, '0')}m planned`
+          : `${mins} min${mins === 1 ? '' : 's'} planned`);
+      }
+      el.textContent = bits.join(' · ');
+    }
+
+    function safeFilename(title) {
+      const base = (title || 'untitled').toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+      return (base || 'untitled') + '.ttxf';
+    }
+
+    /* =============================================
+       D3 — VALIDATION
+       Parses the file this editor is about to produce, so the author sees the
+       same diagnostics the gym would show them.
+       ============================================= */
+    function renderValidation(ttxf) {
+      const panel = document.getElementById('validation-panel');
+      const { errors } = TTXF.parse(ttxf);
+      const combined = importErrors.length
+        ? importErrors.concat(errors.filter(e => !importErrors.some(i => i.message === e.message)))
+        : errors;
+
+      panel.className = '';
+      panel.textContent = '';
+
+      if (!stages.length && !document.getElementById('f-title').value.trim()) return; // untouched form
+
+      if (!combined.length) {
+        panel.textContent = '✓ This scenario is valid and ready to run.';
+        panel.classList.add('visible', 'clean');
+        return;
+      }
+
+      const faults = combined.filter(e => e.severity === 'error');
+      const heading = document.createElement('strong');
+      heading.textContent = faults.length
+        ? `${faults.length} problem${faults.length === 1 ? '' : 's'} to fix`
+        : `${combined.length} thing${combined.length === 1 ? '' : 's'} to check`;
+      panel.appendChild(heading);
+
+      const list = document.createElement('ul');
+      combined.slice(0, 15).forEach(e => {
+        const li = document.createElement('li');
+        li.textContent = e.message;
+        list.appendChild(li);
+      });
+      panel.appendChild(list);
+      if (combined.length > 15) {
+        const more = document.createElement('div');
+        more.textContent = `…and ${combined.length - 15} more.`;
+        panel.appendChild(more);
+      }
+      panel.classList.add('visible');
+      if (faults.length) panel.classList.add('has-errors');
+    }
+
+    /* =============================================
+       D1 — DRAFT PERSISTENCE
+       ============================================= */
+    function saveDraftSoon() {
+      dirty = true;
+      clearTimeout(draftTimer);
+      draftTimer = setTimeout(saveDraft, 800);
+    }
+
+    function saveDraft() {
+      const doc = currentDoc();
+      const empty = !doc.title && !doc.summary && !doc.stages.length;
+      try {
+        if (empty) localStorage.removeItem(DRAFT_KEY);
+        else localStorage.setItem(DRAFT_KEY, JSON.stringify({ doc: doc, savedAt: Date.now() }));
+        dirty = false;
+      } catch (e) { /* private mode or quota — the export button still works */ }
+    }
+
+    function restoreDraft() {
+      let raw;
+      try { raw = localStorage.getItem(DRAFT_KEY); } catch (e) { return; }
+      if (!raw) return;
+      let saved;
+      try { saved = JSON.parse(raw); } catch (e) { return; }
+      if (!saved || !saved.doc) return;
+      // Round-trip through the format so a stored draft loads by exactly the same
+      // path as an imported file.
+      parseTTXF(TTXF.serialize(saved.doc));
+      importErrors = [];
+      const notice = document.getElementById('draft-notice');
+      document.getElementById('draft-notice-text').textContent =
+        'Picked up the draft you were working on' +
+        (saved.savedAt ? ' (last edited ' + relativeTime(saved.savedAt) + ')' : '') + '.';
+      notice.classList.add('visible');
+      updatePreviews();
+    }
+
+    function discardDraft() {
+      if (!confirm('Discard this draft and start a new scenario? This cannot be undone.')) return;
+      try { localStorage.removeItem(DRAFT_KEY); } catch (e) { /* nothing to clear */ }
+      stages = [];
+      importErrors = [];
+      ['f-title', 'f-author', 'f-summary', 'f-conclusion', 'f-image']
+        .forEach(id => { document.getElementById(id).value = ''; });
+      document.getElementById('f-image-preview').style.display = 'none';
+      document.getElementById('draft-notice').classList.remove('visible');
+      renderAllStages();
+      updatePreviews();
+      dirty = false;
+    }
+
+    function relativeTime(ts) {
+      const mins = Math.round((Date.now() - ts) / 60000);
+      if (mins < 1) return 'moments ago';
+      if (mins < 60) return mins + (mins === 1 ? ' minute ago' : ' minutes ago');
+      const hrs = Math.round(mins / 60);
+      if (hrs < 24) return hrs + (hrs === 1 ? ' hour ago' : ' hours ago');
+      const days = Math.round(hrs / 24);
+      return days + (days === 1 ? ' day ago' : ' days ago');
     }
 
     function syntaxHighlight(text) {
@@ -1785,32 +2123,32 @@
       out.innerHTML = stages.map((s, i) => {
         const hasDiscussion = s.discussion.filter(d => d.trim()).length > 0;
         const hasPrompts = s.prompts.filter(p => p.trim()).length > 0;
-        const hasQuestions = s.questions.filter(q => q.text.trim()).length > 0;
+        const hasQuestions = s.questions.filter(q => q.question.trim()).length > 0;
 
         return `
     <div class="preview-stage">
       <div class="preview-stage-header">
         <span class="preview-stage-num">Stage ${i + 1}</span>
-        <span class="preview-stage-title">${escH(s.title || 'Untitled Stage')}</span>
+        <span class="preview-stage-title">${escH(s.stage || 'Untitled Stage')}</span>
       </div>
       <div class="preview-stage-body">
         ${s.content.trim() ? `<div class="preview-content">${processMarkdown(s.content)}</div>` : ''}
         ${hasDiscussion ? `
           <div class="preview-talk">
             <div class="preview-talk-icon">${chatIcon}</div>
-            <ul>${s.discussion.filter(d => d.trim()).map(d => `<li>${escH(d)}</li>`).join('')}</ul>
+            <ul>${s.discussion.filter(d => d.trim()).map(d => `<li>${TTXF.inline(d)}</li>`).join('')}</ul>
           </div>` : ''}
         ${hasPrompts ? `
           <div class="preview-prompt">
             <div class="preview-prompt-icon">${promptIcon}</div>
-            <ul>${s.prompts.filter(p => p.trim()).map(p => `<li>${escH(p)}</li>`).join('')}</ul>
+            <ul>${s.prompts.filter(p => p.trim()).map(p => `<li>${TTXF.inline(p)}</li>`).join('')}</ul>
           </div>` : ''}
-        ${hasQuestions ? s.questions.filter(q => q.text.trim()).map(q => `
-          <div class="preview-question ${q.type === 'quiz' ? 'quiz-q' : ''}">
-            <div class="preview-q-text">${escH(q.text)}${q.participantHidden ? ' <span style="font-size:10px;font-family:var(--font-mono);font-weight:400;opacity:0.6;border:1px solid var(--border);border-radius:99px;padding:1px 6px;vertical-align:middle;margin-left:4px">participant hidden</span>' : ''}</div>
+        ${hasQuestions ? s.questions.filter(q => q.question.trim()).map(q => `
+          <div class="preview-question ${q.quizIndex > -1 ? 'quiz-q' : ''}">
+            <div class="preview-q-text">${escH(q.question)}${q.participantHidden ? ' <span style="font-size:10px;font-family:var(--font-mono);font-weight:400;opacity:0.6;border:1px solid var(--border);border-radius:99px;padding:1px 6px;vertical-align:middle;margin-left:4px">participant hidden</span>' : ''}</div>
             <div class="preview-answers">
               ${q.answers.filter(a => a.trim()).map(a =>
-          `<span class="preview-answer ${q.type === 'quiz' && q.quiz === a ? 'correct' : ''}">${escH(a)}</span>`
+          `<span class="preview-answer ${q.answers.indexOf(a) === q.quizIndex ? 'correct' : ''}">${escH(a)}</span>`
         ).join('')}
             </div>
           </div>
@@ -1818,6 +2156,7 @@
       </div>
     </div>`;
       }).join('');
+      TTXF.hydrateMedia(out);
     }
 
     /* =============================================
@@ -1874,124 +2213,43 @@
 
     function confirmImport() {
       if (!pendingImportData) return;
+      const hasWork = stages.length || document.getElementById('f-title').value.trim();
+      if (hasWork && !confirm('Importing replaces everything currently in the builder. Continue?')) return;
       parseTTXF(pendingImportData);
+      document.getElementById('draft-notice').classList.remove('visible');
       closeImportModal();
     }
 
     function parseTTXF(text) {
-      const lines = text.split(/\r?\n/);
-      stages = [];
-      document.getElementById('f-title').value = '';
-      document.getElementById('f-author').value = '';
-      document.getElementById('f-summary').value = '';
-      document.getElementById('f-conclusion').value = '';
-      document.getElementById('f-image').value = '';
-      document.getElementById('f-image-preview').style.display = 'none';
+      const { doc, errors } = TTXF.parse(text);
 
-      let currentStage = null, currentArray = null, currentQuestion = null;
-      let multiKey = null, multiVal = '';
+      document.getElementById('f-title').value = doc.title || '';
+      document.getElementById('f-author').value = doc.author || '';
+      document.getElementById('f-summary').value = doc.summary || '';
+      document.getElementById('f-conclusion').value = doc.conclusion || '';
+      document.getElementById('f-image').value = doc.image || '';
+      previewScenarioImage();
 
-      function flushMulti(target) {
-        if (!multiKey) return;
-        if (target) {
-          target[multiKey] = multiVal.trim();
-        } else {
-          const v = multiVal.trim();
-          if (multiKey === 'title') document.getElementById('f-title').value = v;
-          else if (multiKey === 'author') document.getElementById('f-author').value = v;
-          else if (multiKey === 'summary') document.getElementById('f-summary').value = v;
-          else if (multiKey === 'conclusion') document.getElementById('f-conclusion').value = v;
-          else if (multiKey === 'image') { document.getElementById('f-image').value = v; previewScenarioImage(); }
-        }
-        multiKey = null; multiVal = '';
-      }
-
-      lines.forEach(line => {
-        const t = line.trim();
-        if (t.startsWith('//')) return;
-
-        const isDirective = t.startsWith('! ') || t.startsWith('@ ') || t.startsWith('# ') ||
-          t.startsWith('+ ') || t.startsWith('++ ') || t.startsWith('? ') || t.startsWith('?- ');
-
-        if (multiKey && isDirective) {
-          flushMulti(currentStage);
-        }
-
-        if (t.startsWith('! ')) {
-          const rest = t.slice(2);
-          const ci = rest.indexOf(':');
-          if (ci > -1) {
-            const k = rest.slice(0, ci).trim();
-            const v = rest.slice(ci + 1).trim();
-            if (!currentStage) {
-              if (k === 'title') document.getElementById('f-title').value = v;
-              else if (k === 'author') document.getElementById('f-author').value = v;
-              else if (k === 'summary') document.getElementById('f-summary').value = v;
-              else if (k === 'conclusion') document.getElementById('f-conclusion').value = v;
-              else if (k === 'image') { document.getElementById('f-image').value = v; previewScenarioImage(); }
-            } else { currentStage[k] = v; }
-          } else {
-            multiKey = rest.trim(); multiVal = '';
-          }
-          currentArray = null; currentQuestion = null;
-        } else if (t.startsWith('@ ')) {
-          flushMulti(currentStage);
-          currentStage = makeStage();
-          currentStage.title = t.slice(2).trim();
-          currentStage.id = nextId();
-          stages.push(currentStage);
-          currentArray = null; currentQuestion = null;
-        } else if (t.startsWith('# ')) {
-          currentArray = t.slice(2).trim();
-          currentQuestion = null;
-        } else if (t.startsWith('?- ')) {
-          currentQuestion = makeQuestion();
-          currentQuestion.text = t.slice(3).trim();
-          currentQuestion.participantHidden = true;
-          if (currentStage) currentStage.questions.push(currentQuestion);
-          currentArray = null;
-        } else if (t.startsWith('? ')) {
-          currentQuestion = makeQuestion();
-          currentQuestion.text = t.slice(2).trim();
-          if (currentStage) currentStage.questions.push(currentQuestion);
-          currentArray = null;
-        } else if (t.startsWith('++ ') && currentQuestion) {
-          const v = t.slice(3).trim();
-          currentQuestion.answers.push(v);
-          currentQuestion.quiz = v;
-          currentQuestion.type = 'quiz';
-        } else if (t.startsWith('+ ')) {
-          const v = t.slice(2).trim();
-          if (currentQuestion) {
-            currentQuestion.answers.push(v);
-          } else if (currentArray && currentStage) {
-            if (!currentStage[currentArray]) currentStage[currentArray] = [];
-            currentStage[currentArray].push(v);
-          }
-        } else if (multiKey) {
-          // Use raw line to preserve blank lines
-          multiVal += (multiVal ? '\n' : '') + line;
-        }
-      });
-
-      flushMulti(currentStage);
-
-      // Trim placeholder empty answers from import
-      stages.forEach(s => {
-        s.questions.forEach(q => {
-          q.answers = q.answers.filter(a => a.trim());
-          if (q.answers.length < 2) while (q.answers.length < 2) q.answers.push('');
+      stages = doc.stages.map(st => {
+        st.id = nextId();
+        st.questions = st.questions.map(q => {
+          q.id = nextId();
+          // the editor always shows at least two answer slots
+          while (q.answers.length < 2) q.answers.push('');
+          return q;
         });
+        return st;
       });
 
+      importErrors = errors;
       renderAllStages();
       updatePreviews();
     }
 
     function exportTTXF() {
       const content = buildTTXF();
-      const title = document.getElementById('f-title').value.trim() || 'scenario';
-      const filename = title.toLowerCase().replace(/\s+/g, '-') + '.ttxf';
+      saveDraft();
+      const filename = safeFilename(document.getElementById('f-title').value.trim() || 'scenario');
       const blob = new Blob([content], { type: 'text/plain' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
@@ -2013,59 +2271,6 @@
     /* =============================================
        UTILS
        ============================================= */
-    function processMarkdown(text) {
-      let result = '';
-      const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
-      let bulletItems = [], numberedItems = [];
-      let lastWasBlank = false;
-
-      function flushLists() {
-        if (bulletItems.length) { result += '<ul>' + bulletItems.map(i => `<li>${i}</li>`).join('') + '</ul>'; bulletItems = []; }
-        if (numberedItems.length) { result += '<ol>' + numberedItems.map(i => `<li>${i}</li>`).join('') + '</ol>'; numberedItems = []; }
-      }
-
-      function applyInline(str) {
-        let s = escH(str);
-        s = s.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-        s = s.replace(/\*(.*?)\*/g, '<em>$1</em>');
-        s = s.replace(/%\(([^|)]+?)(?:\|\s*([^)]+?))?\)/g, (_, src, scale) => {
-          const style = scale ? ` style="width:${scale.trim()};max-width:${scale.trim()};max-height:none"` : '';
-          return `<img src="${src.trim()}" alt="" style="display:block;margin:0.75rem auto;max-width:100%;height:auto;border-radius:4px;object-fit:contain${scale ? ';width:' + scale.trim() + ';max-height:none' : ''}" onload="(function(i){var s=i.getAttribute('data-scale');if(!s)return;var p=parseFloat(s);if(!isNaN(p)){var px=Math.round(i.naturalWidth*(p/100));i.style.width=px+'px';i.style.maxWidth=px+'px';}else{i.style.width=s;i.style.maxWidth=s;}})(this)" data-scale="${scale ? scale.trim() : ''}">`;
-        });
-        return s;
-      }
-
-      // Trim leading/trailing blank lines
-      let start = 0, end = lines.length - 1;
-      while (start <= end && lines[start].trim() === '') start++;
-      while (end >= start && lines[end].trim() === '') end--;
-
-      for (let i = start; i <= end; i++) {
-        const line = lines[i];
-        const isBlank = line.trim() === '';
-        if (isBlank) {
-          if (!lastWasBlank) { flushLists(); result += '<p></p>'; }
-          lastWasBlank = true;
-          continue;
-        }
-        lastWasBlank = false;
-        if (/^\s*-\s+/.test(line)) {
-          bulletItems.push(applyInline(line.replace(/^\s*-\s+/, '')));
-        } else if (/^\s*\d+\.\s+/.test(line)) {
-          numberedItems.push(applyInline(line.replace(/^\s*\d+\.\s+/, '')));
-        } else {
-          flushLists();
-          if (/^~/.test(line.trim())) {
-            result += `<blockquote style="padding:0.75rem 1rem;margin:0.5rem 0;background:rgba(62,201,200,0.06);border-left:3px solid var(--green);border-radius:0 4px 4px 0">${applyInline(line.trim().slice(1).trim())}</blockquote>`;
-          } else {
-            result += `<p>${applyInline(line)}</p>`;
-          }
-        }
-      }
-      flushLists();
-      return result;
-    }
-
     function previewScenarioImage() {
       const url = document.getElementById('f-image').value.trim();
       const wrap = document.getElementById('f-image-preview');
@@ -2075,9 +2280,9 @@
       wrap.style.display = 'block';
     }
 
-    function escH(str) {
-      return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-    }
+    // one implementation, shared with the gym — see js/ttxf.js
+    const escH = TTXF.escapeHTML;
+    const processMarkdown = TTXF.markdown;
 
     function toggleMobileNav() {
       // stub for mobile nav
@@ -2086,6 +2291,35 @@
     /* =============================================
        INIT
        ============================================= */
+    // A refresh used to lose every unsaved edit.
+    window.addEventListener('beforeunload', (e) => {
+      if (!dirty) return;
+      saveDraft();
+      if (!dirty) return;              // saved cleanly, nothing to warn about
+      e.preventDefault();
+      e.returnValue = '';
+    });
+
+    // ?load=<scenario> comes from the library's Customise button.
+    const loadParam = new URLSearchParams(window.location.search).get('load');
+    if (loadParam) {
+      const safe = loadParam.replace(/[^a-z0-9_-]/gi, '');
+      fetch('lib/scenarios/' + safe + '.ttxf')
+        .then(r => { if (!r.ok) throw new Error(r.statusText); return r.text(); })
+        .then(text => {
+          parseTTXF(text);
+          importErrors = [];
+          document.getElementById('draft-notice').classList.remove('visible');
+          updatePreviews();
+        })
+        .catch(() => {
+          const panel = document.getElementById('validation-panel');
+          panel.className = 'visible has-errors';
+          panel.textContent = 'Could not load that scenario from the library. Try downloading it and using Import instead.';
+        });
+    } else {
+      restoreDraft();
+    }
     updatePreviews();
   </script>
 </body>

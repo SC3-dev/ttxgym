@@ -1,6 +1,6 @@
 ! title: Bring your own device
 ! author: Exercise adapted from NCSC 'Exercise-in-a-Box'
-! image: https://ttxgym.com/lib/images/byod1.jpg
+! image: ../lib/images/byod1.jpg
 ! summary
 This scenario covers a series of incidents involving employees’ personal devices that are used to access business data and services as part of your organisations Bring Your Own Device policy.
 It discusses the controls and processes your organisation has in place to understand and manage the risk of such a policy, what is required by employees in terms of keeping their devices secure, and training and awareness of employees in respect to using their personal devices securely.
@@ -10,6 +10,7 @@ Discussion of how to respond to a data breach from a personal device, along with
 Finally, the scenario explores how your organisation would respond to an employee’s device getting compromised, and any controls in place to prevent the spread of malicious software through your network or to limit what data an attacker could access from an infected machine.
 
 @ Inject 1: Data Leak
+! duration: 10 mins
 ! content
 Your organisation operates with a Bring Your Own Device policy.
 An employee that uses their personal device at work as part of this policy, reports that a number of sensitive business documents had been uploaded to a family member’s cloud account.
@@ -39,6 +40,7 @@ This occurred during an automatic back-up of their personal laptop, that they oc
 + Completely confident
 
 @ Inject 2: Malware Infection
+! duration: 10 mins
 ! content
 During an investigation of the laptop following this data leak, it was found that the laptop is infected with malware.
 The infection occurred outside of the office while the user was using their personal laptop at home; however, the device had since been connected to the corporate network.
@@ -72,6 +74,7 @@ The infection occurred outside of the office while the user was using their pers
 + Completely confident
 
 @ Inject 3: Evaluating BYOD Controls
+! duration: 10 mins
 ! content
 Following this compromise, you evaluate your controls and training around BYOD, in order to minimise the possibility of such an incident occurring in future.
 # prompts
@@ -105,6 +108,7 @@ Following this compromise, you evaluate your controls and training around BYOD, 
 + Completely confident
 
 @ Inject 4: Employee Departure
+! duration: 10 mins
 ! content
 The employee later leaves the organisation, taking their personal laptop with them.
 The employee had been using this laptop to access corporate services and information until their departure.

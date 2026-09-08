@@ -1,6 +1,6 @@
 ! title: Exercise Cold Start - Business Area Disruption
 ! author: Scottish Cyber Coordination Centre
-! image: https://ttxgym.com/lib/images/cold_start.jpg
+! image: ../lib/images/cold_start.jpg
 ! summary
 This exercise is designed to explore the impact of a cyber attack that results in the loss of a critical IT function that supports the Business Area. This loss could either be as a direct result of the cyber incident or a containment put in place removing the service to enable forensic investigation.
 
@@ -31,6 +31,7 @@ For each inject we will pose a Quiz response question to get the conversation st
 
 
 @ Exercise Aims and Objectives
+! duration: 10 mins
 ! content
 **AIMS**
 1. Test operational and service-led decision-making under conditions of uncertainty in an emerging cyber incident.
@@ -48,8 +49,9 @@ Participants should be able to:
 
 
 @ DETECTION AND IMMEDIATE SYSTEM SHUTDOWN
+! duration: 10 mins
 ! content
-%(https://ttxgym.com/lib/exercise_data/TTXGYM_Warning_red.png | 10%)
+%(../lib/exercise_data/TTXGYM_Warning_red.png | 10%)
 The IT Team has detected suspicious activity on the core operational system. Indicators include unusual authentication attempts and abnormal database queries.
 
 Security initiates an immediate shutdown of the system to contain and prevent possible wider propagation.
@@ -80,8 +82,9 @@ Your team have been notified of the shutdown, and there is no timeline for resto
 + Completely confident
 
 @ EARLY FORENSIC AMBIGUITY
+! duration: 10 mins
 ! content
-%(https://ttxgym.com/lib/exercise_data/TTXGYM_Forensic_teal.png | 10%)
+%(../lib/exercise_data/TTXGYM_Forensic_teal.png | 10%)
 ~**Scenario Update**
 Forensic triage begins. Early signs are as follows:
 
@@ -109,6 +112,7 @@ There is no clarity yet on what was accessed, changed, or stolen.
 ++ We are working with incomplete information; here’s what we do know.
 
 @ CONFIRMED DATA INTEGRITY FAILURE
+! duration: 10 mins
 ! content
 ~**Scenario Update**
 Digital Forensic investigation confirms that:
@@ -132,6 +136,7 @@ Digital Forensic investigation confirms that:
 + 4: Notify senior leadership that key decisions can’t be safely made.
 
 @ CONFIRMED DATA EXFILTRATION
+! duration: 10 mins
 ! content
 ~**Scenario Update**
 The investigation confirms that data has been exfiltrated (stolen).
@@ -156,8 +161,9 @@ The volume of data stolen, the content of the data, and its recipients remain un
 + No one until the forensics team confirm exactly what was stolen.
 
 @ SUPPLIER UNCERTAINTY AND CONTRACTUAL GAPS
+! duration: 10 mins
 ! content
-%(https://ttxgym.com/lib/exercise_data/TTXGYM_Chain_teal.png | 10%)
+%(../lib/exercise_data/TTXGYM_Chain_teal.png | 10%)
 **For the purposes of this part of the exercise assume the primary IT system affected is provided by an external supplier.**
 ~**Scenario Update**
 Your system supplier advises that:
@@ -182,6 +188,7 @@ Your system supplier advises that:
 + Contact legal / Information Governance and raise and record their non-compliance.
 
 @  RESTORATION WILL TAKE WEEKS OR MONTHS
+! duration: 10 mins
 ! content
 ~**Scenario Update**
 The Cyber Security team informs you:
@@ -207,8 +214,9 @@ The Cyber Security team informs you:
 + Outsource everything temporarily.
 
 @ ORGANISATIONAL INCIDENT COORDINATION (Strategic, Operations and Technical)
+! duration: 10 mins
 ! content
-%(https://ttxgym.com/lib/exercise_data/TTXGYM_Documents_teal.png | 10%)
+%(../lib/exercise_data/TTXGYM_Documents_teal.png | 10%)
 ~**Scenario Update**
 A major incident is declared. Service leads must:
 - Provide a Situation Report (SITREP) on the impact on their Business Area.
@@ -233,8 +241,9 @@ A major incident is declared. Service leads must:
 + “We don’t know anything yet.”
 
 @ SERVICE RECOVERY
+! duration: 10 mins
 ! content
-%(https://ttxgym.com/lib/exercise_data/TTXGYM_Shield_teal.png | 10%)
+%(../lib/exercise_data/TTXGYM_Shield_teal.png | 10%)
 A week has passed without full IT service functionality. Fortunately the forensic examination identified the threat, it was contained and eliminated. Data integrity was established from a clean back up and a Statement of Assurance has been provided by the Cyber Incident Response Specialist undertaking the investigation which attests to the resumed integrity of the system.
 
 # discussion
