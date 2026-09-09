@@ -58,10 +58,16 @@ G('the build is in step with its sources');
       .filter(h => !/ttxgym\.com|w3\.org/.test(h));
     eq(hosts, [], 'third-party hosts');
   });
-  t('the inlined module cannot close the script tag early', () => {
+  t('the whole module lands inside one script block', () => {
+    // A literal </script> anywhere in the module would end the block early and
+    // spill the rest of it into the page as text. (Counting tags is no use here:
+    // the participant-window and report templates contain the string "<script"
+    // inside JavaScript, with their closers already escaped.)
     const html = fs.readFileSync(OUTPUT, 'utf8');
-    const body = html.slice(html.indexOf('<script>'), html.indexOf('</script>'));
-    ok(body.includes('TTXF'), 'the module was not inlined');
+    const start = html.indexOf('ttxf.js — the one implementation');
+    ok(start > -1, 'the module was not inlined');
+    const block = html.slice(start, html.indexOf('</script>', start));
+    ok(block.includes('global.TTXF = {'), 'the module was cut short by an early closing tag');
   });
 }
 
@@ -208,6 +214,60 @@ G('the site itself is free of third parties');
     eq(icons.length, 11, 'expected the 11 about/feature icons');
     ok(/\.feature-icon \.mi \{[^}]*fill:/.test(html.replace(/\s+/g, ' ')
        .replace(/\.feature-icon \.mi \{ /g, '.feature-icon .mi {')), 'icons are not filled');
+  });
+  t('browser-drawn controls follow the dark UI', () => {
+    // Declared once per stylesheet; color-scheme inherits, so :root covers the page.
+    const gym = fs.readFileSync(path.join(ROOT, 'gym/index.html'), 'utf8').replace(/\s+/g, ' ');
+    const site = fs.readFileSync(path.join(ROOT, 'style.css'), 'utf8').replace(/\s+/g, ' ');
+    ok(/:root \{[^}]*color-scheme: dark/.test(gym), 'the gym does not declare a colour scheme');
+    ok(/:root \{[^}]*color-scheme: dark/.test(site), 'the shared stylesheet does not declare one');
+  });
+  t('the calendar glyph is not inverted back to black', () => {
+    // color-scheme already draws it light. Inverting it as well cancelled out and
+    // put a black icon on a near-black field.
+    const gym = fs.readFileSync(path.join(ROOT, 'gym/index.html'), 'utf8').replace(/\s+/g, ' ');
+    const rule = /calendar-picker-indicator \{([^}]*)\}/.exec(gym);
+    ok(rule, 'no styling for the date picker glyph');
+    ok(!/invert/.test(rule[1]), 'still inverting: ' + rule[1].trim());
+  });
+  t('the facilitator view has a light theme, defined by the same tokens', () => {
+    const css = fs.readFileSync(path.join(ROOT, 'gym/index.html'), 'utf8');
+    const style = css.slice(css.indexOf('<style>'), css.indexOf('</style>'));
+    const names = block => (block.match(/--[\w-]+(?=:)/g) || []);
+    const dark = names((/:root\s*\{([^}]*)\}/.exec(style) || [, ''])[1]);
+    const light = names((/:root\[data-theme="light"\]\s*\{([^}]*)\}/.exec(style) || [, ''])[1]);
+    ok(light.length > 15, 'no light palette: ' + light.length + ' tokens');
+    // layout tokens are not colours and need no light value
+    const layout = ['--sidebar-width', '--radius', '--radius-lg', '--font-display', '--font-mono'];
+    const missing = dark.filter(t => !layout.includes(t) && !light.includes(t));
+    eq(missing, [], 'colour tokens with no light value');
+    eq(light.filter(t => !dark.includes(t)), [], 'tokens that exist only in light');
+    ok(/:root\[data-theme="light"\]\s*\{[^}]*color-scheme:\s*light/.test(style),
+       'the light theme does not flip color-scheme');
+  });
+  t('no rule in the facilitator view pins a colour to one theme', () => {
+    const html = fs.readFileSync(path.join(ROOT, 'gym/index.html'), 'utf8');
+    const style = html.slice(html.indexOf('<style>'), html.indexOf('</style>'));
+    const pinned = [];
+    style.replace(/([^{}\n]+)\{([^}]*)\}/g, (_, sel, decl) => {
+      if (/^\s*(:root|@|\/\*)/.test(sel)) return '';
+      (decl.match(/(?:color|background|background-color|border[\w-]*color|box-shadow):\s*([^;]+)/g) || [])
+        .forEach(d => {
+          const v = d.split(':').slice(1).join(':').trim();
+          if (/var\(|none|transparent|inherit|currentColor|^#fff/.test(v)) return;
+          // accent, status and neutral scrim tints read correctly on either ground
+          if (/rgba\((?:46, 125, 224|62, 201, 200|245, 166, 35|224, 82, 82|199, 146, 234|0, 0, 0)/.test(v)) return;
+          pinned.push(sel.trim() + ' -> ' + v);
+        });
+      return '';
+    });
+    eq(pinned, [], 'rules pinned to one theme');
+  });
+  t('the theme is applied before first paint, so it cannot flash', () => {
+    const html = fs.readFileSync(path.join(ROOT, 'gym/index.html'), 'utf8');
+    const head = html.slice(0, html.indexOf('</head>'));
+    ok(/ttxgym_theme/.test(head), 'the stored theme is not read in <head>');
+    ok(/try\s*\{/.test(head), 'reading it is not guarded for file:// origins');
   });
   t('Montserrat always has a fallback, for offline and for first paint', () => {
     ['style.css', 'gym/index.html'].forEach(f => {

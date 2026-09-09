@@ -391,6 +391,47 @@ G('the facilitator pack');
   t('participant-hidden questions are flagged', () => has(captured, 'participant hidden'));
 }
 
+G('facilitator notes: in the record, not on the screens');
+{
+  const { w } = boot();
+  await loadScenario(w, SCENARIO, 'notes.ttxf');
+  w.nextStage();
+  respond(w, 'question_0', 4);
+  w.document.querySelector('#round1 textarea.description').value = 'CANDID observation about a colleague.';
+  w.addAction(1);
+  w.updateAction(ev(w, 'actions[0].id'), 'text', 'Write the runbook');
+  w.updateAction(ev(w, 'actions[0].id'), 'owner', 'Priya');
+  w.handleFormSubmit();
+
+  t('the summary overlay shows scoring, not commentary', () => {
+    const txt = w.document.getElementById('summary-overlay-body').textContent;
+    ok(!/CANDID observation/.test(txt), 'notes are on the overlay');
+    ok(/confidence/i.test(txt), 'no scoring on the overlay');
+  });
+  t('actions and owners are still shown — agreeing who does what is the point', () => {
+    const txt = w.document.getElementById('summary-overlay-body').textContent;
+    ok(/Write the runbook/.test(txt));
+    ok(/Priya/.test(txt));
+  });
+  t('the exported report keeps the notes', () => {
+    let out = '';
+    const RB = w.Blob;
+    w.Blob = function (p, o) { out = String(p[0]); return new RB(p, o); };
+    w.exportReport();
+    w.Blob = RB;
+    ok(/CANDID observation/.test(out), 'the report lost the notes');
+    ok(/Write the runbook/.test(out), 'the report lost the actions');
+  });
+  t('and the session file keeps them, so nothing is lost', () => {
+    let out = '';
+    const RB = w.Blob;
+    w.Blob = function (p, o) { out = String(p[0]); return new RB(p, o); };
+    w.exportSession();
+    w.Blob = RB;
+    eq(JSON.parse(out).notes.stage_0, 'CANDID observation about a colleague.');
+  });
+}
+
 G('F1 — the session file');
 {
   const { w } = boot();

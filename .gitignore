@@ -1,3 +1,6 @@
 # Test-only dependency (jsdom). The site itself ships no JavaScript dependencies.
 node_modules/
 package-lock.json
+
+# Working notes — kept locally, not published with the site
+IMPROVEMENTS.md

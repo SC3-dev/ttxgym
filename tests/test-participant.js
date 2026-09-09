@@ -178,6 +178,73 @@ G('a hostile scenario cannot reach the participant screen');
     eq(w2.document.querySelectorAll('#middle img').length, 0));
 }
 
+G('the exercise summary is the same on both screens');
+{
+  // The room used to get a cut-down version: the weakest questions and a count of
+  // actions. The facilitator saw metrics, distributions, notes and the action table.
+  const { w: gym } = require('./harness.js').boot();
+  await require('./harness.js').loadScenario(
+    gym, fs.readFileSync(ROOT + '/lib/scenarios/byod1.ttxf', 'utf8'), 'byod1.ttxf');
+  gym.nextStage();
+  const respond = require('./harness.js').respond;
+  respond(gym, 'question_0', 0, 3);
+  respond(gym, 'question_0', 4, 2);
+  gym.document.querySelector('#round1 textarea.description').value = 'Nobody could name the data owner.';
+  gym.addAction(1);
+  const id = ev(gym, 'actions[0].id');
+  gym.updateAction(id, 'text', 'Name a data owner');
+  gym.updateAction(id, 'owner', 'Priya');
+
+  const ch2 = { peers: [], sent: [] };
+  const { w: room } = bootParticipant(ev(gym, 'PRESENTATION_HTML'), ch2);
+
+  // capture what the gym broadcasts when Present Summary is used
+  let broadcast = null;
+  const realPost = ev(gym, 'bc').postMessage;
+  ev(gym, 'bc').postMessage = m => { if (m && m.type === 'update' && /Summary/.test(m.title || '')) broadcast = m; };
+  gym.handleFormSubmit();
+  ev(gym, 'bc').postMessage = realPost;
+
+  ok(broadcast, 'nothing was broadcast');
+  ch2.peers.forEach(p => p.onmessage && p.onmessage({ data: JSON.parse(JSON.stringify(broadcast)) }));
+
+  const shape = root => ({
+    metrics: root.querySelectorAll('.metric').length,
+    values: [...root.querySelectorAll('.metric-value')].map(e => e.textContent).join('|'),
+    caveat: root.querySelectorAll('.summary-caveat').length,
+    focus: root.querySelectorAll('.focus-list li').length,
+    actionRows: root.querySelectorAll('.actions-table tbody tr').length,
+    stages: root.querySelectorAll('.summary-stage').length,
+    notes: root.querySelectorAll('.summary-notes').length,
+    distributions: root.querySelectorAll('.dist-row').length,
+    chartBars: root.querySelectorAll('.bchart .bar').length,
+  });
+  const facilitator = shape(gym.document.getElementById('summary-overlay-body'));
+  const participants = shape(room.document.getElementById('content'));
+
+  t('both screens carry the same sections', () => eq(participants, facilitator));
+  t('the headline figures match', () => ok(participants.values === facilitator.values && /%/.test(participants.values)));
+  t('the room sees the response distributions', () => ok(participants.distributions > 0));
+  t('...the actions, with their owners', () => {
+    ok(participants.actionRows > 0);
+    ok(/Priya/.test(room.document.getElementById('content').textContent));
+  });
+  t('but NOT the facilitator notes — those are a working record, not a scoreboard', () => {
+    ok(!/Nobody could name the data owner/.test(room.document.getElementById('content').textContent),
+       'facilitator notes reached the participant screen');
+    ok(!/Nobody could name the data owner/.test(gym.document.getElementById('summary-overlay-body').textContent),
+       'facilitator notes are on the summary overlay too');
+  });
+  t('the participant window styles what it is now sent', () => {
+    const css = room.document.querySelector('style').textContent;
+    ['.summary-metrics', '.metric-value', '.dist-bar', '.dist-seg', '.actions-table',
+     '.focus-list', '.summary-caveat'].forEach(cls =>
+      ok(css.includes(cls), 'no styling for ' + cls));
+  });
+  t('the progress bar steps aside for the summary', () =>
+    eq(room.document.getElementById('progress').style.display, 'none'));
+}
+
 G('F4.4/F4.5/F4.6 — blank, injects and the projector theme');
 {
   const send = m => channel.peers.forEach(p => p.onmessage && p.onmessage({ data: m }));

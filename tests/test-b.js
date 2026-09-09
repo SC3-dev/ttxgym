@@ -1,4 +1,5 @@
-const { boot, loadScenario, ev, tick, respond, unrespond, counts } = require('./harness.js');
+const fs = require('fs');
+const { boot, loadScenario, ev, tick, respond, unrespond, counts, ROOT } = require('./harness.js');
 let pass = 0, fail = 0, group = '';
 const G = n => { group = n; console.log('\n' + n); };
 const t = (name, fn) => {
@@ -260,6 +261,63 @@ G('B14 — Space activates role="button"');
   t('collapsible headers toggle once, not twice', () => {
     const h = w.document.querySelector('#round1 .sc_content-wrapper').style.height;
     eq(h, '0px', 'height after one Space press');
+  });
+}
+
+G('light theme for the facilitator view');
+{
+  const { w, errors } = boot();
+  await loadScenario(w, TWO_STAGE, 'a.ttxf');
+  const root = w.document.documentElement;
+  t('it starts dark, as it always has', () => eq(root.getAttribute('data-theme'), 'dark'));
+  t('the control says what it will switch to', () =>
+    eq(w.document.getElementById('theme-toggle-label').textContent, 'Light Theme'));
+  w.toggleGymTheme();
+  t('switching flips the whole view', () => eq(root.getAttribute('data-theme'), 'light'));
+  t('and the label with it', () =>
+    eq(w.document.getElementById('theme-toggle-label').textContent, 'Dark Theme'));
+  t('the choice is remembered', () => eq(w.localStorage.getItem('ttxgym_theme'), 'light'));
+  t('the exercise is untouched by it', () => {
+    w.nextStage();                     // answers only take input on the live stage
+    respond(w, 'question_0', 1);       // TWO_STAGE offers Low / High
+    eq(counts(w, 'question_0')[1], 1);
+    eq(errors, []);
+  });
+  w.toggleGymTheme();
+  t('and it switches back', () => {
+    eq(root.getAttribute('data-theme'), 'dark');
+    eq(w.localStorage.getItem('ttxgym_theme'), 'dark');
+  });
+  t('the logo wordmark stays legible in light mode', () => {
+    // The letterforms were painted white inline, which no stylesheet could reach —
+    // invisible on a light sidebar. They take the logo's own blue there instead.
+    const logo = w.document.getElementById('logo');
+    const words = logo.querySelectorAll('.logo-word');
+    eq(words.length, 6, 'the wordmark paths are not addressable');
+    ok(!logo.innerHTML.includes('fill:#ffffff'), 'a white fill is still inlined');
+    const css = w.document.querySelector('style').textContent.replace(/\s+/g, ' ');
+    ok(/#logo \.logo-word \{ fill: #ffffff/.test(css), 'no dark-theme colour');
+    // near-black on light — the same value the exported report uses for this logo
+    ok(/:root\[data-theme="light"\] #logo \.logo-word \{ fill: #1a1f2e/.test(css), 'no light-theme colour');
+    const report = fs.readFileSync(ROOT + '/gym/index.html', 'utf8');
+    const header = report.slice(report.indexOf('const REPORT_HEADER'), report.indexOf('const REPORT_FOOTER'));
+    ok(header.includes('fill:#1a1f2e'), 'the report uses a different colour for the same logo');
+    // the brackets stay blue in both themes
+    const brackets = [...logo.querySelectorAll('path')].filter(p => !p.classList.contains('logo-word'));
+    const colours = [...new Set(brackets.map(p => (/fill:(#[0-9a-f]{6})/.exec(p.getAttribute('style')) || [])[1]))];
+    eq(colours, ['#1a6ec0'], 'the brackets are not one colour');
+  });
+  t('nothing else in the facilitator view is painted white inline', () => {
+    const html = fs.readFileSync(ROOT + '/gym/index.html', 'utf8');
+    const page = html.slice(0, html.indexOf('const MEDIA_HYDRATE_JS'));
+    const white = page.match(/<(?:svg|path)[^>]*fill(?:="|:\s*)(?:#fff|#ffffff|white)[^>]*>/gi) || [];
+    eq(white.length, 0, 'inline white fills that would vanish on a light ground');
+  });
+  t('the participant window keeps its own theme', () => {
+    // a laptop in a dim room and a projector in a lit one want opposite things
+    const posted = ev(w, 'PRESENTATION_HTML');
+    ok(/ttxgym_participant_theme/.test(posted), 'the participant window lost its own setting');
+    ok(!/ttxgym_theme'/.test(posted), 'the participant window follows the facilitator theme');
   });
 }
 

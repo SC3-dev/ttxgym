@@ -45,7 +45,8 @@ G('with a scenario loaded');
     eq(inSection('section-present').slice(0, 3), ['Participant Window', 'Blank Screen', 'Send Inject']);
     ok(w.document.querySelector('#section-present #timer'), 'the pause control is not in Present');
     eq(inSection('section-wrapup'), ['Present Summary', 'Export Report', 'Save Session', 'Compare With Previous Run']);
-    eq(inSection('more-items'), ['Facilitator Pack', 'Toggle Fullscreen', 'Download Scenario File', 'Clear All Answers', 'Reset Scenario']);
+    eq(inSection('more-items'), ['Light Theme', 'Facilitator Pack', 'Toggle Fullscreen',
+                                 'Download Scenario File', 'Clear All Answers', 'Reset Scenario']);
   });
 
   t('the visible list stays short', () => {

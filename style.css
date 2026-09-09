@@ -10,6 +10,9 @@
  }
 
  :root {
+     /* browser-drawn controls — selects, scrollbars, date pickers — default to a
+        light palette unless the page says otherwise */
+     color-scheme: dark;
      --back: #141820;
      --mid: #1e2535;
      --surface: #252d3f;

@@ -22,11 +22,22 @@
   <meta name="twitter:description" content="Run a tabletop exercise: load a scenario, drive the participant screen, capture notes and answers, and export a report.">
   <meta name="twitter:image" content="https://ttxgym.com/hero.png">
   <link rel="stylesheet" href="../css/fonts.css">
+  <script>
+    /* Runs before the stylesheet paints, so a facilitator who chose the light
+       theme never sees the dark one flash first. Storage throws on file:// URLs. */
+    try {
+      var t = localStorage.getItem('ttxgym_theme');
+      if (t === 'light') document.documentElement.setAttribute('data-theme', 'light');
+    } catch (e) { /* no stored preference to honour */ }
+  </script>
   <style>
     /* =============================================
        DESIGN TOKENS
        ============================================= */
     :root {
+      /* The date picker panel, select menus and scrollbars are drawn by the browser
+         and default to a light palette unless the page declares otherwise. */
+      color-scheme: dark;
       --back: #141820;
       --mid: #1e2535;
       --surface: #252d3f;
@@ -45,11 +56,50 @@
       --border: rgba(255, 255, 255, 0.07);
       --border-active: rgba(46, 125, 224, 0.5);
       --shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+      --sidebar-shadow: 4px 0 32px rgba(0, 0, 0, 0.5);
+      --wash: rgba(255, 255, 255, 0.03);
+      --wash-strong: rgba(255, 255, 255, 0.13);
+      --scrim: rgba(20, 24, 32, 0.88);
+      --quote-bg: rgba(30, 75, 86, 0.5);
+      --talk-bg: rgba(0, 51, 102, 0.25);
       --sidebar-width: 280px;
       --radius: 6px;
       --radius-lg: 10px;
       --font-display: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
       --font-mono: 'DM Mono', monospace;
+    }
+
+    /* =============================================
+       LIGHT THEME
+       Same tokens, different values. Nothing below this block names a colour, so
+       the whole facilitator view follows from here.
+       ============================================= */
+    :root[data-theme="light"] {
+      color-scheme: light;
+      --back: #f4f6fa;
+      --mid: #ffffff;
+      --surface: #edf0f5;
+      --surface-raised: #e3e8ef;
+      --accent: #1a6ec0;
+      --accent-glow: rgba(26, 110, 192, 0.10);
+      --accent-hover: #15589b;
+      --green: #12807e;
+      --green-dark: #0d5f5e;
+      --green-glow: rgba(18, 128, 126, 0.10);
+      --amber: #a86100;
+      --red: #c0392b;
+      --text-primary: #141820;
+      --text-secondary: rgba(20, 24, 32, 0.64);
+      --text-muted: rgba(20, 24, 32, 0.45);
+      --border: rgba(20, 24, 32, 0.13);
+      --border-active: rgba(26, 110, 192, 0.45);
+      --shadow: 0 4px 24px rgba(20, 24, 32, 0.12);
+      --sidebar-shadow: 4px 0 32px rgba(20, 24, 32, 0.10);
+      --wash: rgba(20, 24, 32, 0.035);
+      --wash-strong: rgba(20, 24, 32, 0.18);
+      --scrim: rgba(244, 246, 250, 0.92);
+      --quote-bg: rgba(18, 128, 126, 0.09);
+      --talk-bg: rgba(26, 110, 192, 0.08);
     }
 
     *,
@@ -147,6 +197,17 @@
       margin-bottom: 0.5rem;
       display: flex;
       justify-content: center;
+    }
+
+    /* The wordmark is white on the dark sidebar and near-black on the light one,
+       where white would vanish. #1a1f2e is the same value the exported report
+       already uses for this logo on a light ground. The brackets stay blue. */
+    #logo .logo-word {
+      fill: #ffffff;
+    }
+
+    :root[data-theme="light"] #logo .logo-word {
+      fill: #1a1f2e;
     }
 
     #logo svg {
@@ -449,7 +510,7 @@
     #hamburger:hover {
       background: var(--surface);
       color: var(--text-primary);
-      border-color: rgba(255, 255, 255, 0.15);
+      border-color: var(--wash-strong);
     }
 
     #title-text {
@@ -626,7 +687,7 @@
     }
 
     .round:hover {
-      border-color: rgba(255, 255, 255, 0.12);
+      border-color: var(--wash-strong);
     }
 
     .round.active {
@@ -656,7 +717,7 @@
     }
 
     .sc_title-bar:hover {
-      background: rgba(255, 255, 255, 0.03);
+      background: var(--wash);
     }
 
     .round.active .sc_title-bar {
@@ -781,7 +842,7 @@
     .sc_content blockquote {
       padding: 0.75rem 1rem;
       margin: 0.75rem 0;
-      background: rgba(30, 75, 86, 0.5);
+      background: var(--quote-bg);
       border-left: 3px solid var(--green);
       border-radius: 0 4px 4px 0;
     }
@@ -799,7 +860,7 @@
     .talk {
       margin: 0 1rem 0.75rem;
       padding: 0.85rem 1rem;
-      background: rgba(0, 51, 102, 0.25);
+      background: var(--talk-bg);
       border-left: 3px solid var(--accent);
       border-radius: 0 var(--radius) var(--radius) 0;
       display: flex;
@@ -1278,7 +1339,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: rgba(20, 24, 32, 0.88);
+      background: var(--scrim);
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
       padding: 2rem;
@@ -1371,15 +1432,6 @@
       color: var(--text-secondary);
       font-family: var(--font-mono);
       margin: 0.15rem 0 0.4rem;
-    }
-
-    .summary-notes {
-      font-size: 12.5px;
-      line-height: 1.6;
-      background: var(--surface);
-      border-radius: var(--radius);
-      padding: 0.5rem 0.7rem;
-      margin-bottom: 0.5rem;
     }
 
     .dist-row {
@@ -1515,7 +1567,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: rgba(20, 24, 32, 0.85);
+      background: var(--scrim);
       backdrop-filter: blur(6px);
       -webkit-backdrop-filter: blur(6px);
     }
@@ -1797,9 +1849,6 @@
       resize: vertical;
       width: 100%;
       min-width: 0;
-      /* tells the browser to draw native controls — the date picker's calendar
-         glyph among them — for a dark field rather than a white one */
-      color-scheme: dark;
     }
 
     .session-meta-input:focus {
@@ -1811,10 +1860,10 @@
       min-height: 3.4rem;
     }
 
-    /* Belt and braces for engines that ignore color-scheme on the indicator. */
+    /* color-scheme already renders this glyph light; inverting it turned it black
+       again. Only the affordance is styled here. */
     .session-meta-input[type="date"]::-webkit-calendar-picker-indicator {
-      filter: invert(1);
-      opacity: 0.5;
+      opacity: 0.55;
       cursor: pointer;
     }
 
@@ -2051,7 +2100,7 @@
         bottom: 0;
         transform: translateX(-100%);
         z-index: 200;
-        box-shadow: 4px 0 32px rgba(0, 0, 0, 0.5);
+        box-shadow: var(--sidebar-shadow);
         min-width: var(--sidebar-width);
         width: var(--sidebar-width);
       }
@@ -2194,11 +2243,11 @@
             <div id="logo">
               <svg viewBox="0 0 210 84" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                 <g>
-                  <path style="fill:#ffffff;stroke-width:0.144177"
+                  <path class="logo-word" style="stroke-width:0.144177"
                     d="m 123.95944,30.43245 0.001,-1.117375 5.11724,-6.112717 c 2.81453,-3.361993 5.11729,-6.171028 5.11729,-6.242298 0,-0.07123 -2.30323,-2.881476 -5.1183,-6.244894 l -5.1183,-6.1153013 v -1.086954 -1.086943 l 3.28003,0.0063 3.28005,0.0063 3.8207,4.544782 c 2.10139,2.499633 3.91803,4.6295583 4.03697,4.7331703 0.18592,0.161956 0.77129,-0.476686 4.17186,-4.5515563 l 3.95559,-4.739934 h 3.28934 3.28932 v 1.052384 1.052384 l -5.19039,6.1834383 c -2.85472,3.400899 -5.1886,6.219979 -5.18639,6.264626 0.002,0.04464 2.33524,2.838581 5.18451,6.208731 l 5.18051,6.127543 0.006,1.117375 0.006,1.117376 -3.28004,-0.0032 -3.28003,-0.0032 -4.03542,-4.764205 c -3.77303,-4.454434 -4.04959,-4.7469 -4.25324,-4.498099 -0.1198,0.146359 -1.92418,2.291532 -4.00975,4.767043 l -3.792,4.500917 h -3.23672 -3.23673 l 0.001,-1.117376 z" />
-                  <path style="fill:#ffffff;stroke-width:0.144177"
+                  <path class="logo-word" style="stroke-width:0.144177"
                     d="M 103.62935,20.159802 V 8.7697787 h -5.767107 -5.767099 v -3.171906 -3.171905 h 14.634016 14.63402 v 3.171905 3.171906 h -5.69501 -5.69501 V 20.159802 31.549826 h -3.1719 -3.17191 z" />
-                  <path style="fill:#ffffff;stroke-width:0.144177"
+                  <path class="logo-word" style="stroke-width:0.144177"
                     d="M 71.045229,20.159802 V 8.7697787 h -5.695017 -5.695007 v -3.171906 -3.171905 h 14.561929 14.561929 v 3.171905 3.171906 H 83.084046 77.38904 V 20.159802 31.549826 h -3.171906 -3.171905 z" />
                   <path style="fill:#1a6ec0;fill-opacity:1;stroke-width:0.139424"
                     d="m 56.568246,44.749266 c 0.132103,-1.130608 0.11982,-5.393817 -0.01826,-6.336905 l -0.09381,-0.640428 h 50.057284 50.05728 l -0.0914,0.775254 c -0.14125,1.198686 -0.15482,4.546774 -0.0241,5.932418 l 0.1177,1.247158 H 106.51352 56.453986 Z" />
@@ -2212,11 +2261,11 @@
                     d="M 13.442562,64.890886 C 21.430959,52.97521 22.612598,37.550731 16.537975,24.485129 16.224594,23.811095 15.34227,22.237758 14.577265,20.988827 L 13.186333,18.71803 h 5.166097 5.166087 l 0.803415,1.698254 c 5.365207,11.340999 6.308978,24.008992 2.687685,36.076248 -0.753947,2.512395 -1.94733,5.507012 -3.117002,7.821643 l -0.928945,1.838262 h -5.183434 -5.183435 z" />
                   <path style="fill:#1a6ec0;stroke-width:0.144177;fill-opacity:1"
                     d="m 174.53173,78.948193 c -5.15518,-8.267119 -8.66247,-19.326858 -9.79592,-30.890037 -0.24331,-2.48236 -0.24156,-10.536496 0.003,-12.975982 1.12233,-11.203007 4.06279,-20.780917 9.1843,-29.9160563 l 1.53618,-2.74015 h 5.47631 5.47631 l -0.49924,0.68484 c -2.41341,3.310656 -5.29765,8.4418153 -7.00382,12.4600833 -6.83569,16.098892 -7.07266,34.022086 -0.66592,50.365278 1.74301,4.446298 4.74992,9.997815 7.52608,13.895014 0.41656,0.58477 0.72226,1.12003 0.67935,1.18946 -0.0429,0.0694 -2.43321,0.12626 -5.31175,0.12626 h -5.23371 z" />
-                  <path style="fill:#ffffff;stroke-width:0.144177"
+                  <path class="logo-word" style="stroke-width:0.144177"
                     d="M 121.65153,67.017498 V 52.888101 l 3.13587,5.7e-4 3.13586,5.8e-4 3.17191,3.780699 c 1.74455,2.079391 3.89837,4.64314 4.78628,5.697244 l 1.61436,1.916538 4.77081,-5.697761 4.77081,-5.69787 h 3.16659 3.16657 v 14.129397 14.129405 h -3.09878 -3.09876 l -0.0371,-9.382769 -0.037,-9.382768 -4.75785,5.697085 c -2.61683,3.1334 -4.7903,5.700884 -4.82996,5.705506 -0.0397,0.0042 -2.24556,-2.565511 -4.90203,-5.711405 l -4.82995,-5.719804 -0.037,9.397077 -0.0371,9.397078 h -3.02668 -3.02669 z" />
-                  <path style="fill:#ffffff;stroke-width:0.144177"
+                  <path class="logo-word" style="stroke-width:0.144177"
                     d="m 100.45743,75.865912 v -5.280979 l -1.344169,-1.819764 c -0.739298,-1.000858 -3.6589,-4.950452 -6.487984,-8.776859 -2.829095,-3.826422 -5.143811,-6.989316 -5.143811,-7.028665 0,-0.03936 1.617879,-0.07154 3.595271,-0.07154 h 3.595282 l 4.42039,5.550836 c 2.431221,3.05296 4.432961,5.550842 4.448301,5.550842 0.0153,0 2.00418,-2.497006 4.41964,-5.54889 l 4.39174,-5.548884 3.64048,-0.0021 c 2.00227,-0.001 3.64048,0.03218 3.64048,0.07376 0,0.04168 -1.83591,2.555739 -4.0798,5.586882 -2.24389,3.031139 -5.16348,6.979234 -6.48798,8.773567 l -2.40819,3.262401 v 5.280114 5.2801 h -3.09983 -3.09982 z" />
-                  <path style="fill:#ffffff;stroke-width:0.144177"
+                  <path class="logo-word" style="stroke-width:0.144177"
                     d="m 62.502123,80.992853 c -1.603358,-0.38525 -3.146168,-1.67929 -3.90041,-3.2715 l -0.460373,-0.97187 v -9.731985 -9.731983 l 0.47064,-0.962093 c 0.817123,-1.670376 2.149173,-2.774973 3.881596,-3.2188 0.768181,-0.196799 2.098574,-0.22127 10.08887,-0.185561 9.200985,0.04115 9.204277,0.04126 10.016894,0.369845 1.187347,0.480148 2.594836,1.823046 3.180052,3.034115 0.444291,0.91942 0.467685,1.054456 0.522915,3.017034 l 0.05783,2.05453 h -3.115852 -3.115852 v -1.153422 -1.153422 h -8.003075 -8.003064 l 0.03725,7.965804 0.03725,7.965814 7.965804,0.03725 7.965804,0.03725 v -2.163882 -2.163893 h -3.027719 -3.02773 v -3.02772 -3.02773 h 6.134855 6.134866 l -0.04337,6.019414 -0.04337,6.019405 -0.463865,0.94788 c -0.594481,1.21481 -1.698782,2.31911 -2.913576,2.91359 l -0.947886,0.46386 -9.443633,0.0241 c -5.211651,0.0133 -9.686177,-0.0342 -9.984879,-0.106 z" />
                   <path style="fill:#1a6ec0;fill-opacity:1;stroke-width:0.144177"
                     d="m 25.519705,81.021453 c -0.0439,-0.071 0.03978,-0.28263 0.185983,-0.47036 1.311927,-1.68534 3.639855,-5.502462 5.220114,-8.559464 C 37.220777,59.814061 39.557125,45.873306 37.606851,32.126537 36.200366,22.212685 32.499604,12.59703 26.939043,4.4084047 l -1.3462,-1.982437 5.436392,0.0021 5.436382,0.0021 1.40982,2.557101 c 2.522363,4.575035 4.243812,8.5214633 5.769337,13.2262383 6.107588,18.835993 4.615545,39.223717 -4.167783,56.950123 -0.589373,1.189457 -1.607315,3.006103 -2.262092,4.036963 l -1.190513,1.87431 -5.212463,0.0379 c -2.957294,0.0214 -5.24697,-0.0179 -5.292218,-0.0912 z" />
@@ -2311,6 +2360,12 @@
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" aria-hidden="true"><path d="M480-345 240-585l56-56 184 184 184-184 56 56-240 240Z"/></svg>
           </button>
           <div id="more-items">
+            <div id="theme-toggle" class="link" onclick="toggleGymTheme()" role="button" tabindex="0" aria-label="Switch between the dark and light facilitator theme">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" aria-hidden="true">
+                <path d="M480-120q-150 0-255-105T120-480q0-150 105-255t255-105q14 0 27.5 1t26.5 3q-41 29-65.5 75.5T444-660q0 90 63 153t153 63q55 0 101-24.5t75-65.5q2 13 3 26.5t1 27.5q0 150-105 255T480-120Zm0-80q88 0 158-48.5T740-375q-20 5-40 8t-40 3q-123 0-209.5-86.5T364-660q0-20 3-40t8-40q-78 32-126.5 102T200-480q0 116 82 198t198 82Zm-10-270Z"/>
+              </svg>
+              <span id="theme-toggle-label">Light Theme</span>
+            </div>
             <div id="pack-export" class="hide link" onclick="exportFacilitatorPack()" role="button" tabindex="0" aria-label="Print the facilitator pack">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" aria-hidden="true">
                 <path d="M640-640v-120H320v120h-80v-200h480v200h-80Zm-480 80h640-640Zm560 100q17 0 28.5-11.5T760-500q0-17-11.5-28.5T720-540q-17 0-28.5 11.5T680-500q0 17 11.5 28.5T720-460Zm-80 260v-160H320v160h320Zm80 80H240v-160H80v-240q0-51 35-85.5t85-34.5h560q51 0 85.5 34.5T880-520v240H720v160Zm80-240v-160q0-17-11.5-28.5T760-560H200q-17 0-28.5 11.5T160-520v160h80v-80h480v80h80Z"/>
@@ -2598,13 +2653,13 @@ h4{font-family:"Montserrat",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,H
   *{box-sizing:border-box;margin:0}
   :root{--accent:#2e7de0;--green:#3ec9c8;--text:#e8ecf2;--text2:rgba(232,236,242,.55);
         --muted:rgba(232,236,242,.5);--icon:rgba(232,236,242,.42);--heading:rgba(232,236,242,.9);--card:#1e2535;--card-line:rgba(255,255,255,.08);
-        --scrim:rgba(20,24,32,.85);--track:rgba(232,236,242,.16);--track-done:rgba(232,236,242,.38);
+        --scrim:rgba(20,24,32,.85);--panel:rgba(255,255,255,.05);--danger:#e05252;--track:rgba(232,236,242,.16);--track-done:rgba(232,236,242,.38);
         --bg-filter:blur(8px) brightness(.6);--bg-opacity:1;--card-bg:rgba(30,37,53,.96);--ground:#141820}
   /* The projector theme redefines the tokens; no rule below needs to know which
      theme is active. */
   body.projector{--accent:#1a6ec0;--green:#127c7b;--text:#141820;--text2:rgba(20,24,32,.6);
         --muted:rgba(20,24,32,.55);--icon:rgba(20,24,32,.45);--heading:#141820;--card:#fff;--card-line:rgba(20,24,32,.12);
-        --scrim:rgba(244,246,250,.9);--track:rgba(20,24,32,.16);--track-done:rgba(20,24,32,.4);
+        --scrim:rgba(244,246,250,.9);--panel:rgba(20,24,32,.04);--danger:#b0433d;--track:rgba(20,24,32,.16);--track-done:rgba(20,24,32,.4);
         --bg-filter:blur(10px) brightness(1.45) saturate(.55);--bg-opacity:.4;--card-bg:rgba(255,255,255,.96);--ground:#f4f6fa}
   body{font-family:"Montserrat",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--ground);background-image:radial-gradient(circle at 82% 60%,rgba(59,59,59,.06) 0,rgba(59,59,59,.06) 69%,transparent 69%),linear-gradient(135deg,#141c33 0%,#0d2040 100%);height:100vh;height:100dvh;width:100%;display:flex;align-items:center;justify-content:center;color:var(--text)}
   #bgimg{position:fixed;inset:0;z-index:0;background-size:cover;background-position:center;filter:var(--bg-filter);opacity:var(--bg-opacity);transform:scale(1.08);display:none}
@@ -2676,6 +2731,32 @@ h4{font-family:"Montserrat",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,H
   .chart-title{display:flex;justify-content:space-evenly;margin-top:.25em}
   .chart-title div{flex:1;text-align:center;font-size:0.7em;color:var(--muted)}
   .outer h3{margin:0;font-size:0.7em;color:var(--muted)}
+  /* ---- exercise summary, shared with the facilitator view ---- */
+  #content h3{font-size:.95em;margin:1.1em 0 .35em;color:var(--heading)}
+  #content h4{font-size:.85em;margin:.9em 0 .2em;color:var(--heading)}
+  .summary-metrics{display:flex;flex-wrap:wrap;gap:.6em;margin:.4em 0 .7em}
+  .metric{flex:1 1 8em;background:var(--panel);border:1px solid var(--card-line);border-radius:6px;padding:.6em .75em}
+  .metric-value{font-size:1.5em;font-weight:800;line-height:1.2;color:var(--heading)}
+  .metric-label{font-size:.7em;color:var(--muted);margin-top:.15em}
+  .metric-delta{font-size:.7em;margin-top:.3em}
+  .metric-delta.up{color:var(--green)}
+  .metric-delta.down{color:var(--danger)}
+  .metric-delta.flat{color:var(--muted)}
+  .summary-caveat{font-size:.72em;color:var(--muted);line-height:1.6;margin-bottom:.9em}
+  .focus-list{padding-left:1.2em;margin-bottom:.9em}
+  .focus-list li{margin-bottom:.25em}
+  .focus-stage{color:var(--muted);font-size:.8em}
+  .summary-stage{margin-bottom:1em}
+  .summary-stage-meta{font-size:.75em;color:var(--text2);margin:.1em 0 .35em}
+  .dist-row{margin-bottom:.55em}
+  .dist-question{font-size:.8em;margin-bottom:.2em}
+  .dist-bar{display:flex;height:1.2em;border-radius:3px;overflow:hidden}
+  .dist-seg{display:flex;align-items:center;justify-content:center;color:#fff;font-size:.62em;font-weight:700;min-width:1em}
+  .dist-legend{display:flex;flex-wrap:wrap;gap:.5em;font-size:.68em;color:var(--muted);margin-top:.2em}
+  .dist-empty{font-size:.72em;color:var(--muted);font-style:italic}
+  .actions-table{width:100%;border-collapse:collapse;font-size:.78em;margin-bottom:.9em}
+  .actions-table th,.actions-table td{text-align:left;padding:.35em .45em;border-bottom:1px solid var(--card-line);vertical-align:top}
+  .actions-table th{color:var(--muted);font-weight:600;font-size:.9em}
   #questionsWrap{margin:.75rem 0 0;display:none;flex-direction:column;gap:.6rem}
   #questionsWrap.show{display:flex}
   .pq{background:rgba(44,54,80,.7);border:1px solid rgba(255,255,255,.07);border-left:3px solid #2e7de0;border-radius:6px;padding:.7rem .9rem}
@@ -3013,6 +3094,8 @@ Finance confirms a payment was made to the new account this morning.
     // how the builder's preview broke. startFromLocation() is called at the very
     // bottom of this script, once every declaration exists.
     function startFromLocation() {
+      applyGymTheme(store.get('ttxgym_theme') === 'light' ? 'light' : 'dark');
+
       const urlParams = new URLSearchParams(window.location.search);
       const preview = store.get('preview');
 
@@ -4371,19 +4454,16 @@ Finance confirms a payment was made to the new account this morning.
        ============================================= */
     function handleFormSubmit() {
       const score = updateProgress();
-      bc.postMessage({ type: "update", title: overallScore, content: generateCharts(score) + participantSummary(score) });
+      const summary = generateCharts(score) + progressDiv.innerHTML;
 
-      // Populate summary overlay
+      // The participant screen and the facilitator overlay show the same summary,
+      // built once, so the room is looking at what the facilitator is looking at.
+      bc.postMessage({ type: "update", title: overallScore, content: summary });
+
       const title = document.getElementById('summary-overlay-title');
       const body = document.getElementById('summary-overlay-body');
       if (title) title.textContent = overallScore;
-      if (body) {
-        body.innerHTML = '';
-        const chartsEl = document.createElement('div');
-        chartsEl.innerHTML = generateCharts(score);
-        body.appendChild(chartsEl);
-        body.appendChild(progressDiv.cloneNode(true));
-      }
+      if (body) body.innerHTML = summary;
 
       // Show overlay
       const overlay = document.getElementById('summary-overlay');
@@ -4588,7 +4668,8 @@ Finance confirms a payment was made to the new account this morning.
         line.textContent = bits.join(' · ');
         block.appendChild(line);
 
-        const notesEl = document.getElementById('notes_' + (i + 1));
+        // report only: the summary screens carry scoring, not commentary
+        const notesEl = forReport ? document.getElementById('notes_' + (i + 1)) : null;
         if (notesEl && notesEl.value.trim()) {
           const notes = el('div', 'summary-notes');
           notes.style.whiteSpace = 'pre-wrap';
@@ -5043,23 +5124,6 @@ Finance confirms a payment was made to the new account this morning.
 
     // The participant screen gets the shape of the result, not the detail: no
     // facilitator notes, no actions with people's names on them.
-    function participantSummary(score) {
-      const wrap = document.createElement('div');
-      if (score.weakest.length) {
-        wrap.appendChild(el('h3', null, 'Where we were least confident'));
-        const ul = document.createElement('ul');
-        score.weakest.forEach(w => {
-          const li = document.createElement('li');
-          li.textContent = `${Math.round(w.confidence)}% — ${w.question}`;
-          ul.appendChild(li);
-        });
-        wrap.appendChild(ul);
-      }
-      const n = actions.filter(a => a.text.trim()).length;
-      if (n) wrap.appendChild(el('p', null, `${n} action${n === 1 ? '' : 's'} recorded for follow-up.`));
-      return wrap.innerHTML;
-    }
-
     function serveFile(text, downloadAs, mime) {
       const blob = new Blob([text], { type: mime || 'text/html' });
       const url = URL.createObjectURL(blob);
@@ -5130,6 +5194,24 @@ Finance confirms a payment was made to the new account this morning.
       frame.src = url;
       frame.dataset.mounted = '1';
       document.getElementById('mirror-panel').classList.remove('hide');
+    }
+
+    // The facilitator's own screen. The participant window has its own projector
+    // theme, set from that window — a laptop in a dim room and a projector in a lit
+    // one want opposite things.
+    function applyGymTheme(theme) {
+      const light = theme === 'light';
+      document.documentElement.setAttribute('data-theme', light ? 'light' : 'dark');
+      const label = document.getElementById('theme-toggle-label');
+      if (label) label.textContent = light ? 'Dark Theme' : 'Light Theme';
+      const ctrl = document.getElementById('theme-toggle');
+      if (ctrl) ctrl.setAttribute('aria-pressed', String(light));
+    }
+
+    function toggleGymTheme() {
+      const light = document.documentElement.getAttribute('data-theme') !== 'light';
+      applyGymTheme(light ? 'light' : 'dark');
+      store.set('ttxgym_theme', light ? 'light' : 'dark');
     }
 
     // Rarely-used and destructive controls live behind this, out of the way of the
