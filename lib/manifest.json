@@ -1,5 +1,6 @@
 [
   {
+    "id": "byod1",
     "title": "Bring Your Own Device",
     "author": "NCSC",
     "image": "byod1",
@@ -11,6 +12,7 @@
     "summary": "<p>This tabletop exercise explores the risks of a Bring Your Own Device (BYOD) policy and the controls in place to mitigate them. The scenario covers incidents such as data leaks and malware infections on employees' personal devices used for work. It facilitates discussion on policies, training, securing corporate data on personal devices, incident management, legal/regulatory issues, and procedures for employee departure or lost/stolen devices.</p> <p>The exercise aims to evaluate and practise response skills, identify gaps in plans, and build relationships between key stakeholders.</p><p><b>(Exercise content translated from NCSC's 'Exercise-in-a-Box' materials - www.ncsc.gov.uk)</b></p>"
   },
   {
+    "id": "harw1",
     "title": "Home and Remote Working",
     "author": "NCSC",
     "image": "harw1",
@@ -22,6 +24,7 @@
     "summary": "<p>This scenario explores the events that take place where employees in your organisation need to work remotely at short notice and require access to the IT services used by your organisation. </p><p>It includes connecting employees to systems via non-corporate internet connections, processes and monitoring for secure distributed communication using various online systems, and procedures for handling information compromise when working remotely. Discussion of these topics will help explore the controls your organisation has in place to facilitate effective distributed working and to identify and respond to information compromise from your organisation.</p><p><b>(Exercise content translated from NCSC's 'Exercise-in-a-Box' materials - www.ncsc.gov.uk)</b></p>"
   },
   {
+    "id": "scs1",
     "title": "Supply Chain Software",
     "author": "NCSC",
     "image": "scs1",
@@ -33,6 +36,7 @@
     "summary": "<p>This scenario explores an incident in which critical third-party software that is critical in your organisation is determined to have been compromised. This compromise can enable remote access by unauthorised users, potentially leading to a serious cyber incident, such as ransomware being deployed effectively via the supply chain. </p><p>The scenario begins with the organisation requiring and selecting a new IT management software package from external suppliers, which is subsequently deployed into the network. It then progresses through reports of a major IT software provider cyber attack, confirmation from the supplier that your organisation is using an impacted version of the software, and the understanding that attackers replaced the latest version with a malicious version.</p><p><b>(Exercise content translated from NCSC's 'Exercise-in-a-Box' materials - www.ncsc.gov.uk)</b></p>"
   },
   {
+    "id": "tpsc1",
     "title": "Third Party Software Compromise",
     "author": "NCSC",
     "image": "tpsc1",
@@ -44,6 +48,7 @@
     "summary": "<p>This scenario investigates the risks around using third party software and the controls your organisation has in place to mitigate the impact of a third party supplier being compromised. In particular, the exercise looks at password controls, the ability to detect and respond to a compromise and the ability to cope with disruption to key services.</p><p>The objective of this exercise is to explore how your organisation would respond to the compromise of a third party supplier. Discussions will cover the detection and response capability of your organisation, processes for dealing with service disruption, and policies in place to prevent stolen credentials being used to compromise network services. The outcomes of discussions around the events in this scenario can be an opportunity to identify areas for improvement.</p><p><b>(Exercise content translated from NCSC's 'Exercise-in-a-Box' materials - www.ncsc.gov.uk)</b></p>"
   },
   {
+    "id": "mavd1",
     "title": "Managing A Vulnerability Disclosure",
     "author": "NCSC",
     "image": "mavd1",
@@ -55,6 +60,7 @@
     "summary": "<p>This scenario covers the events following the disclosure of a vulnerability in a public facing web application run by your organisation. It includes managing communication between your organisation and a person reporting a vulnerability, specifically starting with a report received via social media. </p><p>The exercise then progresses through the exploitation of the vulnerability, resulting in the takeover of a subdomain and the hosting of malicious content to leverage user trust. This leads to significant user concern and media enquiries.</p><p><b>(Exercise content translated from NCSC's 'Exercise-in-a-Box' materials - www.ncsc.gov.uk)</b></p>"
   },
   {
+    "id": "tlosd1",
     "title": "Threatened Leak of Sensitive Data",
     "author": "NCSC",
     "image": "tlosd1",
@@ -63,13 +69,14 @@
       "Media",
       "Communications",
       "Data Loss",
-      "Access Control"
+      "Identity & Access"
     ],
     "level": "Strategic",
     "duration": "60 mins",
     "summary": "<p>This scenario covers the events following an anonymous email being received by an employee threatening to release sensitive information about your organisation’s employees.</p><p>It includes the following.</p><ol><li>Your organisation’s logging and monitoring of internal sensitive documents</li><li>Your processes for securely offboarding a disgruntled employee and escalating a security incident internally</li><li>Legal activities following such an incident</li></ol><p><b>(Exercise content translated from NCSC's 'Exercise-in-a-Box' materials - www.ncsc.gov.uk)</b></p>"
   },
   {
+    "id": "scr1",
     "title": "Supply Chain Ransomware",
     "author": "NCSC",
     "image": "scr1",
@@ -82,6 +89,7 @@
     "summary": "<p>This scenario explores an incident in which a major supplier integrated with your operations is subject to a ransomware attack, with the ransomware subsequently spreading to your organisation.</p><p>The commercialisation of Ransomware as a Service (RaaS) by criminals has been a significant factor in the growth of ransomware attacks. You should be prepared to respond to a ransomware attack to ensure that you can limit the impact to operations.</p><p>You are encouraged to discuss how you will respond, initially to the supplier incident and then to your incident, and your response to subsequent demands for payment from criminals. You can also discuss your approach to cyber insurance, and your communications in response to a leak of sensitive data.</p><p><b>(Exercise content translated from NCSC's 'Exercise-in-a-Box' materials - www.ncsc.gov.uk)</b></p>"
   },
   {
+    "id": "hct1",
     "title": "Heightened Cyber Threat",
     "author": "NCSC",
     "image": "hct1",
@@ -95,6 +103,7 @@
     "summary": "<p>The 'Heightened cyber threat' exercise is a tabletop exercise designed to help organisations evaluate and practice their skills and decision-making mechanisms for responding to cyber incidents, specifically during periods of increased threat. It is described as an immersive and effective way to test an organisation's ability to respond. Running this exercise is presented as one of the most cost-effective ways to test cyber incident response capabilities.</p><p>The scenario explores an incident that leads to an increased threat of cyber attack, which could result from situations like a new zero-day exploit being actively used, negative press surrounding the organisation, or geo-political tensions between nation states. Participants are encouraged to discuss how such a situation would impact their organisation, including managing systems, detecting threats, responding to the increased threat level, cyber insurance, and long-term resilience planning.</p><p><b>(Exercise content translated from NCSC's 'Exercise-in-a-Box' materials - www.ncsc.gov.uk)</b></p>"
   },
   {
+    "id": "rabpe1",
     "title": "Ransomware Attack By Phishing Email",
     "author": "NCSC",
     "image": "rabpe1",
@@ -109,6 +118,7 @@
     "summary": "<p>This scenario details a ransomware attack initiated by a phishing email, to evaluate the organisation's preparedness and existing security measures.</p><p>The exercise progresses from the initial malicious email and subsequent malware infection to the impact of ransomware encrypting data and the public relations fallout, ultimately aiming to help organisations identify areas for improvement in their cybersecurity defenses and incident response plans.</p><p><b>(Exercise content translated from NCSC's 'Exercise-in-a-Box' materials - www.ncsc.gov.uk)</b></p>"
   },
   {
+    "id": "mptar",
     "title": "Mobile Phone Theft and Response",
     "author": "NCSC",
     "image": "mptar",
@@ -122,6 +132,7 @@
     "summary": "<p>This tabletop exercise simulates a scenario where a user misplaces an organisation-provisioned mobile phone, which is subsequently stolen.</p><p>The exercise explores your organisation's readiness to handle incidents involving lost or stolen mobile devices, focusing on mobile device security measures, incident response procedures, and communication strategies.</p><p><b>(Exercise content translated from NCSC's 'Exercise-in-a-Box' materials - www.ncsc.gov.uk)</b></p>"
   },
   {
+    "id": "bafauw1",
     "title": "Attack from Unknown Wifi",
     "author": "NCSC",
     "image": "bafauw1",
@@ -134,6 +145,7 @@
     "summary": "<p>This scenario covers the entire sequence of events that could occur when a user connects to an unknown wifi network.</p><p>It discusses the risks taken when connected to such a wifi network and how an attacker may use that to access a user’s device, such as a laptop.</p><p><b>(Exercise content translated from NCSC's 'Exercise-in-a-Box' materials - www.ncsc.gov.uk)</b></p>"
   },
   {
+    "id": "sc1",
     "title": "Supply Chain",
     "author": "NCSC",
     "image": "sc1",
@@ -145,6 +157,7 @@
     "summary": "<p>This scenario covers the entire sequence of events that could occur when a user connects to an unknown wifi network.</p><p>It discusses the risks taken when connected to such a wifi network and how an attacker may use that to access a user’s device, such as a laptop.</p><p>The use of outdated software, which commonly contain security issues, is also covered as a method of the attacker compromising the user’s device.</p><p><b>(Exercise content translated from NCSC's 'Exercise-in-a-Box' materials - www.ncsc.gov.uk)</b></p>"
   },
   {
+    "id": "itriadb1",
     "title": "Insider Threat Resulting in a Data Breach",
     "author": "NCSC",
     "image": "itriadb1",
@@ -157,6 +170,7 @@
     "summary": "<p>An exercise covering the events following the discovery that a user has **shared sensitive documents with an unauthorised third party**.</p><p>It discusses the processes your organisation has in place to **verify the source of leaked information** and determine if its exposure was malicious or due to user error. The use of **USB and removable media** within the organisation and associated security policies is also discussed.</p><p>Finally, the scenario asks you to consider the **regulatory impact of a data breach**, in this scenario following a compromise by an insider, and how your organisation would respond.</p><p>Discussing these events will help you explore the **risks and impact of an Insider Threat** resulting in a data breach. You will be able to discuss the procedures you have in place to **trace the source of leaked information** and how removable media and file sharing services are used and managed within your organisation. You should also discuss how your organisation would **respond to a data breach**, which may include the relevant authorities to contact, your communications approach following a breach to staff and customers and how this risk can be reduced in the future.</p><p><b>(Exercise content translated from NCSC's 'Exercise-in-a-Box' materials - www.ncsc.gov.uk)</b></p>"
   },
   {
+    "id": "cold_start",
     "title": "Cold Start Business Disruption",
     "author": "SC3",
     "image": "cold_start",
@@ -170,5 +184,338 @@
     "level": "Operational",
     "duration": "90 mins",
     "summary": "<p>This exercise is designed to explore the impact of a cyber attack that results in the loss of a critical IT function that supports the Business Area. This loss could either be as a direct result of the cyber incident or a containment put in place removing the service to enable forensic investigation.</p><p>The scenario is fictitious although plausible. It is designed to encourage thoughtful responses and values everyone’s views during the exercise.</p><p>This exercise will:</p><ol><li>Test operational and service-led decision-making under conditions of uncertainty in an emerging cyber incident.</li><li>Assess how effectively crisis response and business continuity measures support service delivery when core systems fail.</li><li>Expose gaps in communication, escalation, and incident governance.</li><li>Build realistic understanding of prolonged service disruption, data integrity risks, and data exfiltration.</li></ol>"
+  },
+  {
+    "id": "te-ai-phishing",
+    "title": "AI‑Generated Phishing",
+    "author": "SC3",
+    "categories": [
+      "Malware",
+      "Phishing"
+    ],
+    "level": "Technical",
+    "duration": "60 mins",
+    "summary": "<p>This technical exercise is designed to explore a scenario where an AI-crafted phishing email compromises a mailbox, creates forwarding rules, harvests the contact book, and sends on highly convincing AI‑generated replies to trusted contacts. The technical team must detect the pattern, classify per CIRP, preserve evidence, contain identity compromise, eradicate persistence, and restore normal operations.</p>",
+    "series": "Incident Response",
+    "order": 3
+  },
+  {
+    "id": "te-botnet-c2",
+    "title": "Botnet Malware",
+    "author": "SC3",
+    "categories": [
+      "Malware"
+    ],
+    "level": "Technical",
+    "duration": "60 mins",
+    "summary": "<p>This technical exercise allows participants to explore a scenario where a botnet malware infection triggers outbound C2 beaconing. The technical team must identify signals, contain egress, collect evidence, coordinate C2 disruption, and validate recovery.</p>",
+    "series": "Malware",
+    "order": 3
+  },
+  {
+    "id": "te-ceo-spearphish",
+    "title": "CEO Spear‑Phish",
+    "author": "SC3",
+    "categories": [
+      "Malware",
+      "Identity & Access",
+      "Phishing"
+    ],
+    "level": "Technical",
+    "duration": "90 mins",
+    "summary": "<p>This exercise is designed to explore the impact of a cyber attack that begins with a targeted spear‑phishing email sent to the CEO, who previously directed that MFA be removed from their inbox. After opening a malicious attachment, attackers gain access and deploy malware onto a network server. Participants will work through the full incident lifecycle, including discovery, containment, investigation, eradication, recovery, communications, and lessons learned.</p>",
+    "series": "Incident Response",
+    "order": 0
+  },
+  {
+    "id": "te-cryptominer",
+    "title": "Cryptominer Outbreak",
+    "author": "SC3",
+    "categories": [
+      "Malware",
+      "Availability"
+    ],
+    "level": "Technical",
+    "duration": "60 mins",
+    "summary": "<p>This technical exercise allows participants to explore a scenario where a cluster of servers begins exhibiting CPU spikes and abnormal outbound connections. Analysts must identify cryptomining behaviour, isolate compromised hosts, eradicate persistence mechanisms, and validate secure recovery.</p>",
+    "series": "Malware",
+    "order": 5
+  },
+  {
+    "id": "te-ddos-portal",
+    "title": "Volumetric DDoS on Citizen Services Portal",
+    "author": "SC3",
+    "categories": [
+      "Availability"
+    ],
+    "level": "Technical",
+    "duration": "60 mins",
+    "summary": "<p>This technical exercise is designed for Technical colleagues to explore their response to a cyber incident where a sudden multi‑vector DDoS saturates the organisation’s internet edge and front‑end web tier. Teams must detect, triage, coordinate with ISP/CDN for scrubbing, implement tactical filters and segmentation, and recover the service while capturing lessons for hardening.</p>",
+    "series": "Incident Response",
+    "order": 1
+  },
+  {
+    "id": "te-idp-token-misuse",
+    "title": "Federated Identity Provider Subversion",
+    "author": "SC3",
+    "categories": [
+      "Supply Chain",
+      "Identity & Access"
+    ],
+    "level": "Technical",
+    "duration": "60 mins",
+    "summary": "<p>This technical exercise explores a scenario where a major private-sector Identity Provider (IdP) used across multiple public-sector authorities suffers a signing key compromise. Attackers forge tokens granting access to public-sector services. Technical teams must detect anomalous identity usage, revoke trust, rebuild federation, and prevent lateral multi-authority impact.</p>",
+    "series": "Supply Chain",
+    "order": 12
+  },
+  {
+    "id": "te-infostealer",
+    "title": "Infostealer Malware",
+    "author": "SC3",
+    "categories": [
+      "Malware",
+      "Identity & Access"
+    ],
+    "level": "Technical",
+    "duration": "60 mins",
+    "summary": "<p>This technical exercise explores a scenario where an infostealer malware infection is detected on a user endpoint. Analysts must contain identity compromise, perform evidence collection, conduct a tenant-wide IOC sweep, and ensure safe recovery.</p>",
+    "series": "Malware",
+    "order": 2
+  },
+  {
+    "id": "te-msp-compromise",
+    "title": "MSP/RMM Provider Compromise",
+    "author": "SC3",
+    "categories": [
+      "Supply Chain",
+      "Identity & Access"
+    ],
+    "level": "Technical",
+    "duration": "60 mins",
+    "summary": "<p>This technical exercise explores a scenario where a Managed Service Provider (MSP) responsible for providing remote monitoring & management (RMM) and privileged support to multiple public sector clients is compromised. Adversaries use MSP tools to attempt lateral movement into your environment. Technical teams must detect, contain, and eradicate the intrusion while maintaining service continuity.</p>",
+    "series": "Supply Chain",
+    "order": 10
+  },
+  {
+    "id": "te-ransomware-precursor",
+    "title": "Ransomware Precursor",
+    "author": "SC3",
+    "categories": [
+      "Ransomware"
+    ],
+    "level": "Technical",
+    "duration": "60 mins",
+    "summary": "<p>This technical exercise allows participants to explore a scenario where a suspicious file execution on an endpoint leads to discovery of ransomware precursor activity. Teams must detect, analyse, contain, eradicate, and recover in alignment with the Malware Playbook.</p>",
+    "series": "Malware",
+    "order": 0
+  },
+  {
+    "id": "te-rootkit",
+    "title": "Rootkit / Stealth Persistence",
+    "author": "SC3",
+    "categories": [
+      "Malware"
+    ],
+    "level": "Technical",
+    "duration": "60 mins",
+    "summary": "<p>This technical exercise allows participants to explore a scenario where a privileged server shows signs of stealthy persistence consistent with a rootkit. The technical team must identify kernel‑level compromise, preserve forensic evidence, rebuild securely, and validate that no persistence remains.</p>",
+    "series": "Malware",
+    "order": 6
+  },
+  {
+    "id": "te-saas-data-integrity",
+    "title": "Supplier SaaS Data Integrity Compromise",
+    "author": "SC3",
+    "categories": [
+      "Supply Chain",
+      "Data Integrity"
+    ],
+    "level": "Technical",
+    "duration": "60 mins",
+    "summary": "<p>This technical exercise explores a scenario where a private sector SaaS platform underpinning a high-volume public service experiences a breach that allows limited WRITE access to tenant data. Technical teams must follow the CIRP, preserve evidence, scope integrity impact, apply API-level containment, restore authoritative data, and uplift long-term controls.</p>",
+    "series": "Incident Response",
+    "order": 2
+  },
+  {
+    "id": "te-saas-platform-breach",
+    "title": "Citizen-Facing SaaS Platform Breach",
+    "author": "SC3",
+    "categories": [
+      "Supply Chain",
+      "Data Loss"
+    ],
+    "level": "Technical",
+    "duration": "60 mins",
+    "summary": "<p>This technical exercise explores a scenario where a private-sector SaaS platform underpinning a critical public-sector service suffers a security breach. Attackers tamper with stored citizen records and attempt unauthorised API interactions with government systems. Technical teams must triage integrity issues, contain integration risk, verify authoritative data, and support recovery.</p>",
+    "series": "Supply Chain",
+    "order": 11
+  },
+  {
+    "id": "te-supplier-api-keys",
+    "title": "Compromised API Keys / Token Abuse",
+    "author": "SC3",
+    "categories": [
+      "Supply Chain",
+      "Identity & Access"
+    ],
+    "level": "Technical",
+    "duration": "60 mins",
+    "summary": "<p>This technical exercise explores a scenario where a supplier suffers a credential compromise leading to stolen API keys being used to access your environment. Technical teams must detect anomalous API activity, contain compromised identities, revoke and rotate keys, and prevent lateral impact.</p>",
+    "series": "Supply Chain",
+    "order": 2
+  },
+  {
+    "id": "te-supplier-data-leak",
+    "title": "SaaS Data Leak at Supplier",
+    "author": "SC3",
+    "categories": [
+      "Supply Chain",
+      "Data Loss"
+    ],
+    "level": "Technical",
+    "duration": "60 mins",
+    "summary": "<p>This technical exercise explores a scenario where a third‑party SaaS provider hosting sensitive organisational data discloses a breach. The supplier is slow to provide specifics. Technical teams must rapidly scope potential exposure, protect identities, contain integration risks, and support recovery while maintaining service continuity.</p>",
+    "series": "Supply Chain",
+    "order": 4
+  },
+  {
+    "id": "te-supplier-dns-hijack",
+    "title": "DNS/CDN Hijack of Supplier Service",
+    "author": "SC3",
+    "categories": [
+      "Supply Chain",
+      "Data Integrity"
+    ],
+    "level": "Technical",
+    "duration": "60 mins",
+    "summary": "<p>This technical exercise explores a scenario where a supplier’s DNS/CDN infrastructure is hijacked by a threat actor. Traffic destined for the supplier’s legitimate service is silently redirected to attacker‑controlled infrastructure. Technical teams must quickly detect anomalous behaviour, contain risk, and validate whether internal systems have interacted with the malicious redirector.</p>",
+    "series": "Supply Chain",
+    "order": 5
+  },
+  {
+    "id": "te-supplier-firmware",
+    "title": "Supplier Hardware Compromise",
+    "author": "SC3",
+    "categories": [
+      "Supply Chain",
+      "Devices",
+      "Data Integrity"
+    ],
+    "level": "Technical",
+    "duration": "60 mins",
+    "summary": "<p>This technical exercise explores a scenario where a critical hardware appliance supplied to the organisation is discovered to contain tampered firmware. Technical teams must detect anomalous behaviour, validate firmware integrity, isolate compromised hardware, eradicate malicious components, and support assurance uplift.</p>",
+    "series": "Supply Chain",
+    "order": 7
+  },
+  {
+    "id": "te-supplier-hybrid",
+    "title": "Hybrid Supply Chain Attack",
+    "author": "SC3",
+    "categories": [
+      "Supply Chain",
+      "Identity & Access"
+    ],
+    "level": "Technical",
+    "duration": "60 mins",
+    "summary": "<p>This technical exercise explores a scenario where an adversary compromises a critical supplier, triggers a ransomware outage, backdoors the supplier's update channel, steals API credentials, and briefly hijacks the supplier's DNS/CDN to redirect your traffic. Technical teams must detect across layers, contain integrations, eradicate malicious components, and restore trust without cascading impact on other services.</p>",
+    "series": "Supply Chain",
+    "order": 6
+  },
+  {
+    "id": "te-supplier-iam",
+    "title": "Supplier IAM Federation Misuse",
+    "author": "SC3",
+    "categories": [
+      "Supply Chain",
+      "Identity & Access"
+    ],
+    "level": "Technical",
+    "duration": "60 mins",
+    "summary": "<p>This technical exercise explores a scenario where a supplier's federated IAM configuration is compromised, enabling unauthorized access into your environment through a trusted integration. Technical teams must detect anomalous identity behaviours, contain the breach, revoke trust relationships, and restore secure identity boundaries.</p>",
+    "series": "Supply Chain",
+    "order": 9
+  },
+  {
+    "id": "te-supplier-insider",
+    "title": "Malicious Supplier Insider",
+    "author": "SC3",
+    "categories": [
+      "Supply Chain",
+      "Insider Threat"
+    ],
+    "level": "Technical",
+    "duration": "60 mins",
+    "summary": "<p>This technical exercise explores a scenario where a trusted supplier employee intentionally alters code within a software component delivered to your organisation. The insider's actions introduce malicious logic into an update that is already deployed to some systems. Technical teams must identify integrity failures, contain spread, validate the environment, and eradicate tampered components and restore trust while preserving business‑critical services.</p>",
+    "series": "Supply Chain",
+    "order": 3
+  },
+  {
+    "id": "te-supplier-ransomware",
+    "title": "Compromised Supplier",
+    "author": "SC3",
+    "categories": [
+      "Supply Chain",
+      "Ransomware",
+      "Data Integrity"
+    ],
+    "level": "Technical",
+    "duration": "60 mins",
+    "summary": "<p>This technical exercise is designed to explore a scenario where a critical supplier suffers a ransomware attack and becomes unresponsive. Their product — embedded in a critical organisational service — begins showing indicators of compromise. Technical teams must detect, triage, contain, and eradicate risks to prevent wider impact.</p>",
+    "series": "Supply Chain",
+    "order": 0
+  },
+  {
+    "id": "te-supplier-trojan",
+    "title": "Supplier Software Compromise",
+    "author": "SC3",
+    "categories": [
+      "Supply Chain",
+      "Malware"
+    ],
+    "level": "Technical",
+    "duration": "60 mins",
+    "summary": "<p>This technical exercise explores a scenario where a widely‑used software component provided by a critical supplier is found to contain a trojanised library. The component is integrated into several internal systems. Technical teams must validate integrity, detect indicators of compromise, isolate affected applications, eradicate malicious components, and restore trust.</p>",
+    "series": "Supply Chain",
+    "order": 8
+  },
+  {
+    "id": "te-supplier-update",
+    "title": "Compromised Supplier Update Pipeline",
+    "author": "SC3",
+    "categories": [
+      "Supply Chain",
+      "Data Integrity"
+    ],
+    "level": "Technical",
+    "duration": "60 mins",
+    "summary": "<p>This technical exercise explores a scenario where a trusted supplier's software update pipeline is compromised. A malicious update is pushed to your environment through the normal update channel. Technical teams must detect integrity failures, contain spread, validate systems, and restore trust in the supply chain.</p>",
+    "series": "Supply Chain",
+    "order": 1
+  },
+  {
+    "id": "te-unknown-malware",
+    "title": "Unknown Malware Variant",
+    "author": "SC3",
+    "categories": [
+      "Malware"
+    ],
+    "level": "Technical",
+    "duration": "60 mins",
+    "summary": "<p>This technical exercise allows participants to explore a scenario where a suspicious malware sample triggers only a generic AV signature. Analysts must reverse-engineer the variant, build IOCs, deploy updated detections, and validate eradication.</p>",
+    "series": "Malware",
+    "order": 4
+  },
+  {
+    "id": "te-worm-propagation",
+    "title": "Worm Propagation",
+    "author": "SC3",
+    "categories": [
+      "Malware"
+    ],
+    "level": "Technical",
+    "duration": "60 mins",
+    "summary": "<p>This technical exercise explores a scenario where a rapidly spreading worm begins propagating across internal endpoints. Teams must detect unusual network scanning, scope infection, isolate affected segments, eradicate malware, and validate recovery.</p>",
+    "series": "Malware",
+    "order": 1
   }
 ]

@@ -7,7 +7,7 @@ It will help you understand how well-meaning users can fall victim to phishing a
 Additionally, it covers your response in the case of a successful attack, and your ability to recover critical business data from backups.
 
 
-@ Inject 1: Initial phishing
+@ Initial phishing
 ! duration: 10 mins
 ! content
 Your finance team have received an email from a customer, below, stating they've attempted to make a payment but are having trouble.
@@ -35,7 +35,7 @@ The email comes from a different address than the customer typically uses, conta
 + Fairly confident
 + Completely confident
 
-@ Inject 2: Malware protection software
+@ Malware protection software
 ! duration: 10 mins
 ! content
 The email recipient from the finance team does not recognise that it is a phishing email and, in trying to help the customer, opens the attached file.
@@ -62,7 +62,7 @@ This immediately opens the file, which contains malware.
 + Fairly confident
 + Completely confident
 
-@ Inject 3: User permissions
+@ User permissions
 ! duration: 10 mins
 ! content
 When the attached file is opened, it immediately attempts to infect the computer with malware.
@@ -83,7 +83,7 @@ The infection starts with the same permissions as the user, which gives it the s
 + Fairly confident
 + Completely confident
 
-@ Inject 4: Ransomware and backups
+@ Ransomware and backups
 ! duration: 10 mins
 ! content
 After several hours, users have started having trouble opening documents and files.
@@ -123,7 +123,7 @@ The ransomware has encrypted all of your organisation's business-critical data, 
 + Fairly confident
 + Completely confident
 
-@ Inject 5: Ransomware response and communication
+@ Ransomware response and communication
 ! duration: 10 mins
 ! content
 Your organisation begins to receive calls from journalists requesting information on rumours that you are suffering from a ransomware attack.

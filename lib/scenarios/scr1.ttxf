@@ -9,7 +9,7 @@ You should be prepared to respond to a ransomware attack to ensure that you can 
 You are encouraged to discuss how you will respond, initially to the supplier incident and then to your incident, and your response to subsequent demands for payment from criminals.
 You can also discuss your approach to cyber insurance, and your communications in response to a leak of sensitive data.
 
-@ Inject 1: Supply chain impacted by ransomware
+@ Supply chain impacted by ransomware
 ! duration: 15 mins
 ! content
 One of your major suppliers is reportedly dealing with an ongoing ransomware incident.
@@ -49,7 +49,7 @@ They have contacted their customers to inform them that it is a significant atta
 + Fairly confident
 + Completely confident
 
-@ Inject 2: Incident management
+@ Incident management
 ! duration: 15 mins
 ! content
 Ransomware is now also propagating through your network.
@@ -91,8 +91,8 @@ The organisation is at a standstill.
 + Fairly confident
 + Completely confident
 
-@ Inject 3: Pay or not to pay
-! duration: 15 mins
+@ Pay or not to pay
+! duration: 20 mins
 ! content
 The cyber crime group associated with the ransomware attack have contacted you to discuss payment options.
 They are stating that if they do not receive payment within the next 24 hours they are going to start leaking your sensitive data, making it publicly accessible.
@@ -132,8 +132,8 @@ They are stating that if they do not receive payment within the next 24 hours th
 + Fairly confident
 + Completely confident
 
-@ Inject 4: Cyber insurance
-! duration: 15 mins
+@ Cyber insurance
+! duration: 10 mins
 ! content
 Recovery from a ransomware attack can be complex and costly for organisations.
 Although it cannot prevent cyber attacks, cyber insurance can help to speed up recovery time in the event of a cyber incident.
@@ -164,7 +164,7 @@ Although it cannot prevent cyber attacks, cyber insurance can help to speed up r
 + Fairly confident
 + Completely confident
 
-@ Inject 5: Communication plan
+@ Communication plan
 ! duration: 15 mins
 ! content
 The cyber crime group involved in attacking your network has posted some of your most sensitive information onto a public Internet forum.

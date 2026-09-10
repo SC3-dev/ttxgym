@@ -143,6 +143,67 @@ G('the sidebar markup is well formed');
   });
 }
 
+G('the headings are legible');
+{
+  const html = fs.readFileSync(ROOT + '/gym/index.html', 'utf8');
+  const css = html.slice(html.indexOf('<style>'), html.indexOf('</style>'));
+  const rule = sel => (new RegExp(sel.replace(/[.#]/g, '\\$&') + '\\s*\\{([^}]*)\\}').exec(css) || [, ''])[1];
+  const tokenIn = (block, name) => (new RegExp(name + ':\\s*([^;]+)').exec(block) || [, ''])[1].trim();
+
+  // WCAG contrast, computed rather than eyeballed
+  const parse = v => {
+    const rgba = /rgba?\(([^)]+)\)/.exec(v);
+    if (rgba) { const p = rgba[1].split(',').map(Number); return { rgb: p.slice(0, 3), a: p.length > 3 ? p[3] : 1 }; }
+    const h = /#([0-9a-f]{6})/i.exec(v);
+    return { rgb: h[1].match(/../g).map(x => parseInt(x, 16)), a: 1 };
+  };
+  const lum = c => {
+    const s = c.map(v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); });
+    return 0.2126 * s[0] + 0.7152 * s[1] + 0.0722 * s[2];
+  };
+  const contrast = (fgSpec, bgSpec) => {
+    const fg = parse(fgSpec), bg = parse(bgSpec);
+    const blended = fg.rgb.map((c, i) => fg.a * c + (1 - fg.a) * bg.rgb[i]);
+    const [hi, lo] = [lum(blended), lum(bg.rgb)].sort((a, b) => b - a);
+    return (hi + 0.05) / (lo + 0.05);
+  };
+
+  const darkRoot = rule(':root');
+  const lightRoot = (/:root\[data-theme="light"\]\s*\{([^}]*)\}/.exec(css) || [, ''])[1];
+
+  [['dark', darkRoot], ['light', lightRoot]].forEach(([theme, block]) => {
+    t(`headings clear WCAG AA in the ${theme} theme`, () => {
+      const fg = tokenIn(block, '--text-label');
+      const bg = tokenIn(block, '--surface');       // the sidebar's own background
+      ok(fg && bg, 'missing --text-label or --surface in ' + theme);
+      const r = contrast(fg, bg);
+      ok(r >= 4.5, `${theme}: ${r.toFixed(2)}:1, needs 4.5`);
+    });
+  });
+
+  t('the heading uses that colour, not the muted one', () => {
+    const heading = rule('.menu-heading');
+    ok(/color:\s*var\(--text-label\)/.test(heading), 'heading colour: ' + heading.trim());
+  });
+
+  t('and is large and heavy enough to read at that size', () => {
+    const heading = rule('.menu-heading');
+    const size = parseFloat((/font-size:\s*([\d.]+)rem/.exec(heading) || [, 0])[1]) * 16;
+    const weight = Number((/font-weight:\s*(\d+)/.exec(heading) || [, 0])[1]);
+    ok(size >= 10, 'font-size is ' + size + 'px');
+    ok(weight >= 600, 'font-weight is ' + weight);
+  });
+
+  t('the disclosure heading brightens on hover rather than dimming', () => {
+    ok(/color:\s*var\(--text-primary\)/.test(rule('.menu-heading-btn:hover')),
+       'hover: ' + rule('.menu-heading-btn:hover').trim());
+  });
+
+  t('the timing readout is readable too', () => {
+    ok(/color:\s*var\(--text-label\)/.test(rule('.data-row')), 'data rows are still muted');
+  });
+}
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
 })();

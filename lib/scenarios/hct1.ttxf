@@ -8,7 +8,7 @@ Organisations should be prepared to react during periods of heightened cyber thr
 You are encouraged to discuss how this would impact your organisation, including how you manage your systems effectively to detect such a threat, and what you would do in the event of being subject to an increased level of cyber threat.
 You can also discuss your approach to cyber insurance, and long-term resilience planning.
 
-@ Stage 1: Fundamentals
+@ Fundamentals
 ! duration: 10 mins
 ! content
 In ‘business as usual’ circumstances it is important to ensure some fundamental cyber security controls are in-place to reduce the risk of a cyber attack.
@@ -56,7 +56,7 @@ This section explores your cyber posture, your approach to asset management, mon
 + Fairly confident
 + Completely confident
 
-@ Stage 2: Increased cyber threat
+@ Increased cyber threat
 ! duration: 10 mins
 ! content
 Geo-political tensions have heightened the cyber threat level.
@@ -107,7 +107,7 @@ Recalling any past examples of a potential threat, or actual attack, may help th
 + Fairly confident
 + Completely confident
 
-@ Stage 3: Government and media reporting
+@ Government and media reporting
 ! duration: 10 mins
 ! content
 The media are reporting several websites and local government services have been taken offline and are not accessible.
@@ -150,7 +150,7 @@ This information can then be used to defend your organisation more effectively.
 + Fairly confident
 + Completely confident
 
-@ Stage 4: Increased targeting
+@ Increased targeting
 ! duration: 10 mins
 ! content
  Your IT Security are reporting an increase in external scanning against your systems and have also detected a significant increase in phishing emails to several of your employees.
@@ -193,7 +193,7 @@ It also explores the procedures that you have for sharing threat data with other
 + Fairly confident
 + Completely confident
 
-@ Stage 5: Long term planning
+@ Long term planning
 ! duration: 10 mins
 ! content
 Your organisation has been at a heightened posture for several months now.

@@ -1,0 +1,118 @@
+! title: DNS/CDN Hijack of Supplier Service
+! author: SC3 / Cyber Capability Toolkit
+! summary
+A supplier’s DNS/CDN infrastructure is hijacked by a threat actor. Traffic destined for the supplier’s legitimate service is silently redirected to attacker‑controlled infrastructure. Technical teams must quickly detect anomalous behaviour, contain risk, and validate whether internal systems have interacted with the malicious redirector.
+
+@ External Alert – DNS Hijack Rumours Emerge
+! duration: 10 mins
+! content
+08:17 UTC — Sector ISAC channels report multiple customers seeing rogue DNS entries for the supplier domain. Threat intel shows the supplier’s authoritative name servers intermittently returning attacker‑controlled CDN endpoints. Internal DNS probes show differing A/AAAA results between sites; supplier remains silent.
+
+# discussion
++ What assumptions about name resolution and traffic routing become invalid once DNS integrity is suspected, even before internal confirmation exists?
++ Your own probes already disagree between sites. Is that evidence of a hijack, or is it normal for a global CDN? How would you tell?
+
+? Sector reports suggest the supplier's DNS is hijacked, and your own probes disagree between sites. What do you do first?
++ Override resolution for the supplier domain to the last known-good addresses across all internal resolvers
++ Block the supplier domain at the proxy until name resolution can be confirmed as trustworthy
+++ Compare DNS responses against known-good baselines from multiple vantage points and classify as a supply chain incident
+
+# prompts
++ 1) Less Optimal — Decisive, and it hard-codes addresses that may already be attacker-controlled or may legitimately change as the CDN rebalances. Ask when "known-good" was recorded and how they would know if it went stale.
++ 2) Less Optimal — Safe, and it stops the supplier's service outright on the basis of a rumour. It may well be right; make the room decide what that service is worth and who authorises the outage.
++ 3) Optimal — Multiple vantage points is the key phrase: geographically split poisoning is exactly what the inject describes, and a single-resolver check would have missed it. Ask what vantage points they actually have.
+
+@ Internal Indicators – Certificate Mismatch & Unusual IP Ranges
+! duration: 10 mins
+! content
+08:41 UTC — TLS error telemetry shows mismatched certificate chains for the supplier domain across regions. SIEM logs reveal traffic to unfamiliar ASN ranges with low reputation. Captured certificate fingerprints differ from your known‑good baseline; OCSP stapling absent on some connections.
+
+# discussion
++ Why are transport‑layer protections (TLS, certificates) insufficient to guarantee safety during DNS/CDN hijack, and what confidence do mismatches actually provide?
++ You are seeing certificate *errors*. What would this incident look like if the attacker had obtained a validly issued certificate for the domain instead?
+
+? How do you confirm the DNS and certificate anomalies across networks and regions?
+++ Validate the authoritative name servers and compare certificate fingerprints against known-good baselines from each region
++ Check whether the presented certificates are valid and correctly chained to a trusted root
++ Query public certificate transparency logs for recently issued certificates covering the supplier domain
+
+# prompts
++ 1) Optimal — Fingerprint comparison detects a substituted certificate even when it validates correctly, and per-region checking catches uneven poisoning. Ask whether they hold baseline fingerprints for supplier domains today.
++ 2) Less Optimal — Necessary and weakest of the three, because a hijacker who can control DNS can usually pass domain validation and obtain a perfectly valid certificate. Ask what a clean chain would prove. This is the misconception the stage exists for.
++ 3) Less Optimal — Genuinely clever and worth doing: an unexpected issuance is strong evidence. It has a reporting lag, misses certificates issued before the window, and tells you nothing about hosts already redirected. Good, incomplete.
+
+@ Redirector Interaction – Potential Payload Delivery
+! duration: 10 mins
+! content
+09:03 UTC — EDR confirms several hosts contacted attacker infrastructure returned by hijacked DNS and executed a downloaded script. Proxy logs show repeat attempts to fetch additional payloads. Some endpoints provide critical internal services and cannot be shut down outright, requiring selective isolation.
+
+# discussion
++ What signals indicate this is no longer just traffic misdirection but active exploitation risk, and how does that change containment urgency?
++ A script executed on hosts providing critical internal services. What did it run as, and what could it reach from there?
+
+? Hosts have executed a script from the redirector. What containment do you apply?
++ Sinkhole the supplier domain internally so all resolution returns a controlled address, and alert on hosts that query it
++ Deploy an application control rule preventing script execution from browser and downloader processes estate-wide
+++ Block the malicious IP ranges and selectively isolate the hosts confirmed to have executed the script
+
+# prompts
++ 1) Less Optimal — Elegant, gives excellent visibility, and it does nothing about the hosts already running attacker code. Ask what the sinkhole achieves for a host compromised twenty minutes ago. Strong complementary action, weak as the primary one.
++ 2) Less Optimal — Would have prevented the whole incident and is the right long-term control. Ask how long estate-wide application control takes to deploy safely, and what breaks. Right answer, wrong stage — a recurring pattern worth naming for the room.
++ 3) Optimal — Cuts the fetch path and removes the confirmed-compromised hosts, with "selectively" carrying the critical-service constraint. Ask how they determine the isolation order.
+
+@ Scope Identification – Estate‑Wide DNS Audit
+! duration: 10 mins
+! content
+09:26 UTC — Estate‑wide DNS audit reveals inconsistent resolution: some networks still serving poisoned records. SIEM correlation shows multiple hosts interacting with redirector IPs. CDN logs indicate attacker infrastructure active during 07:50–09:10 UTC; scope of impact uncertain.
+
+# discussion
++ What risks arise if DNS poisoning is uneven across regions, caches, or resolvers, and how does that complicate confidence in containment?
++ Poisoned records are cached at resolvers, on hosts, and in application runtimes with their own TTL handling. How do you flush all of that, and how would you verify it?
+
+? How do you establish the total scope of impact?
++ Identify all hosts that contacted the redirector IP ranges during the window the CDN logs identify
++ Flush all DNS caches estate-wide and confirm every resolver now returns the correct records
+++ Audit resolution across every resolver and network, and correlate SIEM against the 07:50–09:10 window and redirector IPs
+
+# prompts
++ 1) Less Optimal — Answers who was hit, using a window derived from the attacker's own infrastructure logs. Ask what happens if the redirector was live before 07:50, and how they would know.
++ 2) Less Optimal — Remediation dressed as assessment, and it destroys the cache state that shows which networks were affected. Ask what they can still prove about scope afterwards.
++ 3) Optimal — Resolution state and interaction history are two different questions, and both are needed. Ask whether they can enumerate every resolver in the estate, including the ones in cloud VPCs and on developer machines.
+
+@ Eradication – Remove Delivered Payloads & Reset DNS Paths
+! duration: 5 mins
+! content
+09:54 UTC — Forensic review identifies persistence attempts on affected endpoints: scheduled tasks referencing the downloaded script and altered hosts file entries redirecting supplier domains. Known‑good DNS and certificate baselines are available for validation during eradication.
+
+# discussion
++ What residual risks remain if attacker‑controlled DNS paths re‑emerge after payload removal, and how do you guard against silent re‑infection?
++ The attacker altered local hosts files. What does that persistence choice tell you about their intent once the DNS hijack is corrected?
+
+? Which eradication workflow restores a trusted state?
+++ Rebuild the affected systems, revoke any credentials they held, and restore and verify trusted DNS paths
++ Remove the scheduled tasks and hosts file entries, and validate resolution against the known-good baseline
++ Restore the hosts files and DNS configuration from baseline, then run a full EDR sweep of affected endpoints
+
+# prompts
++ 1) Optimal — Rebuild removes unknown persistence, credential revocation covers what the script could have harvested, DNS restoration closes the path back in. Ask which credentials were reachable from those hosts.
++ 2) Less Optimal — Addresses both persistence mechanisms found and assumes those are all of them. A script that ran with user or system privilege had time to do more. Ask what else it could have installed in the interval.
++ 3) Less Optimal — Fixes the redirection and sweeps for known indicators. The sweep looks for what it already recognises, and the credentials remain untouched. Ask what the script's purpose was — persistence is rarely the objective.
+
+@ Recovery & Long‑Term DNS Assurance
+! duration: 5 mins
+! content
+Post‑containment — All poisoned DNS entries flushed; correct records propagate globally. Supplier issues RCA confirming name‑server compromise. Leadership mandates hardened DNS/CDN controls: DNSSEC enforcement, continuous certificate‑fingerprint monitoring, upstream allow‑listing, and periodic cross‑region DNS integrity tests.
+
+# discussion
++ What telemetry or validation mechanisms would give early warning that DNS or CDN routing integrity is degrading again before user impact occurs?
++ DNSSEC only helps if the supplier signs their zone and you validate it. Which of your critical suppliers do so today, and what is your position with those who do not?
+
+? Which long-term controls should be mandated?
+++ DNSSEC validation, continuous certificate-fingerprint monitoring, upstream allow-listing, and periodic cross-region integrity tests
++ Enforce DNSSEC validation on all internal resolvers and require critical suppliers to sign their zones
++ Route all supplier traffic through a monitored egress proxy that pins expected certificates and destinations
+
+# prompts
++ 1) Optimal — Layered, and the cross-region testing is what would have detected the uneven poisoning before the ISAC did. Ask how often those tests run and who reads the results.
++ 2) Less Optimal — The control that most directly addresses this root cause, and it depends on suppliers you do not control. Ask what they do about a critical supplier who will not sign, and note that DNSSEC does not protect against a compromised authoritative server signing bad records.
++ 3) Less Optimal — Strong, practical, and entirely within your own control, which makes it genuinely attractive. It scales poorly across many suppliers and adds a chokepoint. Worth real debate against option 2 rather than dismissal.

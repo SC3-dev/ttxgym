@@ -1,0 +1,118 @@
+! title: MSP/RMM Provider Compromise
+! author: SC3 / Cyber Capability Toolkit
+! summary
+A Managed Service Provider (MSP) responsible for providing remote monitoring & management (RMM) and privileged support to multiple public sector clients is compromised. Adversaries use MSP tools to attempt lateral movement into your environment. Technical teams must detect, contain, and eradicate the intrusion while maintaining service continuity.
+
+@ External Alert – MSP Breach Confirmed
+! duration: 10 mins
+! content
+08:12 UTC — Sector channels confirm the MSP’s RMM platform is compromised. Threat intel notes admin console access across multiple public‑sector tenants. Your inventory shows active MSP privileged accounts and agents on key servers. Contract paths are unresponsive. CIRP requires classification, exposure check (accounts/agents/jump hosts), and preservation of RMM console and privileged sign‑in logs before rollover.
+
+# discussion
++ Which assumptions about privileged access and separation immediately become invalid when an MSP RMM platform is compromised?
++ Your RMM logs live in the MSP's console. If you cannot reach the supplier, what evidence do you actually control, and what have you already lost?
+
+? The MSP's RMM platform is confirmed compromised and contract paths are unresponsive. What is your first move?
++ Disable all MSP accounts and block their IP ranges immediately, restoring access once the MSP confirms recovery
+++ Identify every MSP privileged account, agent and jump host, preserve the RMM and sign-in logs, and classify it as a supply chain incident
++ Isolate every host running an RMM agent from the network until each can be individually verified
+
+# prompts
++ 1) Less Optimal — Decisive, defensible, and what many teams will choose. It also severs your ability to see what the RMM was doing, removes your support capability mid-incident, and does it before you know which accounts exist. Ask what breaks and who fixes it at 08:12.
++ 2) Optimal — Enumeration first, because containment scope depends on it and the log evidence disappears at rollover. Ask whether they can produce the agent inventory now or would have to ask the MSP for it — the answer is usually uncomfortable.
++ 3) Less Optimal — Maximum containment, and if agents are on key servers this is a service outage you are choosing to take. Make the room state which servers, and whether the business would accept it on the evidence available so far.
+
+@ Internal Indicators – Suspicious RMM Actions
+! duration: 5 mins
+! content
+08:39 UTC — SIEM detects RMM‑initiated PowerShell on several servers; IDS flags anomalous outbound from MSP‑managed subnets. RMM command history shows script deployments outside authorised windows. MSP ticketing has no matching change records.
+
+# discussion
++ Why is MSP‑driven activity uniquely hard to distinguish from malicious behaviour, and what signals allow you to break that ambiguity with confidence?
++ Legitimate MSP work also happens outside change windows when something is broken. How does your team currently tell the difference, and does that method still work when the MSP is compromised?
+
+? How do you distinguish legitimate MSP activity from malicious RMM-driven actions?
++ Contact the MSP's on-call engineer and ask them to confirm which commands were authorised
++ Compare the executing accounts against the MSP's documented list of named support engineers
+++ Cross-reference RMM command history against authorised change windows and the content of what was actually executed
+
+# prompts
++ 1) Less Optimal — The natural first call and the one most teams make. The MSP's console is the compromised system, their ticketing shows no matching records, and an attacker with console access can authorise their own work. Ask what weight a "yes, that was us" would carry.
++ 2) Less Optimal — Sound access-control thinking, and it fails against exactly this attack: the adversary is using the MSP's own legitimate accounts. Useful for exposing the assumption that a known account implies a known operator.
++ 3) Optimal — Timing narrows it; content proves it. A legitimate patch script and a credential-harvesting script both arrive through RMM, so someone has to read what ran. Ask who in the room can review PowerShell at that level, and whether they are available.
+
+@ Containment – Privileged Access Restriction
+! duration: 10 mins
+! content
+09:01 UTC — Active script deployment attempts observed across multiple segments. MSP remains partially unresponsive. Proposal: disable MSP admin accounts, block MSP IP ranges at the edge, enforce JIT/local‑only admin paths for critical services to maintain operations.
+
+# discussion
++ What criteria justify severing MSP privileged access entirely, even at the cost of delayed support, and what residual risk remains if you do not?
++ If you cut the MSP off, who does their job tomorrow morning? Name the people and the systems, and decide whether that is survivable for a week.
+
+? Active deployment attempts are in progress and the MSP is unresponsive. What containment do you apply?
+++ Disable MSP admin accounts, block their IP ranges at the edge, and stand up JIT local-only admin for critical services
++ Suspend the RMM agent service across the estate but leave MSP accounts active for investigation
++ Apply application control to block script execution originating from the RMM agent on all managed hosts
+
+# prompts
++ 1) Optimal — Cuts identity, network path and privilege together, and the JIT clause is what keeps the lights on. Probe whether local-only admin paths exist today or are being invented under pressure.
++ 2) Less Optimal — Targeted at the delivery mechanism, and attractive because it looks reversible. The accounts remain usable by any other route the attacker holds, and stopping the agent may itself be a change the MSP console can undo. Ask who controls the agent.
++ 3) Less Optimal — Technically strong and the most sophisticated answer available. Ask how long it takes to deploy an application control policy safely across the estate, and what the attacker does in that window. Right control, wrong tempo.
+
+@ Scope Assessment – Cross‑Tenant Indicator Sweep
+! duration: 5 mins
+! content
+09:26 UTC — Sector intel indicates lateral moves across other MSP clients using shared credentials. Estate‑wide sweep required: EDR patterns for RMM misuse, authentication logs for suspicious admin attempts, and command‑line/script fingerprint correlation across hosts.
+
+# discussion
++ What risks arise if MSP‑enabled activity is only partially scoped, and how could shared tooling or credentials obscure the true blast radius?
++ Sector intel says credentials are shared across MSP clients. What does that imply about credentials in your estate that the MSP also holds elsewhere?
+
+? Which approach identifies the full spread of MSP-enabled lateral activity?
++ Audit every account with administrative privilege and reconcile it against the approved privileged access register
+++ Sweep EDR for RMM tool misuse patterns and correlate against identity logs and script fingerprints estate-wide
++ Search all hosts for the specific scheduled tasks and registry keys reported by sector threat intelligence
+
+# prompts
++ 1) Less Optimal — Good hygiene that will find real problems, and it is looking at the wrong thing. The attacker is not creating accounts; they are using the MSP's legitimate ones, which are already on the approved register. Ask what the audit would flag here.
++ 2) Optimal — Behaviour plus identity plus fingerprint is the only combination that survives an attacker using authorised tooling. Ask whether their EDR distinguishes RMM-initiated execution from local execution at all.
++ 3) Less Optimal — Fast and worth running, but scoped entirely to what another victim already found. Ask what happens if this adversary varied the persistence per tenant — and note that the inject already says lateral movement is happening across clients.
+
+@ Eradication – Remove Persistence & Rebuild Trust
+! duration: 10 mins
+! content
+09:52 UTC — Forensics show persistence via scheduled tasks and registry modifications pushed through RMM. Several hosts exhibit the same autorun pattern. Golden images available; credential scope analysis shows secrets accessible to RMM tools that require rotation.
+
+# discussion
++ What risks remain if MSP tooling or access patterns are reintroduced too quickly after eradication, and how do you stage trust restoration safely?
++ Credential scope analysis says RMM could reach a set of secrets. Walk through what rotating all of them actually involves, and what you would break.
+
+? Which eradication sequence removes persistence and re-establishes a trustworthy boundary?
++ Remove the scheduled tasks and registry keys across affected hosts, then verify with a full EDR sweep
++ Rebuild the affected hosts from golden images and reconnect them once the MSP confirms their platform is clean
+++ Remove persistence, rebuild affected hosts from golden images, and rotate every credential in RMM scope
+
+# prompts
++ 1) Less Optimal — Proportionate if the enumeration is complete, and it leaves the credentials the RMM could reach untouched. Ask what the attacker took while they had privileged execution on those hosts — persistence is rarely the objective.
++ 2) Less Optimal — Clean rebuilds plus supplier assurance sounds complete and defers the hardest work to the MSP. Ask what the MSP's confirmation is worth, and note the credentials again — golden images do not rotate secrets.
++ 3) Optimal — All three parts matter, and credential rotation is the one that gets deferred. Ask them to sequence it: rebuilding a host with a credential the attacker already holds achieves very little.
+
+@ Recovery & Long‑Term MSP Assurance
+! duration: 10 mins
+! content
+Post‑incident — MSP regains control and publishes guidance. Leadership requests long‑term risk reductions: per‑tenant MSP isolation, JIT for privileged actions, mandatory MFA and device attestation for MSP access, audit logging with continuous export, and contractual uplifts before reconnection.
+
+# discussion
++ What telemetry or assurance signals would indicate MSP access is drifting back toward over‑privileged, before active abuse occurs again?
++ Which of these controls will the MSP resist on cost or workability grounds, and what is your position if they say no?
+
+? Which controls should be mandated before the MSP is reconnected?
++ Require the MSP to hold current certification and provide an independent post-incident assurance report
++ Move privileged support in-house and retain the MSP for monitoring and first-line triage only
+++ Per-tenant isolation, JIT privilege, MFA with device attestation, and continuous off-platform audit log export
+
+# prompts
++ 1) Less Optimal — The contractual reflex, and it produces a document rather than a control. Ask what the certificate would have prevented here, and whether anyone would read the report before signing.
++ 2) Less Optimal — A serious strategic option, not a wrong one, and worth real discussion. Press on capability and cost: privileged support in-house means staff, on-call and out-of-hours cover. Let the room reach its own view rather than steering it.
++ 3) Optimal — Per-tenant isolation is the control that would have stopped cross-tenant movement, and off-platform log export is what gives you evidence next time. Ask where those logs would land and who owns that store.

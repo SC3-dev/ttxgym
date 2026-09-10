@@ -1,0 +1,119 @@
+! title: Supplier SaaS Data Integrity Compromise
+! author: SC3 / Cyber Capability Toolkit (derived from Data Loss Playbook v2.6)
+! summary
+A private-sector SaaS platform underpinning a high-volume public service experiences a breach that allows limited WRITE access to your tenant data. Indicators suggest records were modified (not exfiltrated). Technical teams must classify per CIRP, preserve evidence, scope integrity impact, apply API-level containment, restore authoritative data, and uplift long-term controls.
+
+@ External Disclosure – SaaS Breach Notification
+! duration: 10 mins
+! content
+Supplier status page posts an incident: "Unauthorised write access may have affected tenant data between 10:05–10:42 UTC. IOCs and affected UUIDs pending." Your organisation uses this SaaS for a critical citizen-facing workflow. CIRP requires classification and initial technical scoping.
+
+# discussion
++ From a network and integration perspective, where could SaaS‑hosted data have propagated already, and what telemetry do we still trust at this point?
++ The supplier has given you a 37-minute window. What would you do differently if you assumed that window was an underestimate?
+
+? The supplier reports possible unauthorised writes in a 37-minute window, with IOCs pending. What do you do first?
++ Suspend writes to the SaaS platform and queue citizen transactions until the scope is understood
++ Extract and hold a full copy of your tenant data as it stands now, before anything else changes
+++ Classify as a data integrity incident under CIRP, enable enhanced logging, and begin evidence preservation
+
+# prompts
++ 1) Less Optimal — Stops further tampering and stops the citizen service with it. A real option, so make them price it: what is the transaction volume, how long can the queue hold, and who authorises it?
++ 2) Less Optimal — A genuinely good instinct that few teams have, and it captures the *post-tampering* state, which is not a baseline. Ask what they would compare it against. Worth doing alongside, not instead.
++ 3) Optimal — Classification unlocks the response and enhanced logging catches what happens next; SaaS audit evidence rolls over fast. Ask how long their tenant's audit retention actually is.
+
+@ Internal Anomalies – Integrity Signals & Baselines
+! duration: 15 mins
+! content
+Audit telemetry shows dozens of records edited within seconds — atypical for business hours. API logs indicate bursts of PUT/PATCH calls from unusual ASN ranges against /records/ citizen endpoints. DLP shows no exfil alerts.
+
+# discussion
++ How do we determine *what changed* and if those changes are legitimate?
++ What is our authoritative source of truth for reconciliation, and is it genuinely independent of the SaaS platform?
++ If these edits were malicious, which network or API‑level signals would you expect to see — and which would you not expect to see?
+
+? How do you determine what actually changed and whether the edits were legitimate?
+++ Compare affected records against the authoritative source and analyse the edit timestamps and acting principals
++ Roll back the affected tables from yesterday's backup and compare the result against current production
++ Ask the service owners who use these records daily to confirm whether anything looks wrong
+
+# prompts
++ 1) Optimal — The authoritative source establishes what is true; timestamps and actors establish whether the change was authorised. Ask which system is authoritative here, and whether it derives from the SaaS.
++ 2) Less Optimal — Would produce an answer and destroys a day of legitimate citizen updates to get it. Ask whether the comparison could be done without overwriting production, and what the rollback costs.
++ 3) Less Optimal — Fast, free, and blind to exactly the changes that matter. A tampered eligibility flag or payment detail reads as entirely normal. Ask what kind of change a service owner would actually spot.
+
+@ Containment – API & Integration Controls (Service Preservation)
+! duration: 10 mins
+! content
+Full shutdown would disrupt public services. App owners need a safe mode. Identity/NetOps propose read-only for risky endpoints, IP allow-lists for supplier ranges, throttling on hot URIs, and reduced scopes on service principals.
+
+# discussion
++ Which trust boundaries can we still enforce at the network or identity layer even if the SaaS platform itself is partially compromised?
++ Read-only stops further tampering but keeps possibly-tainted data flowing into your systems. Which of those two risks is worse for a citizen-facing workflow?
+
+? Which containment reduces tampering risk while keeping citizen-facing services running?
++ Restrict write access to the supplier's published IP ranges and throttle the affected endpoints
+++ Read-only on risky endpoints, IP allow-lists, throttling on hot URIs, and reduced scopes on service principals
++ Continue normal operation with enhanced monitoring and alerting on all PUT and PATCH activity
+
+# prompts
++ 1) Less Optimal — Partial and reasonable, and the attacker is operating through the supplier's own compromised platform, so supplier ranges may be exactly where the traffic originates. Ask what the allow-list is actually excluding.
++ 2) Optimal — Four layers, none of which depend on the SaaS platform behaving correctly. Ask which of the four they could implement within the hour.
++ 3) Less Optimal — Preserves the service completely, which is what app owners want, and accepts ongoing modification of citizen records while you watch. Make the room say that out loud and decide whether they accept it.
+
+@ Supplier IOCs & Impact Sweep
+! duration: 5 mins
+! content
+Supplier publishes IOCs: malicious IPs, affected API tokens, list of UUIDs of altered records, and the window of potential misuse. Some downstream systems may have already consumed modified data.
+
+# discussion
++ What indicators would suggest this integrity issue has crossed from the SaaS boundary into internal networks or decision‑making systems?
++ The supplier's UUID list is derived from a platform they had lost control of. How would you find altered records that are not on it?
+
+? How do you quantify total impact from the supplier's IOCs and your own telemetry?
++ Remediate against the supplier's UUID list and reconcile the record counts to confirm completion
+++ Sweep all IOC types, run delta analysis against authoritative data, and reconstruct audit history across integrations
++ Restore all records in the affected endpoints from the authoritative source, regardless of the supplier's list
+
+# prompts
++ 1) Less Optimal — Efficient and inherits every blind spot in the supplier's detection. Ask whether they would sign a regulatory notification on the strength of that list.
++ 2) Optimal — The delta finds what the supplier missed; the audit reconstruction finds where it went. Ask how many downstream consumers exist and whether anyone can list them.
++ 3) Less Optimal — Thorough, and it overwrites legitimate changes made in the same period and still tells you nothing about downstream propagation. Ask what they would report about scope afterwards.
+
+@ Eradication – Restore Trusted Data State
+! duration: 5 mins
+! content
+Delta analysis confirms 1,240 altered citizen records against the authoritative source, all within the /records/ endpoints. Downstream analytics and case‑management systems have already ingested an unknown subset. Per‑record restore from the authoritative reference is available, validation scripts can certify a clean state, and the API tokens used by the integration are considered exposed and require rotation.
+
+# discussion
++ After data restoration, what network or integration paths must remain constrained until we regain confidence that no replay or re‑injection can occur?
++ Some of those 1,240 records may already have driven a decision, a letter or a payment. Who owns finding those, and what is the remedy?
+
+? Which workflow restores trusted data and prevents re-propagation downstream?
++ Restore the altered records from authoritative data and let downstream systems pick up the corrections on their next scheduled sync
+++ Restore the altered records from authoritative data, reconcile every downstream consumer, and rotate the exposed credentials
++ Restore the affected endpoints wholesale from the last clean backup and re-run downstream ingestion from that point
+
+# prompts
++ 1) Less Optimal — Correct at source and passive everywhere else. Sync schedules vary from minutes to weekly, decisions get made in between, and the exposed tokens remain valid. Ask when analytics next syncs.
++ 2) Optimal — Data, propagation and credentials together. Ask what the validation scripts certify, and whether that assertion satisfies a regulator.
++ 3) Less Optimal — Comprehensive and discards legitimate citizen transactions across the whole endpoint, not just the 1,240 records. Ask what proportion of the data is being reverted unnecessarily.
+
+@ Recovery & Assurance Uplift
+! duration: 5 mins
+! content
+Service stability restored: read‑only has been rolled back to controlled write, and the validation scripts certify a clean state across both the SaaS tenant and downstream consumers. The supplier posts an RCA confirming a compromised administrative interface, along with remediated packages. Leadership wants stronger ongoing controls and evidence that integrity can be demonstrated rather than assumed.
+
+# discussion
++ What ongoing network‑ or identity‑level signals would give early confidence that SaaS data integrity is degrading again before users or business processes notice?
++ You learned about this from a status page. What would have to be true for your own systems to have raised it first?
+
+? Which long-term controls most strengthen SaaS data-integrity assurance?
++ Automated nightly reconciliation of all records against the authoritative source, alerting on any divergence
++ Require the supplier to provide real-time audit log streaming and tenant-specific breach notification
+++ Continuous log export, scoped tokens, staged supplier updates, and contractual incident-notification SLAs
+
+# prompts
++ 1) Less Optimal — Would have detected this within a day and is the strongest single detective control here. It is detective rather than preventive, costly at citizen-service volume, and a nightly window still allows a full day of decisions on bad data. Strong when paired with option 2.
++ 2) Less Optimal — Directly addresses this incident's frustrations and places all the assurance on the supplier's side of the boundary — the side that just failed. Ask what they would do if the stream were delayed or incomplete.
++ 3) Optimal — Own telemetry, least privilege, controlled change, and contractual leverage. Ask what an alert on burst PUT activity would need to look like to page someone at 10:05.

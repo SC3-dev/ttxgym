@@ -201,5 +201,102 @@ G('D2 — duplicate answer text no longer confuses the correct answer');
   });
 }
 
+G('every shipped scenario, exhaustively');
+{
+  const fsx = require('fs');
+  const path = require('path');
+  const dir = path.resolve(__dirname, '..', 'lib/scenarios');
+  const manifest = JSON.parse(fsx.readFileSync(path.resolve(__dirname, '..', 'lib/manifest.json'), 'utf8'));
+  const files = fsx.readdirSync(dir).filter(f => f.endsWith('.ttxf'));
+
+  t(`all ${files.length} parse with no errors`, () => {
+    const bad = [];
+    files.forEach(f => {
+      const { errors } = T.parse(fsx.readFileSync(path.join(dir, f), 'utf8'));
+      const real = errors.filter(e => e.severity === 'error');
+      if (real.length) bad.push(f + ': ' + real[0].message);
+    });
+    eq(bad, []);
+  });
+
+  t('all round-trip through serialize unchanged', () => {
+    const bad = [];
+    files.forEach(f => {
+      const a = T.parse(fsx.readFileSync(path.join(dir, f), 'utf8'));
+      if (JSON.stringify(T.parse(T.serialize(a.doc)).doc) !== JSON.stringify(a.doc)) bad.push(f);
+    });
+    eq(bad, []);
+  });
+
+  t('every manifest entry has a scenario file behind it', () => {
+    const missing = manifest.filter(e => !fsx.existsSync(path.join(dir, e.id + '.ttxf')));
+    eq(missing.map(e => e.id), []);
+  });
+
+  t('every scenario file is listed in the manifest', () => {
+    const ids = new Set(manifest.map(e => e.id));
+    eq(files.filter(f => !ids.has(f.replace('.ttxf', ''))), []);
+  });
+
+  t('every entry has the fields the library needs', () => {
+    const bad = manifest.filter(e =>
+      !e.id || !e.title || !e.author || !e.level || !e.duration || !e.summary ||
+      !Array.isArray(e.categories) || !e.categories.length);
+    eq(bad.map(e => e.id || e.title), []);
+  });
+
+  t('ids are unique', () => {
+    const ids = manifest.map(e => e.id);
+    eq(ids.filter((v, i) => ids.indexOf(v) !== i), []);
+  });
+
+  t('stage headings carry no numbering prefix', () => {
+    // the card already shows a "Stage N" badge, so repeating it in the heading was
+    // just noise
+    const prefix = /^\s*(?:stage|inject|phase|step|part|round|section)\s*\d*\s*[:.)-]\s*/i;
+    const bad = [];
+    files.forEach(f => {
+      const { doc } = T.parse(fsx.readFileSync(path.join(dir, f), 'utf8'));
+      doc.stages.forEach(st => { if (prefix.test(st.stage)) bad.push(f + ': ' + st.stage); });
+    });
+    eq(bad.slice(0, 5), []);
+  });
+
+  t('no stage heading was emptied by that', () => {
+    const bad = [];
+    files.forEach(f => {
+      const { doc } = T.parse(fsx.readFileSync(path.join(dir, f), 'utf8'));
+      doc.stages.forEach((st, i) => { if (!st.stage.trim()) bad.push(`${f} stage ${i + 1}`); });
+    });
+    eq(bad, []);
+  });
+
+  t('technical titles stop at the first arrow, and stay distinct', () => {
+    const technical = manifest.filter(e => e.level === 'Technical');
+    ok(technical.length > 0, 'no technical scenarios');
+    technical.forEach(e => ok(!/→|->/.test(e.title), e.id + ' still reads: ' + e.title));
+    const titles = technical.map(e => e.title);
+    eq(titles.filter((v, i) => titles.indexOf(v) !== i), [], 'titles collided once shortened');
+  });
+
+  t('every technical scenario belongs to a series, in order', () => {
+    const technical = manifest.filter(e => e.level === 'Technical');
+    const loose = technical.filter(e => !e.series || typeof e.order !== 'number');
+    eq(loose.map(e => e.id), [], 'technical scenarios with no place in a series');
+    // each series numbers from 0 with no gaps or repeats
+    const bySeries = {};
+    technical.forEach(e => { (bySeries[e.series] = bySeries[e.series] || []).push(e.order); });
+    Object.entries(bySeries).forEach(([name, orders]) => {
+      eq(orders.slice().sort((a, b) => a - b), orders.map((_, i) => i), name + ' is not a clean sequence');
+    });
+  });
+
+  t('cover art referenced by an entry exists', () => {
+    const missing = manifest.filter(e => e.image &&
+      !fsx.existsSync(path.resolve(__dirname, '..', 'lib/images', e.image + '.jpg')));
+    eq(missing.map(e => e.id), []);
+  });
+}
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

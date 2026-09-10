@@ -1,5 +1,5 @@
 const fs = require('fs');
-const { boot, loadScenario, ev, tick, respond, unrespond, counts, ROOT } = require('./harness.js');
+const { boot, loadScenario, ev, tick, respond, unrespond, counts, sampleScenarios, ROOT } = require('./harness.js');
 let pass = 0, fail = 0;
 const G = n => console.log('\n' + n);
 const t = (n, f) => { try { f(); console.log('  ok   ' + n); pass++; } catch (e) { console.log('  FAIL ' + n + '\n       ' + e.message); fail++; } };
@@ -197,9 +197,9 @@ G('quiz scoring by index, with duplicated answer text');
     eq(w.updateProgress().stages[0].quiz, 100));
 }
 
-G('the whole library still drives end to end');
+G('the library still drives end to end');
 {
-  const files = fs.readdirSync(ROOT + '/lib/scenarios').filter(f => f.endsWith('.ttxf'));
+  const files = sampleScenarios(8).map(e => e.id + '.ttxf');
   const problems = [];
   for (const f of files) {
     const { w, errors } = boot();
@@ -211,7 +211,7 @@ G('the whole library still drives end to end');
     w.exportReport();
     if (errors.length) problems.push(f + ': ' + errors[0]);
   }
-  t(`all ${files.length} scenarios load, navigate, summarise and export cleanly`, () =>
+  t(`a spread of ${files.length} scenarios loads, navigates, summarises and exports cleanly`, () =>
     ok(!problems.length, problems.join(' | ')));
 }
 

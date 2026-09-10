@@ -1,0 +1,118 @@
+! title: Compromised API Keys / Token Abuse
+! author: SC3 / Cyber Capability Toolkit
+! summary
+A supplier suffers a credential compromise leading to stolen API keys used to access your environment. Technical teams must detect anomalous API activity, contain compromised identities, revoke and rotate keys, and prevent lateral impact.
+
+@ External Alert – Supplier Credential Breach
+! duration: 10 mins
+! content
+08:14 UTC — Sector channels report a compromise at the supplier. Internal dashboards show light latency on supplier‑backed API calls but no outage. App registrations list a supplier service principal with broad scopes. CIRP requires rapid classification and immediate preservation of SaaS/API gateway and IDP logs before rollover.
+
+# discussion
++ What assumptions about supplier‑managed identities or service principals immediately become invalid once API key compromise is suspected?
++ Nothing is down and the only symptom is slight latency. What would justify treating this as an incident, and who would challenge that call?
+
+? Sector channels report a supplier compromise; your only symptom is light API latency. What do you do first?
++ Disable the supplier service principal immediately and restore it once the supplier confirms the scope of their breach
+++ Review API logs, map the service principal's actual permissions, and classify it as a supply chain incident
++ Rotate the supplier's API keys now and notify them of the new values through the account manager
+
+# prompts
++ 1) Less Optimal — Decisive and genuinely defensible, and it takes down a live integration on the basis of a sector report. Ask what the service principal supports, whether anyone in the room knows, and what the business impact of being wrong looks like.
++ 2) Optimal — You cannot judge the risk until you know what those broad scopes actually permit. Note the log preservation deadline: gateway and IdP logs roll over, and this evidence has a shelf life measured in hours.
++ 3) Less Optimal — Feels proactive and skips the step that matters. Rotating before you have read the logs destroys your view of what the old key was doing, and you would be sending new credentials to a supplier whose environment is compromised. Draw out that second point.
+
+@ Internal Indicators – Anomalous API Calls
+! duration: 10 mins
+! content
+08:37 UTC — SIEM flags anomalous API usage on the supplier integration: calls outside business hours, new endpoints, and elevated scopes from unfamiliar ASN ranges. IP reputation for several sources is low. Baseline comparison confirms this pattern deviates from the last 30/90‑day norm.
+
+# discussion
++ What behaviours indicate that an API credential is being used opportunistically or algorithmically rather than in support of a legitimate business process?
++ Suppliers legitimately change their infrastructure, their hosting and their working hours without telling you. How would you know the difference before assuming compromise?
+
+? How do you distinguish malicious use of the supplier's key from legitimate but unusual supplier activity?
++ Check the source IP reputation and block anything scoring below your risk threshold at the gateway
+++ Compare the call pattern, endpoints and scopes against the 30/90-day baseline, weighing reputation as one signal among several
++ Contact the supplier's technical team and ask them to confirm which API activity is theirs
+
+# prompts
++ 1) Less Optimal — Fast and partially effective. Reputation lags reality: newly provisioned attacker infrastructure often scores clean, and a supplier moving to a new cloud region can score poorly. Ask what they would have concluded if every source had scored clean.
++ 2) Optimal — Behaviour against your own baseline is the only evidence entirely under your control. Probe whether that baseline exists as a queryable thing or only as an assumption about normal.
++ 3) Less Optimal — The right instinct, and the supplier is compromised, so the answer comes from an environment you cannot trust. Worth doing in parallel, never relied upon. Ask how long a response would take and what they do meanwhile.
+
+@ Active Abuse – Data Access Attempts
+! duration: 10 mins
+! content
+09:01 UTC — Telemetry shows access attempts to datasets not previously used by the supplier service. Egress firewall/proxy report repeated calls after rate‑limits hit. Secret store indicates the same supplier key has not rotated in 270 days. Containment actions are needed without collapsing critical service.
+
+# discussion
++ What signals tell you that API abuse has crossed from monitoring concern into active business impact, and how does that change containment urgency?
++ The key has not rotated in 270 days. What does your policy say, why did it not happen, and how many other keys are in the same state right now?
+
+? Attempts are reaching datasets the integration has never used before. What is your containment?
+++ Revoke and rotate the supplier key, and block the abusive sources at the gateway
++ Tighten the rate limits and add a gateway rule blocking the unused datasets, keeping the key active for visibility
++ Restrict the service principal to read-only and keep the integration running while you investigate
+
+# prompts
++ 1) Optimal — The credential is the compromise; nothing short of revoking it removes the access. Push on sequencing: which integrations break the moment the key dies, and is that a decision this room can take?
++ 2) Less Optimal — Surgical and preserves the integration, which is why operations teams like it. The credential remains valid in the attacker's hands and they simply move to a dataset you did not think to block. Ask whether they are containing the attacker or just this hour's behaviour.
++ 3) Less Optimal — A real middle path and better than nothing — it stops modification while you think. It leaves read access to datasets the attacker is actively enumerating, which for citizen data may be the worse outcome. Make the room say what the actual harm is here.
+
+@ Supplier Still Unresponsive – Decision Point
+! duration: 5 mins
+! content
+09:24 UTC — Supplier remains unresponsive. Risk assessment highlights over‑broad app scopes and long‑lived refresh tokens for the supplier principal. Some integrations can move to read‑only; others require minimal write to sustain public‑facing services. A least‑privilege redesign is required under time pressure.
+
+# discussion
++ When a supplier cannot be engaged, how do you decide which machine‑to‑machine permissions are survivable versus intolerable risk?
++ Redesigning permissions under time pressure is how outages happen. What is the minimum testing you would insist on, and who accepts the risk if you skip it?
+
+? The supplier is still unresponsive and scopes are over-broad. What is your risk-based decision?
++ Move every supplier integration to read-only until the supplier responds and the position is understood
++ Leave the integration running with enhanced monitoring and alerting on any new endpoint or scope
+++ Suspend the integration and re-establish it under least privilege, keeping only the write scopes public services require
+
+# prompts
++ 1) Less Optimal — Simple, quick, and a reasonable holding position. The inject says some integrations need minimal write to sustain public-facing services, so this is a service decision dressed as a security one. Ask which public services stop and who tells the citizens.
++ 2) Less Optimal — Chosen when the business impact feels too high to accept, and it is a decision to watch a known-compromised credential operate. Ask what the alert threshold would be and who is watching it at 3am.
++ 3) Optimal — Rebuilds the trust boundary on your terms rather than the supplier's, and keeps critical services alive. Ask how they would identify the minimum write scopes, and how confident they are in that list.
+
+@ Eradication – Credential Reset & Monitoring
+! duration: 10 mins
+! content
+09:46 UTC — Investigation confirms attempted privilege escalation via API. Several client secrets and a certificate mapped to the supplier integration are in active use. Secret vault inventories are complete; rotation playbooks exist but sequence is critical to avoid outage. Monitoring must prove that abuse has ceased post‑rotation.
+
+# discussion
++ What risks remain after credential rotation if downstream systems, caches, or automation pipelines have already consumed or replayed compromised tokens?
++ How would you prove to an auditor that abuse has actually stopped, rather than that alerting has stopped firing?
+
+? Which eradication steps ensure no access remains after rotation?
++ Rotate the client secrets and certificate, then confirm the integration still works end to end
++ Revoke all refresh tokens and force re-authentication of the integration on the new credentials
+++ Rotate every affected secret and the certificate, revoke outstanding refresh tokens, and re-validate scopes against least privilege
+
+# prompts
++ 1) Less Optimal — Operationally complete and the most common real-world answer. It proves the integration works; it does not prove the attacker is out. Ask what an outstanding refresh token would let them do.
++ 2) Less Optimal — Correctly targets the mechanism people forget, and stops short. The underlying secrets are still compromised, so new tokens can be minted at will. Useful for showing that tokens and the secrets that issue them are different problems.
++ 3) Optimal — Rotation without scope review restores exactly the over-privileged position you started from. Push on the refresh tokens: a long-lived token issued before rotation may still mint access afterwards, which is the detail most teams miss.
+
+@ Recovery & Supplier Assurance
+! duration: 5 mins
+! content
+Post‑containment — Supplier publishes incident details and IOCs. Leadership requires uplift: continuous API log export, mandatory scoped tokens, periodic access reviews, supplier assurance with SLAs for monitoring, and dashboards/alerts to detect early API abuse patterns.
+
+# discussion
++ What telemetry or behavioural signals would give early confidence that supplier API abuse is beginning again before it causes business impact?
++ A key went 270 days without rotation and nobody noticed. What control makes that visible, and who would act on it?
+
+? Which long-term measures should be mandated with the supplier?
+++ Scoped tokens plus continuous API log export, scheduled access reviews, and contractual assurance and notification SLAs
++ Require short-lived scoped tokens with automated rotation for every supplier integration
++ Move to mutual TLS with certificate pinning for all supplier API traffic
+
+# prompts
++ 1) Optimal — Technical control, detective capability and contractual leverage together. Ask specifically who owns the periodic access review — it is the element that reliably lapses after six months.
++ 2) Less Optimal — The single highest-value technical control, and on its own it is the answer to the last incident. Without access reviews the scopes creep back, and without log export you have no evidence next time. Ask what breaks if a rotation fails at 2am.
++ 3) Less Optimal — Strong authentication that solves a problem you did not have: the attacker used a valid credential, and mTLS would have authenticated them perfectly. Good for separating authentication strength from authorisation scope.

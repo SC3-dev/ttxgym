@@ -4,3 +4,7 @@ package-lock.json
 
 # Working notes — kept locally, not published with the site
 IMPROVEMENTS.md
+SCENARIO-REVIEW.md
+
+# Source catalogue for the technical exercises — not part of the published site
+*.odt

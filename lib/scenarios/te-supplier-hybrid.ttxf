@@ -1,0 +1,118 @@
+! title: Hybrid Supply Chain Attack
+! author: SC3 / Cyber Capability Toolkit
+! summary
+An adversary compromises a critical supplier, triggers a ransomware outage, backdoors the supplier's update channel, steals API credentials, and briefly hijacks the supplier's DNS/CDN to redirect your traffic. Technical teams must detect across layers, contain integrations, eradicate malicious components, and restore trust without cascading impact on other services.
+
+@ Supplier Ransomware Outage – Non‑Responsive Vendor
+! duration: 10 mins
+! content
+09:02 UTC — Sector ISAC and OSINT indicate the supplier has been hit by ransomware. Status page is frozen; API health probes show intermittent latency; Contract Manager cannot reach any contact paths. Minor degradation appears on two critical integrations. CIRP requires immediate classification, rapid dependency map, and preservation of SaaS/API/DNS/egress logs before rollover.
+
+# discussion
++ When a critical supplier becomes unavailable mid‑incident, which external dependencies must immediately be treated as untrustworthy, regardless of current telemetry?
++ The supplier is a ransomware victim, not an attacker. At what point does their incident become yours, and what would move that line?
+
+? A critical supplier is down to ransomware and unreachable. Your integrations show minor degradation. What do you do first?
++ Suspend all supplier integrations until the supplier confirms their environment is clean
++ Focus on service continuity, invoking fallback arrangements for the two degraded integrations
+++ Classify as a supply chain incident, map dependencies, and enable enhanced monitoring on every supplier integration
+
+# prompts
++ 1) Less Optimal — Defensible, and it treats an availability event as a compromise before there is evidence of one. Ask what "clean" would mean from a supplier in the middle of a ransomware recovery, and how long they would wait.
++ 2) Less Optimal — What operational instinct demands, and it is the trap this scenario is built around. Treating this as a continuity problem means nobody is watching the supplier's *other* channels. Note who chooses it, and return to it after stage 2.
++ 3) Optimal — Everything that follows in this scenario arrives through a supplier channel; monitoring them is what lets you see the update, the API abuse and the DNS anomaly when they come. Ask how quickly the dependency map can be produced.
+
+@ Suspicious Update Offered – Possible Backdoored Package
+! duration: 10 mins
+! content
+09:24 UTC — Endpoint fleet reports an urgent supplier update outside the authorised release window. Hashes/manifests and signing timestamps differ from your known‑good baselines. A handful of staging hosts list the update as ‘mandatory’. Internal telemetry shows repeated fetch attempts across multiple sites.
+
+# discussion
++ How do you reason about update integrity when the supplier’s control plane itself is under duress, and what actions are safe before confirmation?
++ An urgent update arrives from a supplier who is mid-ransomware and cannot be contacted. What is the prior probability this is legitimate, and does your process let you act on that judgement?
+
+? An unscheduled "mandatory" supplier update is being fetched across multiple sites. What do you do?
+++ Block the update channel estate-wide, then sandbox the package and verify signatures and SBOM against known-good baselines
++ Allow the update to proceed on staging hosts only, and evaluate its behaviour before permitting production rollout
++ Quarantine the package and request confirmation from the supplier before permitting or blocking distribution
+
+# prompts
++ 1) Optimal — Stop distribution first, analyse second — the fetch attempts are ongoing while the room debates. Ask whether they can actually block an update channel estate-wide, and how long it takes.
++ 2) Less Optimal — A controlled-exposure approach that sounds rigorous. It executes a probably-malicious payload inside your estate, and staging hosts routinely hold real credentials and production connectivity. Ask what staging can reach.
++ 3) Less Optimal — Procedurally correct and blocked on an unreachable supplier. Quarantine is the right instinct; making the next step depend on someone who cannot answer is not. Ask what they do when there is no reply by 17:00.
+
+@ API Abuse Detected – Stolen Supplier Credentials
+! duration: 10 mins
+! content
+09:41 UTC — SIEM shows the supplier integration principal invoking atypical API endpoints with elevated scopes from unfamiliar ASN ranges. NetFlow reveals outbound bursts to supplier‑adjacent CDN ranges. Identity telemetry confirms long‑lived refresh tokens in active use. Essential services must remain available while abuse is stopped.
+
+# discussion
++ When API abuse is detected alongside other supply‑chain failures, how do you prioritise which machine identities must be constrained first?
++ This is now the third channel from one supplier in forty minutes. What does that tell you about the adversary, and how should it change your tempo?
+
+? The supplier's integration principal is being abused with long-lived tokens. What containment keeps essential services running?
+++ Revoke and rotate tokens and secrets, enforce IP allow-lists and Conditional Access, cut scopes, and set integrations read-only
++ Block the unfamiliar ASN ranges at the gateway and alert on any further use of the integration principal
++ Disable the supplier integration principal entirely and move the dependent services to their fallback data sources
+
+# prompts
++ 1) Optimal — Revocation deals with the credential, scope reduction limits what any future one can do, read-only preserves the service. Ask specifically about the long-lived refresh tokens — rotating a secret does not always invalidate tokens already issued.
++ 2) Less Optimal — Fast, no service impact, and it leaves valid long-lived refresh tokens in the attacker's hands. They change source address; you are back where you started. Ask what the ASN block actually costs the adversary.
++ 3) Less Optimal — Cleanest security outcome and a real availability decision. Worth genuine debate given three concurrent compromise channels; press on whether the fallback data sources are current and tested.
+
+@ DNS/CDN Redirector Observed – Potential Payload Delivery
+! duration: 10 mins
+! content
+10:03 UTC — DNS/TLS telemetry shows anomalies: mismatched certificate chains, differing A/AAAA records across regions, and several internal hosts contacting redirector infrastructure tied to the supplier domain. EDR flags a downloaded script on a subset of systems. An IOC sweep is required.
+
+# discussion
++ What confidence indicators tell you that trusted name‑resolution and routing can no longer be relied upon, and how does that alter containment urgency?
++ If name resolution for the supplier's domain cannot be trusted, what else in your environment resolves names you rely on and would fail the same way?
+
+? DNS and certificate anomalies suggest a hijack of the supplier's domain. What is your response?
+++ Validate the DNS and certificate anomalies, block the redirector ranges, and isolate hosts that fetched the script
++ Force all internal resolution for the supplier's domain to the last known-good addresses via local DNS overrides
++ Repoint the estate to alternative public resolvers and enforce DNS-over-HTTPS to bypass the poisoned path
+
+# prompts
++ 1) Optimal — Confirm, contain the infrastructure, then deal with the hosts that already fetched the payload. Ask what the script did and whether the affected hosts are now a separate incident.
++ 2) Less Optimal — Decisive and technically neat, and it pins your estate to addresses that may already be attacker-controlled or about to change legitimately during the supplier's recovery. Ask how they establish which addresses were "known-good", and when.
++ 3) Less Optimal — Treats it as a resolver-integrity problem. If the supplier's own authoritative records are hijacked, every resolver returns the same malicious answer faithfully. Good for locating where in the chain the compromise actually sits.
+
+@ Confirmed Malicious Components & Persistence
+! duration: 5 mins
+! content
+10:27 UTC — Forensics confirm the tampered update contains a loader; redirector infrastructure served credential‑harvesting JS; and supplier API keys were misused. Several hosts show scheduled tasks/cron entries and modified firewall rules indicative of persistence.
+
+# discussion
++ Three attack channels have produced persistence on the same estate. How do you avoid remediating them as three separate incidents with three separate scopes?
++ Credential-harvesting JavaScript was served to your users. Whose credentials, and what is the notification position for the people affected?
+
+? Which eradication sequence returns systems and integrations to a trusted state?
++ Remove the persistence mechanisms, revert the firewall changes, and verify with an estate-wide EDR sweep
+++ Rebuild affected hosts from gold images, remove tampered modules, rotate all secrets, restore trusted DNS, and sweep tenant-wide
++ Rebuild the affected hosts from gold images and rotate the supplier API credentials that were confirmed misused
+
+# prompts
++ 1) Less Optimal — Addresses what forensics found on the hosts, and only that. A loader's job is to fetch what comes next, and harvested credentials are untouched by any host action. Ask what the loader loaded.
++ 2) Optimal — Covers all three channels at once, which is the whole point of a hybrid scenario. Ask them to sequence it: restoring trusted DNS before rebuild, or the rebuilt hosts resolve through the same poisoned path.
++ 3) Less Optimal — Thorough on two channels and silent on the third. The harvested user credentials and the DNS position remain. Use it to show how single-vector thinking survives even after a multi-vector attack is confirmed.
+
+@ Recovery & Assurance Uplift
+! duration: 5 mins
+! content
+Post‑containment — Critical service restored under fallback architecture. Supplier publishes IOCs and fixed, signed packages. Leadership mandates code‑sign enforcement, SBOM/attestation requirements, continuous log export, scoped tokens, CA/IP allow‑lists, DNSSEC/pinning, and contractual incident SLAs.
+
+# discussion
++ What cross‑layer telemetry would give early indication that a similar multi‑vector attack is forming again, before all components are compromised?
++ You are running on fallback architecture. What has to be true before you reconnect to this supplier, and who decides?
+
+? Which long-term controls reduce multi-layer supply chain risk?
+++ Code-sign verification, SBOM intake, continuous log export, scoped tokens, allow-lists, DNSSEC and pinning, with contractual SLAs
++ Require the supplier to evidence code signing, SBOM provision and DNSSEC before reconnection is permitted
++ Architect every critical supplier integration so a tested fallback can be invoked within one hour
+
+# prompts
++ 1) Optimal — Controls at each layer the adversary used: package, identity, name resolution, plus the contractual lever. Ask which single one they would implement first if funding allowed only one, and why.
++ 2) Less Optimal — The right controls placed entirely on the supplier's side of the boundary. Everything in this scenario reached you through a channel you also control. Ask what they would do differently in their own estate.
++ 3) Less Optimal — Genuinely valuable, and it is a continuity answer to a compromise problem. It limits impact without reducing the chance of recurrence. Strong when paired with option 3, weak alone — draw that distinction out.

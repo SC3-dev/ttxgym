@@ -6,7 +6,7 @@ This scenario explores the events that take place where employees in your organi
 It includes connecting your employees to the systems used by your organisation via non-corporate internet connections, the processes and monitoring in place to enable secure distributed communication amongst your users using various online systems, and your processes for handling the compromise of information from your organisation when working remotely.
 Discussion of the above topics will help you explore the controls your organisation has in place to facilitate effective distributed working and to identify and respond to the compromise of information from your organisation.
 
-@ Inject 1: Moving to remote working
+@ Moving to remote working
 ! duration: 10 mins
 ! content
 Employees in your organisation need to work remotely at short notice and in order to continue working they require access to the IT services used by your organisation.
@@ -51,8 +51,8 @@ Some of your employees do not have access to any computer equipment issued by yo
 + Fairly confident
 + Completely confident
 
-@ Inject 2: Employee collaboration
-! duration: 10 mins
+@ Employee collaboration
+! duration: 5 mins
 ! content
 In the absence of effective collaboration software in your organisation, some employees start to conduct meetings and handle organisation information using conferencing and instant messaging software and systems that are not from approved sources or providers.
 
@@ -94,7 +94,7 @@ In the absence of effective collaboration software in your organisation, some em
 + Fairly confident
 + Completely confident
 
-@ Inject 3: Incident handling
+@ Incident handling
 ! duration: 10 mins
 ! content
 An employee believes that they have clicked on a phishing link when working remotely.

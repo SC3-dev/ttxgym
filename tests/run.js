@@ -17,6 +17,7 @@ const suites = [
 
 let total = 0, failed = 0, broken = [];
 for (const [label, file] of suites) {
+  const started = Date.now();
   let out = '';
   try {
     out = execFileSync(process.execPath, [path.join(__dirname, file)], { encoding: 'utf8' });
@@ -27,7 +28,8 @@ for (const [label, file] of suites) {
   const line = out.trim().split('\n').pop();
   const m = line.match(/(\d+) passed, (\d+) failed/);
   if (m) { total += +m[1]; failed += +m[2]; }
-  console.log(String(label).padEnd(22) + line);
+  const secs = ((Date.now() - started) / 1000).toFixed(1) + 's';
+  console.log(String(label).padEnd(22) + line.padEnd(26) + secs.padStart(7));
   if (m && +m[2] > 0) console.log(out.split('\n').filter(l => l.includes('FAIL')).join('\n'));
 }
 console.log('─'.repeat(46));

@@ -19,6 +19,40 @@ const WITH_CONC = `! title: With Conclusion
 + Low
 + High
 `;
+const FIVE_STAGE = `! title: Scroll Test
+! summary: Sum
+
+@ Stage 1
+! content: Body 1
+? Question 1
++ Low
++ High
+
+@ Stage 2
+! content: Body 2
+? Question 2
++ Low
++ High
+
+@ Stage 3
+! content: Body 3
+? Question 3
++ Low
++ High
+
+@ Stage 4
+! content: Body 4
+? Question 4
++ Low
++ High
+
+@ Stage 5
+! content: Body 5
+? Question 5
++ Low
++ High
+`;
+
 const TWO_STAGE = `! title: No Conclusion
 ! summary: Sum
 
@@ -318,6 +352,126 @@ G('light theme for the facilitator view');
     const posted = ev(w, 'PRESENTATION_HTML');
     ok(/ttxgym_participant_theme/.test(posted), 'the participant window lost its own setting');
     ok(!/ttxgym_theme'/.test(posted), 'the participant window follows the facilitator theme');
+  });
+}
+
+G('jumping to a stage puts its heading at the top');
+{
+  const { w } = boot();
+  await loadScenario(w, FIVE_STAGE, 'scroll.ttxf');
+
+  const container = w.document.getElementById('scribe-inner');
+  const calls = [];
+  container.scrollTo = (opts) => { calls.push(opts); container.scrollTop = opts.top; };
+  // jsdom does no layout, so stand in for it: the panel's top edge sits at y=100.
+  container.getBoundingClientRect = () => ({ top: 100, bottom: 700, height: 600, left: 0, right: 0, width: 0 });
+  Object.defineProperty(container, 'clientHeight', { value: 600, configurable: true });
+  const place = (id, top) => {
+    w.document.getElementById(id).getBoundingClientRect =
+      () => ({ top, bottom: top + 400, height: 400, left: 0, right: 0, width: 0 });
+  };
+  const reset = () => { calls.length = 0; };
+
+  t('a card below the fold scrolls to sit at the top', () => {
+    reset(); container.scrollTop = 0;
+    place('round3', 900);                       // 800px into the content
+    w.scrollRoundIntoView(3);
+    eq(calls[0].top, 788, 'expected 800 minus the 12px gap');
+  });
+
+  t('a card already on screen still moves to the top', () => {
+    // the old logic did nothing here, leaving the heading wherever it landed
+    reset(); container.scrollTop = 500;
+    place('round3', 200);                       // 100px below the panel's top edge
+    w.scrollRoundIntoView(3);
+    eq(calls.length > 0, true, 'no scroll happened at all');
+    eq(calls[0].top, 588);
+  });
+
+  t('a card taller than the panel aligns its top, not its bottom', () => {
+    reset(); container.scrollTop = 0;
+    w.document.getElementById('round2').getBoundingClientRect =
+      () => ({ top: 400, bottom: 2400, height: 2000, left: 0, right: 0, width: 0 });
+    w.scrollRoundIntoView(2);
+    // bottom-aligning a 2000px card would have scrolled to 1812 and hidden the heading
+    eq(calls[0].top, 288);
+  });
+
+  t('it never scrolls past the top of the panel', () => {
+    reset(); container.scrollTop = 0;
+    place('round1', 100);                       // already flush with the top
+    w.scrollRoundIntoView(1);
+    eq(calls[0].top, 0, 'a negative offset leaked through');
+  });
+
+  t('the intro card scrolls too', () => {
+    reset(); container.scrollTop = 900;
+    place('round0', 100);
+    w.goToStage(0);
+    ok(calls.length > 0, 'jumping to the intro did not scroll');
+  });
+
+  t('the finish card scrolls too', () => {
+    reset(); container.scrollTop = 0;
+    place('round-finish', 2000);
+    w.goToStage(ev(w, 'roundCounter') + 1);
+    ok(calls.length > 0, 'jumping to the finish did not scroll');
+    eq(calls[0].top, 1888);
+  });
+
+  t('it corrects itself once the collapse animation has settled', async () => { ok(true); });
+}
+{
+  // setActiveStage collapses one card and expands another over 300ms, so the first
+  // measurement is taken against a layout that is still moving.
+  const { w } = boot();
+  await loadScenario(w, FIVE_STAGE, 'scroll.ttxf');
+  const container = w.document.getElementById('scribe-inner');
+  const calls = [];
+  container.scrollTo = (opts) => { calls.push(opts); container.scrollTop = opts.top; };
+  container.getBoundingClientRect = () => ({ top: 100, bottom: 700, height: 600, left: 0, right: 0, width: 0 });
+  const card = w.document.getElementById('round4');
+  card.getBoundingClientRect = () => ({ top: 1500, bottom: 1900, height: 400, left: 0, right: 0, width: 0 });
+
+  container.scrollTop = 0;
+  w.scrollRoundIntoView(4);
+  const firstGuess = calls[0].top;
+  // the cards above finish collapsing, so the target rises
+  card.getBoundingClientRect = () => ({ top: 700, bottom: 1100, height: 400, left: 0, right: 0, width: 0 });
+  await tick(420);
+  t('a second pass corrects the estimate', () => {
+    ok(calls.length === 2, 'expected a correcting scroll, got ' + calls.length);
+    ok(calls[1].top !== firstGuess, 'the correction did not move anything');
+  });
+}
+{
+  const { w } = boot();
+  await loadScenario(w, FIVE_STAGE, 'scroll.ttxf');
+  const container = w.document.getElementById('scribe-inner');
+  const calls = [];
+  container.scrollTo = (opts) => { calls.push(opts); container.scrollTop = opts.top; };
+  container.getBoundingClientRect = () => ({ top: 100, bottom: 700, height: 600, left: 0, right: 0, width: 0 });
+  w.document.getElementById('round4').getBoundingClientRect =
+    () => ({ top: 1500, bottom: 1900, height: 400, left: 0, right: 0, width: 0 });
+
+  w.scrollRoundIntoView(4);
+  w.document.dispatchEvent(new w.Event('wheel'));     // the facilitator starts reading
+  await tick(420);
+  t('but leaves the facilitator alone if they start scrolling', () =>
+    eq(calls.length, 1, 'the page was yanked back under them'));
+}
+{
+  // Scrolling is cosmetic. A browser that will not do it must not stop a stage
+  // being selected — which is a live risk now that intro and finish scroll too.
+  const { w } = boot();
+  await loadScenario(w, FIVE_STAGE, 'scroll.ttxf');
+  const container = w.document.getElementById('scribe-inner');
+  container.scrollTo = undefined;
+  container.getBoundingClientRect = () => { throw new Error('no layout'); };
+  t('a browser that cannot scroll still changes stage', () => {
+    w.goToStage(3);
+    eq(ev(w, 'ActiveStage'), 3);
+    ok(w.document.getElementById('round3').classList.contains('active'));
   });
 }
 

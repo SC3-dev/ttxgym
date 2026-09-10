@@ -1,0 +1,203 @@
+! title: CEO Spear‑Phish
+! author: Alan Gray (Head of Cyber)
+! summary
+A targeted spear‑phishing email lands in the CEO’s mailbox. MFA was previously removed at the CEO’s request. The CEO opens a malicious attachment. Adversaries obtain access and malware subsequently executes on a network server. This exercise walks through initial discovery, containment, investigation, eradication, recovery, comms, and lessons.
+
+@ Pre‑Incident Context
+! duration: 10 mins
+! content
+**Context:** Your organisation has standard phishing controls at the email gateway. Six months ago, the CEO directed that MFA be removed from their mailbox, citing usability concerns. The IR plan exists but hasn’t been recently exercised.
+
+**Objective:** Establish baseline posture and known risks before the incident unfolds.
+
+# discussion
++ What exceptions (if any) exist for executive accounts vs. standard users?
++ How are MFA exceptions approved, time‑bounded, and re‑certified?
++ Which logs/telemetry are routinely collected for high‑value mailboxes?
+
+# prompts
++ Probe for identity governance: Who can grant/remove MFA? What audit trail exists?
++ Ask how “break‑glass” policies are handled for execs.
++ Confirm what phishing training and simulation cadence exists for the board/C‑suite.
+
+? How formally are identity control exceptions (like disabling MFA) governed today?
++ Ad‑hoc or verbal approvals
++ Documented but not re‑certified
++ Formally approved, time‑bounded, and audited (preferred)
+
+? What is the current confidence in phishing prevention and detection for exec mailboxes?
++ Low
++ Moderate
++ High
+
+@ Initial Injection (Spear‑Phishing Email)
+! duration: 10 mins
+! content
+**Inject:** The CEO receives an email purportedly from a known external advisor with a subject “Updated Board Pack.” The attachment is a macro‑enabled document. The CEO opens it.
+
+**Observation:** No secondary challenge is triggered for mailbox sign‑in or add‑ins due to MFA being disabled.
+
+# discussion
++ What pre‑delivery and post‑delivery controls are in place (e.g., sandboxing, safe links, attachment detonation)?
++ What user prompts/warnings appear when opening the attachment?
+
+# prompts
++ Ask who can retrieve the original email (headers, URLs, hashes).
++ Explore whether banners or *external sender* tags fired.
++ Consider whether the sender domain failed SPF/DKIM/DMARC and how the gateway reacted.
+
+? First action **right now**?
++ Call the CEO and instruct them to power off the device
++ Trigger the IR plan and isolate the device from the network (preferred)
++ Wait for the SOC to confirm alerts before acting
+
+? Which artefact is **most** critical to preserve first?
++ Original email (.eml), full headers, and attachment sample (preferred)
++ Only the message body (no headers)
++ Screenshots from the CEO’s device
+
+@ Detection & Triage
+! duration: 10 mins
+! content
+**Inject:** SOC sees suspicious activity: the CEO’s account accesses mailbox rules and unusual OAuth add‑in prompts, followed by connections from an IP not previously seen. Shortly after, EDR flags a process spawning from Office, reaching out to a known‑bad domain.
+
+**Objective:** Rapid triage and scoping.
+
+# discussion
++ Which systems/identities are *crown jewels* that the CEO account can influence?
++ What’s your 1‑hour scoping checklist (mailbox rules, OAuth consents, device inventory, recent sign‑ins, persistence mechanisms)?
+
+# prompts
++ Push for “stop‑the‑bleed” measures: conditional access blocks, password reset, invalidate tokens, emergency MFA enforcement.
++ Ask what telemetry sources are integrated (mailbox audit, sign‑in logs, EDR, DNS, proxy, firewall).
++ Check who owns authority to contain executive endpoints.
+
+? What is your immediate containment for the CEO identity?
++ Reset password only
++ Force sign‑out, revoke refresh tokens, and immediately enforce MFA/conditional access (preferred)
++ Disable the mailbox entirely (risking availability)
+
+? What is your immediate containment for the endpoint?
++ Do nothing until you collect more data
++ Isolate host via EDR network containment (preferred)
++ Wipe and reimage immediately (risking loss of artefacts)
+
+@ Lateral Movement Indication (Server Impact)
+! duration: 10 mins
+! content
+**Inject:** Within 30 minutes, an application server begins executing suspicious PowerShell with encoded commands; scheduled tasks appear, and an unknown service is installed. Malware is detected on that server; outbound traffic to a new IP begins.
+
+**Objective:** Decide on containment breadth and coordinate across teams.
+
+# discussion
++ What’s the decision framework for isolation at server vs. segment level?
++ How do you identify the path from the CEO identity to this server (jump host, shares, admin tools, delegated rights)?
+
+# prompts
++ Ask for a containment plan that balances business availability.
++ Encourage drawing a quick attack flow: CEO mailbox → endpoint → credentials/tokens → admin tool or share → server.
++ Press for evidence collection: memory, process trees, scheduled tasks, service changes, WER crash dumps, and network captures.
+
+? What scope of containment will you apply **now**?
++ Isolate only the affected server
++ Isolate the entire application tier/segment (preferred when blast radius unclear)
++ Full DC/network blackout
+
+? Which evidence is **highest priority** to capture from the server?
++ Only antivirus logs
++ Full triage set (memory, EDR timeline, service/scheduled task diffs, NetFlow/PCAP, volatile artefacts) (preferred)
++ Just Windows event logs
+
+@ Investigation & Root Cause
+! duration: 10 mins
+! content
+**Inject:** Forensics show the attachment dropped a loader; the CEO’s token was used to access cloud mail APIs; mailbox rules hid forwarding/alerts; a remote management tool was leveraged to access the application server.
+
+**Objective:** Establish the kill chain and validate eradication steps.
+
+# discussion
++ What were the exact TTPs for initial access, execution, persistence, and lateral movement?
++ Which identity governance gaps allowed progress (e.g., lack of MFA, excessive privileges, OAuth consent)?
+
+# prompts
++ Ask for a minimal set of *discrete* eradication hypotheses and how to falsify them with telemetry.
++ Push for reviewing executive account privileges and sign‑in risk policies.
++ Ensure mailbox rule audits and OAuth app reviews are complete tenant‑wide.
+
+? Which item closes the **largest** risk gap fastest?
++ Blanket password resets
++ Enforce MFA + conditional access on all exec and privileged accounts immediately, remove exceptions, review sign‑in risk policies (preferred)
++ Run a phishing awareness campaign only
+
+? Where do you expect **residual** persistence to hide?
++ Only on the CEO laptop
++ Mailbox rules, OAuth grants, scheduled tasks/services, registry run keys, WMI subscriptions, device enrollment (preferred)
++ Nowhere (assume clean)
+
+@ Eradication & Recovery
+! duration: 10 mins
+! content
+**Inject:** Malicious services and tasks are removed; server is rebuilt from gold image; CEO device is re‑provisioned; tenant‑wide review of OAuth grants and mailbox rules is complete; tokens revoked; conditional access and MFA now enforced.
+
+**Objective:** Validate return‑to‑service criteria and prevent re‑entry.
+
+# discussion
++ What are your *go/no‑go* criteria for restoring the server and lifting network blocks?
++ Which compensating controls must stay in place post‑incident (e.g., safe links/attachments, stricter EDR policies)?
+
+# prompts
++ Ask for explicit recovery checklists with sign‑offs (IR lead, app owner, business owner).
++ Encourage a staged restore with enhanced monitoring.
++ Confirm backups were tested and restored with integrity checks.
+
+? What monitoring do you enable during the first 72 hours post‑recovery?
++ Standard monitoring
++ Heightened telemetry: EDR high‑sensitivity, mail audit, sign‑in anomaly detection, DNS/HTTP egress watchlists, alert triage sprints (preferred)
++ None
+
+@ Internal & External Communications
+! duration: 5 mins
+! content
+**Inject:** The Board, key customers, and a regulator request updates. Media inquiry mentions “executive email compromise and server malware.”
+
+**Objective:** Align comms with facts, legal, and regulatory obligations.
+
+# discussion
++ Who approves the narrative and timing? How do you avoid over‑ or under‑disclosure?
++ What are your thresholds for notifying customers/partners/regulators?
+
+# prompts
++ Ask for a single source of truth (IR Comms lead + Legal).
++ Encourage drafting a short holding statement and FAQs.
++ Verify if any data exposure occurred; if unknown, say so and commit to updates.
+
+? Your initial external posture should:
++ Assert full remediation and no impact without evidence
++ Provide a factual holding statement, acknowledge investigation ongoing, share protective actions taken, and contact routes (preferred)
++ Decline comment
+
+@ Lessons, Controls & Assurance
+! duration: 10 mins
+! content
+**Objective:** Lock in improvements and governance.
+
+**Focus areas to address:**
+- Enforce MFA/Conditional Access for executive and privileged identities.
+- Remove/limit exceptions; implement periodic re‑certification for any remaining.
+- Harden email and endpoint layers (safe links/attachments, sandboxing, EDR containment).
+- Strengthen monitoring and analytics around executive accounts.
+- Run targeted training and simulate exec‑focused spear‑phish.
+
+# discussion
++ What policy updates are required so MFA exceptions cannot persist unchallenged?
++ Which detections and playbooks will you add or tune this quarter?
+
+# prompts
++ Capture specific owners, deadlines, and success metrics.
++ Tie actions to risk reduction and report through governance channels.
++ Plan a follow‑up exercise to validate improvements.
+
+? Which governance change prevents recurrence most effectively?
++ Update acceptable use policy
++ Introduce an **Executive Account Security Standard** with mandatory MFA, break‑glass rules, quarterly re‑certification, and monitoring requirements (preferred)
++ Create a new mailbox for the CEO’s assistant

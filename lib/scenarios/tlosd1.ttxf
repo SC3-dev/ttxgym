@@ -6,7 +6,7 @@ This tabletop exercise scenario covers the events following an anonymous email b
 It includes discussion around logging and monitoring of internal sensitive documents, processes for securely offboarding a disgruntled employee, escalating a security incident internally, and potential legal activities following such an incident.
 Discussing these events will help you explore the controls your organisation has in place to prevent the leak of sensitive information and respond appropriately if such threats are made.
 
-@ Inject 1: User access control
+@ User access control
 ! duration: 15 mins
 ! content
 An employee reports receiving an anonymous email from someone claiming to have access to sensitive information about your employees, including personal information, salaries, bank details and an attached file.
@@ -40,8 +40,8 @@ It appears as though the file originates from your internal HR system, and that 
 + Fairly confident
 + Completely confident
 
-@ Inject 2: Incident management
-! duration: 15 mins
+@ Incident management
+! duration: 20 mins
 ! content
 Examination of your logs shows that one employee in particular has been repeatedly accessing sensitive HR documents.
 This is unusual as the employee’s job role does not require access to these documents.
@@ -82,7 +82,7 @@ As a result, the decision is taken to dismiss the employee.
 + Fairly confident
 + Completely confident
 
-@ Inject 3: Incident response
+@ Incident response
 ! duration: 15 mins
 ! content
 Following the dismissal of the employee and removal of their access to this sensitive data, your organisation considers its next steps in response to this incident.

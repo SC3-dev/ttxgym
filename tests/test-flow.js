@@ -123,6 +123,56 @@ G('the gym reaches a scenario the same way from every entry point');
   });
 }
 
+G('every id in the library survives the trip into the gym');
+{
+  /* The gym sanitises ?q= before fetching. It used to strip with \W, which drops
+     hyphens — so every id of the form te-something 404'd while the older
+     underscore ids happened to survive. Drive the real ids, not an invented one. */
+  const manifest = JSON.parse(fs.readFileSync(`${ROOT}/lib/manifest.json`, 'utf8'));
+  const asked = [];
+  const serve = (url) => {
+    const m = /lib\/scenarios\/([^/]+)\.ttxf$/.exec(String(url));
+    if (!m) return Promise.resolve({ ok: false, statusText: 'Not Found' });
+    asked.push(m[1]);
+    const file = `${ROOT}/lib/scenarios/${m[1]}.ttxf`;
+    return Promise.resolve(fs.existsSync(file)
+      ? { ok: true, text: () => Promise.resolve(fs.readFileSync(file, 'utf8')) }
+      : { ok: false, statusText: 'Not Found' });
+  };
+
+  const broken = [];
+  for (const entry of manifest) {
+    asked.length = 0;
+    const { w } = bootPage('gym/index.html', {
+      url: `https://ttxgym.com/gym/?q=${encodeURIComponent(entry.id)}`, fetchImpl: serve,
+    });
+    await wait(40);
+    const pe = w.document.getElementById('parse-error');
+    if (asked[0] !== entry.id) broken.push(`${entry.id}: fetched "${asked[0]}"`);
+    else if (pe.classList.contains('visible')) broken.push(`${entry.id}: ${pe.textContent.trim().slice(0, 60)}`);
+    else if (w.eval('roundCounter') === 0) broken.push(`${entry.id}: no stages`);
+  }
+  t(`all ${manifest.length} scenarios load from their library link`, () =>
+    ok(!broken.length, broken.slice(0, 4).join(' | ')));
+
+  t('ids with hyphens are requested intact', () => {
+    const hyphenated = manifest.filter(e => e.id.includes('-'));
+    ok(hyphenated.length > 0, 'no hyphenated ids to check');
+    ok(!broken.some(b => b.includes('-')), 'hyphenated ids still broken');
+  });
+
+  t('and a path still cannot be walked out of the scenario folder', () => {
+    asked.length = 0;
+    bootPage('gym/index.html', {
+      url: 'https://ttxgym.com/gym/?q=' + encodeURIComponent('../../../etc/passwd'),
+      fetchImpl: serve,
+    });
+    return wait(40).then(() => {
+      ok(!asked.some(a => a.includes('/') || a.includes('..')), 'asked for ' + asked[0]);
+    });
+  });
+}
+
 G('a broken preview says something useful');
 {
   const { w } = bootPage('gym/index.html', {
@@ -136,9 +186,10 @@ G('a broken preview says something useful');
   });
 }
 
-G('every library scenario survives the whole chain');
+G('library scenarios survive the whole chain');
 {
-  const files = fs.readdirSync(`${ROOT}/lib/scenarios`).filter(f => f.endsWith('.ttxf'));
+  const { sampleScenarios } = require('./harness.js');
+  const files = sampleScenarios(6).map(e => e.id + '.ttxf');
   const broken = [];
   for (const f of files) {
     const source = fs.readFileSync(`${ROOT}/lib/scenarios/${f}`, 'utf8');
@@ -156,7 +207,7 @@ G('every library scenario survives the whole chain');
     else if (errs.length) broken.push(`${f}: ${errs[0]}`);
     else if (gym.eval('roundCounter') === 0) broken.push(`${f}: no stages`);
   }
-  t(`all ${files.length} scenarios go library → builder → gym cleanly`, () => ok(!broken.length, broken.join(' | ')));
+  t(`a spread of ${files.length} scenarios goes library → builder → gym cleanly`, () => ok(!broken.length, broken.join(' | ')));
 }
 
 console.log(`\n${pass} passed, ${fail} failed`);

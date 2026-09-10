@@ -26,6 +26,7 @@ function offline(file, { breakStorage = false } = {}) {
       w.fetch = () => Promise.reject(new Error('offline'));
       w.URL.createObjectURL = () => 'blob:stub';
       w.URL.revokeObjectURL = () => {};
+      w.HTMLElement.prototype.scrollTo = function () {};   // jsdom does no layout
       if (breakStorage) {
         // what Chrome does for an opaque origin
         Object.defineProperty(w, 'localStorage', {
@@ -101,6 +102,80 @@ G('a downloaded copy, opened offline');
     w.Blob = RB;
     eq(JSON.parse(out).format, 'ttxs');
   });
+}
+
+G('the participant window still works with no shared origin');
+{
+  /* BroadcastChannel is scoped to an origin, and a page opened from a file:// path
+     has an opaque origin — as does a blob: URL made from it. Two opaque origins are
+     never equal, so the channel reaches nobody. Model that exactly: give each
+     window its own channel implementation that talks to no one, leaving only the
+     window handles. */
+  const deaf = () => class { constructor() { this.onmessage = null; } postMessage() {} close() {} };
+  const vc = new VirtualConsole();
+  const errs = [];
+  vc.on('jsdomError', e => errs.push(e.message.split('\n')[0]));
+
+  let room = null;
+  const desk = new JSDOM(fs.readFileSync(OUTPUT, 'utf8'), {
+    runScripts: 'dangerously', url: 'file:///home/someone/Downloads/ttxgym.html',
+    virtualConsole: vc, pretendToBeVisual: true,
+    beforeParse(w) {
+      w.BroadcastChannel = deaf();
+      w.fetch = () => Promise.reject(new Error('offline'));
+      w.URL.createObjectURL = () => 'blob:opaque';
+      w.URL.revokeObjectURL = () => {};
+      w.open = () => {
+        const p = new JSDOM(w.eval('PRESENTATION_HTML'), {
+          runScripts: 'dangerously', url: 'blob:null/participant',
+          virtualConsole: new VirtualConsole(), pretendToBeVisual: true,
+          beforeParse(pw) {
+            pw.BroadcastChannel = deaf();
+            Object.defineProperty(pw, 'opener', { value: w, configurable: true });
+          },
+        });
+        room = p.window;
+        return p.window;
+      };
+    },
+  });
+
+  await wait(300);
+  const w = desk.window;
+  w.document.querySelector('.welcome-demo-btn').click();
+  w.launchPresentation();
+  await wait(400);
+
+  t('the participant window opens', () => { ok(room, 'no window'); eq(errs, []); });
+  t('it announces itself and receives the current stage', () =>
+    eq(room.document.getElementById('title').textContent, 'Demo — Suspicious Email Reported'));
+
+  w.eval('goToStage(2)'); await wait(80);
+  t('moving stage reaches the room', () => {
+    eq(room.document.getElementById('title').textContent, 'Stage 2: How far did it go?');
+    eq(room.document.getElementById('progress-label').textContent, 'Stage 2 of 3');
+  });
+
+  w.eval('toggleBlank()'); await wait(60);
+  t('blanking reaches the room', () => ok(room.document.getElementById('blankout').classList.contains('on')));
+  w.eval('toggleBlank()'); await wait(60);
+
+  w.prompt = () => 'The press just called.';
+  w.eval('promptInject()'); await wait(60);
+  t('injects reach the room', () =>
+    eq(room.document.getElementById('injectBox').textContent, 'The press just called.'));
+
+  w.eval('toggleTimer()'); await wait(60);
+  t('pausing reaches the room', () =>
+    ok(!room.document.getElementById('pause').classList.contains('hidden-overlay')));
+
+  w.eval('handleFormSubmit()'); await wait(80);
+  t('the summary reaches the room', () =>
+    ok(room.document.querySelectorAll('#content .metric').length >= 3,
+       'metric tiles: ' + room.document.querySelectorAll('#content .metric').length));
+
+  t('the facilitator keeps a handle on the window it opened', () =>
+    ok(w.eval('participantWindow && !participantWindow.closed')));
 }
 
 G('where the browser refuses local storage');
@@ -188,6 +263,49 @@ G('the site itself is free of third parties');
       ok(fs.existsSync(path.join(ROOT, 'fonts', name)), 'missing ' + name);
     });
   });
+  t('every page has balanced markup', () => {
+    /* jsdom repairs unbalanced tags silently, so no DOM-based test can see this —
+       a stray </div> closes a container early and wrecks the layout in a real
+       browser while every assertion still passes. It has to be checked in source. */
+    const pages = ['index.html', 'library.html', 'guide.html', 'editor.html', 'gym/index.html'];
+    const bad = [];
+    pages.forEach(page => {
+      const html = fs.readFileSync(path.join(ROOT, page), 'utf8');
+      const body = html.slice(html.indexOf('<body'), html.indexOf('<script'));
+      const opened = (body.match(/<div\b/g) || []).length;
+      const closed = (body.match(/<\/div>/g) || []).length;
+      if (opened !== closed) bad.push(`${page}: ${opened} opened, ${closed} closed`);
+    });
+    eq(bad, []);
+  });
+
+  t('no container closes before its contents', () => {
+    const pages = ['index.html', 'library.html', 'guide.html', 'editor.html', 'gym/index.html'];
+    const bad = [];
+    pages.forEach(page => {
+      const html = fs.readFileSync(path.join(ROOT, page), 'utf8');
+      const body = html.slice(html.indexOf('<body'), html.indexOf('<script'));
+      let depth = 0;
+      body.split('\n').forEach((line, i) => {
+        depth += (line.match(/<div\b/g) || []).length - (line.match(/<\/div>/g) || []).length;
+        if (depth < 0 && !bad.some(b => b.startsWith(page))) bad.push(`${page}: line ${i + 1}`);
+      });
+    });
+    eq(bad, []);
+  });
+
+  t('the library keeps its two-column shell', () => {
+    const html = fs.readFileSync(path.join(ROOT, 'library.html'), 'utf8');
+    const { JSDOM } = require('jsdom');
+    const doc = new JSDOM(html).window.document;
+    const wrap = doc.getElementById('lib-wrap');
+    eq([...wrap.children].map(c => c.id), ['lib-sidebar', 'lib-main']);
+    const side = doc.getElementById('lib-sidebar');
+    eq([...side.children].map(c => c.id || c.className).filter(Boolean),
+       ['lib-sidebar-header', 'search-wrap', 'category-filter', 'duration-filter', 'author-filter']);
+    eq([...doc.getElementById('lib-main').children].map(c => c.id), ['lib-topbar', 'gallery-scroll']);
+  });
+
   t('no page depends on an icon font', () => {
     // Removing the Google Fonts icon stylesheet broke every icon on the landing
     // page, because the check that said it was unused had been truncated by `head`.
@@ -237,9 +355,15 @@ G('the site itself is free of third parties');
     const dark = names((/:root\s*\{([^}]*)\}/.exec(style) || [, ''])[1]);
     const light = names((/:root\[data-theme="light"\]\s*\{([^}]*)\}/.exec(style) || [, ''])[1]);
     ok(light.length > 15, 'no light palette: ' + light.length + ' tokens');
-    // layout tokens are not colours and need no light value
-    const layout = ['--sidebar-width', '--radius', '--radius-lg', '--font-display', '--font-mono'];
-    const missing = dark.filter(t => !layout.includes(t) && !light.includes(t));
+    // Only tokens that name a colour need a light value. Deciding that from the
+    // value rather than from a list means adding a layout token later cannot
+    // fail this test spuriously — nor a colour one pass it.
+    const darkBlock = (/:root\s*\{([^}]*)\}/.exec(style) || [, ''])[1];
+    const isColour = tok => {
+      const v = (new RegExp(tok + ':\\s*([^;]+)').exec(darkBlock) || [, ''])[1];
+      return /#[0-9a-f]{3,8}\b|rgba?\(|hsla?\(/i.test(v);
+    };
+    const missing = dark.filter(t => isColour(t) && !light.includes(t));
     eq(missing, [], 'colour tokens with no light value');
     eq(light.filter(t => !dark.includes(t)), [], 'tokens that exist only in light');
     ok(/:root\[data-theme="light"\]\s*\{[^}]*color-scheme:\s*light/.test(style),

@@ -1,0 +1,118 @@
+! title: Ransomware Precursor
+! author: SC3 / Cyber Capability Toolkit
+! summary
+A suspicious file execution on an endpoint leads to discovery of ransomware precursor activity. Teams must detect, analyse, contain, eradicate, and recover in alignment with the Malware Playbook.
+
+@ Initial Detection – Suspicious Activity
+! duration: 10 mins
+! content
+08:12 UTC — EDR flags suspicious PowerShell on HR-WKS-14 spawning `rundll32` with obfuscated command line. Proxy shows brief beacon bursts to `/checkin` on `cdn-updates[.]net`. Shadow copies still present; no maintenance windows active. SOC asks to preserve volatile artefacts before any reboot.
+
+# discussion
++ What distinguishes early ransomware precursor activity from benign admin or automation behaviour, and what would make you escalate immediately rather than continue observation?
++ Shadow copies are still present. What does that tell you about where you are in the attack, and how long you might have?
+
+? PowerShell is spawning obfuscated `rundll32` and beaconing out. What is your immediate action?
++ Kill the PowerShell and `rundll32` processes and block `cdn-updates[.]net` at the proxy
++ Disable the user's account and take the workstation off the network at the switch port
+++ Isolate the host via EDR containment, preserving process, memory and handle state
+
+# prompts
++ 1) Less Optimal — Stops what you can see and leaves whatever is already persistent. The obfuscated command line has run; you do not yet know what it created. Ask what they would have lost from memory, and what relaunches at 08:13.
++ 2) Less Optimal — Decisive containment and it removes your ability to investigate the live host remotely. A switch-port block also loses the socket state that identifies the C2 session. Ask how they would triage it afterwards.
++ 3) Optimal — Contain-then-triage: network isolation halts C2 and lateral movement while volatile artefacts survive for forensics. Ask what EDR containment leaves reachable — usually the console, deliberately.
+
+@ Malware Identified – Loader Behaviour
+! duration: 5 mins
+! content
+08:39 UTC — Memory triage on HR-WKS-14 reveals loader behaviour: credential dumping attempts, reflective DLL injection, and staging into `%ProgramData%\svc\svc.dll`. PCAP shows outbound DNS to randomized subdomains and short TLS sessions with uniform record sizes.
+
+# discussion
++ Credential dumping has been attempted on this host. Which identities are now in question, and how far does that reach?
++ Reflective DLL injection means the payload never touched disk in the normal way. Which of your controls assume it would have?
+
+? Which artefacts do you collect now to confirm loader behaviour and derive reliable IOCs?
++ The staged `svc.dll` file and its hash, for submission to threat intelligence services
+++ The full sample, PCAP of the beacon traffic, and the complete process tree with command lines
++ A memory image of the affected host, captured before any further action is taken
+
+# prompts
++ 1) Less Optimal — A reasonable starting artefact and the narrowest of the three. Reflective injection means the in-memory payload may differ from anything on disk, and a bespoke loader will be unknown to any feed. Ask what a clean intel result would mean.
++ 2) Optimal — Static and dynamic analysis, C2 discovery, and parent-child lineage together give you rules that generalise to the rest of the estate. Ask which single one they would keep if they could keep only one.
++ 3) Less Optimal — Forensically excellent and slow to acquire and analyse while a ransomware precursor is live. A strong choice in a different tempo — make the room weigh completeness against the clock.
+
+@ Encryption Attempt Detected
+! duration: 10 mins
+! content
+09:01 UTC — SIEM detects mass file handle opens and extension probes on two shares from HR-WKS-14; EDR shows creation of `C:\Users\Public\readme.tmp` and attempts to disable VSS copies. Suspect account HR-OPS\j.doe shows anomalous token usage across SMB sessions.
+
+# discussion
++ What signals indicate this incident has shifted from a single‑host problem to an enterprise‑level encryption risk, and how does that change containment scope?
++ VSS deletion is being attempted right now. What protects your backups from the account currently doing it, and can you verify that in the next five minutes?
+
+? Encryption attempts are under way and the account shows anomalous SMB token usage. What contains it?
++ Remove the account's access to the two affected shares and revoke its SMB sessions
++ Take the two affected file shares offline until the encryption attempt is confirmed stopped
+++ Isolate the host at the network layer and suspend all sessions for the compromised account
+
+# prompts
++ 1) Less Optimal — Targeted at what you have observed, and the account may hold access to shares you have not checked. It also leaves the host free to attack other resources with other credentials. Ask what else that host can reach.
++ 2) Less Optimal — Protects the data decisively and is a real option when encryption is actively running. It does nothing about the host or the account, and the attacker moves to the next share. Ask what it buys them in time.
++ 3) Optimal — Host and identity together: isolation stops on-host encryption and C2, session suspension stops token reuse elsewhere. Ask whether suspending sessions is something they can do quickly for a domain account.
+
+@ Lateral Movement Indicators
+! duration: 10 mins
+! content
+09:22 UTC — Lateral movement signals increase: failed logons followed by successful admin share access to ENG-FS-02 over SMB; firewall logs show SMB/445 spikes between workstation VLANs. Leadership asks for a containment plan that limits spread without shutting down the network.
+
+# discussion
++ What risks are introduced if lateral movement is partially contained but identity sessions remain active?
++ SMB is flowing freely between workstation VLANs. Should it be, and what would it take to change that outside an incident?
+
+? Which network control limits lateral movement with least business disruption?
++ Disable SMB between workstation VLANs entirely until the incident is contained
++ Force a password reset for all privileged accounts and revoke Kerberos tickets estate-wide
+++ Block the source host at the firewall and isolate the affected subnets from one another
+
+# prompts
++ 1) Less Optimal — Directly targets the observed propagation path and breaks legitimate workstation-to-workstation SMB, which more environments depend on than expect to. Ask what stops working, and whether they know before they try it.
++ 2) Less Optimal — Addresses identity rather than network and is a genuinely strong action given credential dumping at stage 2. It is also disruptive, slow, and does not stop the host already moving. Good answer, wrong question — flag it and return to it during eradication.
++ 3) Optimal — Contains the origin and limits blast radius between segments, which meets leadership's constraint. Ask whether their segmentation is granular enough to make this meaningful.
+
+@ Recovery & Restoration
+! duration: 10 mins
+! content
+09:45 UTC — Host is taken offline for rebuild from golden image. Forensics indicate scheduled task `\Windows\UpdateMonitor` and Run key `HKLM\Software\Microsoft\Windows\CurrentVersion\Run\upmon` dropping `svc.dll` on boot. Golden images and hash attestations are available; you must validate a clean state before returning to production.
+
+# discussion
++ What residual risks justify delaying reconnection even after a clean rebuild, and which network‑level signals would give you confidence to proceed?
++ Credentials were dumped from this host at 08:39. Has anything in your recovery plan actually dealt with that yet?
+
+? What validates a clean rebuild before the host returns to production?
+++ Full IOC and antimalware sweep, plus credential resets for every identity exposed on the host, before reconnection
++ Verify the rebuilt image hash against the golden image attestation and confirm the persistence entries are absent
++ Reconnect to an isolated monitoring VLAN and observe the host for 24 hours before returning it to production
+
+# prompts
++ 1) Optimal — The credential clause is the part most plans omit. Ask them to enumerate the exposed identities: local accounts, cached domain credentials, and any privileged session on that host.
++ 2) Less Optimal — Proves the build is correct, which is not the same as proving the incident is over. It says nothing about the credentials dumped at 08:39. Ask what a clean host with compromised credentials protects.
++ 3) Less Optimal — Cautious and evidence-driven, and a defensible practice for a high-value host. It costs 24 hours, and a dormant implant will simply wait. Ask what they would be watching for and whether they would recognise it.
+
+@ Lessons & Hardening
+! duration: 5 mins
+! content
+Post‑incident — Services restored. Leadership requests hardening: application allow‑listing, PowerShell Constrained Language Mode, SMB signing where feasible, least‑privilege for admin shares, VSS protection, and continuous export of EDR/Proxy events for early ransomware path detection.
+
+# discussion
++ Which control gaps in this incident most increased dwell time or blast radius, and what telemetry would demonstrate earlier detection next time?
++ The attack ran from 08:12 to 09:22 before lateral movement was contained. Which single control would have bought you the most time, and what does it cost?
+
+? Which long-term controls most reduce recurrence for this pathway?
++ Deploy application allow-listing across the estate to prevent unauthorised binaries executing
+++ Application allow-listing with PowerShell Constrained Language Mode, least privilege on admin shares, and protected VSS
++ Improve EDR detection tuning and expand continuous export of endpoint and proxy telemetry
+
+# prompts
++ 1) Less Optimal — The strongest single preventive control and would likely have stopped `rundll32` executing the payload. Ask how long estate-wide allow-listing takes to implement without breaking business applications — the honest answer is usually months.
++ 2) Optimal — Blocks execution, constrains the scripting used to obfuscate, limits what dumped credentials reach, and protects the recovery path. Ask which they would sequence first.
++ 3) Less Optimal — Improves detection and response time, which matters, and it is detective rather than preventive: the attack still runs, you just see it sooner. Ask what "sooner" would have been worth here, given VSS deletion started at 09:01.

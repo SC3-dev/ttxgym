@@ -5,7 +5,7 @@
 This scenario explores an incident in which a third-party organisation responsible for supplying your organisation's corporate IT systems suffers an outage.
 You are encouraged to discuss the procurement process for IT systems and considerations for supply chain security, including methods to understand risks and establish control when working with suppliers and how these arrangements are monitored and reviewed.
 You can also discuss your organisation’s processes to communicate with customers following an incident, as well as methods to propagate lessons learnt throughout the supply chain.
-@ Inject 1: Assessing prospective suppliers
+@ Assessing prospective suppliers
 ! duration: 10 mins
 ! content
 Your department has been given a new remit to deliver a service which will require the introduction of a new IT system.
@@ -34,7 +34,7 @@ A decision has been made to assess external suppliers, some of which offer onlin
 + Somewhat confident
 + Fairly confident
 + Completely confident
-@ Inject 2: Supplier downtime
+@ Supplier downtime
 ! duration: 10 mins
 ! content
 After the procurement process, you select a third-party supplier and integrate their system within your organisational processes.
@@ -65,7 +65,7 @@ Several months later, the system maintained by the third-party supplier has an o
 + Somewhat confident
 + Fairly confident
 + Completely confident
-@ Inject 3: Incident assessment
+@ Incident assessment
 ! duration: 10 mins
 ! content
 The supplier contacts you to inform you that they have suffered a security breach and have had to temporarily take their systems offline, causing the outage.
@@ -91,7 +91,7 @@ The supplier contacts you to inform you that they have suffered a security breac
 + Somewhat confident
 + Fairly confident
 + Completely confident
-@ Inject 4: Resolution
+@ Resolution
 ! duration: 10 mins
 ! content
 Following an investigation, the supplier informs you that the breach has been resolved and the service is running again.

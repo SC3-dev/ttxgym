@@ -5,7 +5,7 @@
 This exercise scenario covers the entire sequence of events that could occur when a user connects to an unknown wifi network.
 It discusses the risks taken when connected to such a wifi network and how an attacker may use that to access a user’s device, such as a laptop.
 The use of outdated software is also covered as a method of the attacker compromising the user’s device.
-@ Inject 1: Wifi Connection
+@ Wifi Connection
 ! duration: 10 mins
 ! content
 While waiting for a meeting, a user connects to the free, unsecured wifi available at a coffee shop.
@@ -28,8 +28,8 @@ They are using their device with the intention of editing documents and respondi
 + Somewhat confident
 + Fairly confident
 + Completely confident
-@ Inject 2: Software Updates
-! duration: 10 mins
+@ Software Updates
+! duration: 5 mins
 ! content
 Unbeknownst to the user, the wifi network is actually operated by a hacker trying to catch unsuspecting business users.
 They scan the user’s laptop for outdated software and try to attack any vulnerable software that they can identify.
@@ -49,7 +49,7 @@ They scan the user’s laptop for outdated software and try to attack any vulner
 + Somewhat confident
 + Fairly confident
 + Completely confident
-@ Inject 3: User Permissions
+@ User Permissions
 ! duration: 10 mins
 ! content
 The hacker identifies some outdated software on the user’s device and uses an exploit to compromise the device.

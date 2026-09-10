@@ -1,0 +1,118 @@
+! title: Supplier IAM Federation Misuse
+! author: SC3 / Cyber Capability Toolkit
+! summary
+A supplier's federated IAM configuration is compromised, enabling unauthorized access into your environment through a trusted integration. Technical teams must detect anomalous identity behaviours, contain the breach, revoke trust relationships, and restore secure identity boundaries.
+
+@ External Alert – Supplier IAM Breach
+! duration: 10 mins
+! content
+08:56 UTC — Supplier issues an urgent notice: IdP signing key may be compromised; federation tokens suspected abused. Sector CSIRTs report similar anomalies at other tenants. Your sign‑in dashboards show a mild uptick in failed federated attempts to key apps. Contract Manager cannot reach the supplier identity team. CIRP requires rapid classification, inventory of trusts/app registrations, and preservation of CA/sign‑in/audit logs before rollover.
+
+# discussion
++ What assumptions about federated trust and external identity authority become invalid the moment an IdP signing key may be compromised?
++ Your only visible symptom is a mild uptick in *failed* attempts. What would successful abuse look like in the same dashboards, and would you see it?
+
+? The supplier's signing key may be compromised and their identity team is unreachable. What is your first response?
+++ Inventory all federated trusts and app registrations, preserve CA and sign-in logs, and classify as a supply chain incident
++ Disable federated SSO and fail all users over to local authentication until new key material is confirmed
++ Enable Conditional Access rules requiring compliant devices for every federated application
+
+# prompts
++ 1) Optimal — Inventory drives every subsequent decision, and the log evidence expires at key rollover. Ask whether the trust and registration inventory exists today or has to be built now.
++ 2) Less Optimal — Maximum containment, and honest about the risk. Ask what proportion of the workforce can authenticate locally today, whether those credentials are current, and what the service desk volume looks like at 09:00.
++ 3) Less Optimal — Tightening without breaking things, and the most sophisticated-sounding option. Two problems: a forged token can assert whatever claims the policy checks, and the legacy exclusions in this tenant bypass Conditional Access entirely. Flag it and revisit at stage 2.
+
+@ Internal Anomalies – Suspicious Sign-ins
+! duration: 10 mins
+! content
+09:18 UTC — Audit telemetry shows unusual sign‑ins by supplier‑linked service principals with elevated scopes, including access attempts to admin resources. Conditional Access logs surface token replay and issuer/subject mismatches from unfamiliar ASNs/regions. Several attempts bypass expected MFA due to legacy exclusions.
+
+# discussion
++ What behaviours indicate hostile reuse of federated trust rather than local misconfiguration or benign legacy access?
++ There are legacy MFA exclusions in place that somebody approved for a reason. Who owns that exception, when was it last reviewed, and what would removing it break?
+
+? Which evidence confirms forged or replayed tokens rather than legacy access or misconfiguration?
++ The MFA bypasses surfaced in the Conditional Access logs
+++ Token replay combined with scopes the principal never legitimately requests, and issuer/subject mismatches
++ Sign-ins originating from ASNs and regions never previously seen in the tenant
+
+# prompts
++ 1) Less Optimal — The most alarming line in the inject and the least diagnostic. The inject explains them: legacy exclusions. Those bypasses were happening yesterday too. Ask how many occur on a normal day — if nobody knows, that is the finding.
++ 2) Optimal — A scope the principal has never legitimately requested cannot be explained away as legacy behaviour. Ask whether they hold a record of normal scope usage per principal to compare against.
++ 3) Less Optimal — Suspicious and worth investigating. Suppliers relocate workloads, change cloud regions and add egress ranges without telling anyone. Ask what they would do if the supplier later confirmed a migration that morning.
+
+@ Containment – Revoking Federation Trust
+! duration: 10 mins
+! content
+09:37 UTC — Identity teams debate blast radius while critical apps still rely on federated SSO. Proposal: block untrusted issuers, disable high‑risk app registrations, enforce IP allow‑lists for critical services, and route admin access via emergency local‑only identity. Service owners request a change plan that minimises outage risk.
+
+# discussion
++ When federated identity trust is abused, what criteria justify partial trust revocation versus full suspension, and what risks arise from delay?
++ Service owners are asking for a change plan that minimises outage. Is that a reasonable request at 09:37, and what is your answer if it delays containment by two hours?
+
+? Critical apps still depend on federated SSO. What containment do you apply?
+++ Block untrusted issuers, disable high-risk registrations, enforce IP allow-lists, and move admin access to emergency local identity
++ Remove the legacy authentication exclusions and require MFA on every federated sign-in
++ Suspend the supplier's app registrations only, leaving general user federation intact
+
+# prompts
++ 1) Optimal — Layered, and it keeps critical services running. Probe the emergency local identity path: does it exist, is it tested, and can an administrator reach it without federation?
++ 2) Less Optimal — Overdue hygiene and it will be the top post-incident action, which is why it feels right now. A forged token asserts that MFA was already satisfied, so it never reaches the policy you just tightened. Use this to separate authentication strength from token validity.
++ 3) Less Optimal — Minimal blast radius and genuinely attractive; if the abuse is confined to supplier principals it may be sufficient. Ask how they know it is confined, given issuer mismatches are appearing across the tenant.
+
+@ Permissions & Abuse Mapping
+! duration: 5 mins
+! content
+10:02 UTC — Investigation reveals supplier‑issued principals queried directory objects and read internal data beyond expected scopes. Differential permission mapping shows gaps between configured and actually used privileges; directory access timelines cluster around specific service principals and time windows.
+
+# discussion
++ What risks arise if actual permission usage diverges from configured permissions, and how does that shape confidence in impact assessment?
++ If a principal read directory objects it was permitted to read, is that a breach? Decide who makes that call and what you would report.
+
+? How do you determine what permissions were actually used, and the resulting impact?
+++ Diff configured permissions against those actually exercised, and correlate directory access timelines per principal
++ Review the configured scopes on every supplier principal and revoke anything beyond documented need
++ Ask the supplier which of their service principals were affected and restrict those specifically
+
+# prompts
++ 1) Optimal — The gap between configured and exercised privilege is the impact assessment. Ask whether their logging retains enough detail to reconstruct it, and how far back.
++ 2) Less Optimal — The right remediation and the wrong question. Configured scope tells you what *could* have happened; this stage is about what *did*. Both matter — press the room on which one the impact assessment needs.
++ 3) Less Optimal — Reasonable and unavailable: the supplier's identity team is unreachable and their environment is the compromised one. Ask what they would do with the answer, and whether they would independently verify it.
+
+@ Eradication – Trust Re-establishment
+! duration: 10 mins
+! content
+10:29 UTC — Supplier provides refreshed federation metadata and key material. Security requires a full trust reset: rotate signing keys, revalidate claims, rebuild app registrations to least‑privilege, and require MFA/CA on privileged paths before trust is re‑established. Change approvals and sequencing are on the critical path.
+
+# discussion
++ Why is federation rebuild not just key rotation, and what residual risks remain if claims, scopes, or token lifetimes are left unchanged?
++ Change approval is on the critical path. What can you pre-authorise now so this is not the constraint during the next incident?
+
+? Which sequence safely rebuilds federation and invalidates forged tokens?
++ Install the refreshed metadata and key material, re-enable trust, and monitor closely for further anomalies
+++ Rotate signing keys, revalidate claim rules, rebuild registrations to least privilege, and require MFA/CA on privileged paths before trust returns
++ Rotate the keys and revoke all sessions and refresh tokens, retaining the existing registrations and claim rules
+
+# prompts
++ 1) Less Optimal — What service owners will push for, and the fastest route back to the position that was just exploited. The over-scoped registrations survive intact. Ask what "monitor closely" means in practice a week later.
++ 2) Optimal — Note the ordering: privileged paths are protected *before* trust is restored, not after. Ask what their change process does to that sequence and whether it can be compressed safely.
++ 3) Less Optimal — Deals thoroughly with the tokens, which is the visible half of the problem. Claim rules that accepted forged issuers and registrations with excessive scope both remain. Ask which of the two actually let the attacker read directory data.
+
+@ Recovery & Assurance Uplift
+! duration: 5 mins
+! content
+Post‑recovery — Supplier publishes RCA and IOCs. Leadership mandates assurance uplift: continuous identity telemetry export, scoped tokens and periodic access reviews, federation attestation, shorter token lifetimes, and contractual incident‑notification SLAs. Dashboards must evidence boundary integrity over time.
+
+# discussion
++ What telemetry or validation signals would provide early indication that federated identity trust is degrading again before active abuse occurs?
++ The supplier could not be reached for the first two hours. What contractual or technical change would have altered that, and is it enforceable?
+
+? Which governance controls should be mandated to prevent recurrence and evidence boundary integrity?
++ Quarterly access reviews of every supplier principal, with automatic revocation of permissions left unused
+++ Continuous identity telemetry export, scoped tokens with periodic access reviews, federation attestation, and notification SLAs
++ Require the supplier to hold signing key material in an HSM and evidence that control annually
+
+# prompts
++ 1) Less Optimal — Strong control, and the automatic revocation of unused permissions would have measurably reduced this blast radius. Quarterly is point-in-time; drift resumes the following week. Worth pairing with option 1 rather than choosing instead of it.
++ 2) Optimal — Attestation and telemetry export are what turn supplier assurance into evidence you hold yourself. Ask what their dashboard would have shown at 08:55, one minute before the notice arrived.
++ 3) Less Optimal — Aimed squarely at the root cause, which makes it compelling. It hardens one vector while leaving claim validation, scope creep and token lifetime untouched — and an annual attestation says nothing about the other 364 days.

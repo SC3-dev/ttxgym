@@ -57,6 +57,10 @@
       --text-primary: #e8ecf2;
       --text-secondary: rgba(232, 236, 242, 0.55);
       --text-muted: rgba(232, 236, 242, 0.3);
+      /* Section headings and the timing readout: small, uppercase, letter-spaced
+         mono. --text-muted rendered those at 2.4:1, well under the 4.5:1 needed to
+         be readable. This clears AA comfortably in both themes. */
+      --text-label: rgba(232, 236, 242, 0.72);
       --border: rgba(255, 255, 255, 0.07);
       --border-active: rgba(46, 125, 224, 0.5);
       --shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
@@ -67,6 +71,14 @@
       --quote-bg: rgba(30, 75, 86, 0.5);
       --talk-bg: rgba(0, 51, 102, 0.25);
       --sidebar-width: 280px;
+      /* Stacking order, highest last. The participant view sits above the overlays
+         deliberately: while the exercise is paused or the summary is up, what the
+         room is looking at is exactly the thing the facilitator still needs to see. */
+      --z-sidebar: 200;
+      --z-sidebar-overlay: 199;
+      --z-summary: 490;
+      --z-pause: 500;
+      --z-mirror: 600;
       --radius: 6px;
       --radius-lg: 10px;
       --font-display: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
@@ -95,6 +107,7 @@
       --text-primary: #141820;
       --text-secondary: rgba(20, 24, 32, 0.64);
       --text-muted: rgba(20, 24, 32, 0.45);
+      --text-label: rgba(20, 24, 32, 0.72);
       --border: rgba(20, 24, 32, 0.13);
       --border-active: rgba(26, 110, 192, 0.45);
       --shadow: 0 4px 24px rgba(20, 24, 32, 0.12);
@@ -230,12 +243,12 @@
 
     .menu-heading {
       font-family: var(--font-mono);
-      font-size: 0.6rem;
-      font-weight: 400;
-      letter-spacing: 0.12em;
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: var(--text-muted);
-      padding: 0.35rem 0.5rem 0.5rem;
+      color: var(--text-label);
+      padding: 0.4rem 0.5rem 0.5rem;
     }
 
     /* "More" is a disclosure, so its heading is a button */
@@ -253,7 +266,7 @@
     }
 
     .menu-heading-btn:hover {
-      color: var(--text-secondary);
+      color: var(--text-primary);
     }
 
     .menu-heading-btn svg {
@@ -414,7 +427,7 @@
       padding: 0.28rem 0.5rem;
       border-radius: 4px;
       font-size: 12px;
-      color: var(--text-muted);
+      color: var(--text-label);
       cursor: default;
     }
 
@@ -1339,7 +1352,7 @@
       left: var(--sidebar-width);
       right: 0;
       bottom: 0;
-      z-index: 490;
+      z-index: var(--z-summary);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -1567,7 +1580,7 @@
       left: var(--sidebar-width);
       right: 0;
       bottom: 0;
-      z-index: 500;
+      z-index: var(--z-pause);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -1914,8 +1927,15 @@
       position: absolute;
       right: 1.25rem;
       bottom: 5.5rem;
-      z-index: 120;
-      width: 340px;
+      z-index: var(--z-mirror);
+      /* One width drives the panel, the 16:9 frame and the scale of the document
+         inside it. CSS cannot divide by a length, so the scale is set alongside. */
+      --mirror-w: 400px;
+      --mirror-scale: 0.3125;
+      --mirror-ratio: 0.5625;
+      --mirror-vw: 1280px;
+      --mirror-vh: 720px;
+      width: var(--mirror-w);
       background: var(--mid);
       border: 1px solid var(--border);
       border-radius: var(--radius-lg);
@@ -1924,6 +1944,8 @@
     }
 
     #mirror-head {
+      cursor: move;
+      touch-action: none;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -1951,8 +1973,8 @@
     }
 
     #mirror-frame-wrap {
-      width: 340px;
-      height: 191px;
+      width: var(--mirror-w);
+      height: calc(var(--mirror-w) * var(--mirror-ratio));
       overflow: hidden;
       background: var(--back);
     }
@@ -1961,17 +1983,107 @@
       display: none;
     }
 
-    /* The mirror is the real participant document at 1280x720, scaled down. */
+    /* The mirror is the real participant document at 1280x720, scaled down. It is
+       live, not a picture: scrolling it scrolls the room's screen too. */
     #mirror-frame {
-      width: 1280px;
-      height: 720px;
+      width: var(--mirror-vw);
+      height: var(--mirror-vh);
       border: 0;
-      transform: scale(0.2656);
+      transform: scale(var(--mirror-scale));
       transform-origin: top left;
+    }
+
+    /* The panel is anchored bottom-right, so it grows from the opposite corner. */
+    #mirror-grip {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 18px;
+      height: 18px;
+      cursor: nwse-resize;
+      z-index: 2;
+      touch-action: none;
+      border-top: 2px solid var(--text-muted);
+      border-left: 2px solid var(--text-muted);
+      border-top-left-radius: var(--radius-lg);
+      opacity: 0.5;
+      transition: opacity 0.15s, border-color 0.15s;
+    }
+
+    #mirror-panel:hover #mirror-grip,
+    #mirror-grip:focus-visible {
+      opacity: 1;
+      border-color: var(--accent);
+    }
+
+    #mirror-grip:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    #mirror-panel.collapsed #mirror-grip {
+      display: none;
+    }
+
+    #mirror-panel.resizing,
+    #mirror-panel.dragging {
+      user-select: none;
+    }
+
+    #mirror-panel.dragging {
+      opacity: 0.92;
+    }
+
+    #mirror-panel.dragging #mirror-frame {
       pointer-events: none;
     }
 
-    @media (max-width: 1100px) {
+    #mirror-head button {
+      cursor: pointer;
+    }
+
+    /* While dragging, the pointer must not be stolen by the document inside. */
+    #mirror-panel.resizing #mirror-frame {
+      pointer-events: none;
+    }
+
+    #mirror-size {
+      font-size: 10px;
+      color: var(--text-muted);
+      font-variant-numeric: tabular-nums;
+      margin-left: 0.5rem;
+    }
+
+    #mirror-controls {
+      display: flex;
+      gap: 0.15rem;
+      margin-left: auto;
+      margin-right: 0.25rem;
+    }
+
+    .mirror-btn {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      line-height: 1;
+      color: var(--text-secondary);
+      background: none;
+      border: 1px solid transparent;
+      border-radius: var(--radius);
+      padding: 0.2rem 0.35rem;
+      cursor: pointer;
+    }
+
+    .mirror-btn:hover {
+      color: var(--text-primary);
+      background: var(--surface);
+    }
+
+    .mirror-btn.active {
+      color: var(--accent);
+      border-color: var(--border-active);
+    }
+
+    @media (max-width: 1250px) {
       #mirror-panel {
         display: none;
       }
@@ -2103,7 +2215,7 @@
         top: 0;
         bottom: 0;
         transform: translateX(-100%);
-        z-index: 200;
+        z-index: var(--z-sidebar);
         box-shadow: var(--sidebar-shadow);
         min-width: var(--sidebar-width);
         width: var(--sidebar-width);
@@ -2126,7 +2238,7 @@
         position: fixed;
         inset: 0;
         background: rgba(0, 0, 0, 0.5);
-        z-index: 199;
+        z-index: var(--z-sidebar-overlay);
       }
 
       #sidebar-overlay.active {
@@ -2458,8 +2570,18 @@
       <div id="parse-error" role="alert"></div>
 
       <aside id="mirror-panel" class="hide" aria-label="Participant view mirror">
+        <div id="mirror-grip" role="separator" aria-orientation="vertical" tabindex="0"
+          aria-label="Resize the participant view. Drag, or use the arrow keys."
+          title="Drag to resize · double-click to reset"></div>
         <div id="mirror-head">
           <span>Participant view</span>
+          <span id="mirror-size" title="No participant window open yet — assuming a 16:9 screen"></span>
+          <div id="mirror-controls">
+            <button type="button" class="mirror-btn" onclick="resetMirrorPanel()" aria-label="Return the participant view to its default size and place" title="Reset size and position">⤢</button>
+            <button type="button" class="mirror-btn" onclick="nudgeParticipantSize(-2)" aria-label="Smaller text on the participant screen" title="Smaller text">A−</button>
+            <button type="button" class="mirror-btn" onclick="nudgeParticipantSize(2)" aria-label="Larger text on the participant screen" title="Larger text">A+</button>
+            <button type="button" class="mirror-btn" id="mirror-theme" onclick="toggleParticipantTheme()" aria-label="Switch the participant screen between screen and projector themes" title="Screen / projector theme">◐</button>
+          </div>
           <button type="button" id="mirror-toggle" onclick="toggleMirror()" aria-label="Hide participant view">–</button>
         </div>
         <div id="mirror-frame-wrap"><iframe id="mirror-frame" title="Live preview of the participant screen" tabindex="-1"></iframe></div>
@@ -3220,7 +3342,13 @@ h4{font-family:"Montserrat",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,H
   #progress-track i.done{background:var(--track-done)}
   #progress-track i.now{background:var(--accent)}
   .sizeglyph{fill:var(--icon)}
-  #middleWrap{overflow-y:auto;padding:.5rem 0}
+  /* A short stage on a large screen otherwise hugs the title and leaves a gulf
+     above the footer. Auto margins centre it when there is spare room, and resolve
+     to zero the moment the content overflows — so a long stage still starts at the
+     top and scrolls, rather than being centred with its opening line cut off
+     (which is what justify-content:center would do here). */
+  #middleWrap{overflow-y:auto;padding:.5rem 0;display:flex;flex-direction:column}
+  #middle{flex:0 0 auto;margin-block:auto;width:100%}
   #content{padding:.75rem 0;line-height:1.8;font-size:1em}
   #content p{margin-bottom:.75rem}
   #content p:empty{margin-bottom:0;min-height:.75rem}
@@ -3286,7 +3414,15 @@ h4{font-family:"Montserrat",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,H
   .pq-badge.quiz{background:rgba(62,201,200,.14);color:var(--green);border:1px solid rgba(62,201,200,.3)}
   .pq-label{font-size:.88em;font-weight:600;color:var(--heading);line-height:1.45}
   .pq-choices{display:flex;flex-wrap:wrap;gap:.4rem}
-  .pq-choice{font-size:.78em;font-style:italic;padding:.28rem .65rem;border-radius:99px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04)}
+  .pq-choice{display:inline-flex;align-items:center;gap:.4em;font-size:.78em;font-style:italic;padding:.28rem .65rem;border-radius:99px;border:1px solid var(--card-line);background:var(--panel);transition:background .2s,border-color .2s,color .2s}
+  /* Once a question has any responses, the ones with none recede. */
+  .pq-choices.has-tally .pq-choice{opacity:.55}
+  .pq-choice.counted{opacity:1;font-style:normal;color:var(--heading);border-color:var(--accent);background:rgba(46,125,224,.14)}
+  .pq-choice.leading{border-color:var(--accent);background:rgba(46,125,224,.24)}
+  .pq-tally{display:none;font-style:normal;font-weight:700;font-size:.92em;min-width:1.5em;height:1.5em;border-radius:99px;align-items:center;justify-content:center;background:var(--accent);color:#fff;margin-right:-.25em}
+  .pq-choice.counted .pq-tally{display:inline-flex}
+  body.projector .pq-choice.counted{background:rgba(26,110,192,.12)}
+  body.projector .pq-choice.leading{background:rgba(26,110,192,.2)}
   </style>
 </head>
 <body>
@@ -3330,7 +3466,13 @@ h4{font-family:"Montserrat",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,H
 </div>
 <script>
 var bc=new BroadcastChannel('ttx_gym');
-bc.onmessage=function(ev){
+var contacted=false;
+/* The facilitator's mirror runs this same document in an iframe. Only a real
+   participant window should describe its size — the mirror measuring itself would
+   be circular. An embedded copy has a parent; a window does not. */
+var isEmbedded = (window.parent !== window);
+function handleMessage(ev){
+  contacted=true;
   if(!ev.data.type)return;
   if(ev.data.type=="pause"){
     document.getElementById('pause').classList.toggle('hidden-overlay',ev.data.switch===true);
@@ -3340,8 +3482,13 @@ bc.onmessage=function(ev){
     var ib=document.getElementById('injectBox');
     ib.textContent=ev.data.text||'';
     ib.classList.toggle('show',!!(ev.data.text||'').trim());
-  }else if(ev.data.type=="theme"){
-    document.body.classList.toggle('projector',ev.data.mode==='projector');
+  }else if(ev.data.type=="responses"){
+    var counts=ev.data.counts||{};
+    for(var name in counts){ if(Object.prototype.hasOwnProperty.call(counts,name)) paintTally(name,counts[name]); }
+  }else if(ev.data.type=="view"){
+    applyView(ev.data);
+  }else if(ev.data.type=="scroll"){
+    applyScroll(ev.data.ratio||0);
   }else if(ev.data.type=="update"){
     document.getElementById('title').textContent=ev.data.title||'';
     document.getElementById('content').innerHTML=ev.data.content||'';
@@ -3349,6 +3496,9 @@ bc.onmessage=function(ev){
     var ib=document.getElementById('injectBox');
     ib.textContent=''; ib.classList.remove('show');
     renderProgress(ev.data.step, ev.data.steps);
+    applyingScroll=true;
+    scrollWrap.scrollTop=0;                       // a new stage starts at the top
+    setTimeout(function(){applyingScroll=false;},60);
     var dw=document.getElementById('discussionWrap');
     var dl=document.getElementById('discussion');
     dl.innerHTML='';
@@ -3376,15 +3526,23 @@ bc.onmessage=function(ev){
         pqHeader.appendChild(label);
         var choices=document.createElement('div');
         choices.className='pq-choices';
-        (q.answers||[]).forEach(function(a){
+        if(q.name) choices.setAttribute('data-q',q.name);
+        (q.answers||[]).forEach(function(a,i){
           var span=document.createElement('span');
           span.className='pq-choice';
-          span.textContent=a;
+          span.setAttribute('data-i',i);
+          var text=document.createElement('span');
+          text.textContent=a;
+          var tally=document.createElement('b');
+          tally.className='pq-tally';
+          span.appendChild(text);
+          span.appendChild(tally);
           choices.appendChild(span);
         });
         pq.appendChild(pqHeader);
         pq.appendChild(choices);
         qw.appendChild(pq);
+        if(q.counts) paintTally(q.name,q.counts);
       });
     }else{qw.classList.remove('show');}
     var bg=document.getElementById('bgimg');
@@ -3399,14 +3557,97 @@ bc.onmessage=function(ev){
 };
   var cont=document.body;
 ${MEDIA_HYDRATE_JS}
-function changeSizeBySlider(){
+function applySize(){
   var val=document.getElementById('slider').value+'px';
   // Apply to container so all content text scales correctly
   var container=document.querySelector('.container');
   if(container){container.style.fontSize=val;}
   cont.style.fontSize=val;
 }
+function changeSizeBySlider(){ applySize(); announceView(); }
+
+/* Theme and text size belong to the *view*, not to one window. The facilitator's
+   mirror runs this same document in an iframe, so without this the preview would
+   quietly disagree with the screen the room is actually looking at. Changes are
+   announced upward and the facilitator relays them to every participant surface. */
+var applyingView=false;
+function currentView(){
+  return {type:'view',
+    theme: document.body.classList.contains('projector')?'projector':'screen',
+    fontSize: parseInt(document.getElementById('slider').value,10)};
+}
+function announceView(){
+  if(applyingView) return;
+  var msg=currentView();
+  try{bc.postMessage(msg);}catch(e){}
+  try{if(window.opener&&window.opener!==window) window.opener.postMessage(msg,'*');}catch(e){}
+  try{if(window.parent&&window.parent!==window) window.parent.postMessage(msg,'*');}catch(e){}
+}
+function applyView(v){
+  applyingView=true;
+  try{
+    if(v.theme) document.body.classList.toggle('projector', v.theme==='projector');
+    if(v.fontSize){
+      var slider=document.getElementById('slider');
+      if(String(slider.value)!==String(v.fontSize)) slider.value=v.fontSize;
+      applySize();
+    }
+  }finally{ applyingView=false; }
+}
+
+/* Where the content is scrolled to is part of the view as well. The two windows
+   are different sizes, so a pixel offset would not line up — share the proportion
+   of the way down instead. */
+var scrollWrap=document.getElementById('middleWrap');
+var applyingScroll=false, scrollThrottle=null;
+
+function scrollRatio(){
+  var range=scrollWrap.scrollHeight-scrollWrap.clientHeight;
+  return range>0 ? scrollWrap.scrollTop/range : 0;
+}
+
+function announceScroll(){
+  if(applyingScroll||applyingView) return;
+  if(scrollThrottle) return;
+  scrollThrottle=setTimeout(function(){
+    scrollThrottle=null;
+    var msg={type:'scroll', ratio:scrollRatio()};
+    try{bc.postMessage(msg);}catch(e){}
+    try{if(window.opener&&window.opener!==window) window.opener.postMessage(msg,'*');}catch(e){}
+    try{if(window.parent&&window.parent!==window) window.parent.postMessage(msg,'*');}catch(e){}
+  },70);
+}
+
+function applyScroll(ratio){
+  var range=scrollWrap.scrollHeight-scrollWrap.clientHeight;
+  if(range<=0) return;
+  var next=Math.round(ratio*range);
+  if(Math.abs(next-scrollWrap.scrollTop)<2) return;   // already there; do not fight
+  applyingScroll=true;
+  scrollWrap.scrollTop=next;
+  setTimeout(function(){applyingScroll=false;},60);
+}
+
+scrollWrap.addEventListener('scroll',announceScroll,{passive:true});
 function toggleFullscreen(){var d=window.document,el=d.documentElement,req=el.requestFullscreen||el.webkitRequestFullScreen||el.msRequestFullscreen,ex=d.exitFullscreen||d.webkitExitFullscreen||d.msExitFullscreen;if(!d.fullscreenElement&&!d.webkitFullscreenElement&&!d.msFullscreenElement)req.call(el);else ex.call(d);}
+// The room watches its own answers accumulate on the pills.
+function paintTally(name,counts){
+  if(!name||!counts) return;
+  var group=document.querySelector('.pq-choices[data-q="'+name+'"]');
+  if(!group) return;
+  var total=0,i;
+  for(i=0;i<counts.length;i++) total+=(counts[i]||0);
+  group.classList.toggle('has-tally',total>0);
+  var pills=group.querySelectorAll('.pq-choice');
+  for(i=0;i<pills.length;i++){
+    var n=counts[i]||0;
+    var lead=total>0&&n===Math.max.apply(null,counts)&&n>0;
+    pills[i].classList.toggle('counted',n>0);
+    pills[i].classList.toggle('leading',!!lead);
+    pills[i].querySelector('.pq-tally').textContent=n>0?n:'';
+  }
+}
+
 function renderProgress(step,steps){
   var label=document.getElementById('progress-label');
   var track=document.getElementById('progress-track');
@@ -3427,10 +3668,49 @@ function renderProgress(step,steps){
 function toggleProjector(){
   var on=document.body.classList.toggle('projector');
   try{localStorage.setItem('ttxgym_participant_theme',on?'projector':'screen');}catch(e){}
+  announceView();
 }
 try{if(localStorage.getItem('ttxgym_participant_theme')==='projector')document.body.classList.add('projector');}catch(e){}
 // Tell the facilitator window we are live so it can send the current stage.
-bc.postMessage({type:'ready'});
+bc.onmessage=function(ev){handleMessage(ev);};
+// A window opened from a file:// page has an opaque origin, so the channel above
+// never reaches the facilitator. Window handles do.
+window.addEventListener('message',function(ev){handleMessage({data:ev.data});});
+
+// Announce on every route we have: the channel, whoever opened us, and whoever
+// embedded us (the facilitator's mirror runs this same document in an iframe).
+function viewportSize(){
+  return {width: Math.round(window.innerWidth), height: Math.round(window.innerHeight)};
+}
+
+function announceViewport(){
+  if(isEmbedded) return;
+  var vp=viewportSize();
+  var msg={type:'viewport', width:vp.width, height:vp.height};
+  try{bc.postMessage(msg);}catch(e){}
+  try{if(window.opener&&window.opener!==window) window.opener.postMessage(msg,'*');}catch(e){}
+}
+
+var viewportThrottle=null;
+window.addEventListener('resize',function(){
+  if(isEmbedded||viewportThrottle) return;
+  viewportThrottle=setTimeout(function(){viewportThrottle=null;announceViewport();},150);
+});
+
+function announceReady(){
+  var msg={type:'ready', view: currentView(), viewport: isEmbedded?null:viewportSize()};
+  try{bc.postMessage(msg);}catch(e){}
+  try{if(window.opener&&window.opener!==window) window.opener.postMessage(msg,'*');}catch(e){}
+  try{if(window.parent&&window.parent!==window) window.parent.postMessage(msg,'*');}catch(e){}
+}
+announceReady();
+announceViewport();
+// The facilitator window may still be starting up and have no listener yet. Retry
+// until something arrives, then stop.
+function retryReady(delay){
+  setTimeout(function(){ if(!contacted){ announceReady(); if(delay<2000) retryReady(delay*2); } }, delay);
+}
+retryReady(250);
 <\/script>
 </body></html>`;
 
@@ -3540,6 +3820,7 @@ Finance confirms a payment was made to the new account this morning.
     let exerciseComplete = false;
     let rawFileData = '';
     let bc = new BroadcastChannel('ttx_gym');
+    let participantWindow = null;
     let saveTimeout = null;
     let sessionKey = '';
     let lastParseErrors = [];
@@ -3637,7 +3918,10 @@ Finance confirms a payment was made to the new account this morning.
       }
 
       if (urlParams.has('q')) {
-        const targetFile = urlParams.get('q').replace(/\W/g, '');
+        // Scenario ids contain hyphens, which \W strips — it treats only letters,
+        // digits and underscore as word characters. Everything else still goes,
+        // so a path cannot be walked out of lib/scenarios.
+        const targetFile = urlParams.get('q').replace(/[^\w-]/g, '');
         fileName = targetFile + '.ttxf';
         fetch('https://ttxgym.com/lib/scenarios/' + targetFile + '.ttxf')
           .then(r => { if (!r.ok) throw new Error(r.statusText); return r.text(); })
@@ -3687,6 +3971,7 @@ Finance confirms a payment was made to the new account this morning.
       const counts = responseCounts(qname);
       counts[index] = Math.max(0, (counts[index] || 0) + delta);
       renderResponses(qname);
+      sendResponseCounts();
       updateProgress();
       scheduleSave();
     }
@@ -4045,6 +4330,7 @@ Finance confirms a payment was made to the new account this morning.
     function clearAllAnswers() {
       Object.keys(responses).forEach(q => responseCounts(q).fill(0));
       renderAllResponses();
+      sendResponseCounts();
       document.querySelectorAll('.stage.complete, .round.complete').forEach(el => el.classList.remove('complete'));
       const overlay = document.getElementById('summary-overlay');
       if (overlay) overlay.classList.add('hidden-overlay');
@@ -4607,6 +4893,7 @@ Finance confirms a payment was made to the new account this morning.
       clearBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" width="12" height="12" style="fill:currentColor"><path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/></svg>Clear`;
       clearBtn.addEventListener('click', () => {
         clearResponses(qname);
+        sendResponseCounts();
         updateProgress();
         scheduleSave();
       });
@@ -4756,6 +5043,7 @@ Finance confirms a payment was made to the new account this morning.
       } else {
         ActiveStage = roundCounter + 1;
         setActiveStage(ActiveStage);
+        scrollRoundIntoView(ActiveStage);
         broadcastCurrentStage();
       }
     }
@@ -4769,6 +5057,7 @@ Finance confirms a payment was made to the new account this morning.
       } else {
         ActiveStage = 0;
         setActiveStage(ActiveStage);
+        scrollRoundIntoView(ActiveStage);
         broadcastCurrentStage();
       }
     }
@@ -4786,6 +5075,7 @@ Finance confirms a payment was made to the new account this morning.
         broadcastCurrentStage();
       } else if (stage === 0 || stage === roundCounter + 1) {
         setActiveStage(ActiveStage);
+        scrollRoundIntoView(ActiveStage);
         broadcastCurrentStage();
       }
     }
@@ -4803,43 +5093,170 @@ Finance confirms a payment was made to the new account this morning.
         title: round.stage,
         content: absolutize(renderMarkdown(round.content || '')),
         discussion: (round.discussion || []).map(d => absolutize(renderInline(d))),
-        questions: (round.questions || [])
-          .filter(q => !q.participantHidden)
-          .map(q => ({ question: q.question, answers: q.answers, quiz: q.quizIndex > -1 })),
+        questions: stageQuestionNames(ActiveStage)
+          .filter(name => !qMeta[name].participantHidden)
+          .map(name => ({
+            name: name,
+            question: qMeta[name].question,
+            answers: qMeta[name].answers,
+            quiz: qMeta[name].quizIndex > -1,
+            counts: responseCounts(name).slice(),
+          })),
         image: absoluteUrl(fileContent && fileContent.image) || null
       });
     }
 
     function broadcastCurrentStage() {
       const msg = currentStageMessage();
-      if (msg) bc.postMessage(msg);
+      if (msg) sendToParticipants(msg);
+    }
+
+    // The questions of one stage, in the order they were built.
+    function stageQuestionNames(stageNum) {
+      return Object.keys(qMeta).filter(name => qMeta[name].stage === stageNum);
+    }
+
+    // Push just the tallies, so the room watches the count build as hands go up
+    // rather than waiting for the summary at the end.
+    function sendResponseCounts() {
+      if (!onTimedStage()) return;
+      const counts = {};
+      stageQuestionNames(ActiveStage)
+        .filter(name => !qMeta[name].participantHidden)
+        .forEach(name => { counts[name] = responseCounts(name).slice(); });
+      if (Object.keys(counts).length) sendToParticipants({ type: 'responses', counts: counts });
+    }
+
+    /* =============================================
+       TALKING TO THE PARTICIPANT WINDOW
+       BroadcastChannel is scoped to an origin, and a page opened from a file://
+       path has an *opaque* origin — as does a blob: URL created from it. Two
+       opaque origins are never equal, so a downloaded copy and the participant
+       window it opens can never hear each other on the channel.
+
+       postMessage travels between window handles regardless of origin, so every
+       message goes out both ways: the channel (which survives losing the handle,
+       e.g. if the participant window is reopened) and direct handles (which
+       survive an opaque origin). Receivers are idempotent, so arriving twice is
+       harmless.
+       ============================================= */
+    function participantTargets() {
+      const targets = [];
+      if (participantWindow && !participantWindow.closed) targets.push(participantWindow);
+      const frame = document.getElementById('mirror-frame');
+      if (frame && frame.contentWindow) targets.push(frame.contentWindow);
+      return targets;
+    }
+
+    function sendToParticipants(msg) {
+      try { bc.postMessage(msg); } catch (e) { /* channel unavailable */ }
+      participantTargets().forEach(target => {
+        try { target.postMessage(msg, '*'); } catch (e) { /* window gone */ }
+      });
+    }
+
+    // Theme and text size are set from inside a participant window, but they apply
+    // to the view as a whole — the popup on the projector and the mirror in this
+    // sidebar are two windows onto the same thing. The facilitator holds the
+    // current setting and relays it, so a window opened later matches the rest.
+    let participantView = null;
+
+    function handleParticipantMessage(data) {
+      if (!data) return;
+
+      if (data.type === 'view') {
+        participantView = { type: 'view', theme: data.theme, fontSize: data.fontSize };
+        syncMirrorControls();
+        sendToParticipants(participantView);
+        return;
+      }
+
+      if (data.type === 'scroll') {
+        sendToParticipants({ type: 'scroll', ratio: data.ratio });
+        return;
+      }
+
+      if (data.type === 'viewport') {
+        setParticipantViewport(data.width, data.height);
+        return;
+      }
+
+      if (data.type !== 'ready') return;
+      if (data.viewport) setParticipantViewport(data.viewport.width, data.viewport.height);
+      broadcastCurrentStage();
+      syncPauseOverlay();
+      // A window that arrives already themed becomes the setting the others follow.
+      if (data.view && !participantView) participantView = Object.assign({ type: 'view' }, data.view);
+      if (participantView) sendToParticipants(participantView);
     }
 
     // The participant window announces itself once it has loaded; replay the current
     // stage to it. Replaces the old fixed-delay nextStage()/previousStage() hack,
     // which both raced the window load and mutated the facilitator's position.
-    bc.onmessage = (ev) => {
-      if (!ev.data || ev.data.type !== 'ready') return;
-      broadcastCurrentStage();
-      syncPauseOverlay();
-    };
+    bc.onmessage = (ev) => handleParticipantMessage(ev.data);
+    window.addEventListener('message', (ev) => handleParticipantMessage(ev.data));
 
     // Scroll a round card into view by scrolling #scribe-inner directly,
     // never touching the page/body scroll position
-    function scrollRoundIntoView(stageNum) {
-      const target = document.getElementById('round' + stageNum);
-      const container = document.getElementById('scribe-inner');
-      if (!target || !container) return;
-      const targetTop = target.offsetTop - container.offsetTop;
-      const targetBottom = targetTop + target.offsetHeight;
-      const visibleTop = container.scrollTop;
-      const visibleBottom = container.scrollTop + container.clientHeight;
-      if (targetTop < visibleTop) {
-        container.scrollTo({ top: targetTop - 16, behavior: 'smooth' });
-      } else if (targetBottom > visibleBottom) {
-        container.scrollTo({ top: targetBottom - container.clientHeight + 16, behavior: 'smooth' });
-      }
+    const SCROLL_GAP = 12;          // breathing room above the heading
+    let scrollSettleTimer = null;
+    let userScrolled = false;
+
+    function cardIdForStage(stageNum) {
+      if (stageNum <= 0) return 'round0';
+      if (stageNum >= roundCounter + 1) return 'round-finish';
+      return 'round' + stageNum;
     }
+
+    /* Put the chosen stage's heading at the top of the panel.
+     *
+     * Three things the previous version got wrong:
+     *
+     *  - It only scrolled when the card was off screen, so selecting a stage that
+     *    was already partly visible left the heading wherever it happened to be.
+     *  - When a card was taller than the panel it aligned the card's *bottom*,
+     *    which pushes the heading off the top — the opposite of what is wanted.
+     *  - It measured immediately after setActiveStage(), which collapses one card
+     *    and expands another over 300ms. Every card above the target is still
+     *    shrinking at that moment, so the measurement is against a moving layout.
+     *
+     * So: always align the top, measure from bounding rects rather than offsetTop
+     * (which depends on the nearest positioned ancestor), and correct once the
+     * heights have settled — unless the facilitator has started scrolling for
+     * themselves, in which case leave them alone.
+     */
+    function scrollRoundIntoView(stageNum) {
+      const container = document.getElementById('scribe-inner');
+      const target = document.getElementById(cardIdForStage(stageNum));
+      if (!target || !container) return;
+
+      // Scrolling is cosmetic; it must never be able to stop a stage from being
+      // selected, so anything the browser will not do here is simply skipped.
+      const align = (behavior) => {
+        try {
+          const offset = target.getBoundingClientRect().top
+            - container.getBoundingClientRect().top
+            + container.scrollTop
+            - SCROLL_GAP;
+          const top = Math.max(0, offset);
+          if (typeof container.scrollTo === 'function') container.scrollTo({ top: top, behavior: behavior });
+          else container.scrollTop = top;
+        } catch (e) { /* no layout to scroll */ }
+      };
+
+      userScrolled = false;
+      align('smooth');
+
+      clearTimeout(scrollSettleTimer);
+      scrollSettleTimer = setTimeout(() => {
+        if (!userScrolled) align('smooth');
+      }, 340);                       // just past the 300ms height transition
+    }
+
+    // Anything that means "I am reading, stop moving the page under me".
+    ['wheel', 'touchstart', 'keydown'].forEach(evt => {
+      document.addEventListener(evt, () => { userScrolled = true; }, { passive: true });
+    });
 
     /* =============================================
        SIDEBAR TOGGLE
@@ -4892,7 +5309,7 @@ Finance confirms a payment was made to the new account this morning.
       const paused = onTimedStage() && firsttimer > 0 && !timer;
       const el = document.getElementById('pause');
       if (el) el.classList.toggle('hidden-overlay', !paused);
-      bc.postMessage({ type: "pause", switch: !paused });
+      sendToParticipants({ type: "pause", switch: !paused });
     }
 
     const toggleTimer = () => {
@@ -4977,7 +5394,7 @@ Finance confirms a payment was made to the new account this morning.
 
       // The participant screen and the facilitator overlay show the same summary,
       // built once, so the room is looking at what the facilitator is looking at.
-      bc.postMessage({ type: "update", title: overallScore, content: summary });
+      sendToParticipants({ type: "update", title: overallScore, content: summary });
 
       const title = document.getElementById('summary-overlay-title');
       const body = document.getElementById('summary-overlay-body');
@@ -5673,9 +6090,20 @@ Finance confirms a payment was made to the new account this morning.
        LAUNCH PRESENTATION
        ============================================= */
     function launchPresentation() {
+      // Opened with window.open rather than a link, so we keep the handle: it is
+      // the only route that works when the page came from a file:// path.
+      const blob = new Blob([PRESENTATION_HTML], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      participantWindow = window.open(url, 'ttxgym_participant');
+      setTimeout(() => URL.revokeObjectURL(url), 30000);
+      if (!participantWindow) {
+        showDiagnostics([{ line: 1, severity: 'error',
+          message: 'The participant window was blocked. Allow pop-ups for this page and try again.' }]);
+        return;
+      }
       // The window posts {type:'ready'} once loaded and we answer with the current
       // stage — no fixed delay to race, and no side effects on the exercise.
-      serveFile(PRESENTATION_HTML);
+      participantWindow.focus();
     }
 
     /* =============================================
@@ -5685,7 +6113,7 @@ Finance confirms a payment was made to the new account this morning.
 
     function toggleBlank() {
       blanked = !blanked;
-      bc.postMessage({ type: 'blank', on: blanked });
+      sendToParticipants({ type: 'blank', on: blanked });
       const label = document.getElementById('blank-label');
       if (label) label.textContent = blanked ? 'Show Screen' : 'Blank Screen';
       const ctrl = document.getElementById('blank-toggle');
@@ -5697,7 +6125,7 @@ Finance confirms a payment was made to the new account this morning.
     function promptInject() {
       const text = prompt('Send an inject to the participant screen:\n(leave blank to clear the current one)');
       if (text === null) return;
-      bc.postMessage({ type: 'inject', text: text.trim() });
+      sendToParticipants({ type: 'inject', text: text.trim() });
       const ctrl = document.getElementById('inject-control');
       if (ctrl) ctrl.classList.toggle('active', !!text.trim());
     }
@@ -5713,6 +6141,11 @@ Finance confirms a payment was made to the new account this morning.
       frame.src = url;
       frame.dataset.mounted = '1';
       document.getElementById('mirror-panel').classList.remove('hide');
+      initMirrorResize();
+      initMirrorDrag();
+      // A position stored while the panel was collapsed may not fit it expanded,
+      // so anyone who got it stuck recovers by loading a scenario.
+      clampMirrorIntoView();
     }
 
     // The facilitator's own screen. The participant window has its own projector
@@ -5742,12 +6175,280 @@ Finance confirms a payment was made to the new account this morning.
       btn.setAttribute('aria-expanded', String(open));
     }
 
+    // The mirror is scaled to about a quarter, so its own slider is far too small to
+    // aim at. These drive the participant screen at full size instead.
+    const PARTICIPANT_VIEW_DEFAULT = { type: 'view', theme: 'screen', fontSize: 14 };
+
+    function currentParticipantView() {
+      return participantView || Object.assign({}, PARTICIPANT_VIEW_DEFAULT);
+    }
+
+    function setParticipantView(changes) {
+      participantView = Object.assign(currentParticipantView(), changes, { type: 'view' });
+      syncMirrorControls();
+      sendToParticipants(participantView);
+    }
+
+    function nudgeParticipantSize(delta) {
+      const size = Math.min(40, Math.max(10, currentParticipantView().fontSize + delta));
+      setParticipantView({ fontSize: size });
+    }
+
+    function toggleParticipantTheme() {
+      setParticipantView({ theme: currentParticipantView().theme === 'projector' ? 'screen' : 'projector' });
+    }
+
+    function syncMirrorControls() {
+      const btn = document.getElementById('mirror-theme');
+      if (btn) btn.classList.toggle('active', currentParticipantView().theme === 'projector');
+    }
+
+    /* =============================================
+       MIRROR SIZE
+       The participant document is rendered at a fixed 1280x720 and scaled down, so
+       resizing is really one number: how wide the panel is. The 16:9 frame and the
+       scale of the document inside both follow from it.
+       ============================================= */
+    const MIRROR_DEFAULT = 400;
+    const MIRROR_MIN = 240;
+
+    /* A preview is only honest if it is a true miniature. Rendering the mirror at a
+       fixed 1280x720 makes it lie whenever the room's screen is a different shape or
+       size: text wraps at different points and a different amount of content sits
+       above the fold, so the facilitator is looking at something the room is not.
+
+       Instead the participant window reports the size it is actually being displayed
+       at, the mirror renders at exactly those dimensions, and the whole thing is
+       scaled down uniformly. A uniform scale cannot change layout, so what the
+       facilitator sees is the room's screen, smaller.
+
+       Until a participant window says otherwise, assume a 16:9 screen. */
+    let participantViewport = { width: 1280, height: 720 };
+
+    function mirrorMaxWidth() {
+      const panel = document.getElementById('mirror-panel');
+      const room = panel && panel.offsetParent ? panel.offsetParent.clientWidth : 0;
+      // leave the panel inside the pane it floats over, whatever the window size
+      return Math.max(MIRROR_MIN, Math.min(900, (room || 1200) - 80));
+    }
+
+    function setMirrorWidth(px, remember) {
+      const panel = document.getElementById('mirror-panel');
+      if (!panel) return;
+      const width = Math.round(Math.min(mirrorMaxWidth(), Math.max(MIRROR_MIN, px)));
+      const vp = participantViewport;
+      panel.style.setProperty('--mirror-w', width + 'px');
+      panel.style.setProperty('--mirror-scale', String(width / vp.width));
+      panel.style.setProperty('--mirror-ratio', String(vp.height / vp.width));
+      panel.style.setProperty('--mirror-vw', vp.width + 'px');
+      panel.style.setProperty('--mirror-vh', vp.height + 'px');
+      const grip = document.getElementById('mirror-grip');
+      if (grip) {
+        grip.setAttribute('aria-valuenow', String(width));
+        grip.setAttribute('aria-valuemin', String(MIRROR_MIN));
+        grip.setAttribute('aria-valuemax', String(mirrorMaxWidth()));
+      }
+      if (remember !== false) store.set('ttxgym_mirror_width', String(width));
+      // anchored bottom-right, so a wider panel must still fit the pane
+      const pos = currentMirrorPosition();
+      if (document.getElementById('mirror-panel').offsetParent) setMirrorPosition(pos.right, pos.bottom, false);
+      return width;
+    }
+
+    function currentMirrorWidth() {
+      const panel = document.getElementById('mirror-panel');
+      const raw = panel && parseFloat(panel.style.getPropertyValue('--mirror-w'));
+      return raw || MIRROR_DEFAULT;
+    }
+
+    /* =============================================
+       MIRROR POSITION
+       Kept as offsets from the bottom-right rather than the top-left, so that
+       resizing from the top-left corner leaves the opposite corner where it is —
+       the panel grows into free space instead of shoving itself around.
+       ============================================= */
+    const MIRROR_POS_DEFAULT = { right: 20, bottom: 88 };
+
+    function mirrorBounds() {
+      const panel = document.getElementById('mirror-panel');
+      const room = panel && panel.offsetParent;
+      return {
+        width: room ? room.clientWidth : 0,
+        height: room ? room.clientHeight : 0,
+        panelW: panel ? panel.offsetWidth : 0,
+        panelH: panel ? panel.offsetHeight : 0,
+      };
+    }
+
+    function setMirrorPosition(right, bottom, remember) {
+      const panel = document.getElementById('mirror-panel');
+      if (!panel) return;
+      const b = mirrorBounds();
+      // jsdom and a hidden panel both report zero; leave the clamp off in that case
+      const maxRight = b.width ? Math.max(0, b.width - b.panelW) : Infinity;
+      const maxBottom = b.height ? Math.max(0, b.height - b.panelH) : Infinity;
+      const r = Math.round(Math.min(maxRight, Math.max(0, right)));
+      const bt = Math.round(Math.min(maxBottom, Math.max(0, bottom)));
+      panel.style.right = r + 'px';
+      panel.style.bottom = bt + 'px';
+      if (remember !== false) store.set('ttxgym_mirror_pos', r + ',' + bt);
+      return { right: r, bottom: bt };
+    }
+
+    function currentMirrorPosition() {
+      const panel = document.getElementById('mirror-panel');
+      return {
+        right: parseFloat(panel && panel.style.right) || MIRROR_POS_DEFAULT.right,
+        bottom: parseFloat(panel && panel.style.bottom) || MIRROR_POS_DEFAULT.bottom,
+      };
+    }
+
+    function initMirrorDrag() {
+      const panel = document.getElementById('mirror-panel');
+      const head = document.getElementById('mirror-head');
+      if (!panel || !head || head.dataset.wired) return;
+      head.dataset.wired = '1';
+
+      const saved = (store.get('ttxgym_mirror_pos') || '').split(',').map(Number);
+      setMirrorPosition(
+        saved.length === 2 && saved.every(n => !isNaN(n)) ? saved[0] : MIRROR_POS_DEFAULT.right,
+        saved.length === 2 && saved.every(n => !isNaN(n)) ? saved[1] : MIRROR_POS_DEFAULT.bottom,
+        false);
+
+      let startX = 0, startY = 0, from = null;
+
+      const onMove = (e) => {
+        // Both offsets are measured from the far edges, so both move against the
+        // pointer: drag left and the gap on the right grows; drag up and the gap
+        // below grows.
+        setMirrorPosition(from.right - (e.clientX - startX), from.bottom - (e.clientY - startY), false);
+      };
+
+      const onUp = (e) => {
+        panel.classList.remove('dragging');
+        head.releasePointerCapture?.(e.pointerId);
+        head.removeEventListener('pointermove', onMove);
+        head.removeEventListener('pointerup', onUp);
+        head.removeEventListener('pointercancel', onUp);
+        const pos = currentMirrorPosition();
+        store.set('ttxgym_mirror_pos', pos.right + ',' + pos.bottom);
+      };
+
+      head.addEventListener('pointerdown', (e) => {
+        if (e.target.closest('button')) return;      // the header's own controls
+        e.preventDefault();
+        startX = e.clientX; startY = e.clientY;
+        from = currentMirrorPosition();
+        panel.classList.add('dragging');
+        head.setPointerCapture?.(e.pointerId);
+        head.addEventListener('pointermove', onMove);
+        head.addEventListener('pointerup', onUp);
+        head.addEventListener('pointercancel', onUp);
+      });
+
+      head.addEventListener('dblclick', (e) => {
+        if (e.target.closest('button')) return;
+        setMirrorPosition(MIRROR_POS_DEFAULT.right, MIRROR_POS_DEFAULT.bottom);
+      });
+
+      // a smaller window may leave the panel stranded outside it
+      window.addEventListener('resize', clampMirrorIntoView);
+    }
+
+    function initMirrorResize() {
+      const panel = document.getElementById('mirror-panel');
+      const grip = document.getElementById('mirror-grip');
+      if (!panel || !grip || grip.dataset.wired) return;
+      grip.dataset.wired = '1';
+
+      setMirrorWidth(Number(store.get('ttxgym_mirror_width')) || MIRROR_DEFAULT, false);
+
+      let startX = 0, startWidth = 0;
+
+      const onMove = (e) => {
+        // anchored bottom-right, so dragging left and up makes it bigger
+        setMirrorWidth(startWidth + (startX - e.clientX), false);
+      };
+
+      const onUp = (e) => {
+        panel.classList.remove('resizing');
+        grip.releasePointerCapture?.(e.pointerId);
+        grip.removeEventListener('pointermove', onMove);
+        grip.removeEventListener('pointerup', onUp);
+        grip.removeEventListener('pointercancel', onUp);
+        store.set('ttxgym_mirror_width', String(currentMirrorWidth()));
+      };
+
+      grip.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        startX = e.clientX;
+        startWidth = currentMirrorWidth();
+        panel.classList.add('resizing');
+        grip.setPointerCapture?.(e.pointerId);
+        grip.addEventListener('pointermove', onMove);
+        grip.addEventListener('pointerup', onUp);
+        grip.addEventListener('pointercancel', onUp);
+      });
+
+      grip.addEventListener('dblclick', () => setMirrorWidth(MIRROR_DEFAULT));
+
+      grip.addEventListener('keydown', (e) => {
+        const step = e.shiftKey ? 80 : 20;
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); e.stopPropagation(); setMirrorWidth(currentMirrorWidth() + step); }
+        else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); e.stopPropagation(); setMirrorWidth(currentMirrorWidth() - step); }
+        else if (e.key === 'Home') { e.preventDefault(); e.stopPropagation(); setMirrorWidth(MIRROR_DEFAULT); }
+      });
+
+      // a narrower window may no longer have room for the size that was stored
+      window.addEventListener('resize', () => setMirrorWidth(currentMirrorWidth(), false));
+    }
+
+    // Reshape the mirror to match the screen the room is actually looking at.
+    function setParticipantViewport(width, height) {
+      if (!(width > 0) || !(height > 0)) return;
+      if (participantViewport.width === width && participantViewport.height === height) return;
+      participantViewport = { width: Math.round(width), height: Math.round(height) };
+      setMirrorWidth(currentMirrorWidth(), false);
+      const label = document.getElementById('mirror-size');
+      if (label) {
+        label.textContent = participantViewport.width + '×' + participantViewport.height;
+        label.title = 'The participant screen is ' + participantViewport.width + ' by ' +
+          participantViewport.height + ' pixels. The preview is an exact miniature of it.';
+      }
+    }
+
+    function resetMirrorPanel() {
+      const panel = document.getElementById('mirror-panel');
+      if (panel) panel.classList.remove('collapsed');
+      const btn = document.getElementById('mirror-toggle');
+      if (btn) { btn.textContent = '–'; btn.setAttribute('aria-label', 'Hide participant view'); }
+      setMirrorWidth(MIRROR_DEFAULT);
+      setMirrorPosition(MIRROR_POS_DEFAULT.right, MIRROR_POS_DEFAULT.bottom);
+    }
+
     function toggleMirror() {
       const panel = document.getElementById('mirror-panel');
       const btn = document.getElementById('mirror-toggle');
       const collapsed = panel.classList.toggle('collapsed');
       btn.textContent = collapsed ? '+' : '–';
       btn.setAttribute('aria-label', collapsed ? 'Show participant view' : 'Hide participant view');
+      // Collapsed, the panel is only a header tall and can sit legitimately near the
+      // top. Expanding grows it upwards, so without this the header goes above the
+      // pane and there is nothing left to grab.
+      clampMirrorIntoView();
+    }
+
+    // Put the panel back inside its pane after anything that changes its size.
+    function clampMirrorIntoView() {
+      const panel = document.getElementById('mirror-panel');
+      if (!panel || panel.classList.contains('hide')) return;
+      const apply = () => {
+        const pos = currentMirrorPosition();
+        setMirrorPosition(pos.right, pos.bottom, false);
+      };
+      apply();
+      // heights settle a frame later when a class change reveals the frame
+      if (typeof requestAnimationFrame === 'function') requestAnimationFrame(apply);
     }
 
     /* =============================================

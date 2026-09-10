@@ -1,0 +1,118 @@
+! title: Worm Propagation
+! author: SC3 / Cyber Capability Toolkit
+! summary
+A rapidly spreading worm begins propagating across internal endpoints. Teams must detect unusual network scanning, scope infection, isolate affected segments, eradicate malware, and validate recovery.
+
+@ Initial Detection – Unusual SMB Scanning
+! duration: 10 mins
+! content
+08:06 UTC — SOC sees simultaneous SMB auth failures and spike in RPC traffic from ENG-WKS-07 to multiple subnets. EDR flags `svchost.exe` spawning `wmic.exe` and `psexecsvc` install attempts. No maintenance windows are active; several endpoints are shared kiosks.
+
+# discussion
++ What characteristics distinguish autonomous worm behaviour from legitimate admin or management activity, and what would justify immediate escalation over continued observation?
++ Worm propagation is measured in minutes. What in your escalation path is measured in hours, and what would you bypass?
+
+? ENG-WKS-07 is scanning multiple subnets over SMB and installing `psexecsvc`. What is your immediate action?
++ Confirm with the infrastructure team whether a deployment or asset scan is running before escalating
++ Block SMB and RPC from ENG-WKS-07 at the network layer and continue analysis with the host online
+++ Isolate ENG-WKS-07 and mobilise the CIRT for a suspected worm outbreak, capturing volatile state as you go
+
+# prompts
++ 1) Less Optimal — Responsible, avoids embarrassing outages, and takes time this threat class does not give you. Ask how long that confirmation takes and how many hosts the worm reaches in the interim. This is the decision the stage exists to test.
++ 2) Less Optimal — Cuts the observed propagation path without an outage, which is genuinely attractive. It leaves the host live to spread over WinRM, WMI or anything else it carries. Ask whether they know all its propagation methods yet.
++ 3) Optimal — Autonomous propagation is the one case where containment must precede confirmation; every minute of debate is more hosts. Ask what they capture on the way, and whether isolation is fast enough to matter.
+
+@ Infection Confirmed – Multiple Endpoints Trigger Alerts
+! duration: 10 mins
+! content
+08:31 UTC — PCAP shows SMBv1 dialect negotiation attempts and EternalBlue-like fingerprints (abnormal NT Trans request patterns). Memory triage reveals a process inject into `lsass.exe` on ENG-WKS-07. DNS queries to random hostnames precede lateral scans.
+
+# discussion
++ Why does exploit‑driven lateral movement require faster and broader scoping than user‑driven compromise, and what risks emerge if scoping is incomplete?
++ The worm injected into `lsass.exe`. What does it want from there, and what does that mean for every credential used on an infected host?
+
+? Which artefacts most reliably confirm exploit-based lateral movement across the estate?
++ The SMB authentication failure counts and RPC traffic volumes per source host
+++ The NT Trans request fingerprint in network telemetry, correlated with `lsass.exe` injection events in EDR
++ The list of hosts still running SMBv1 with the relevant patch missing
+
+# prompts
++ 1) Less Optimal — Where the incident was first noticed and a blunt instrument for scoping. Failed authentication spikes have many causes, including a mistyped service account. Ask what their false positive rate would be estate-wide.
++ 2) Optimal — The exploit fingerprint plus the post-exploitation behaviour together confirm the technique and the outcome. Ask whether their network telemetry retains enough detail to match NT Trans patterns.
++ 3) Less Optimal — Identifies who is *vulnerable*, not who is *infected*, and both matter. Ask them to be explicit about which question they are answering; the two lists drive different actions.
+
+@ Lateral Movement Indicators
+! duration: 10 mins
+! content
+08:57 UTC — Lateral movement expands: WinRM and WMI execution observed, plus scheduled task creation across \ADMIN$ shares. Multiple hosts drop `loader.tmp` into `%WINDIR%\Temp` and attempt service creation `WinUpdateSvc`. Privileged service account tokens appear reused.
+
+# discussion
++ Privileged service account tokens are being reused across hosts. Which accounts, how far do they reach, and what would it take to invalidate them right now?
++ The worm now has at least three propagation methods. How does that change a containment plan built around blocking SMB?
+
+? How do you scope the lateral spread and privileged token reuse without causing outages?
++ Query EDR for the `loader.tmp` file and the `WinUpdateSvc` service across every host in the estate
++ Review authentication logs for the reused service accounts to identify every host they have touched
+++ Correlate WinRM, WMI and scheduled task creation events against privileged account authentication across all hosts
+
+# prompts
++ 1) Less Optimal — Fast and finds hosts where the payload landed with the names you already know. A worm that varies its dropped filename or service name per host defeats it entirely. Ask how confident they are those names are constant.
++ 2) Less Optimal — Directly targets the token reuse and finds only hosts reached via those specific accounts. The worm is also exploiting SMBv1 without credentials. Ask what half of the propagation this misses.
++ 3) Optimal — Covers all three observed execution methods and ties them to the credential abuse driving the spread. Ask whether they can query WinRM and WMI execution centrally, or only per host.
+
+@ Segmentation & Network Containment
+! duration: 5 mins
+! content
+09:21 UTC — Network proposes blocking SMB/RPC between workstation subnets and isolating suspected hosts. App owners warn file shares underpin critical workflows. Leadership demands a containment plan that avoids complete outage.
+
+# discussion
++ What is the minimum segmentation that meaningfully reduces worm propagation risk, and what risks do you accept if shared services remain reachable?
++ App owners say file shares underpin critical workflows. Are those workstation-to-workstation shares, or server shares? The answer decides whether their objection applies.
+
+? Which containment limits worm traffic while keeping critical file shares available?
+++ Block workstation-to-workstation SMB and RPC while preserving workstation-to-server paths, and isolate suspected hosts
++ Block SMB and RPC across all internal subnets until infected hosts have been identified and cleaned
++ Isolate the identified infected hosts and monitor the remaining estate for further propagation attempts
+
+# prompts
++ 1) Optimal — Cuts the worm's actual path while leaving the file shares people need. Ask whether their network can express that distinction today, or whether SMB is flat across the estate.
++ 2) Less Optimal — Certain to stop propagation and certain to cause the outage leadership just ruled out. Sometimes the right call — make them justify it and name who authorises it.
++ 3) Less Optimal — Minimal disruption, and it contains only what you have already found while the worm keeps moving. Ask how confident they are that their host list is current, given it changed twice in the last hour.
+
+@ Eradication & Cleanup
+! duration: 5 mins
+! content
+09:49 UTC — Persistence found via registry Run key `HKLM\Software\Microsoft\Windows\CurrentVersion\Run\WinSvc` and a service `WinUpdateSvc` set to auto‑start. Some hosts show modified firewall rules to permit inbound SMB/WinRM after reboot.
+
+# discussion
++ Why do worms disproportionately punish partial eradication, and what signals would indicate that reinfection risk remains after cleanup?
++ The worm modified host firewall rules to keep its own way back in. What else might it have changed that you have not looked for?
+
+? Which eradication removes persistence and prevents re-spread on reconnection?
+++ Reimage the infected assets, reset the credentials exposed on them, and reconnect only into a contained segment
++ Remove the Run key, service and modified firewall rules across all infected hosts, then verify with an EDR sweep
++ Reimage all infected assets from clean builds and restore them to their original network segments
+
+# prompts
++ 1) Optimal — Reimaging plus credential reset plus staged reconnection. The last part is what stops a clean host being reinfected by one not yet cleaned. Ask how they sequence reconnection.
++ 2) Less Optimal — Proportionate and fast at scale, which matters when the host count is large. It trusts an enumeration on hosts that were injecting into `lsass.exe`, and one missed host re-infects the rest. Ask what a single miss costs here.
++ 3) Less Optimal — Clean builds returned to a segment that may still contain infected hosts, and the credentials harvested from `lsass.exe` remain valid. Ask what happens to the first host reconnected.
+
+@ Recovery & Lessons Learned
+! duration: 10 mins
+! content
+Post‑eradication — No further worm beacons or lateral scans detected. Leadership requests hardening: disable SMBv1, restrict inter‑workstation SMB/RPC, enforce credential hygiene (LSA protection, local admin randomisation), and continuous export of lateral‑movement telemetry (WinRM/WMI/SMB).
+
+# discussion
++ Which visibility or control gaps most enabled rapid worm propagation in this incident, and what telemetry would prove those gaps are now closed?
++ SMBv1 was still enabled and reachable between workstations in 2026. Why, and what is the actual blocker to removing it?
+
+? Which long-term controls most reduce worm propagation risk?
++ Disable SMBv1 estate-wide and enforce a patching SLA for all remotely exploitable vulnerabilities
++ Deploy east-west network monitoring with automated isolation of hosts showing scanning behaviour
+++ Remove SMBv1, restrict inter-workstation SMB and RPC, enforce LSA protection and local admin randomisation, and export lateral-movement telemetry
+
+# prompts
++ 1) Less Optimal — Closes the specific vulnerability used here and leaves the flat network and the reusable privileged credentials that made it spread. Ask what the next worm uses when SMBv1 is gone.
++ 2) Less Optimal — Excellent detection and response, and genuinely valuable given how fast this moved. It is detective, and automated isolation carries real operational risk on shared kiosks. Ask what a false positive costs on a kiosk estate.
++ 3) Optimal — Removes the exploit path, the network path and the credential path, then instruments what remains. Ask which of the four they would sequence first, and which will meet the most resistance.

@@ -1,0 +1,118 @@
+! title: AI‑Generated Phishing
+! author: SC3 / Cyber Capability Toolkit (derived from Phishing Playbook v2.4)
+! summary
+An AI‑crafted phishing email compromises an initial mailbox. The attacker uses stolen credentials to access the inbox, create forwarding rules, harvest the contact book, and send on highly convincing AI‑generated replies to trusted contacts. The campaign escalates rapidly as additional accounts are compromised. The technical team must detect the pattern, classify per CIRP, preserve evidence, contain identity compromise, eradicate persistence, and restore normal operations. Focus is technical—not strategic consequences.
+
+@ Initial Reports – First Suspicious Emails
+! duration: 10 mins
+! content
+08:42 UTC — Service Desk receives two near‑simultaneous tickets: highly convincing reply‑chain emails from a senior colleague, referencing real past threads. Each message contains a OneDrive‑style link with a facsimile login. Mail trace shows the messages originated from the colleague’s mailbox, not an external spoof. No broad phishing campaign is visible in the gateway at this time.
+
+# discussion
++ What characteristics distinguish reply‑chain phishing originating from a real internal mailbox from perimeter‑detected phishing, and why does that distinction change early containment priorities?
++ The messages quote real past threads. What does the attacker already have, and what does that tell you about how long they have been in the mailbox?
+
+? Two convincing reply-chain emails have come from a colleague's real mailbox. What do you do first?
+++ Classify under CIRP as phishing, preserve the email artefacts and headers, and begin scoping the affected mailbox
++ Purge the two messages from all recipient mailboxes and block the linked domain at the gateway
++ Reset the colleague's password and require them to re-authenticate before doing anything else
+
+# prompts
++ 1) Optimal — Classification unlocks the response; artefact preservation keeps the headers that later prove automation across accounts. Ask what they preserve specifically, and whether a purge would destroy it.
++ 2) Less Optimal — Fast, visible, and it deletes the evidence needed to establish scope while treating the symptom. The mailbox is still under attacker control and will simply send more. Ask what the purge tells them about how many were sent.
++ 3) Less Optimal — The right instinct at the wrong moment, and insufficient on its own — as stage 5 will show, tokens and rules survive a password reset. Ask what the attacker retains after the reset completes.
+
+@ Verified Compromise – Account Takeover Identified
+! duration: 10 mins
+! content
+09:05 UTC — Identity telemetry shows multiple MFA prompts for the colleague’s account from an unfamiliar ASN, followed by success via legacy auth. Within 4 minutes, mailbox rules were created: (a) forward to an external address, (b) move replies to RSS Feeds folder. Message headers for several sent items show new ‘In‑Reply‑To’ chains targeting real contacts.
+
+# discussion
++ How do mailbox rules, token use, and legacy authentication confirm sustained attacker control rather than transient credential exposure?
++ The account was hit with repeated MFA prompts and then bypassed via legacy auth. Which of those two facts should have alerted, and did it?
+
+? Which evidence confirms sustained account takeover rather than a one-off credential exposure?
++ The repeated MFA prompts from an unfamiliar ASN immediately before the successful sign-in
++ The new In-Reply-To chains in sent items targeting the colleague's real contacts
+++ Attacker-created inbox rules combined with anomalous sign-in and continued token use
+
+# prompts
++ 1) Less Optimal — Strong evidence of an *attempt* and the classic MFA-fatigue signature. It shows someone trying, not someone succeeding and staying. Ask what distinguishes a failed push-bombing from a successful one in their telemetry.
++ 2) Less Optimal — Proof the mailbox is being abused, which the team already knows from stage 1. It evidences outbound activity rather than durable control. Useful for distinguishing what an attacker *did* from what they still *hold*.
++ 3) Optimal — Rules are the tell: they persist, they are configured deliberately, and the RSS Feeds folder trick exists purely to hide replies from the real user. Ask what else would still work if the password were reset right now.
+
+@ Campaign Expansion – Contact Book Abuse
+! duration: 10 mins
+! content
+09:27 UTC — Additional reports indicate internal and external contacts receiving personalised replies that include context from earlier email conversations. Several recipients have clicked and now show suspicious sign‑ins. SMTP logs show bursts of outbound messages with consistent user‑agent and cadence; reputation feeds flag the destination URL as newly registered.
+
+# discussion
++ What risks are introduced when attackers exploit trusted relationships faster than defenders can enumerate victims, and why is selective containment preferable to blanket shutdown?
++ External contacts are receiving these too. What is your obligation to warn them, how would you do it, and what do you say?
+
+? The campaign is spreading through the contact book. What containment stops it without stopping mail?
++ Block the newly registered destination URL at the gateway and web proxy, and purge messages containing it
+++ Disable the compromised account, revoke its tokens, block the malicious infrastructure, and warn identified recipients
++ Disable outbound external mail for the affected department while the compromised accounts are identified
+
+# prompts
++ 1) Less Optimal — Necessary, and it addresses the payload rather than the sender. The mailbox keeps sending, and the attacker registers another domain in minutes. Ask how long a new domain takes to stand up versus how long their block takes to approve.
++ 2) Optimal — Cuts the identity, the channel and the exposure together, and the warning is what stops recipients clicking. Ask how they warn people when the trusted channel is the compromised one.
++ 3) Less Optimal — Proportionate-sounding blast radius control, and a real business decision. Recipients who already clicked are unaffected by it, and internal spread continues. Ask what fraction of the campaign it actually stops.
+
+@ IOC Sweep – Multiple Accounts Show Anomalies
+! duration: 5 mins
+! content
+09:51 UTC — IOC sweep identifies six more mailboxes with (a) suspicious forwarding rules, (b) improbable travel sign‑ins, and (c) auto‑reply patterns at scale. SIEM indicates the same user‑agent string and header order across affected accounts, suggesting automation. Some targets include shared mailboxes and service accounts.
+
+# discussion
++ What signals indicate automation or orchestration in phishing campaigns, and how do those signals change scoping strategy and prioritisation?
++ Shared mailboxes and service accounts are in scope. Who owns those, who can authorise disabling them, and what breaks when you do?
+
+? Six more mailboxes show anomalies. Which sweep establishes the true blast radius?
++ Identify every mailbox that received a message from the compromised accounts and check for suspicious sign-ins
+++ Search estate-wide for inbox rules, OAuth consent anomalies, and the shared user-agent and header pattern across accounts
++ Review sign-in logs for all accounts showing improbable travel or authentication from the flagged ASN ranges
+
+# prompts
++ 1) Less Optimal — Follows the visible spread and is bounded by what you already know. It misses accounts compromised through other routes and finds nothing where a recipient did not report. Ask what it would show for a user who clicked and said nothing.
++ 2) Optimal — The shared user-agent and header order is the automation fingerprint and the durable indicator here. Ask whether their tooling can query mailbox rules estate-wide, and how long that takes.
++ 3) Less Optimal — Good hunting that scopes to sign-in anomalies alone. Attacker infrastructure rotates, and an account accessed via a valid stolen token may show no improbable travel at all. Ask what it misses.
+
+@ Eradication – Identity Cleanup & Removing Persistence
+! duration: 5 mins
+! content
+10:18 UTC — Forensic review confirms malicious forwarding rules, illicit OAuth consent to an unverified app, long‑lived refresh tokens, and multiple compromised MFA enrollments. Investigation notes that some accounts still rely on legacy IMAP/POP for application integrations.
+
+# discussion
++ Why is password reset alone insufficient in OAuth‑ and token‑based account takeover, and what forms of persistence outlive endpoint or mailbox cleanup?
++ Legacy IMAP/POP is still enabled for application integrations. What are those integrations, and what is the plan for them?
+
+? Which eradication ensures no persistence or backdoor access remains?
++ Reset passwords, re-enrol MFA for all affected users, and delete every malicious inbox rule found
+++ Revoke the illicit OAuth consent and all refresh tokens, reset MFA enrolments, remove the rules, and disable legacy auth
++ Revoke all sessions and refresh tokens across the affected accounts and force full re-authentication
+
+# prompts
++ 1) Less Optimal — Covers the persistence people can see and leaves the OAuth grant in place — an application consent survives password resets, MFA re-enrolment and rule deletion entirely. Ask what the unverified app can still do tomorrow.
++ 2) Optimal — All four persistence mechanisms plus the legacy auth path that enabled the original bypass. Ask which of the four they would have missed without the forensic review.
++ 3) Less Optimal — Deals thoroughly with tokens already issued and leaves the consent that mints new ones. Good for making the distinction between revoking a token and revoking the grant behind it.
+
+@ Recovery – Reintegration & Hardening
+! duration: 10 mins
+! content
+Post‑containment — Mail flow is restored under safe conditions. Leadership requests technical assurance: continuous log export in place, periodic OAuth consent reviews scheduled, legacy auth disabled, and detection rules live for auto‑forward creation, anomalous user‑agents, and reply‑chain spikes. Supplier advisory with IOCs has been incorporated into detections.
+
+# discussion
++ What telemetry would give early confidence that reply‑chain phishing is being detected before campaign‑level spread re‑emerges?
++ AI-generated reply-chain phishing defeats most of what user awareness training teaches people to spot. What do you tell staff now, and is "look for bad grammar" still honest advice?
+
+? Which controls should be mandated to prevent recurrence?
+++ Continuous log export, scheduled OAuth consent reviews, legacy auth disabled, and detection on auto-forward creation
++ Block all automatic external forwarding at the tenant level and require approval for exceptions
++ Require phishing-resistant MFA for all users, removing push and one-time-code methods
+
+# prompts
++ 1) Optimal — Detection on rule creation is the control that would have caught this at 09:09 rather than 09:51. Ask who receives that alert and what they do with it at the weekend.
++ 2) Less Optimal — Directly targets the mechanism and would have blunted the exfiltration path. It does not stop the takeover, the OAuth consent, or the outbound campaign — the forwarding rule was the least damaging part. Ask what it would have prevented here.
++ 3) Less Optimal — The strongest preventive control available and genuinely worth doing; it would have stopped the initial compromise. Press on delivery: cost, coverage of shared and service accounts, and the legacy IMAP integrations that bypass it anyway.

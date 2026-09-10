@@ -1,0 +1,118 @@
+! title: Supplier Software Compromise
+! author: SC3 / Cyber Capability Toolkit
+! summary
+A widely‑used software component provided by a critical supplier is found to contain a trojanised library. The component is integrated into several internal systems. Technical teams must validate integrity, detect indicators of compromise, isolate affected applications, eradicate malicious components, and restore trust.
+
+@ External Advisory – Compromised Software Library
+! duration: 10 mins
+! content
+08:18 UTC — Supplier bulletin flags a potential compromise in the distribution pipeline affecting one library version used by your systems. OSINT warns the build may include a backdoor. Internal SBOM/CMDB show several apps pin to the suspect version. CIRP requires classification and rapid dependency enumeration while preserving manifests, hashes and signatures before rollover.
+
+# discussion
++ What assumptions about software provenance and component trust immediately become invalid when a supplier distribution pipeline is compromised?
++ Your SBOM shows direct dependencies. What about the transitive ones — could this library be pulled in by something you did not choose, and would you know?
+
+? A supplier's distribution pipeline is compromised and several of your apps pin the suspect version. What do you do first?
++ Roll all affected applications back to the previous library version while awaiting the supplier's clean release
++ Block the supplier's package repository at the proxy to prevent any further pulls of the compromised build
+++ Enumerate every system loading the library, direct and transitive, and preserve manifests, hashes and signatures before rollover
+
+# prompts
++ 1) Less Optimal — Decisive and often right, and it is being done before scope is known. Ask whether the previous version is definitely clean — pipeline compromises are usually discovered well after they begin — and what rolling back breaks.
++ 2) Less Optimal — Sensible hygiene that stops the problem getting worse and does nothing about the copies already deployed and running. Ask what percentage of the risk this addresses. It is a good second action, not a first.
++ 3) Optimal — Scope first, and the evidence has an expiry: build manifests and signature records rotate. Push hard on transitive dependencies — most teams enumerate what they declared, not what they actually load.
+
+@ Internal Anomalies – Suspicious Application Behaviour
+! duration: 10 mins
+! content
+08:46 UTC — SIEM + app logs show unexpected outbound from services using the library. Performance anomalies coincide with bursts of API calls and odd file writes to %PROGRAMDATA%/libtmp. Baseline comparison confirms the pattern is atypical for this hour/day. No change window is open.
+
+# discussion
++ What distinguishes benign component loading from malicious runtime behaviour, especially when the library is expected and signed?
++ The trojanised code runs inside a trusted, signed application. Which of your security controls are built on the assumption that signed means safe?
+
+? How do you confirm whether the trojanised code actually executed in your environment?
+++ Compare deployed library hashes against the known-good build and correlate against runtime behaviour and file writes
++ Verify the library's digital signature and publisher certificate on every affected host
++ Submit the library to a sandbox and to threat intelligence services for a malware verdict
+
+# prompts
++ 1) Optimal — Hash against known-good proves the artefact differs; runtime behaviour proves it ran. Ask whether they hold known-good hashes independently of the supplier who was just compromised.
++ 2) Less Optimal — The instinct that this whole class of attack defeats. The compromise happened in the supplier's pipeline, so the malicious build is very likely signed with their legitimate key. Ask what a valid signature proves here — the answer is provenance, not integrity.
++ 3) Less Optimal — Genuinely useful and answers "is this malicious", not "did it run here". It also takes time the incident does not have, and a bespoke backdoor may not detonate in a sandbox. Ask what they do with a clean verdict.
+
+@ Containment – Application Isolation & Risk Reduction
+! duration: 10 mins
+! content
+09:09 UTC — Critical services rely on the compromised component. Owners request a path to reduce risk without full outage. Network/Platform propose isolating the application tier, enforcing egress controls for known IOC ranges/domains, and disabling high‑risk modules/features pending analysis.
+
+# discussion
++ How do you decide which application functions remain trustworthy when a shared component’s integrity is in doubt?
++ "Disable high-risk features" assumes you know which features the library touches. Who in the room could produce that mapping, and how long would it take?
+
+? Critical services depend on the component and owners want to avoid an outage. What containment do you apply?
++ Apply egress filtering to block the known malicious domains and IP ranges from all affected application servers
+++ Isolate the application tier, enforce egress controls against known IOCs, and disable the high-risk modules pending analysis
++ Move the affected services to a segregated environment with no access to production data or credentials
+
+# prompts
++ 1) Less Optimal — Cheap, quick and reversible, which is why it is chosen. It blocks the infrastructure you already know about; a backdoor supporting covert command execution will have fallbacks. Ask what happens when the IOC list is incomplete, and note that it always is.
++ 2) Optimal — Layered: network position, egress and functionality together. Probe the last part — disabling high-risk modules requires knowing what the library is used for, and that mapping often does not exist.
++ 3) Less Optimal — Strong containment and a real option worth debating, particularly for services that can tolerate degraded data. Ask what a service can still do with no production data, and whether that constitutes running at all.
+
+@ Threat Analysis – Trojan Capabilities Confirmed
+! duration: 10 mins
+! content
+09:34 UTC — Reverse‑engineering reveals the trojanised library supports covert command execution and data exfil. Forensic guidance demands chain‑of‑custody: collect logs, volatile memory, and a byte‑perfect copy of the component before any removal. Approved sandbox/RE environments are available.
+
+# discussion
++ Why is evidence preservation especially critical when trojanised components execute as part of normal application logic?
++ The library supports data exfiltration. What did these services have access to, and how would you establish what actually left?
+
+? Capabilities are confirmed. How do you collect evidence before eradication?
++ Export the application and SIEM logs for the affected services and retain them under chain of custody
+++ Capture volatile memory and logs, and take a byte-perfect copy of the component, under chain of custody before any removal
++ Take a full disk image of every affected server before beginning remediation
+
+# prompts
++ 1) Less Optimal — Necessary and incomplete. Logs record what the application chose to record; a covert execution channel is designed not to appear there. Ask what the logs would show for a command executed inside the trusted process.
++ 2) Optimal — Memory holds the injected behaviour, the component copy proves what was deployed, and chain of custody keeps both usable. Ask who is authorised to take memory from a production service, and whether that is a decision available at 09:34.
++ 3) Less Optimal — Thorough, forensically defensible, and slow at estate scale while an active backdoor runs. Ask how long full imaging takes across every affected service and whether the room is willing to wait. A real trade-off, not a wrong answer.
+
+@ Eradication – Component Replacement & System Rebuild
+! duration: 5 mins
+! content
+09:58 UTC — Clean upstream version released by supplier. Internal scans identify multiple services still loading the compromised library. Several dependent configs require re‑deployment sequencing. Credentials/tokens used by the affected services may be exposed and need rotation.
+
+# discussion
++ What residual risks might persist after replacing the compromised component, particularly where outputs, caches, or credentials may have been influenced?
++ The supplier has released a clean version. What would you want to see before trusting the same pipeline that produced the trojanised one?
+
+? Which eradication workflow restores a trusted state?
++ Update every service to the clean library version and verify that no service still loads the compromised build
+++ Replace the component, rebuild the affected services, and rotate every credential and token they could reach
++ Rebuild affected services from source with the clean dependency and redeploy them in the required sequence
+
+# prompts
++ 1) Less Optimal — Addresses the component and stops there, which is the most common real-world outcome. The library could execute commands and exfiltrate data; anything those services held is now attacker-known. Ask what credentials were in scope.
++ 2) Optimal — Component, host and credentials. Ask them to sequence it, and to say specifically which secrets the affected services could reach — service accounts, API tokens, database credentials, certificates.
++ 3) Less Optimal — Technically excellent and it produces genuinely clean artefacts. It still leaves the exposed credentials valid. Ask what a rebuilt service protects against if the attacker already holds its database password.
+
+@ Recovery & Supplier Assurance
+! duration: 5 mins
+! content
+Post‑recovery — All systems restored. Supplier mandates new assurance controls. Leadership requires: signature verification on install, SBOM intake/enforcement, staged updates with canary cohorts, periodic supplier security attestations, and continuous monitoring for hash drift/repo anomalies.
+
+# discussion
++ What verification or monitoring signals would provide early warning of software‑component integrity failure before malicious runtime behaviour emerges again?
++ Staged rollout with canary cohorts limits blast radius but means running a known-current version late. Where do you set that dial, and who owns the risk on each side?
+
+? Which long-term assurance controls should be mandated?
++ Mandate signature verification at install time for every third-party component entering the estate
++ Require the supplier to provide independent security attestation and evidence of pipeline controls annually
+++ SBOM intake and enforcement, staged updates with canary cohorts, and continuous monitoring for hash drift
+
+# prompts
++ 1) Less Optimal — Baseline good practice that this incident specifically defeated: the malicious build was signed by the legitimate publisher. If the room chooses it, return to stage 2 — the misconception is worth the time.
++ 2) Less Optimal — Real procurement leverage and produces a document rather than a detection. An annual attestation says nothing about the pipeline on the day it was compromised. Ask what they would do differently on the strength of it.
++ 3) Optimal — SBOM enforcement gives you the dependency answer you struggled with at stage 1; canary cohorts limit blast radius; hash drift monitoring detects the change itself rather than trusting its provenance. Ask where the known-good hashes come from.

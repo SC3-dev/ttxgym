@@ -1,0 +1,118 @@
+! title: SaaS Data Leak at Supplier
+! author: SC3 / Cyber Capability Toolkit
+! summary
+A third‑party SaaS provider hosting sensitive organisational data discloses a breach. The supplier is slow to provide specifics. Technical teams must rapidly scope potential exposure, protect identities, contain integration risks, and support recovery while maintaining service continuity.
+
+@ External Disclosure – Supplier Announces Incident
+! duration: 10 mins
+! content
+08:11 UTC — Supplier status page posts a terse notice: potential WRITE access to a subset of tenants during 07:35–08:05 UTC; IOCs pending. Your tenancy underpins a high‑volume citizen service. No tenant list provided. CIRP dictates rapid classification, inventory of integrated systems/data classes, and preservation of SaaS audit/API gateway/proxy logs before rollover.
+
+# discussion
++ What trust assumptions about externally hosted data immediately become invalid when a SaaS provider reports unauthorised WRITE access without tenant specificity?
++ This is a WRITE incident, not a read one. How does that change what you are worried about, and does your incident plan distinguish the two?
+
+? The supplier reports possible WRITE access to "a subset of tenants" and will not say which. What do you do first?
+++ Classify as a supply chain incident, stand up the CIRT, and inventory integrated systems, data classes and logs before rollover
++ Suspend the integration and move the citizen service to its manual fallback until the supplier confirms whether you are affected
++ Query your SaaS audit logs for write activity in the 07:35–08:05 window before deciding whether this is your incident
+
+# prompts
++ 1) Optimal — Classification unlocks the authority and resources; the log preservation deadline is the part with a clock on it. Ask which logs roll over first and how long they have.
++ 2) Less Optimal — Defensible for a high-volume citizen service, and expensive. Ask what the manual fallback actually is, how long it sustains the volume, and who authorises invoking it on a "subset of tenants" notice.
++ 3) Less Optimal — The most disciplined-sounding option and the trap in this stage. The window is the supplier's estimate from a system they have just lost control of; scoping your response to it inherits their assumption. Ask what they would conclude from a clean result at 07:34.
+
+@ Initial Indicators – Unusual Access Patterns
+! duration: 10 mins
+! content
+08:34 UTC — SIEM baselines show bursts of API READs/PUTs from unfamiliar ASN ranges during the supplier’s window. SaaS audit logs indicate rapid edits across multiple records in seconds, inconsistent with normal usage. No DLP exfil signals observed. Identity telemetry for the integration principal shows expanded scopes used out‑of‑pattern.
+
+# discussion
++ What behaviours indicate automated or hostile modification of records rather than legitimate bulk activity, and how confident can you be without supplier confirmation?
++ Your own bulk-update jobs also edit many records in seconds. What distinguishes yours from theirs in the audit log, and could you demonstrate it?
+
+? How do you confirm whether tenant data was actually tampered with?
++ Search DLP and egress telemetry for evidence of data leaving the environment
+++ Compare against historical baseline, cross-reference the supplier's published ranges, and review what the principal's scopes permit
++ Ask the business owners of affected records to verify a sample against their own records
+
+# prompts
++ 1) Less Optimal — The instinctive move and the wrong threat model. This is an integrity incident: the harm is altered citizen records, not copied ones. The inject already says there are no DLP signals. If the room picks this, stop and ask what they are actually protecting against.
++ 2) Optimal — Three independent sources, none of which requires trusting the supplier's summary. Ask whether the baseline is queryable or merely assumed, and who holds the scope documentation.
++ 3) Less Optimal — Genuine value and far too slow for this stage, and it assumes tampering is visible to a human eye. A changed bank detail or eligibility flag looks entirely normal on screen. Good for exposing the limits of user-reported assurance.
+
+@ Identity Exposure Risk – Tokens & Accounts
+! duration: 10 mins
+! content
+08:56 UTC — Some internal services rely on real‑time SaaS APIs and cannot be fully disabled. App owners request a ‘safe mode’. Identity/NetOps propose read‑only for risky endpoints, IP allow‑lists for supplier ranges, throttling on hot URIs, and immediate scope reduction on the service principal to least privilege.
+
+# discussion
++ How does potential token exposure in a SaaS WRITE incident expand the attack surface beyond the data itself, and which systems should now be treated as potentially compromised?
++ App owners are asking for "safe mode". Define it precisely — what works, what does not, and who signs off that the degraded service is still lawful to run?
+
+? Which containment reduces risk while keeping essential SaaS-driven services available?
++ Apply the proposed safe mode: read-only on risky endpoints, IP allow-lists for supplier ranges, throttling on hot URIs
+++ Revoke refresh tokens, rotate secrets and certificates, tighten Conditional Access, and cut the principal's scopes to least privilege
++ Remove the integration's write permission entirely and queue outbound writes for replay once the incident closes
+
+# prompts
++ 1) Less Optimal — Sensible network and application containment, straight from the inject, and it leaves the credentials untouched. If integration tokens are exposed, the attacker keeps a valid identity regardless of endpoint controls. Ask what safe mode does about that.
++ 2) Optimal — Identity is the exposed asset in a supplier WRITE incident. Ask which downstream systems hold or cache those tokens, and whether rotation reaches all of them.
++ 3) Less Optimal — Elegant, and it preserves the citizen service, which makes it popular. Two issues to draw out: queued writes may be replayed against records that turn out to be tainted, and the credential exposure is untouched. Ask what they replay into.
+
+@ Containment – Data Access & Integration Controls
+! duration: 10 mins
+! content
+09:19 UTC — Supplier publishes initial IOCs: malicious IPs, affected API tokens, and UUIDs of altered records. Downstream systems (analytics/case management) may already have consumed tainted data. Teams must run an IOC sweep and delta analysis, and reconstruct audit history across integrations to quantify impact.
+
+# discussion
++ What trade‑offs do you make between service continuity and preventing further consumption of potentially tainted data, and where do you draw that line?
++ The supplier has given you a list of altered record UUIDs. What is your basis for believing it is complete, and what would you do differently if you assumed it was not?
+
+? The supplier has published IOCs. How do you determine total impact?
++ Query your logs for the malicious IPs and affected tokens to identify which of your records were touched
+++ Sweep for all three IOC types, run delta analysis against authoritative references, and reconstruct audit history across every integration
++ Restore the listed record UUIDs from backup and close the incident once the record counts reconcile
+
+# prompts
++ 1) Less Optimal — Uses two of the three IOC types and stops at the SaaS boundary. It answers "what did they touch here", not "where has it gone since". Ask what analytics did with those records at 08:00.
++ 2) Optimal — The audit reconstruction across integrations is what finds tainted data that has already propagated into analytics and case management. Ask how many downstream consumers there are and whether anyone can list them.
++ 3) Less Optimal — Jumps to remediation, and reconciling counts is a weak test: a record altered and restored still propagated downstream in between. Ask what the count proves.
+
+@ Data Exposure Assessment – Evidence & Notification Inputs
+! duration: 5 mins
+! content
+09:47 UTC — You confirm a defined set of altered citizen records. Several downstream consumers hold inconsistent copies. Authoritative references exist for per‑record restore. Credentials/tokens used by the integration may be exposed and require rotation. Validation scripts are available to certify clean state.
+
+# discussion
++ What evidence is required to regain confidence in data correctness across downstream systems that may already hold divergent copies?
++ Some citizens may have been given decisions based on altered records. Who needs to know, how soon, and what is your regulatory position?
+
+? Which workflow restores a trusted data state and reconciles downstream systems?
++ Restore the SaaS tenant from the last backup before 07:35 and let downstream systems re-synchronise naturally
++ Correct the identified records in place and notify downstream consumers to refresh their own copies
+++ Restore from authoritative references, re-sync downstream consumers, rotate integration credentials, and certify with the validation scripts
+
+# prompts
++ 1) Less Optimal — Clean, decisive, and it discards every legitimate citizen transaction between 07:35 and now on a high-volume service. Ask how many that is and what happens to those people. Sometimes the right call — make them justify it.
++ 2) Less Optimal — Proportionate and the most common answer. It depends on every downstream owner acting, on their own schedule, and produces no evidence that they did. Ask who chases analytics on a Friday.
++ 3) Optimal — Restoration, propagation, credentials and certification. Ask what the validation scripts actually assert, and whether that assertion is what an auditor or regulator would want.
+
+@ Recovery & Lessons – Restoring Trust & Assurance
+! duration: 5 mins
+! content
+Post‑recovery — Service stability restored: read‑only rolled back to controlled write. Supplier provides signed remediations and RCA. Leadership mandates continuous log export, scoped tokens, staged releases with SBOM/attestation, and incident‑notification SLAs, with dashboards/alerts for early integrity‑anomaly detection.
+
+# discussion
++ What early‑warning signals or telemetry would alert you to a similar SaaS integrity failure before business processes begin consuming corrupted data again?
++ Most of this incident's difficulty came from the supplier not naming affected tenants. What would you change in the contract, and would they sign it?
+
+? Which long-term controls should be mandated for this integration?
++ Require tenant-specific breach notification within one hour, backed by contractual penalties
+++ Continuous log export, scoped tokens, periodic access reviews, and contractual incident-notification SLAs
++ Maintain an independent copy of all citizen records so integrity can be verified without relying on the supplier
+
+# prompts
++ 1) Less Optimal — Attacks the exact pain of this incident and is worth pursuing. It makes your assurance entirely dependent on the supplier telling the truth promptly, which is the dependency that just failed. Ask what they would do if the notification arrived on time but was wrong.
++ 2) Optimal — Own telemetry plus reduced privilege plus contractual leverage. Ask where the exported logs land and whether anyone would notice rapid record edits in them at 07:35 on a Sunday.
++ 3) Less Optimal — A serious architectural option, not a foolish one, and it gives genuine independent integrity verification. Press on cost, on the new duplicate held for citizen data, and on whether the copy is reconciled often enough to be authoritative. Let the room argue it out.

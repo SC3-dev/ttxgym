@@ -1,0 +1,118 @@
+! title: Botnet Malware
+! author: SC3 / Cyber Capability Toolkit
+! summary
+A botnet malware infection triggers outbound C2 beaconing. The technical team must identify signals, contain egress, collect evidence, coordinate C2 disruption, and validate recovery.
+
+@ Initial Detection – Outbound C2 Beaconing
+! duration: 10 mins
+! content
+08:19 UTC — SIEM flags periodic HTTPS egress every 60 seconds from HR‑LAP‑22 to `app-cdn-login[.]com`. JA3/JA3S do not match known app baselines; SNI is blank. EDR shows the child process `chrome.exe --type=renderer` spawned by an unsigned helper in `%LOCALAPPDATA%\ChromeHelper\ch.exe`.
+
+# discussion
++ What characteristics of outbound behaviour indicate automated command‑and‑control rather than misconfigured or opportunistic application traffic, and why does early misclassification matter?
++ The domain is designed to look like a CDN and the process is named to look like Chrome. What in your triage process is resistant to an attacker who names things well?
+
+? HR‑LAP‑22 is beaconing on a fixed 60-second interval to an unrecognised domain. What is your immediate action?
++ Block `app-cdn-login[.]com` at proxy and DNS but leave the host online, to watch what the malware does next
++ Pull `ch.exe` for sandbox detonation and hold containment until the analysis returns a verdict
+++ Isolate HR‑LAP‑22 at the network edge, capturing full packet data and a memory image as it goes
+
+# prompts
++ 1) Less Optimal — Intelligence-led and genuinely tempting; some teams will argue observation is worth more than speed. Two problems to draw out: the host stays compromised while you watch, and most families of this type fail over to a backup channel the moment the primary is blocked — so you lose the visibility you were buying.
++ 2) Less Optimal — The instinct to confirm before disrupting. Ask what the dwell time is: sandbox turnaround is measured in hours and the beacon is 60 seconds. Ask what verdict would change their mind, and whether they need it to act.
++ 3) Optimal — Cuts the channel and keeps the evidence. Probe *how* they isolate: EDR containment usually preserves the memory image, a switch-port block does not, and pulling the network cable loses the socket state that identifies the channel.
+
+@ Malware Behaviour – C2 Enumeration
+! duration: 10 mins
+! content
+08:41 UTC — EDR captures injected DLL (`uxtheme.dll` anomaly) establishing an encrypted outbound channel. PCAP shows short TLS handshakes with identical record sizes and keep‑alives every 60s. DNS history lists `cdn-img-cache[.]net` (A records rotating across 3 IPs).
+
+# discussion
++ Why is no single artefact sufficient to confirm C2 beaconing, and how does attacker intent shape the signals you prioritise at this stage?
++ You now have two domains. How would you find the third one you have not seen yet, and what would you do differently if you assumed there always is one?
+
+? Which evidence would confirm command‑and‑control rather than an unusual but legitimate application?
++ The JA3/JA3S mismatch against the application baseline, together with the blank SNI field
+++ Correlated DNS resolution history, the EDR process tree, and the channel's PCAP metadata read together
++ Reputation lookups on both domains and the file hash of `ch.exe` against threat intelligence feeds
+
+# prompts
++ 1) Less Optimal — The strongest distractor, because both signals are real and both are in the inject. But plenty of legitimate software ships a custom TLS stack and omits SNI, so on their own these produce false positives. Ask what else in the estate would trip the same rule.
++ 2) Optimal — Behaviour beats indicators. The fixed interval, identical record sizes, rotating A records and unsigned parent process only mean something together. Ask which of the three they would lose first if telemetry retention were shorter.
++ 3) Less Optimal — Standard triage, and worth doing. It will come back clean: the infrastructure is fresh and the helper is very likely unique to this victim. Ask what a clean reputation result would let them conclude, and listen for anyone treating it as exoneration.
+
+@ Lateral Impact Assessment
+! duration: 10 mins
+! content
+09:05 UTC — NetFlow shows multiple hosts with similar periodic beacons (HR‑LAP‑22, ACC‑PC‑11, ENG‑WKS‑07). One device scans random high ports on a nearby subnet. SOC suspects early botnet propagation; incident tempo must increase without over‑blocking.
+
+# discussion
++ What signals suggest C2 activity is transitioning from isolated footholds to coordinated, multi‑host operations, and how should that affect containment scope?
++ Three hosts across HR, Accounts and Engineering have no obvious relationship. What common exposure would explain that spread, and how quickly could you confirm or rule it out?
+
+? Which step best assesses the true spread across the estate without causing outages?
++ Isolate the three known hosts now and work through them individually before widening the search
+++ Hunt the beacon *pattern* — interval, JA3 fingerprint and destination behaviour — across all endpoint and NetFlow telemetry
++ Push an emergency EDR scan task to every endpoint using the `ch.exe` hash and the two known domains
+
+# prompts
++ 1) Less Optimal — Defensible and safe, and most teams' instinct. It contains what you already know while the hosts you have not found keep beaconing. Ask how long the individual analysis takes and what the botnet does during it.
++ 2) Optimal — The pattern is the durable indicator; hashes and domains are not. Probe whether their telemetry actually retains NetFlow long enough to answer the question, and how far back they would look.
++ 3) Less Optimal — Feels comprehensive and is the answer that sounds most like "IOC sweep". The hash is likely unique per victim and the domains rotate, so it finds the three hosts you already have. Use it to separate indicators of *compromise* from indicators of *behaviour*.
+
+@ Egress Containment & Sinkholing
+! duration: 10 mins
+! content
+09:27 UTC — Network proposes immediate sinkholing for `app-cdn-login[.]com` and `cdn-img-cache[.]net` with proxy/DNS blocks and host isolation. App owners ask for assurance that business SaaS is not impacted; a controlled validation plan is requested.
+
+# discussion
++ What risks are introduced when disrupting live C2 channels (e.g. signalling, fallback behaviour, loss of intelligence), and how do you decide when disruption outweighs observation?
++ The app owners want assurance before you act. Who is empowered to overrule them, and how long would getting that decision take on a Friday afternoon?
+
+? Which control best disrupts C2 while keeping legitimate business SaaS available?
+++ Sinkhole both domains, block the rotating IPs at the egress firewall, and isolate the confirmed hosts
++ Route all outbound traffic through the proxy with TLS inspection enabled and alert on the beacon pattern
++ Null-route the three A records currently in DNS history and monitor for the domains resolving elsewhere
+
+# prompts
++ 1) Optimal — Layered, and the sinkhole gives continued visibility of which hosts are still trying. Ask what their validation plan for the app owners looks like, and whether they can produce it in the next twenty minutes.
++ 2) Less Optimal — Strategically right and a good thing to want. Ask how long TLS inspection would take to deploy safely, what breaks when it lands, and what the botnet is doing throughout. Good answer, wrong stage.
++ 3) Less Optimal — Precise and low-impact, which is its appeal. The inject says the A records rotate across three IPs; that is the behaviour, not the current state. Ask what happens at the next DNS refresh.
+
+@ Eradication & System Rebuild
+! duration: 5 mins
+! content
+10:02 UTC — Persistence identified on HR‑LAP‑22 via `HKCU\Software\Microsoft\Windows\CurrentVersion\Run\ChromeUpdate` and a scheduled task `ChromeCache`. EDR reveals an autorun DLL in `%APPDATA%\ChromeCache\cache.dll`. Reimage vs targeted cleanup must be decided.
+
+# discussion
++ What risks remain if C2 infrastructure was not fully enumerated before rebuild, and how could attackers regain access post‑recovery?
++ You have found three persistence mechanisms on one host. What is your basis for believing that is all of them, and what would change your mind?
+
+? Persistence is confirmed on HR‑LAP‑22. Reimage or targeted cleanup?
++ Remove the Run key, scheduled task and `cache.dll`, then verify with a full EDR scan before returning the host
++ Restore HR‑LAP‑22 from the most recent backup predating 08:19, then apply outstanding patches
+++ Reimage from a known-good build, reset every credential used on the host, and sweep the estate for the same persistence
+
+# prompts
++ 1) Less Optimal — Fast, and reasonable if you are confident the enumeration is complete. Push on that confidence: three mechanisms were found by looking, and the scan that would verify removal is the same class of tool that missed them for however long the host was infected.
++ 2) Less Optimal — Sounds rigorous and is the most commonly chosen wrong answer. 08:19 is when you *detected* the beacon, not when the host was compromised. Ask how they would establish the actual infection date, and whether any backup predates it.
++ 3) Optimal — The credential reset is the part teams forget; anything typed or cached on that laptop is attacker-controlled. Ask specifically which credentials, and whether they can enumerate them.
+
+@ Recovery & Hardening
+! duration: 5 mins
+! content
+Post‑containment — Sinkhole logs show residual attempts but no active C2. Leadership requests hardening: stronger egress policy, lawful TLS inspection, beacon‑pattern detections, and continuous export for JA3/JA3S and SNI baselines.
+
+# discussion
++ What outbound telemetry would have detected this C2 earlier, and what measurable change would demonstrate improved egress assurance tomorrow?
++ Sinkhole logs still show attempts. What does that tell you about your eradication, and at what point would you stop treating it as residual?
+
+? Which change would most improve egress assurance against the next botnet?
++ Deploy lawful TLS inspection across outbound traffic and alert on certificate and handshake anomalies
+++ Move egress to default-deny with an allowlist, add beacon-interval detection, and baseline JA3/JA3S continuously
++ Block newly registered and low-reputation domains at the proxy, and subscribe to a commercial C2 feed
+
+# prompts
++ 1) Less Optimal — Real capability, and explicitly requested by leadership, which is why it is here. It does not help where SNI is blank or the channel is pinned, and it carries legal and privacy obligations. Ask who signs it off and what they tell staff.
++ 2) Optimal — Default-deny is the control that would actually have stopped this, and behavioural detection catches the next domain rather than this one. Ask what breaks on day one of an egress allowlist, and whether they could get it approved.
++ 3) Less Optimal — Cheap and useful, and it would have caught this particular domain. It is inherently reactive: bespoke infrastructure is not on a feed and is not always newly registered. Ask what it costs them to be one campaign behind.

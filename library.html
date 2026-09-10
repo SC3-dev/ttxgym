@@ -24,6 +24,13 @@
 
   <link rel="stylesheet" href="style.css">
   <style>
+    :root {
+      /* The filters header and the level pills sit either side of the sidebar
+         border. One value keeps their bottom borders on the same line, so the
+         rule reads as one stroke across the page. */
+      --header-row: 52px;
+    }
+
     /* ─── LIBRARY LAYOUT ─── */
     #lib-wrap {
       flex: 1;
@@ -48,11 +55,17 @@
 
     #lib-sidebar-header {
       padding: 0 1.25rem;
-      height: 52px;
+      height: var(--header-row);
       display: flex;
       align-items: center;
       border-bottom: 1px solid var(--border);
       flex-shrink: 0;
+      /* the sidebar scrolls as a whole, so pin this or the rule comes apart the
+         moment anyone scrolls the filters */
+      position: sticky;
+      top: 0;
+      background: var(--mid);
+      z-index: 1;
     }
 
     #lib-sidebar-header h2 {
@@ -111,6 +124,37 @@
     .filter-group {
       padding: 0.75rem 1.25rem 0;
     }
+
+    #duration-slider-wrap { padding: 0.1rem 0 0.2rem; }
+    #duration-label {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.45rem;
+      font-variant-numeric: tabular-nums;
+    }
+    #duration-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      background: transparent;
+      cursor: pointer;
+    }
+    #duration-slider::-webkit-slider-runnable-track {
+      height: 3px; border-radius: 2px; background: var(--border);
+    }
+    #duration-slider::-moz-range-track {
+      height: 3px; border-radius: 2px; background: var(--border);
+    }
+    #duration-slider::-webkit-slider-thumb {
+      -webkit-appearance: none; appearance: none;
+      width: 14px; height: 14px; margin-top: -5.5px;
+      border-radius: 50%; border: none; background: var(--accent);
+    }
+    #duration-slider::-moz-range-thumb {
+      width: 14px; height: 14px;
+      border-radius: 50%; border: none; background: var(--accent);
+    }
+    #duration-slider:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
 
     .filter-group-label {
       font-family: var(--font-mono);
@@ -258,6 +302,7 @@
       display: flex;
       align-items: center;
       gap: 0.75rem;
+      flex-shrink: 0;
     }
 
     #clear-filters {
@@ -281,23 +326,81 @@
       border-color: var(--accent);
     }
 
+    #level-switch {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      min-width: 0;
+      overflow-x: auto;
+      scrollbar-width: none;
+      flex: 1;
+    }
+
+    #level-switch::-webkit-scrollbar {
+      display: none;
+    }
+
+    .level-tab {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      white-space: nowrap;
+      flex-shrink: 0;
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 99px;
+      padding: 0.4rem 0.9rem;
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s, background 0.15s;
+    }
+
+    .level-tab:hover {
+      color: var(--text-primary);
+      border-color: var(--border-active);
+    }
+
+    .level-tab.active {
+      color: #fff;
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .level-tab-count {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 400;
+      opacity: 0.75;
+      font-variant-numeric: tabular-nums;
+    }
+
     #lib-topbar {
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 0 1.5rem;
-      height: 52px;
+      height: var(--header-row);
       border-bottom: 1px solid var(--border);
       background: var(--mid);
       flex-shrink: 0;
       gap: 1rem;
     }
 
-    #lib-topbar h1 {
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--text-primary);
-      letter-spacing: -0.01em;
+    /* Present to assistive technology and to the document outline, not on screen. */
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      margin: -1px;
+      padding: 0;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      clip-path: inset(50%);
+      white-space: nowrap;
+      border: 0;
     }
 
     #result-count {
@@ -314,10 +417,166 @@
     }
 
     #gallery {
+      display: flex;
+      flex-direction: column;
+      gap: 1.75rem;
+    }
+
+    .section-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
-      gap: 1rem;
+      grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
+      gap: 0.85rem;
       align-content: flex-start;
+    }
+
+    #view-toggle {
+      display: flex;
+      gap: 0.15rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.1rem;
+    }
+
+    .view-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 26px;
+      height: 22px;
+      border: none;
+      background: none;
+      border-radius: 3px;
+      cursor: pointer;
+      color: var(--text-muted);
+    }
+
+    .view-btn svg {
+      width: 14px;
+      height: 14px;
+      fill: currentColor;
+    }
+
+    .view-btn:hover {
+      color: var(--text-primary);
+    }
+
+    .view-btn.active {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    /* ─── LIST VIEW ─── */
+    .section-list {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .ex-row {
+      display: grid;
+      grid-template-columns: 2.6rem minmax(0, 1fr) minmax(0, 15rem) 5.5rem 5rem;
+      gap: 0.85rem;
+      align-items: center;
+      padding: 0.55rem 0.6rem;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .ex-row:hover {
+      background: var(--surface);
+    }
+
+    .ex-row:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: -2px;
+    }
+
+    .row-thumb {
+      width: 2.6rem;
+      height: 1.75rem;
+      border-radius: 3px;
+      border: 1px solid var(--border);
+      flex-shrink: 0;
+      background-size: cover;
+      background-position: center;
+    }
+
+    .row-title {
+      font-weight: 600;
+      color: var(--text-primary);
+      display: flex;
+      align-items: baseline;
+      gap: 0.5rem;
+      min-width: 0;
+    }
+
+    .row-seq {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      color: var(--text-muted);
+      flex-shrink: 0;
+      min-width: 1.1rem;
+    }
+
+    .row-tags,
+    .row-stages,
+    .row-dur {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .row-stages,
+    .row-dur {
+      font-family: var(--font-mono);
+      font-variant-numeric: tabular-nums;
+      text-align: right;
+    }
+
+    @media (max-width: 860px) {
+      .ex-row {
+        grid-template-columns: 2.6rem minmax(0, 1fr) 5rem;
+      }
+
+      .row-tags,
+      .row-stages {
+        display: none;
+      }
+    }
+
+    .section-head {
+      margin-bottom: 0.75rem;
+    }
+
+    .section-head h2 {
+      display: flex;
+      align-items: baseline;
+      gap: 0.5rem;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.01em;
+    }
+
+    .section-count {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--text-muted);
+      background: var(--surface);
+      border-radius: 99px;
+      padding: 0.1rem 0.45rem;
+    }
+
+    .section-head p {
+      margin: 0.2rem 0 0;
+      font-size: 12.5px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      max-width: 62ch;
     }
 
     .ex-tile {
@@ -327,11 +586,78 @@
       cursor: pointer;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
       overflow: hidden;
-      aspect-ratio: 4 / 3;
       transition: border-color 0.18s, box-shadow 0.18s, transform 0.18s;
       position: relative;
+    }
+
+    .ex-tile:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    /* Cover art where it exists, a generated wash where it does not. Kept to a band
+       so the text sits on a solid surface either way. */
+    .ex-band {
+      height: 74px;
+      flex-shrink: 0;
+      position: relative;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .ex-seq {
+      position: absolute;
+      left: 0.6rem;
+      bottom: 0.5rem;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      color: #fff;
+      background: rgba(20, 24, 32, 0.6);
+      border-radius: 99px;
+      min-width: 1.35rem;
+      height: 1.35rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .ex-body {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      padding: 0.75rem 0.85rem 0.7rem;
+      flex: 1;
+    }
+
+    .ex-excerpt {
+      margin: 0;
+      font-size: 12.5px;
+      line-height: 1.55;
+      color: var(--text-secondary);
+      flex: 1;
+    }
+
+    .ex-foot {
+      display: flex;
+      gap: 0.9rem;
+      align-items: center;
+      padding-top: 0.15rem;
+    }
+
+    .ex-meta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      color: var(--text-muted);
+    }
+
+    .ex-meta svg {
+      width: 12px;
+      height: 12px;
+      flex-shrink: 0;
     }
 
     .ex-tile:hover {
@@ -341,11 +667,9 @@
     }
 
     .ex-tile h3 {
-      padding: 1rem 1rem 0.75rem;
-      font-size: 1rem;
-      font-weight: 700;
       margin: 0;
-      background: linear-gradient(180deg, rgba(20, 24, 32, 0.9) 0%, rgba(20, 24, 32, 0) 100%);
+      font-size: 14px;
+      font-weight: 700;
       color: var(--text-primary);
       letter-spacing: -0.01em;
       line-height: 1.35;
@@ -739,21 +1063,17 @@
         </div>
       </div>
 
-      <div class="filter-group" id="level-filter">
-        <div class="filter-group-label">
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M4 20v-4h4v4H4zm6 0V12h4v8h-4zm6 0V4h4v16h-4z" />
-          </svg>
-          Level
-        </div>
-      </div>
-
       <div class="filter-group" id="duration-filter">
         <div class="filter-group-label">
           <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2zm.5 11H11V7h1.5v5.25l3.75 2.25-.75 1.25L12.5 13z" />
           </svg>
           Duration
+        </div>
+        <div id="duration-slider-wrap">
+          <div id="duration-label" aria-hidden="true">Any length</div>
+          <input type="range" id="duration-slider" min="0" max="1" value="1" step="1"
+                 aria-label="Longest exercise to show" oninput="setMaxDuration(this.value)">
         </div>
       </div>
 
@@ -772,12 +1092,22 @@
     <!-- MAIN CONTENT -->
     <div id="lib-main">
       <div id="lib-topbar">
-        <h1>Exercise Library</h1>
+        <h1 class="visually-hidden">Exercise Library</h1>
+        <div id="level-switch" role="group" aria-label="Filter by level"></div>
         <div class="lib-topbar-right">
+          <div id="view-toggle" role="group" aria-label="How to show the scenarios">
+            <button type="button" class="view-btn active" data-view="grid" onclick="setView('grid')" aria-pressed="true" title="Cards">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" aria-hidden="true"><path d="M120-520v-320h320v320H120Zm0 400v-320h320v320H120Zm400-400v-320h320v320H520Zm0 400v-320h320v320H520ZM200-600h160v-160H200v160Zm400 0h160v-160H600v160Zm0 400h160v-160H600v160Zm-400 0h160v-160H200v160Z"/></svg>
+            </button>
+            <button type="button" class="view-btn" data-view="list" onclick="setView('list')" aria-pressed="false" title="List">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" aria-hidden="true"><path d="M280-600v-80h560v80H280Zm0 160v-80h560v80H280Zm0 160v-80h560v80H280ZM160-600q-17 0-28.5-11.5T120-640q0-17 11.5-28.5T160-680q17 0 28.5 11.5T200-640q0 17-11.5 28.5T160-600Zm0 160q-17 0-28.5-11.5T120-480q0-17 11.5-28.5T160-520q17 0 28.5 11.5T200-480q0 17-11.5 28.5T160-440Zm0 160q-17 0-28.5-11.5T120-320q0-17 11.5-28.5T160-360q17 0 28.5 11.5T200-320q0 17-11.5 28.5T160-280Z"/></svg>
+            </button>
+          </div>
           <button type="button" id="clear-filters" onclick="clearFilters()">Clear filters</button>
           <span id="result-count"></span>
         </div>
       </div>
+
       <div id="gallery-scroll">
         <div id="gallery"></div>
       </div>
@@ -846,9 +1176,9 @@
 
     function loadScenarioBodies(list) {
       return Promise.all(list.map(ex =>
-        fetch('lib/scenarios/' + ex.image + '.ttxf')
+        fetch('lib/scenarios/' + ex.id + '.ttxf')
           .then(r => (r.ok ? r.text() : null))
-          .then(text => { if (text) bodies[ex.image] = { doc: TTXF.parse(text).doc, text: text }; })
+          .then(text => { if (text) bodies[ex.id] = { doc: TTXF.parse(text).doc, text: text }; })
           .catch(() => { /* a scenario that will not load simply has no detail */ })
       )).then(() => { bodiesReady = true; });
     }
@@ -877,7 +1207,11 @@
           document.getElementById('modal').addEventListener('click', e => { if (e.target === document.getElementById('modal')) closeModal(); });
           document.getElementById('search').addEventListener('input', filterexs);
           initializeFilters();
-          displayexs(exs);
+          if (store('ttxgym_library_view') === 'list') setView('list');
+          const params = new URLSearchParams(window.location.search);
+          const wanted = params.get('section') || params.get('level');
+          if (wanted && exs.some(e => sectionOf(e) === wanted)) selectSection(wanted);
+          else displayexs(exs);
 
           loadScenarioBodies(exs).then(() => {
             const search = document.getElementById('search');
@@ -888,7 +1222,7 @@
           const urlParams = new URLSearchParams(window.location.search);
           const qParam = urlParams.get('q');
           if (qParam) {
-            const match = exs.find(ex => ex.image === qParam);
+            const match = exs.find(ex => ex.id === qParam);
             if (match) openModal(match, true);
           }
         })
@@ -902,10 +1236,52 @@
         });
     }
 
+    /* Not every scenario has cover art. Rather than leaving those tiles blank, derive
+       a stable colour from the id so each one looks deliberate and stays recognisable
+       between visits. */
+    function applyCover(el, ex) {
+      el.style.backgroundBlendMode = 'normal';
+      if (ex.image) {
+        el.style.backgroundImage = `url(lib/images/${ex.image}.jpg)`;
+        el.style.backgroundSize = 'cover';
+        el.style.backgroundPosition = 'center';
+        el.style.backgroundColor = '';
+        el.classList.remove('no-cover');
+        return;
+      }
+      let hash = 0;
+      for (let i = 0; i < ex.id.length; i++) hash = (hash * 31 + ex.id.charCodeAt(i)) >>> 0;
+      const hue = hash % 360;
+      el.style.backgroundImage =
+        `linear-gradient(135deg, hsl(${hue} 42% 22%) 0%, hsl(${(hue + 38) % 360} 46% 13%) 100%)`;
+      el.style.backgroundSize = 'cover';
+      el.style.backgroundColor = '';
+      el.classList.add('no-cover');
+    }
+
+    /* Sections, not one undifferentiated grid. The technical exercises are written
+       as progressions, and the rest divide by who they are aimed at — grouping under
+       a heading that says which is which turns 38 tiles into six readable sets.
+       Vertical throughout: a horizontal carousel would hide items and break both
+       scanning and keyboard use, for a catalogue small enough to show in full. */
+    const SECTIONS = [
+      ['Executive', 'For boards and senior leadership: reputational, legal and strategic decisions.'],
+      ['Strategic', 'For those setting direction during an incident.'],
+      ['Operational', 'For the people coordinating a response.'],
+      ['Incident Response', 'End‑to‑end technical exercises covering a full incident lifecycle.'],
+      ['Malware', 'A progression, from the first suspicious file through to forensic recovery.'],
+      ['Supply Chain', 'Compromise reaching you through a supplier — software, hardware, identity and service.'],
+    ];
+
+    // The most specific structure an exercise has: its series if it belongs to one,
+    // otherwise the audience it is written for.
+    function sectionOf(ex) { return ex.series || ex.level; }
+
     function displayexs(list) {
       const gallery = document.getElementById('gallery');
       gallery.innerHTML = '';
-      document.getElementById('result-count').textContent = list.length + ' scenario' + (list.length !== 1 ? 's' : '');
+      document.getElementById('result-count').textContent =
+        list.length + ' scenario' + (list.length !== 1 ? 's' : '');
 
       if (list.length === 0) {
         gallery.innerHTML = `<div class="empty-state">
@@ -915,52 +1291,223 @@
         return;
       }
 
+      const groups = new Map();
       list.forEach(ex => {
-        const tile = document.createElement('div');
-        tile.classList.add('ex-tile');
-
-        if (ex.image) {
-          tile.style.backgroundImage = `url(lib/images/${ex.image}.jpg)`;
-          tile.style.backgroundSize = 'cover';
-          tile.style.backgroundPosition = 'center';
-        }
-
-        tile.innerHTML = `
-          <h3>${esc(ex.title)}</h3>
-          <div class="ex-attributes">
-            <div class="ex-attr">
-              ${iconLevel}
-              <span class="ex-attr-val">${esc(ex.level) || '—'}</span>
-            </div>
-            <div class="ex-attr">
-              ${iconAuthor}
-              <span class="ex-attr-val">${esc(ex.author) || '—'}</span>
-            </div>
-            <div class="ex-attr">
-              ${iconClock}
-              <span class="ex-attr-val">${esc(ex.duration) || '—'}</span>
-            </div>
-          </div>
-        `;
-        tile.addEventListener('click', () => openModal(ex));
-        gallery.appendChild(tile);
+        const key = sectionOf(ex);
+        if (!groups.has(key)) groups.set(key, []);
+        groups.get(key).push(ex);
       });
+
+      const known = SECTIONS.map(s => s[0]);
+      const ordered = known.filter(k => groups.has(k))
+        .concat([...groups.keys()].filter(k => !known.includes(k)));
+
+      ordered.forEach(key => {
+        const items = groups.get(key).slice()
+          .sort((a, b) => (a.order ?? 99) - (b.order ?? 99) || a.title.localeCompare(b.title));
+        gallery.appendChild(sectionHeading(key, items.length));
+        const holder = document.createElement('div');
+        holder.className = view === 'list' ? 'section-list' : 'section-grid';
+        items.forEach(ex => holder.appendChild(view === 'list' ? buildRow(ex) : buildTile(ex)));
+        gallery.appendChild(holder);
+      });
+    }
+
+    /* Cards are for browsing; a list is for choosing. Comparing 38 scenarios with
+       near-identical metadata is a comparison task, and a dense list does that far
+       better than any grid. */
+    let view = 'grid';
+
+    function setView(next) {
+      view = next === 'list' ? 'list' : 'grid';
+      document.querySelectorAll('#view-toggle .view-btn').forEach(b => {
+        const on = b.dataset.view === view;
+        b.classList.toggle('active', on);
+        b.setAttribute('aria-pressed', String(on));
+      });
+      document.getElementById('gallery').classList.toggle('as-list', view === 'list');
+      store('ttxgym_library_view', view);
+      filterexs();
+    }
+
+    // Storage throws for opaque origins; a view preference is not worth failing over.
+    function store(key, value) {
+      try { if (value === undefined) return localStorage.getItem(key); localStorage.setItem(key, value); }
+      catch (e) { return null; }
+    }
+
+    function buildRow(ex) {
+      const row = document.createElement('div');
+      row.className = 'ex-row';
+      row.setAttribute('role', 'button');
+      row.setAttribute('tabindex', '0');
+
+      // the same cover treatment as the cards, so a scenario is recognisable in
+      // either view rather than becoming an anonymous line of text
+      const thumb = document.createElement('span');
+      thumb.className = 'row-thumb';
+      applyCover(thumb, ex);
+      row.appendChild(thumb);
+
+      const title = document.createElement('span');
+      title.className = 'row-title';
+      if (typeof ex.order === 'number') {
+        const n = document.createElement('span');
+        n.className = 'row-seq';
+        n.textContent = ex.order + 1;
+        title.appendChild(n);
+      }
+      title.appendChild(document.createTextNode(ex.title));
+
+      const tags = document.createElement('span');
+      tags.className = 'row-tags';
+      tags.textContent = (ex.categories || []).join(' · ');
+
+      const inside = insideOf(ex.id);
+      const stages = document.createElement('span');
+      stages.className = 'row-stages';
+      stages.textContent = inside ? inside.doc.stages.length + ' stages' : '';
+
+      const dur = document.createElement('span');
+      dur.className = 'row-dur';
+      dur.textContent = ex.duration || '';
+
+      row.append(title, tags, stages, dur);
+      row.addEventListener('click', () => openModal(ex));
+      row.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openModal(ex); }
+      });
+      return row;
+    }
+
+    function sectionHeading(key, count) {
+      const meta = SECTIONS.find(s => s[0] === key);
+      const head = document.createElement('div');
+      head.className = 'section-head';
+      const h2 = document.createElement('h2');
+      h2.textContent = key;
+      const n = document.createElement('span');
+      n.className = 'section-count';
+      n.textContent = count;
+      h2.appendChild(n);
+      head.appendChild(h2);
+      if (meta) {
+        const p = document.createElement('p');
+        p.textContent = meta[1];
+        head.appendChild(p);
+      }
+      return head;
+    }
+
+    // One line of the summary, which is what actually tells these apart. The old
+    // tile spent a third of its height on level/author/duration — and 23 of the 38
+    // carried the identical three.
+    function excerptOf(ex) {
+      const text = stripTags(ex.summary || '').replace(/\s+/g, ' ').trim();
+      if (text.length <= 120) return text;
+      const cut = text.slice(0, 120);
+      return cut.slice(0, cut.lastIndexOf(' ')) + '…';
+    }
+
+    function buildTile(ex) {
+      const tile = document.createElement('div');
+      tile.classList.add('ex-tile');
+      tile.setAttribute('role', 'button');
+      tile.setAttribute('tabindex', '0');
+      tile.setAttribute('aria-label', `${ex.title}. ${ex.level}, ${ex.duration}.`);
+
+      const band = document.createElement('div');
+      band.className = 'ex-band';
+      applyCover(band, ex);
+      if (typeof ex.order === 'number') {
+        const num = document.createElement('span');
+        num.className = 'ex-seq';
+        num.textContent = ex.order + 1;
+        band.appendChild(num);
+      }
+      tile.appendChild(band);
+
+      const body = document.createElement('div');
+      body.className = 'ex-body';
+
+      const h3 = document.createElement('h3');
+      h3.textContent = ex.title;
+      body.appendChild(h3);
+
+      const blurb = document.createElement('p');
+      blurb.className = 'ex-excerpt';
+      blurb.textContent = excerptOf(ex);
+      body.appendChild(blurb);
+
+      const foot = document.createElement('div');
+      foot.className = 'ex-foot';
+      foot.appendChild(metaBit(iconClock, ex.duration || '—'));
+      const inside = insideOf(ex.id);
+      foot.appendChild(metaBit(iconLevel, inside
+        ? `${inside.doc.stages.length} stages`
+        : ex.level));
+      body.appendChild(foot);
+
+      tile.appendChild(body);
+      tile.addEventListener('click', () => openModal(ex));
+      tile.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openModal(ex); }
+      });
+      return tile;
+    }
+
+    function metaBit(icon, text) {
+      const el = document.createElement('span');
+      el.className = 'ex-meta';
+      el.innerHTML = icon;
+      el.appendChild(document.createTextNode(' ' + text));
+      return el;
+    }
+
+    /* "Exactly 45 minutes" is not a question anyone asks; "what fits in the slot I
+       have" is. So the control sets an upper bound rather than matching exactly —
+       asking for an hour now also offers you the 30- and 45-minute scenarios.
+       A slider rather than another checkbox stack because the values are ordered
+       and mutually implied, and its stops come from the durations actually in the
+       manifest, so it still reads correctly if those change. */
+    let durationStops = [];
+    let maxDuration = null;
+
+    function buildDurationSlider() {
+      durationStops = [...new Set(exs.map(ex => parseInt(ex.duration, 10)).filter(Boolean))]
+        .sort((a, b) => a - b);
+      const slider = document.getElementById('duration-slider');
+      slider.max = String(durationStops.length);   // the far right stop means "any"
+      slider.value = slider.max;
+      maxDuration = null;
+      renderDurationLabel();
+    }
+
+    function setMaxDuration(index) {
+      const i = Number(index);
+      maxDuration = i >= durationStops.length ? null : durationStops[i];
+      renderDurationLabel();
+      filterexs();
+    }
+
+    function renderDurationLabel() {
+      const label = document.getElementById('duration-label');
+      if (!label) return;
+      label.textContent = maxDuration === null ? 'Any length' : `Up to ${maxDuration} mins`;
     }
 
     function filterexs() {
       const searchValue = document.getElementById('search').value.toLowerCase();
       const selectedCategories = Array.from(document.querySelectorAll('#category-filter input:checked')).map(el => el.value);
-      const selectedLevels = Array.from(document.querySelectorAll('#level-filter input:checked')).map(el => el.value);
       const selectedAuthors = Array.from(document.querySelectorAll('#author-filter input:checked')).map(el => el.value);
-      const selectedDurations = Array.from(document.querySelectorAll('#duration-filter input:checked')).map(el => el.value);
 
       const filtered = exs.filter(ex => {
         const matchesCategory = selectedCategories.length === 0 || (ex.categories && ex.categories.some(c => selectedCategories.includes(c)));
-        const matchesLevel = selectedLevels.length === 0 || selectedLevels.includes(ex.level);
+        const matchesSection = !selectedSection || sectionOf(ex) === selectedSection;
         const matchesAuthor = selectedAuthors.length === 0 || selectedAuthors.includes(ex.author);
-        const matchesDuration = selectedDurations.length === 0 || selectedDurations.includes(ex.duration);
+        const matchesDuration = maxDuration === null || parseInt(ex.duration, 10) <= maxDuration;
         const matchesSearch = !searchValue || searchHaystack(ex).includes(searchValue);
-        return matchesCategory && matchesLevel && matchesDuration && matchesSearch && matchesAuthor;
+        return matchesCategory && matchesSection && matchesDuration && matchesSearch && matchesAuthor;
       });
 
       displayexs(filtered);
@@ -972,7 +1519,7 @@
     // have arrived.
     function searchHaystack(ex) {
       if (ex._haystack) return ex._haystack;
-      const b = bodies[ex.image];
+      const b = bodies[ex.id];
       let text = stripTags((ex.title || '') + ' ' + (ex.summary || ''));
       if (b) {
         const d = b.doc;
@@ -998,20 +1545,59 @@
     function clearFilters() {
       document.querySelectorAll('.filter-group input:checked').forEach(el => { el.checked = false; });
       document.getElementById('search').value = '';
-      filterexs();
+      buildDurationSlider();
+      selectSection('');
     }
 
     // Only offer the escape hatch when there is something to escape from.
     function syncClearFilters() {
       const active = document.querySelectorAll('.filter-group input:checked').length
-        || document.getElementById('search').value.trim().length;
+        || document.getElementById('search').value.trim().length
+        || selectedSection
+        || maxDuration !== null;
       document.getElementById('clear-filters').classList.toggle('visible', !!active);
+    }
+
+    /* Level is the first thing anyone decides — a technical scenario and a board
+       scenario are barely the same activity — so it leads as a set of tabs rather
+       than sitting as one of four equal checkbox groups in the sidebar. It drives
+       the same checkboxes underneath, so there is only ever one filter state. */
+    let selectedSection = '';
+
+    function buildSectionSwitch() {
+      const wrap = document.getElementById('level-switch');
+      const present = SECTIONS.map(x => x[0]).filter(k => exs.some(e => sectionOf(e) === k))
+        .concat([...new Set(exs.map(sectionOf))].filter(k => !SECTIONS.some(x => x[0] === k)));
+      wrap.innerHTML = '';
+      [['', 'All']].concat(present.map(k => [k, k])).forEach(([value, label]) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'level-tab' + (value === selectedSection ? ' active' : '');
+        btn.dataset.section = value;
+        btn.setAttribute('aria-pressed', String(value === selectedSection));
+        btn.textContent = label;
+        const count = document.createElement('span');
+        count.className = 'level-tab-count';
+        count.textContent = value ? exs.filter(e => sectionOf(e) === value).length : exs.length;
+        btn.appendChild(count);
+        btn.addEventListener('click', () => selectSection(value));
+        wrap.appendChild(btn);
+      });
+    }
+
+    function selectSection(key) {
+      selectedSection = key;
+      document.querySelectorAll('#level-switch .level-tab').forEach(b => {
+        const on = b.dataset.section === key;
+        b.classList.toggle('active', on);
+        b.setAttribute('aria-pressed', String(on));
+      });
+      filterexs();
     }
 
     function initializeFilters() {
       const categories = [...new Set(exs.flatMap(ex => ex.categories || []))];
       const levels = [...new Set(exs.map(ex => ex.level).filter(Boolean))];
-      const durations = [...new Set(exs.map(ex => ex.duration).filter(Boolean))];
       const authors = [...new Set(exs.map(ex => ex.author).filter(Boolean))];
 
       function addCheckboxes(containerId, values) {
@@ -1025,9 +1611,9 @@
       }
 
       addCheckboxes('category-filter', categories);
-      addCheckboxes('level-filter', levels);
+      buildSectionSwitch();
       addCheckboxes('author-filter', authors);
-      addCheckboxes('duration-filter', durations);
+      buildDurationSlider();
     }
 
     function openModal(ex, skipHistory) {
@@ -1045,29 +1631,19 @@
         <div class="meta-pill">${iconClock} ${esc(ex.duration) || '—'}</div>
       `;
 
-      document.getElementById('downloader').href = `lib/scenarios/${ex.image}.ttxf`;
+      document.getElementById('downloader').href = `lib/scenarios/${ex.id}.ttxf`;
       // Tailoring a library scenario to your own organisation should be one click,
       // not download-then-import.
-      document.getElementById('customiser').href = `editor.html?load=${encodeURIComponent(ex.image)}`;
-      document.getElementById('starter').href = `gym/?q=${encodeURIComponent(ex.image)}`;
+      document.getElementById('customiser').href = `editor.html?load=${encodeURIComponent(ex.id)}`;
+      document.getElementById('starter').href = `gym/?q=${encodeURIComponent(ex.id)}`;
 
       // Modal header background
       const header = document.getElementById('modal-header');
-      if (ex.image) {
-        header.style.backgroundImage = `url(lib/images/${ex.image}.jpg)`;
-        header.style.backgroundSize = 'cover';
-        header.style.backgroundPosition = 'center';
-        header.style.backgroundColor = '';
-        header.style.backgroundBlendMode = 'normal';
-      } else {
-        header.style.backgroundImage = 'none';
-        header.style.backgroundColor = 'var(--surface)';
-        header.style.backgroundBlendMode = 'normal';
-      }
+      applyCover(header, ex);
 
-      renderInside(ex.image);
+      renderInside(ex.id);
       document.getElementById('modal').classList.add('open');
-      if (!skipHistory) history.pushState({ q: ex.image }, '', '?q=' + encodeURIComponent(ex.image));
+      if (!skipHistory) history.pushState({ q: ex.id }, '', '?q=' + encodeURIComponent(ex.id));
     }
 
     // Stage titles say more about whether a scenario fits your session than any
@@ -1110,7 +1686,7 @@
     // Back/forward must actually open and close the modal, not just rewrite the URL.
     window.addEventListener('popstate', (e) => {
       const q = (e.state && e.state.q) || new URLSearchParams(window.location.search).get('q');
-      const match = q && exs.find(ex => ex.image === q);
+      const match = q && exs.find(ex => ex.id === q);
       if (match) openModal(match, true);
       else closeModal(true);
     });

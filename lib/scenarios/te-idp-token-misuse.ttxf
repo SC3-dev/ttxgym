@@ -1,0 +1,118 @@
+! title: Federated Identity Provider Subversion
+! author: SC3 / Cyber Capability Toolkit
+! summary
+A major private-sector Identity Provider (IdP) used across multiple public-sector authorities suffers a signing key compromise. Attackers forge tokens granting access to public-sector services. Technical teams must detect anomalous identity usage, revoke trust, rebuild federation, and prevent lateral multi-authority impact.
+
+@ External Alert – IdP Signing Key Compromise
+! duration: 10 mins
+! content
+08:29 UTC — A widely‑used private IdP issues an urgent notice: the federation signing key may be compromised. Sector CSIRTs report suspected forged tokens across multiple authorities. Your sign‑in dashboards show a small uptick in failed federated attempts to privileged apps. Contract Manager cannot reach the supplier. CIRP requires immediate classification, enumeration of federated trusts/app registrations, and preservation of token issuance/CA/sign‑in logs before rollover.
+
+# discussion
++ What assumptions about token authenticity and external identity authority become invalid the moment a federation signing key may be compromised?
++ You cannot reach the supplier. What decisions are you willing to take without them, and which genuinely require their confirmation first?
+
+? The signing key may be compromised and the supplier is unreachable. What is your first response?
+++ Enumerate every federated trust and app registration, preserve issuance and sign-in logs, and classify it as a supply chain incident
++ Suspend federation for privileged applications only, leaving standard user access running while you assess
++ Force a password reset and re-authentication for every user of federated applications
+
+# prompts
++ 1) Optimal — You cannot contain what you have not enumerated, and the log preservation window closes when the supplier rolls the key. Ask how long the enumeration takes and whether anyone in the room could produce that list today.
++ 2) Less Optimal — Proportionate and appealing, and it may end up being the right containment. But it acts before you know which registrations are high-privilege, and the inject is explicit that logs must be preserved *before* rollover. Ask what they would be unable to reconstruct afterwards.
++ 3) Less Optimal — The most instructive wrong answer in this scenario. A forged token never involves the user's password; it is minted upstream and bypasses MFA entirely. If the room chooses this, spend time on it — the misconception matters more than the stage.
+
+@ Internal Indicators – Suspicious Token Activity
+! duration: 10 mins
+! content
+08:53 UTC — Identity logs show access tokens issued to service principals linked to other authorities with unusual claims and unexpected admin scopes. Conditional Access surfaces issuer/subject mismatches and MFA bypass indicators. Network telemetry ties several sign‑ins to supplier IdP ASNs previously unseen in your estate.
+
+# discussion
++ What behaviours distinguish hostile token reuse or forgery from misconfiguration, legacy authentication noise, or benign cross‑tenant access?
++ Your Conditional Access policies were the control that surfaced this. What would it have looked like if the attacker had forged claims that satisfied them?
+
+? Which evidence confirms forged or replayed tokens rather than misconfiguration or legacy authentication noise?
+++ Issuer and subject mismatches together with scopes the application never legitimately issues, from ASNs new to the estate
++ A marked spike in Conditional Access MFA-bypass events across federated applications
++ Sign-ins from service principals belonging to other authorities' tenants
+
+# prompts
++ 1) Optimal — A scope the application does not issue cannot be a misconfiguration; it can only have been minted. Ask whether they hold a record of legitimate claims and scopes per application to compare against.
++ 2) Less Optimal — Straight out of the inject, which is why it is tempting. Legacy authentication, break-glass accounts and misconfigured service principals all generate MFA-bypass events routinely. Ask what their normal daily volume is; most teams do not know.
++ 3) Less Optimal — Also in the inject and also insufficient on its own. Cross-tenant service principal access is *expected* in shared sector platforms. Ask which cross-tenant relationships are legitimate today — if nobody can answer, that is the finding.
+
+@ Containment – Federated Trust Suspension
+! duration: 10 mins
+! content
+09:17 UTC — The identity team must decide on partial vs full trust suspension. Some critical services rely on federation for user access. Proposed containment: block untrusted issuers, disable high‑privilege app registrations, enforce IP allow‑lists for critical services, and route admin access via emergency local‑only identity.
+
+# discussion
++ When federated identity trust is abused across authorities, what criteria justify partial suspension versus complete trust revocation, and what risks does delay introduce?
++ Emergency local-only admin identity is the fallback here. When was it last used, and does anyone in the room know the credentials are current?
+
+? Critical services depend on federation. What containment do you apply?
++ Suspend federation entirely and fail over to local accounts until the supplier confirms a new signing key
++ Cut token lifetimes to five minutes and force continuous reauthentication, keeping federation available
+++ Block untrusted issuers, disable high-privilege registrations, enforce IP allow-lists, and move admin access to emergency local identity
+
+# prompts
++ 1) Less Optimal — The safest answer and a genuinely defensible one; if you cannot distinguish forged from legitimate tokens, this may be correct. Make the room price it: which services stop, for how long, and who authorises that. Do not let them dismiss it too quickly.
++ 2) Less Optimal — Technically elegant and often proposed by strong identity engineers. It shortens the life of each forged token but does nothing to stop new ones being minted from a key the attacker holds. Draw out that distinction.
++ 3) Optimal — Layered containment that keeps services up. Probe the last clause hardest: emergency local admin only works if it exists, is current, and is reachable without federation.
+
+@ Multi-Authority Indicator Sweep
+! duration: 5 mins
+! content
+09:39 UTC — Threat intel reports forged tokens used against another devolved authority. Cross‑authority pivoting suspected. Required actions: sweep token logs for anomalous issuers/scopes, detect cross‑tenant admin attempts, and coordinate findings with sector CSIRTs to determine total impact.
+
+# discussion
++ What risks arise if cross‑authority token misuse is only partially detected, and how could shared IdPs obscure the true blast radius?
++ What can you share with another authority mid-incident, and what agreement or route would you need before you could send it?
+
+? Which approach best identifies cross-authority abuse through the shared IdP?
++ Request a list of all tokens issued against your tenant during the exposure window from the IdP supplier
+++ Sweep token logs for anomalous issuers and scopes, hunt cross-tenant admin attempts, and pool findings with sector CSIRTs
++ Review 30 days of privileged access logs and reconcile them against the HR joiner-mover-leaver record
+
+# prompts
++ 1) Less Optimal — The obvious move, and worth making. But the supplier is unreachable, and their logging is downstream of the key you no longer trust. Ask what they would do if the list came back empty — would they believe it?
++ 2) Optimal — Only the sector view reveals the blast radius, because the shared IdP is the shared exposure. Ask who they would call, whether they have the number, and what they are permitted to disclose.
++ 3) Less Optimal — Rigorous internal practice, and it will find real hygiene issues. It cannot find this: forged tokens do not correspond to real joiners, movers or leavers, so reconciliation against HR data returns nothing. Useful for showing where identity assurance breaks down.
+
+@ Eradication – Federation Trust Rebuild
+! duration: 10 mins
+! content
+10:06 UTC — Supplier provides new federation metadata and replacement signing certificates. Security mandates a full trust rebuild: rotate federation keys, invalidate active tokens, rebuild app registrations with least‑privilege, and apply stricter claim validation rules before re‑establishing federation. Change approvals and sequencing are critical.
+
+# discussion
++ Why is federation rebuild more than key rotation, and what residual risks remain if claims, scopes, or token lifetimes are left unchanged?
++ Rebuilding registrations to least privilege means discovering what privilege each app actually needs. Who holds that knowledge, and what happens if they are on leave?
+
+? Which sequence safely rebuilds federation and invalidates every forged token?
++ Install the supplier's new metadata and certificates, then restore the previous trust configuration to bring services back quickly
++ Rotate the signing keys and force a global sign-out, leaving app registrations and claim rules unchanged
+++ Rotate keys, rebuild registrations to least privilege, invalidate all active tokens, and tighten claim validation before re-enabling
+
+# prompts
++ 1) Less Optimal — What business pressure will actually push for, and the reason incidents recur. Restoring the previous configuration reinstates every over-privileged registration the attacker just exploited. Ask what "back to normal" is worth if normal was the vulnerability.
++ 2) Less Optimal — Addresses the tokens, which feels like the whole problem. The excessive admin scopes remain, so the next compromise of any credential reaches just as far. Ask what the attacker actually used — the key, or the permissions it unlocked.
++ 3) Optimal — Sequencing matters: claim validation must be tightened before federation is re-enabled, not after. Ask what their change process does to that sequence and whether it can be compressed.
+
+@ Recovery & Sector-Wide Assurance
+! duration: 5 mins
+! content
+Post‑recovery — IdP publishes full IOCs. Government cyber resilience units request assurance evidence. Leadership mandates: continuous identity monitoring, mandatory MFA/CA, shorter token lifetimes, federation attestation, and contractual notification SLAs. Dashboards must demonstrate boundary integrity over time.
+
+# discussion
++ What telemetry or assurance signals would indicate that federated identity trust is degrading again across the sector before active abuse occurs?
++ A notification SLA is only worth what you can enforce. What is the actual consequence to this supplier of missing it, and would you switch providers over it?
+
+? Which controls should be mandated sector-wide to prevent recurrence?
+++ Continuous identity monitoring, enforced MFA and Conditional Access, shorter token lifetimes, federation attestation, and notification SLAs
++ Require each authority to operate its own IdP, so no single supplier compromise can cross organisational boundaries
++ Mandate annual penetration testing and independent security certification for all IdP suppliers
+
+# prompts
++ 1) Optimal — Attestation is the part that matters most and gets cut first; it is what turns "the supplier says they are secure" into evidence. Ask what their dashboard would show on the day before this incident.
++ 2) Less Optimal — Seriously argued in the sector and worth twenty minutes on its own. Federation exists because thirty separately-run IdPs are collectively weaker and vastly more expensive than one well-run one. Let the room make the case both ways.
++ 3) Less Optimal — A real procurement lever and better than nothing. Point-in-time assurance would not have detected a key compromise occurring between assessments. Ask what an annual certificate actually evidences on any given day.

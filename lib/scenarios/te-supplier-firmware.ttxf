@@ -1,0 +1,118 @@
+! title: Supplier Hardware Compromise
+! author: SC3 / Cyber Capability Toolkit
+! summary
+A critical hardware appliance supplied to the organisation is discovered to contain tampered firmware. Technical teams must detect anomalous behaviour, validate firmware integrity, isolate compromised hardware, eradicate malicious components, and support assurance uplift.
+
+@ External Alert – Supplier Hardware Advisory
+! duration: 10 mins
+! content
+08:32 UTC — Supplier posts a vague advisory about a potential integrity issue on certain security appliances. Sector OSINT suggests firmware tampering. Internal inventory shows 11 deployed devices across two sites matching the affected model/serial range. No confirmation from supplier; CIRP requires rapid classification, serial cross‑match, and preservation of secure‑boot/firmware validation logs before rollover.
+
+# discussion
++ What assumptions about hardware trust and boot integrity become invalid the moment a supplier issues an ambiguous firmware advisory?
++ Your inventory says 11 devices. How confident are you in that number, and what would it take to be certain there is not a twelfth in a comms cupboard somewhere?
+
+? A vague advisory suggests firmware tampering on 11 appliances you operate. What is your first response?
++ Take the 11 appliances offline and fail over to the secondary path until firmware integrity is confirmed
++ Apply the supplier's latest firmware update to all 11 devices to displace any tampered image
+++ Cross-match serials against the affected range, preserve secure-boot and validation logs, and classify as a supply chain incident
+
+# prompts
++ 1) Less Optimal — Decisive and expensive, taken on an advisory the supplier will not confirm. These are security appliances carrying critical flows. Ask which services stop, whether the fallback path has ever been tested at production load, and who accepts that risk.
++ 2) Less Optimal — Feels like a fix and is the most damaging option here. Reflashing overwrites the very evidence that would prove tampering, may not clear firmware-level persistence, and pushes a supplier image whose integrity is exactly what is in question. Draw all three points out.
++ 3) Optimal — Establishes which devices are actually in scope before acting, and captures the boot evidence before it rotates. Ask how quickly the serial cross-match can be done and whether the inventory holds serials at all.
+
+@ Internal Anomalies – Device Behaviour
+! duration: 10 mins
+! content
+08:57 UTC — Monitoring flags unusual outbound from two appliances to unfamiliar ASNs. Device logs show failed signature validation on boot; secure‑boot attestation is missing for the last restart on one device. NetFlow reveals periodic beacons every 90s; no authorised maintenance window exists.
+
+# discussion
++ Why are firmware‑level compromises harder to validate than software compromises, and what signals provide the highest confidence that the hardware itself cannot be trusted?
++ Two of eleven devices are behaving oddly. What would you have to do to be confident about the other nine, and is "no alerts" good enough?
+
+? How do you confirm firmware tampering rather than a failed update or hardware fault?
++ Query each appliance's management interface for its reported firmware version and compare against the supplier's advisory
++ Capture and analyse the 90-second beacon traffic to determine whether the destination is malicious
+++ Compare extracted firmware hashes against the trusted baseline and review secure-boot attestation logs
+
+# prompts
++ 1) Less Optimal — The quickest check and the one that fails against this threat: tampered firmware reports whatever version it wants through its own management plane. Ask what they are trusting to answer that query.
++ 2) Less Optimal — Good investigative work that answers a different question. It may establish that something malicious is happening; it cannot establish that the *firmware* is the cause rather than a compromised host behind the appliance. Useful for separating symptom from location.
++ 3) Optimal — An out-of-band hash comparison plus boot attestation is the only evidence not produced by the suspect device itself. Ask how they extract the image, and whether they hold a trusted baseline to compare against.
+
+@ Containment – Hardware Isolation
+! duration: 10 mins
+! content
+09:19 UTC — Routing telemetry shows traffic hair‑pinning via the suspect appliances. Service owners report dependencies on these devices for critical flows. Network team proposes VLAN isolation and fallback/virtual appliances, but warns of possible performance impact during cut‑over.
+
+# discussion
++ When compromised hardware underpins critical traffic flows, what criteria justify isolation despite performance or availability impact?
++ These are security appliances. If they are compromised, what have they been able to see or alter in the traffic passing through them, and does that widen your incident?
+
+? Critical flows depend on the suspect appliances. What containment do you apply?
+++ Isolate the affected appliances onto a separate VLAN and route critical services via fallback appliances
++ Block the beacon destinations at the upstream firewall and keep the appliances carrying production traffic
++ Restrict the appliances' management plane and egress to an allow-list, leaving the data path intact
+
+# prompts
++ 1) Optimal — Removes untrusted hardware from the trust path while keeping services alive. Probe the cut-over: performance impact is flagged in the inject, so make them decide whether to do it now or at 2am, and justify it.
++ 2) Less Optimal — Zero service impact, which makes it the most popular answer, and it treats the symptom. The appliance stays in the traffic path with untrusted firmware and simply loses one channel. Ask what a compromised security appliance can do to traffic it still handles.
++ 3) Less Optimal — A thoughtful middle path that constrains the compromise without an outage. It still relies on controls enforced *by or around* a device you no longer trust, and firmware-level code can often bypass its own egress policy. Good discussion on where the enforcement point should sit.
+
+@ Malicious Firmware Analysis
+! duration: 5 mins
+! content
+09:41 UTC — Sandboxed firmware extraction reveals hard‑coded credentials and a periodic beacon routine. Differential analysis shows a modified module absent from the supplier’s last known‑good image. Teams must define a safe reflash workflow and evidence‑collection order.
+
+# discussion
++ What risks arise if firmware eradication is incomplete or rushed, and how do embedded credentials or beacon logic affect downstream trust?
++ Hard-coded credentials in shipped firmware are now public knowledge to whoever tampered with it. What else in your estate accepts those credentials?
+
+? Which eradication plan removes the malicious firmware and its embedded credentials?
++ Reflash all 11 appliances with the supplier's verified known-good image and confirm the beacon stops
+++ Reflash with verified firmware, revoke every embedded credential, and validate the new image against the baseline before reconnection
++ Replace the affected appliances with new hardware from a different supplier batch
+
+# prompts
++ 1) Less Optimal — Addresses the firmware and leaves the credentials live. Absence of the beacon proves only that this beacon stopped. Ask what the hard-coded credentials unlock and whether reflashing changes that in any way.
++ 2) Optimal — Firmware, credentials and verification together, in that order. Ask what "verified" means in practice — who checks the hash of the replacement image, and against what source.
++ 3) Less Optimal — The most cautious answer, and it is genuinely defensible if you believe the tampering happened in manufacturing or distribution. Press on it: new units from the same supply chain may carry the same modified module, and it does nothing about the credentials already exposed. Worth real debate.
+
+@ Recovery – Device Reintegration
+! duration: 5 mins
+! content
+10:08 UTC — Devices scheduled for reflash pass image verification in staging. Pre‑production checks reveal two units with configuration drift from baseline (ACLs and management plane settings). Service teams are preparing to reintegrate; assurance checks must gate go‑live.
+
+# discussion
++ What conditions must be met before the organisation can trust traffic flowing through reflashed hardware again?
++ Two units drifted from baseline on ACLs and management settings. Was that the attacker, or was it your own change process? How would you tell, and does the answer change your response?
+
+? Which assurance gates must be passed before reflashed devices return to production?
++ Confirm the firmware hash matches the known-good image and that no beaconing is observed in staging
+++ Full post-reflash integrity verification, attestation, configuration reconciliation to baseline, and behavioural monitoring under load
++ Restore the documented configuration baseline to all units and validate that services function correctly
+
+# prompts
++ 1) Less Optimal — Necessary and not sufficient, and most teams stop here. It says nothing about the configuration drift the inject just told them about. Ask whether a correct image with tampered ACLs is safe.
++ 2) Optimal — Integrity, attestation, configuration and behaviour. The behavioural clause matters: staging does not resemble production traffic, and dormant logic may only trigger under real conditions. Ask how long they would watch.
++ 3) Less Optimal — Fixes the drift and skips the integrity question. Ask which they would rather have: a device with the right config and unverified firmware, or verified firmware and drifted config. Neither, of course — that is the point.
+
+@ Lessons & Supplier Assurance
+! duration: 10 mins
+! content
+Post‑incident — Supplier provides RCA and updated images. Leadership directs stronger hardware supply‑chain assurance: signed‑firmware enforcement, hardware attestation on boot, SBOM for firmware components, and contract SLAs for disclosure and update timelines, plus dashboards proving ongoing integrity (attestation status, beacon anomalies).
+
+# discussion
++ What ongoing telemetry or attestation would provide early warning of future hardware or firmware integrity failures before operational impact occurs?
++ The advisory was vague and unconfirmed for hours. What disclosure terms would you want, and what leverage do you actually have with a supplier of security appliances?
+
+? Which long-term assurance controls should be mandated?
+++ Enforce signed firmware and boot attestation, require firmware SBOMs, and contract for disclosure and update SLAs
++ Require firmware SBOMs and independent verification of every image before it is deployed to production
++ Adopt a dual-supplier strategy so no single vendor's firmware compromise can affect all critical flows
+
+# prompts
++ 1) Optimal — Attestation is the control that would have detected this at boot rather than via an advisory. Ask what the dashboard shows when attestation fails, and whether anyone is watching it out of hours.
++ 2) Less Optimal — Strong control, and independent verification of every image is where it breaks: few organisations have the capability, and it delays security patches. Ask who would do the verification and what the patch latency becomes.
++ 3) Less Optimal — Real resilience benefit and a serious strategic option. It doubles the estate to maintain, doubles the vulnerability surface to track, and does not help if the compromise is at a shared component supplier. Let the room weigh it properly.

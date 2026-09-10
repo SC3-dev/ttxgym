@@ -1,0 +1,118 @@
+! title: Infostealer Malware
+! author: SC3 / Cyber Capability Toolkit
+! summary
+An infostealer malware infection is detected on a user endpoint. Analysts must contain identity compromise, perform evidence collection, conduct a tenant-wide IOC sweep, and ensure safe recovery.
+
+@ Initial Detection – Browser Credential Dumping
+! duration: 10 mins
+! content
+08:23 UTC — EDR flags a suspicious browser child process on FIN-WKS-12 (`chrome.exe --type=renderer`) spawning `browserupdate.exe` from `%LOCALAPPDATA%\BrowserUpdate\`. Proxy shows bursts of outbound HTTP POSTs to `/submit` every 45s; DNS resolves `cdn-formcache[.]net`. No maintenance window is active.
+
+# discussion
++ What indicators suggest the endpoint is being used as a credential‑harvesting foothold rather than a conventional malware execution, and why does that distinction matter for containment timing?
++ POSTs have been running every 45 seconds since at least 08:23. Assume the credentials are already gone — what does that change about your priorities in the next ten minutes?
+
+? An infostealer is actively POSTing from a finance workstation. What is your immediate action?
+++ Isolate the device and suspend the user's active sessions, capturing memory before the process is stopped
++ Terminate `browserupdate.exe` and block `cdn-formcache[.]net` at the proxy, leaving the user working
++ Force a password reset for the user and keep the endpoint under enhanced monitoring
+
+# prompts
++ 1) Optimal — Session suspension is the part that matters: what was stolen is live authentication material, not just a password. Ask what "suspend sessions" means in their tooling, and how long it takes.
++ 2) Less Optimal — Minimal disruption to a finance user, which is why it appeals. It stops this channel, loses the memory that shows what was taken, and leaves stolen credentials and cookies fully valid. Ask what the attacker has lost.
++ 3) Less Optimal — The most instructive wrong answer here. Stolen session cookies remain valid *after* a password reset — the attacker never needs the password. Spend time on this if the room chooses it.
+
+@ Malware Behaviour – Exfiltration Attempt
+! duration: 10 mins
+! content
+08:57 UTC — Memory snapshot and sandbox run reveal credential harvesting behaviour: reads from browser login DB (Login Data / key4.db), enumerates cookies, exfil compresses to ZIP, and attempts webhook POST with hard‑coded token. Unique mutex `Global\G-INFSTLR-2026` is created; API hashing observed for WinHTTP and CryptProtectData calls.
+
+# discussion
++ What artefacts must be collected to confirm exfiltration actually occurred, as opposed to being attempted?
++ The sample reads `key4.db` and calls `CryptProtectData`. What does that tell you about which stored secrets are recoverable and which are not?
+
+? Which artefacts give the most reliable basis for detection rules and an estate-wide sweep?
++ The list of credentials and cookies stored in the browser profile on FIN-WKS-12
++ The unique mutex name and the hard-coded webhook token from the sample
+++ The sample itself, full PCAP of the POST traffic, and the process tree with command lines
+
+# prompts
++ 1) Less Optimal — Essential for the impact assessment and useless for detection — it tells you what was lost here, not how to find the next host. Worth separating explicitly: impact and detection are different products of the same analysis.
++ 2) Less Optimal — Strong, durable indicators and genuinely close to correct; the mutex especially resists recompilation. Alone they support a sweep but do not prove exfiltration occurred or reveal the full behaviour chain. Ask what the PCAP adds.
++ 3) Optimal — Sample supports static and dynamic analysis, PCAP proves data actually left, and the process tree gives the parent lineage for detection logic. Ask which of the three they could obtain now.
+
+@ Identity Compromise – Account Abuse Risk
+! duration: 5 mins
+! content
+09:21 UTC — Host triage indicates persistence via Windows Scheduled Task `\Browser Form Sync` pointing to `%APPDATA%\FormSync\sync.exe` and a Run key `HKCU\Software\Microsoft\Windows\CurrentVersion\Run\FormSync`. OAuth refresh tokens for a SaaS finance app found in browser cache.
+
+# discussion
++ How does confirmed credential and token exposure change your assumptions about what the attacker can access next, even if the original endpoint is fully contained?
++ Refresh tokens for a finance SaaS application were in the cache. What can be done with those, and who needs to be told?
+
+? OAuth refresh tokens for a finance application were exposed. What identity action do you take?
++ Reset the password and force re-authentication across all applications the user accesses
++ Revoke the finance application's refresh tokens and monitor the account closely for anomalous access
+++ Reset the password, revoke every refresh token and active session, and re-enrol MFA for the account
+
+# prompts
++ 1) Less Optimal — Feels comprehensive and misses the mechanism: a refresh token is designed to survive re-authentication prompts. Ask what the attacker still holds afterwards.
++ 2) Less Optimal — Correctly targets the tokens you know about and stops at the ones you found. The stealer enumerated the whole cookie store, not just the finance app. Ask what else was in that browser profile.
++ 3) Optimal — All three, because each defeats a different piece of what was stolen. Ask which systems they can actually revoke refresh tokens in, and whether that includes the finance SaaS.
+
+@ IOC Sweep – Tenant & Network
+! duration: 10 mins
+! content
+09:48 UTC — SIEM shows multiple endpoints contacting `cdn-formcache[.]net` with similar periodic POSTs. Some systems are kiosk/point‑of‑service and cannot be taken fully offline. Identity team reports suspicious OAuth consent grants around the same time window.
+
+# discussion
++ What signals would indicate that stolen credentials are already being operationalised elsewhere in the environment, and where are network defenders least likely to have visibility?
++ Kiosk and point-of-service systems cannot go offline and may not run your EDR. How do you assess a device you cannot query?
+
+? Multiple endpoints are affected and kiosk systems cannot go offline. How do you establish tenant-wide scope?
++ Block `cdn-formcache[.]net` at DNS and proxy, then investigate any host that continues trying to resolve it
+++ Search EDR estate-wide for the mutex and process pattern, correlate DNS and proxy logs, and review the recent OAuth consent grants
++ Isolate every endpoint observed contacting the domain and examine each one individually
+
+# prompts
++ 1) Less Optimal — Elegant, and it turns your proxy into a detection surface. It also removes the signal you are hunting on and only finds hosts that keep trying. Ask what it shows for a host whose stealer has already finished and exited.
++ 2) Optimal — Three telemetry sources plus the identity angle. The OAuth consent grants matter most — that is stolen credentials already being used. Ask whether kiosk devices appear in any of those three sources.
++ 3) Less Optimal — Decisive, and directly contradicts the constraint the inject just set about kiosk and PoS systems. Ask which of those they are willing to take down and who authorises it.
+
+@ Eradication & System Recovery
+! duration: 10 mins
+! content
+10:14 UTC — IOC sweep finds five additional devices with the mutex and scheduled task. One server shows outbound attempts to upload `formdump.zip`. App owner requests eradication with minimal downtime; finance leadership asks for assurance that tokens/cookies are invalidated.
+
+# discussion
++ What residual risks remain after endpoint recovery in infostealer incidents, and which of those risks are invisible to traditional endpoint telemetry?
++ Finance leadership wants assurance that tokens and cookies are invalidated. What could you actually show them, and would it satisfy an auditor?
+
+? Which eradication removes the infostealer and invalidates what it took?
++ Remove the scheduled task, Run key and binary from each device, verifying with a full EDR scan
++ Rebuild the affected devices from a clean image and restore each user's profile from backup
+++ Rebuild the devices, invalidate all tokens and cookies for their users, and verify with an IOC scan before reconnection
+
+# prompts
++ 1) Less Optimal — Minimises downtime as requested, and it addresses the malware while ignoring everything it stole. Ask what the attacker retains after a perfect on-host cleanup. The answer is all of it.
++ 2) Less Optimal — Clean image, and restoring the browser profile from backup restores the very cookie and credential store that was harvested. A neat trap worth pausing on: the rebuild is undone by the restore.
++ 3) Optimal — Host, identity and verification together. Ask how they invalidate cookies for a SaaS application they do not administer.
+
+@ Lessons & Identity Hardening
+! duration: 5 mins
+! content
+Post‑eradication — No further POSTs observed; webhook endpoints blocked. Leadership requests hardening: cookie protection policies, browser profile control, scoped tokens, continuous export of proxy/EDR artefacts, and dashboards to detect form‑grabber patterns.
+
+# discussion
++ Which stages of the infostealer kill‑chain were least visible in this incident, and what telemetry would demonstrate earlier detection or faster containment next time?
++ The stealer ran for at least 85 minutes before containment. Where in that timeline was the first realistic chance to catch it, and what was missing?
+
+? Which long-term controls most reduce infostealer risk?
++ Deploy phishing-resistant MFA across the estate to prevent credential reuse
+++ Token binding and cookie protection, browser profile controls, short-lived scoped tokens, and continuous proxy and EDR export
++ Block newly registered domains and enforce strict web category filtering at the proxy
+
+# prompts
++ 1) Less Optimal — The strongest control against most identity attacks, and largely irrelevant to this one: a stolen session cookie is presented *after* authentication and never touches MFA. If the room picks it, go back to stage 1.
++ 2) Optimal — Token binding is the control that makes a stolen cookie worthless on another device, which is the actual failure mode here. Ask whether their applications support it and what the rollout looks like.
++ 3) Less Optimal — Would likely have blocked this specific domain and is cheap to run. Infrastructure is disposable and category filtering ages badly. Ask what it costs the attacker to register another domain.

@@ -1,0 +1,118 @@
+! title: Cryptominer Outbreak
+! author: SC3 / Cyber Capability Toolkit
+! summary
+A cluster of servers begins exhibiting CPU spikes and abnormal outbound connections. Analysts must identify cryptomining behaviour, isolate compromised hosts, eradicate persistence mechanisms, and validate secure recovery.
+
+@ Initial Detection – CPU & Process Anomalies
+! duration: 10 mins
+! content
+08:07 UTC — Monitoring shows sustained 95–100% CPU on three Linux (srv-lx01..03) and two Windows servers (srv-ws01..02). New processes `sysupdater` and `kworker-alt` persist across restarts. NetFlow indicates persistent long‑lived TCP sessions to ports 3333/4444. No planned maintenance window exists.
+
+# discussion
++ What characteristics of sustained resource abuse suggest adversarial persistence rather than misconfiguration or legitimate workload, and what would justify immediate isolation despite service impact?
++ Cryptomining is often treated as a nuisance rather than a breach. What does its presence tell you about how the attacker got in, and what else might they have done?
+
+? Five servers are at full CPU with unknown processes surviving reboot. What is your immediate action?
+++ Investigate the processes and their network sessions, and isolate the affected servers
++ Kill the `sysupdater` and `kworker-alt` processes to restore service performance, then investigate
++ Block outbound traffic to ports 3333 and 4444 at the firewall and monitor whether CPU returns to normal
+
+# prompts
++ 1) Optimal — Investigation and isolation together: you need to know what is running and stop it talking out. Ask what they would collect before isolating, and whether isolation costs them the running process.
++ 2) Less Optimal — Restores service, which is what will be demanded, and the inject already says the processes survive restarts. They will relaunch within two minutes, and you have lost the running state. Ask what killing it actually achieves.
++ 3) Less Optimal — Sound egress control and it treats a symptom on five compromised servers. The miner is the visible payload; the access that installed it is untouched. Ask what else that access could be used for once mining stops.
+
+@ Malware Behaviour – Outbound Pool Connections
+! duration: 10 mins
+! content
+09:12 UTC — Proxy/DNS logs reveal repeated outbound connections to known mining pools over Stratum (`stratum+tcp://pool-x.example:3333`). JA3/JA3S fingerprints differ from baseline TLS for these hosts. IDS notes JSON‑RPC payload patterns typical of miners; bursts correlate with CPU spikes.
+
+# discussion
++ Which outbound behaviours most strongly indicate intentional long‑running abuse rather than opportunistic misuse, and how do false positives differ from traditional malware C2?
++ Mining pool traffic is not hidden — it has to reach the pool to be paid. What does that tell you about the attacker's assessment of your monitoring?
+
+? Which indicators most reliably confirm cryptomining rather than another form of compromise?
+++ Stratum protocol connections and JSON-RPC payload patterns, correlated with the responsible process
++ Sustained maximum CPU utilisation correlating with the outbound traffic bursts
++ Outbound sessions to ports 3333 and 4444 with JA3 fingerprints that differ from the host baseline
+
+# prompts
++ 1) Optimal — Stratum with JSON-RPC is diagnostic of mining specifically, and tying it to a process is what makes it actionable. Ask whether their IDS decodes Stratum or they inferred it from the port.
++ 2) Less Optimal — The symptom everyone noticed first, and it is consistent with a runaway batch job, a failing disk, or a badly tuned application. Ask what else in the estate has sat at 100% CPU this month without being an incident.
++ 3) Less Optimal — Good signals, and both are circumstantial: those ports carry other services, and a JA3 mismatch means unusual, not malicious. Ask what a legitimate application with a custom TLS stack would look like here.
+
+@ Persistence Mechanisms Identified
+! duration: 5 mins
+! content
+09:41 UTC — Reversing shows persistence via Linux cron (`*/2 * * * * /usr/local/bin/sysupdater`) and Windows Scheduled Task (`\System\MinerTelemetry`). Several cloud instances auto‑scale under load, masking miner activity. Some services are customer‑facing and cannot be fully stopped.
+
+# discussion
++ Why is incomplete persistence mapping especially dangerous in cryptomining incidents, particularly in auto‑scaling or heterogeneous environments?
++ Auto-scaling responded to the miner by adding capacity. What did that cost, what else has it hidden, and would anyone have noticed from the bill?
+
+? How do you map and validate persistence across a mixed Linux and Windows estate before removing anything?
++ Remove the identified cron entry and scheduled task, then monitor for the processes returning
++ Search every host for the `sysupdater` and `kworker-alt` binaries and the known persistence entry names
+++ Enumerate all autostart mechanisms on both platforms and compare against a known-good configuration baseline
+
+# prompts
++ 1) Less Optimal — Tests the hypothesis by experiment, which is not unreasonable, and it assumes the two mechanisms found are the only two. Ask what a negative result proves when the watchdog may simply be slower than they are watching.
++ 2) Less Optimal — Fast, and scoped to the names you already know. Auto-scaled instances may pull a differently named build, and the same actor rarely reuses one filename across platforms. Ask what they would miss on a host spun up this morning.
++ 3) Optimal — Baseline comparison finds persistence you did not think to look for, which matters most in a heterogeneous estate. Ask whether a golden configuration baseline exists for both platforms, and how current it is.
+
+@ Containment – Network & Identity
+! duration: 5 mins
+! content
+10:03 UTC — SOC proposes blocking pool domains/IPs at DNS/proxy/firewall and isolating confirmed miners. App owners request guidance to avoid collateral outage on shared subnets and confirm which hosts to isolate first.
+
+# discussion
++ When cryptominers run on shared infrastructure, what do you protect first: performance, investigation fidelity, or prevention of further abuse — and why?
++ App owners want to know which hosts you will isolate first. What is your prioritisation rule, and can you state it in one sentence?
+
+? Which containment plan cuts miner egress and isolates hosts while keeping customer-facing services up?
++ Block the known pool domains and IPs at DNS, proxy and firewall across the whole estate
++ Cap CPU allocation for the miner processes and disable auto-scaling to limit cost and spread
+++ Isolate the confirmed hosts and block pool traffic, sequencing customer-facing systems around their fallback capacity
+
+# prompts
++ 1) Less Optimal — Cheap, estate-wide and no outage, which is why it is chosen. Pool infrastructure is plentiful and easily changed, and the compromised hosts remain compromised. Ask how quickly a miner reconfigures to a new pool.
++ 2) Less Optimal — Controls the cost, which is often what leadership is most exercised about, and does nothing about the compromise. Ask whether this is a security response or an invoice-management one. It is a useful stopgap, never a containment.
++ 3) Optimal — Removes the hosts from the estate rather than removing one destination, and the sequencing clause is what answers the app owners. Ask how they decide the order, and whether fallback capacity has been checked.
+
+@ Eradication – Rebuild & Patch
+! duration: 10 mins
+! content
+10:25 UTC — Attempts to kill miner processes succeed briefly; watchdog relaunches via cron/task. EDR confirms modified startup scripts and service entries. Clean golden images are available; patch baselines updated last night. A short maintenance window can be created within the hour.
+
+# discussion
++ What conditions would make you distrust a rebuilt system enough to delay reconnection, even after clean images and patching?
++ You have golden images and a patch baseline. Do you know how the attacker got in, and should you rebuild before you do?
+
+? Which eradication sequence removes the miner and prevents relaunch?
++ Remove all persistence mechanisms and miner binaries, then patch and verify with an EDR sweep
+++ Rebuild from golden images, apply the current patch baseline, and remediate the configuration weakness that allowed access
++ Rebuild the affected servers from golden images and restore them to production once patched
+
+# prompts
++ 1) Less Optimal — Thorough within its scope, and it trusts an enumeration on a host whose startup scripts have been modified. Ask how confident they are that the watchdog has only the two mechanisms they found.
++ 2) Optimal — Rebuild, patch and root cause. Press on the third element: if they cannot yet name the entry vector, is rebuilding premature, and what would they do about it?
++ 3) Less Optimal — Genuinely clean systems, returned to production with whatever weakness let the attacker in still present. Ask how long before the rebuilt hosts are mining again. This is the most common real-world mistake in this scenario.
+
+@ Recovery & Hardening
+! duration: 10 mins
+! content
+Post‑eradication — CPU returns to normal and no Stratum traffic is observed. Leadership requests a hardening plan: baseline egress policy for mining pools, resource‑anomaly alerts, strengthened configs (disabling default creds, hardening daemons), and continuous export of DNS/proxy/EDR telemetry for early detection.
+
+# discussion
++ Which telemetry gaps allowed this cryptominer to operate unnoticed, and what evidence would demonstrate earlier detection if it re‑occurred?
++ Five servers ran at 100% CPU for an unknown period before anyone treated it as security. Whose alert was that, and where did it go?
+
+? Which long-term controls reduce cryptominer risk and detect re-emergence early?
++ Alert on sustained resource anomalies and unexpected process creation across the server estate
+++ Default-deny egress, resource-anomaly alerting, configuration hardening, and continuous DNS, proxy and EDR export
++ Block all known mining pool domains and ports, and subscribe to a mining infrastructure feed
+
+# prompts
++ 1) Less Optimal — Would have caught this earlier and is the single most useful detective control here. On its own it is detection without prevention, and it does nothing about the access that installed the miner. Ask who responds to that alert at 03:00.
++ 2) Optimal — Egress control prevents, anomaly alerting detects, hardening removes the foothold, telemetry export evidences it. Ask which they would fund first, and what default-deny egress breaks on day one.
++ 3) Less Optimal — Directly targets this threat and is trivially evaded: pools are numerous, ports are arbitrary, and proxied mining defeats domain lists. Ask what it costs the attacker to move — the answer is a configuration line.

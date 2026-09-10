@@ -1,0 +1,118 @@
+! title: Citizen-Facing SaaS Platform Breach
+! author: SC3 / Cyber Capability Toolkit
+! summary
+A private-sector SaaS platform underpinning a critical public-sector service suffers a security breach. Attackers tamper with stored citizen records and attempt unauthorised API interactions with government systems. Technical teams must triage integrity issues, contain integration risk, verify authoritative data, and support recovery.
+
+@ External Disclosure – SaaS Breach Notification
+! duration: 10 mins
+! content
+08:21 UTC — Supplier posts a breach notice with no IOCs or tenant list. Your organisation relies on the platform for a high‑volume citizen service. Initial telemetry shows rising error/latency on API calls. CIRP requires immediate classification, inventory of integrated systems/data classes, and preservation of SaaS audit/API gateway/DNS‑proxy logs before rollover.
+
+# discussion
++ What assumptions about externally hosted citizen data immediately become invalid when a SaaS provider discloses unauthorised WRITE access without tenant specificity?
++ This platform holds an API path into government systems. Who else is downstream of it, and does anyone hold that map today?
+
+? A citizen-facing SaaS platform reports a breach with no IOCs and no tenant list. What is your first response?
+++ Classify the incident, inventory every integration and data class, and turn up logging before rollover
++ Sever the API connections between the SaaS platform and all internal government systems immediately
++ Escalate to the supplier's account manager and hold action pending a tenant-specific confirmation
+
+# prompts
++ 1) Optimal — Inventory plus evidence preservation, both under your control, neither dependent on the supplier. Ask what "enhanced logging" means concretely and whether it can be enabled without a change window.
++ 2) Less Optimal — Protects the connected systems, which is a real and specific risk in this scenario, and it stops the citizen service. Ask which internal systems are reachable through that API and what data flows each way — many teams cannot answer, which is itself the finding.
++ 3) Less Optimal — Procedurally correct and the reason incidents lose their first hour. The supplier has given no tenant list and may not have one. Ask what they do if that confirmation takes two days, and what the API is doing meanwhile.
+
+@ Internal Anomalies – Data Integrity Signals
+! duration: 10 mins
+! content
+08:49 UTC — Audit logs show dozens of citizen records edited within seconds, inconsistent with normal workflows. API gateway indicates unusual READ bursts from unfamiliar ASNs. No DLP exfil alerts. Signal suggests integrity tampering rather than leakage; authoritative datasets are available for reconciliation.
+
+# discussion
++ What behaviours indicate hostile or automated record manipulation rather than legitimate bulk activity, and how confident can you be without definitive supplier confirmation?
++ Statutory decisions may already have been made using these records. At what point does a data integrity incident become a legal one, and who do you need in the room for that?
+
+? How do you confirm whether citizen records were actually tampered with?
++ Restore yesterday's backup over the affected tables and compare the result against production
++ Ask the caseworkers who use these records daily whether anything looks wrong
+++ Reconcile against the authoritative dataset and analyse the edit timestamps and actors in the audit log
+
+# prompts
++ 1) Less Optimal — Would answer the question and destroys the evidence in the process, along with a day of legitimate citizen updates. Ask what they would have lost, and whether a comparison is possible without overwriting production.
++ 2) Less Optimal — Cheap, fast, worth doing alongside — and it fails precisely where it matters. A tampered eligibility flag or bank detail looks entirely normal to the person reading it. Ask what kind of change a caseworker would actually notice.
++ 3) Optimal — Authoritative reconciliation establishes what changed; timestamps and actors establish whether it was legitimate. Ask whether the authoritative dataset is genuinely independent of the SaaS platform, or derived from it.
+
+@ Containment – API & Integration Controls
+! duration: 10 mins
+! content
+09:12 UTC — Several internal systems depend on real‑time SaaS APIs; full shutdown would disrupt public service. App owners request a ‘safe mode’. Proposed containment: enforce read‑only on high‑risk endpoints, restrict IP ranges via allow‑lists, throttle hot URIs, and reduce scopes on service principals to least‑privilege.
+
+# discussion
++ How do you decide which internal consumers can continue ingesting SaaS data when integrity is uncertain, and which must be isolated first?
++ Read-only protects the platform from further tampering but keeps tainted data flowing into your systems. Is that the trade you want?
+
+? Internal systems need real-time SaaS APIs and shutdown would disrupt public service. What containment do you apply?
++ Keep the APIs open but quarantine all inbound records for manual review before internal systems consume them
+++ Read-only on high-risk endpoints, IP allow-lists, throttling on hot URIs, and least-privilege scopes on service principals
++ Allow only the endpoints supporting statutory citizen transactions, blocking everything else at the gateway
+
+# prompts
++ 1) Less Optimal — Directly addresses the tainted-data problem and is a genuinely good instinct. Ask about volume: this is a high-volume citizen service, and manual review has a throughput ceiling measured in hundreds, not thousands. Ask who does the reviewing.
++ 2) Optimal — Layered, reversible and preserves the service. Push on scope reduction: it is the element that limits what a compromised token can still do, and the one most likely to be skipped under time pressure.
++ 3) Less Optimal — Sound prioritisation logic, and it keeps exactly the highest-consequence path open — the one where a tampered record produces a wrong statutory decision. Ask whether the endpoints they are protecting are the ones they should be protecting.
+
+@ Breach Confirmation – Forensic Indicators
+! duration: 5 mins
+! content
+09:36 UTC — Supplier provides initial IOCs: malicious IPs, impacted API tokens, and UUIDs of altered records. Some downstream systems (analytics/case‑management) likely ingested tainted entries. Teams must run an IOC sweep + delta analysis and reconstruct audit history to quantify scope and propagation.
+
+# discussion
++ What risks arise if downstream systems have already consumed altered records, and how does that complicate confidence in impact assessment?
++ The supplier's UUID list is the floor, not the ceiling. How would you find altered records they did not list?
+
+? How do you establish total impact from the supplier's IOCs?
+++ Sweep all IOC types, run a database delta against authoritative data, and reconstruct the audit history end to end
++ Take the supplier's list of altered record UUIDs as the definitive scope and remediate against it
++ Rebuild the affected datasets from the authoritative source and treat the impact as fully addressed
+
+# prompts
++ 1) Optimal — The delta finds what the supplier missed; the audit reconstruction shows where it propagated. Ask how far downstream they can actually trace, and whether analytics retains lineage.
++ 2) Less Optimal — Efficient, and it inherits the blind spots of a supplier who has just lost control of their platform. Ask what the list is derived from and whether they would sign a regulatory notification based on it.
++ 3) Less Optimal — Jumps to fixing before knowing, which feels decisive. It leaves you unable to say what was affected or for how long, which is exactly what a regulator and the affected citizens will ask. Separate remediation from assessment here.
+
+@ Eradication – Restore Trusted Data State
+! duration: 10 mins
+! content
+10:03 UTC — You confirm a defined set of altered records. Multiple downstream consumers hold inconsistent copies. Per‑record restore from the authoritative source is required, followed by downstream reconciliation. Credentials/tokens used by affected integrations must be rotated; validation scripts will certify a clean state.
+
+# discussion
++ What residual risks remain even after restoring authoritative records, particularly where derived datasets or cached copies may persist?
++ Derived data is the hard part — reports, caches, analytics models, letters already sent. How far do you chase it, and who decides when to stop?
+
+? Which path restores a trusted data state with least disruption?
+++ Restore the altered records individually from authoritative data, then reconcile every downstream consumer
++ Restore the entire database from the last known-good backup and accept the loss of intervening changes
++ Delete the records identified as altered and let the authoritative system repopulate them on next sync
+
+# prompts
++ 1) Optimal — Per-record restore keeps legitimate activity intact, and reconciliation is what makes it true everywhere rather than just at source. Ask what the validation scripts certify and whether that is enough for the regulator.
++ 2) Less Optimal — Simple and comprehensive-sounding, and it discards every legitimate change since the backup on a high-volume service. Ask how many citizen transactions that is and what the recovery position is for those people.
++ 3) Less Optimal — Removes the tampered content and the citizen's actual record with it. Ask what happens when someone applies for a service and their history has been deleted rather than corrected.
+
+@ Recovery & Assurance
+! duration: 5 mins
+! content
+Post‑recovery — Public service restored. Supplier commits to new controls. Leadership mandates: continuous log export, scoped tokens, staged releases with SBOM/attestation, periodic supplier security reviews, and dashboards that surface early integrity‑anomaly patterns (hash drift, repo anomalies).
+
+# discussion
++ What ongoing monitoring or assurance signals would provide early warning of future SaaS data‑integrity issues, rather than relying on supplier attestations alone?
++ You detected this because the supplier told you. What would have to be true for you to have detected it first?
+
+? Which long-term controls should be mandated to assure data integrity?
++ Reconcile all citizen records against the authoritative source on a nightly automated schedule
++ Require the supplier to submit to an annual independent security audit commissioned by your organisation
+++ Continuous log export, scoped tokens, staged releases with attestation, and contractual notification SLAs
+
+# prompts
++ 1) Less Optimal — Would have caught this within a day and is worth doing. It is detective rather than preventive, has real cost at citizen-service volumes, and does nothing about the API path into government systems. Ask what a nightly window means for a decision made at 10am.
++ 2) Less Optimal — Standard procurement assurance that produces a report rather than a control. Ask what an audit twelve months ago would have said about this supplier, and whether anyone would have read it.
++ 3) Optimal — Own telemetry, reduced privilege, controlled change and contractual leverage together. Ask what a dashboard would need to show to page someone at 08:49 rather than at 08:21 the next day.

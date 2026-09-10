@@ -8,7 +8,7 @@ The use of USB and removable media within the organisation and associated securi
 Finally, the scenario asks you to consider the regulatory impact of a data breach, in this scenario following a compromise by an insider, and how your organisation would respond.
 
 @ Inject 1
-! duration: 20 mins
+! duration: 15 mins
 ! content
 A user reports that, while browsing an online social media platform, they have discovered some commercially sensitive documents that appear to have originated from your organisation.
 # discussion
@@ -35,7 +35,7 @@ A user reports that, while browsing an online social media platform, they have d
 + Completely confident
 
 @ Inject 2
-! duration: 20 mins
+! duration: 15 mins
 ! content
 You have identified the original version of the leaked documents on a file server within your organisation’s network.
 # discussion
@@ -68,7 +68,7 @@ You have identified the original version of the leaked documents on a file serve
 + Completely confident
 
 @ Inject 3
-! duration: 20 mins
+! duration: 25 mins
 ! content
 Investigation suggests that an individual has been sharing internal documents with a third party, to help them bid for contracts.
 The documents were transferred from the organisation on a personal USB device.

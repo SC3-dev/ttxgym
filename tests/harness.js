@@ -79,4 +79,26 @@ function unrespond(w, qname, index) {
 const counts = (w, qname) => ev(w, `responses[${JSON.stringify(qname)}]`);
 const questionNames = (w) => Object.keys(ev(w, 'qMeta'));
 
-module.exports = { boot, loadScenario, ev, tick, respond, unrespond, counts, questionNames, ROOT };
+/* Every scenario is parsed exhaustively (cheap — see test-ttxf.js). Booting a whole
+   page for each of them is not, and it tests structure rather than content, so these
+   suites drive a deliberate spread instead: both authors, every level, with and
+   without cover art, and the largest and smallest files. Deterministic, so a failure
+   is always reproducible. */
+function sampleScenarios(count = 8) {
+  const manifest = JSON.parse(fs.readFileSync(path.join(ROOT, 'lib/manifest.json'), 'utf8'));
+  const size = e => fs.statSync(path.join(ROOT, 'lib/scenarios', e.id + '.ttxf')).size;
+  const sorted = [...manifest].sort((a, b) => size(b) - size(a));
+  const picked = new Map();
+  const take = e => { if (e) picked.set(e.id, e); };
+
+  take(sorted[0]);                                   // largest
+  take(sorted[sorted.length - 1]);                   // smallest
+  [...new Set(manifest.map(e => e.level))].forEach(l => take(manifest.find(e => e.level === l)));
+  [...new Set(manifest.map(e => e.author))].forEach(a => take(manifest.find(e => e.author === a)));
+  take(manifest.find(e => e.image));                 // with cover art
+  take(manifest.find(e => !e.image));                // without
+  for (const e of manifest) { if (picked.size >= count) break; take(e); }
+  return [...picked.values()];
+}
+
+module.exports = { boot, loadScenario, ev, tick, respond, unrespond, counts, questionNames, sampleScenarios, ROOT };

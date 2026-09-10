@@ -1,0 +1,119 @@
+! title: Volumetric DDoS on Citizen Services Portal
+! author: SC3 / Cyber Capability Toolkit
+! summary
+A sudden multi‑vector DDoS saturates the organisation’s internet edge and front‑end web tier. Teams must detect, triage, coordinate with ISP/CDN for scrubbing, implement tactical filters and segmentation, and recover the service while capturing lessons for hardening.
+
+@ Situation Stand-up (T-0) — Initial Anomaly & Signal
+! duration: 10 mins
+! content
+09:07 UTC — External latency SLA breach observed. Network flow telemetry shows jump from 200 Mbps to 12.4 Gbps with mixed-vector traffic (UDP floods, HTTP GET bursts). CDN health checks failing intermittently; Service Desk receiving >40 timeout tickets in 6 minutes.
+
+# discussion
++ What indicators would make you confident this is no longer a transient traffic anomaly but an adversarial condition requiring irreversible actions (escalation, provider coordination, comms)?
++ Traffic went from 200 Mbps to 12.4 Gbps. Who found out first — your monitoring, your Service Desk, or your citizens? What does the answer say about your detection?
+
+? Traffic has jumped sixty-fold and the portal is timing out. What is your action in the first ten minutes?
+++ Mobilise the CIRT and start packet capture and flow export to characterise the attack
++ Open a priority ticket with the ISP requesting immediate upstream scrubbing
++ Scale out the web tier and enable CDN caching to absorb the additional load
+
+# prompts
++ 1) Optimal — Response and evidence together. The flow data captured now is what the ISP needs in thirty minutes, and it is being overwritten continuously. Ask where that capture lands and whether it survives the edge being saturated.
++ 2) Less Optimal — The right call, made too early to be useful. As stage 3 shows, the provider needs an accurate fingerprint to scrub effectively, and you cannot supply one yet. Ask what they would put in the ticket.
++ 3) Less Optimal — The instinctive capacity response, and it works for a traffic spike. Against 12.4 Gbps of mixed-vector flooding it spends money to absorb an attack while the edge stays saturated. Ask what is actually saturated — the servers or the pipe.
+
+@ Multi‑Vector Confirmation (T+20) — Pattern Discovery
+! duration: 5 mins
+! content
+Flow analysis reveals multi-vector attack: SSDP/NTP amplification, ICMP floods, and randomised HTTP GET floods with rotating user agents. Source IPs heavily spoofed; TTL scatter suggests reflection. WAF shows spikes on /search and /login.
+
+# discussion
++ What information does an upstream provider need to trust your characterisation of the attack, and what happens if that trust is misplaced or incomplete?
++ Source IPs are spoofed and reflection is confirmed. What does that rule out about your response options, and does everyone in the room understand why?
+
+? Which tactical measure reduces risk safely while you prepare to escalate upstream?
++ Block the top source IP ranges observed in the flow data at the edge firewall
++ Drop all UDP and ICMP at the perimeter to remove the amplification vectors
+++ Apply ingress ACLs for the abusive reflection ports (1900, 123) in coordination with the provider
+
+# prompts
++ 1) Less Optimal — Standard practice against most attacks and useless against this one: the inject says sources are spoofed and reflected, so those addresses belong to innocent third parties. Ask who they would actually be blocking.
++ 2) Less Optimal — Removes both amplification vectors decisively, and takes DNS, NTP and traceroute with it. A real option under extreme pressure — make them list what breaks before they choose it.
++ 3) Optimal — Targets the specific reflection ports with minimal collateral, and provider coordination means it can be applied upstream where the bandwidth actually is. Ask what depends on 1900 and 123 inbound. Usually nothing.
+
+@ Upstream Defence Activation (T+40) — ISP/CDN Coordination
+! duration: 15 mins
+! content
+ISP confirms volumetric attack upstream; offers emergency scrubbing with BGP diversion. CDN indicates ‘Attack Mode’ available but may introduce user challenges. You must supply accurate traffic fingerprints within 10 minutes.
+
+# discussion
++ What is your change path for BGP or route changes? Who approves it, and what is your rollback?
++ What are your success criteria before committing all traffic — latency, error budgets, user experience?
++ If latency improves but error rates spike, who decides whether scrubbing stays enabled?
+
+? The ISP needs an accurate fingerprint within ten minutes. What do you send?
+++ Victim IPs, target ports, protocol mix, average and peak bps/pps, PCAP samples and time windows
++ A list of the highest-volume source IP addresses and the ports they are targeting
++ Your edge router and firewall logs for the attack window, exported in full
+
+# prompts
++ 1) Optimal — Multi-dimensional indicators let the provider tune mitigation without dropping legitimate traffic. Ask whether they could assemble this in ten minutes today, and what tooling produces it.
++ 2) Less Optimal — What most teams send, and single-IP lists cannot inform volumetric scrubbing against spoofed, distributed reflection. Ask what the provider would do with a list of forged addresses.
++ 3) Less Optimal — Generous and unusable in ten minutes. Raw logs need interpretation the provider has no time to do, and they describe your edge rather than the attack shape. Ask who reads it.
+
+@ Service Preservation & Segmentation (T+60) — Tactical Controls
+! duration: 10 mins
+! content
+Partial scrubbing reduces inbound to 1.1 Gbps but internal SaaS degradation persists. Edge router CPU at 78%. Network proposes targeted QoS and segmentation to protect DNS, auth, and core control-plane during the continuing attack.
+
+# discussion
++ When DDoS mitigation cannot fully restore service, what do you protect first: availability, integrity of shared services, or investigative visibility — and why?
++ Edge router CPU is at 78% and internal SaaS is degrading. What is your threshold for declaring the edge itself the problem, and what is the plan if it fails?
+
+? Which combination best preserves service against both volumetric and application-layer vectors?
++ Apply QoS to prioritise DNS, authentication and control-plane traffic over everything else
+++ QoS for the core control-plane, WAF challenges on the hot URIs, and continued upstream scrubbing
++ Deploy aggressive WAF rate limiting and challenge rules on /search and /login
+
+# prompts
++ 1) Less Optimal — Protects the services that matter most and does nothing about the application-layer flood hitting /search and /login, nor the upstream volume. Ask what the portal looks like to a citizen under this option.
++ 2) Optimal — Each control addresses a different layer of a genuinely multi-layer attack. Ask what the WAF challenge does to legitimate citizens, particularly on assisted-digital journeys.
++ 3) Less Optimal — Directly addresses the HTTP GET floods and cannot relieve volumetric saturation at the edge, which is the 1.1 Gbps still arriving. Ask which layer is actually the constraint now.
+
+@ Recovery & Validation (T+120) — Ramp‑down & Hardening
+! duration: 5 mins
+! content
+Traffic stabilises post-scrubbing. Latency returns to SLO. Teams preparing rollback but risk secondary waves. Need to maintain heightened telemetry, WAF rate limits, CDN challenges for defined period.
+
+# discussion
++ What signals would indicate this is part of a multi‑wave or probing campaign rather than a one‑off event, and how would that change rollback timing?
++ Every control you have left in place costs something — latency, citizen friction, provider fees. How do you decide when the risk no longer justifies it?
+
+? What must stay in place for at least 72 hours to catch a secondary wave?
++ The upstream scrubbing arrangement, kept active with the provider until the campaign is assessed as over
+++ Heightened telemetry across network, WAF and CDN, with alerting thresholds and watchlists tuned to this attack
++ The WAF rate limits and CDN challenge rules applied during the incident
+
+# prompts
++ 1) Less Optimal — Safest posture and the most expensive, both in provider cost and in the latency scrubbing adds. It also masks a second wave rather than revealing it. Ask what they would learn while it is on.
++ 2) Optimal — Visibility is what tells you a second wave is starting; the mitigations can be re-enabled in minutes if telemetry warns you. Ask who watches those alerts overnight and at the weekend.
++ 3) Less Optimal — Keeps protection in place at direct cost to citizens, who continue to face challenges on a service that is now healthy. Ask what the accessibility impact is, and for how long that is defensible.
+
+@ Post‑Incident Learning — Controls & Governance
+! duration: 5 mins
+! content
+Post-incident review finds unclear ISP escalation path, missing scrubbing templates, outdated WAF/CDN ‘attack mode’ configs. Senior leadership demands structured hardening across governance, runbooks, and monitoring baselines.
+
+# discussion
++ What measurable evidence would demonstrate that detection‑to‑mitigation time would be shorter if this attack replayed tomorrow?
++ The ISP escalation path was unclear during a live attack. Whose job is it to keep that current, and when was it last tested?
+
+? Which enduring controls most reduce detection-to-mitigation time next time?
+++ A provider scrubbing runbook, current WAF and CDN attack profiles, QoS templates, segmentation patterns and periodic exercises
++ Contract for always-on upstream DDoS scrubbing with the provider rather than emergency activation
++ Move the citizen portal entirely behind a CDN with DDoS protection included as standard
+
+# prompts
++ 1) Optimal — Directly addresses each named finding, and the exercise clause is what keeps the runbook true. Ask when they would next test the ISP escalation path, and who would take part.
++ 2) Less Optimal — Removes the escalation delay that cost most of the response time, which makes it a strong answer. It carries ongoing cost and latency, and does nothing for the application-layer vectors. Ask what it would have saved here in minutes.
++ 3) Less Optimal — Genuinely effective architecture and worth pursuing. Press on the parts a CDN does not cover: non-HTTP services, origin exposure if the real IP leaks, and the same escalation path when the CDN needs tuning.

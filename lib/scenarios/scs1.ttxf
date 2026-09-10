@@ -7,7 +7,7 @@ This can lead to a serious cyber incident, for example, ransomware can be deploy
 You are encouraged to discuss the procurement process for IT systems and considerations for supply chain security, including how your supplier arrangements are monitored and reviewed.
 You can also discuss your approach to monitoring software versions, your patching strategy, and your capabilities for analysis of activity on your computer network and response to mitigating unauthorised user access.
 
-@ Inject 1: Software Procurement Process
+@ Software Procurement Process
 ! duration: 20 mins
 ! content
 Your organisation requires a new IT management software package to help monitor network performance, identify issues and misconfigurations, and generate important metrics to increase efficiency.
@@ -41,8 +41,8 @@ A decision has been made to assess external suppliers, some of which offer onlin
 + Fairly confident
 + Completely confident
 
-@ Inject 2: Supplier Potentially Compromised
-! duration: 20 mins
+@ Supplier Potentially Compromised
+! duration: 15 mins
 ! content
 There are some news reports circulating that a major IT software provider has been the subject of a significant cyber attack.
 The provider owns the IT management platform you previously selected.
@@ -73,7 +73,7 @@ This software was successfully deployed into your network last year.
 + Fairly confident
 + Completely confident
 
-@ Inject 3: Incident Confirmation
+@ Incident Confirmation
 ! duration: 20 mins
 ! content
 The supplier has contacted you to confirm that the reports of a compromise are accurate and that your company is using a version of the software impacted by the cyber attack.
@@ -112,7 +112,7 @@ It is believed that your organisation may have installed this software version a
 + Fairly confident
 + Completely confident
 
-@ Inject 4: Attribution and Response
+@ Attribution and Response
 ! duration: 20 mins
 ! content
 Various threat intelligence organisations have been able to obtain a list of affected customers and your organisation is listed.

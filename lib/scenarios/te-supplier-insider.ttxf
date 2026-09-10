@@ -1,0 +1,118 @@
+! title: Malicious Supplier Insider
+! author: SC3 / Cyber Capability Toolkit
+! summary
+A trusted supplier employee intentionally alters code within a software component delivered to your organisation. The insider's actions introduce malicious logic into an update that is already deployed to some systems. Technical teams must identify integrity failures, contain spread, validate the environment, and eradicate tampered components and restore trust while preserving business‑critical services.
+
+@ External Notification – Insider Arrest at Supplier
+! duration: 10 mins
+! content
+08:22 UTC — Sector ISAC alerts report a trusted supplier engineer arrested for intentional code tampering. Internal logs show recent pulls of the affected package to dev/staging systems. Supplier comms remain silent; no advisory or clarification available. CIRP requires immediate classification and scoping of impacted products before logs roll over.
+
+# discussion
++ What assumptions about the trustworthiness of supplier‑authored code are immediately invalidated when malicious insider activity is confirmed?
++ You know an engineer was arrested. You do not know which commits, which releases, or over what period. How far back do you have to look, and can you?
+
+? A supplier engineer has been arrested for code tampering and the supplier is silent. What do you do first?
+++ Identify every product and environment holding the affected package, and classify as a supply chain compromise
++ Roll back all deployments of the supplier package to the last release predating the engineer's employment
++ Halt all deployment pipelines that consume supplier packages until the scope of tampering is known
+
+# prompts
++ 1) Optimal — Scope first, and the pull logs showing dev and staging deployment are the thread to follow. Ask whether they can enumerate every environment consuming that package, including ones built months ago.
++ 2) Less Optimal — Superficially thorough and probably impossible: the engineer may have worked there for years, and the inject gives no tampering window at all. Ask what release they would roll back to and how they chose it.
++ 3) Less Optimal — Sensible blast-radius control that stops the problem growing, and does nothing about what is already deployed. Good second action. Ask what proportion of the risk it addresses.
+
+@ Integrity Suspicion – Unexpected Code Paths
+! duration: 10 mins
+! content
+08:47 UTC — Engineering notes unexpected behaviours in the supplier library: debug flags enabled, hidden endpoints activated, and callbacks to undocumented telemetry hosts. SBOM comparison reveals new modules absent from the last verified build. No authorised update window exists.
+
+# discussion
++ An insider with commit rights can make malicious code look like ordinary development. What in your review or intake process would have caught this, and would it have survived a plausible commit message?
++ The library calls out to "undocumented telemetry hosts". How would you have distinguished that from legitimate vendor telemetry before today?
+
+? How do you confirm the supplier code was actually tampered with?
++ Analyse the undocumented telemetry callbacks to determine whether they are exfiltrating data
++ Decompile the library and review the new modules for malicious logic
+++ Compare deployed binaries against known-good signatures and reconcile the SBOM against the last verified build
+
+# prompts
++ 1) Less Optimal — Answers whether it is *harmful*, not whether it was *altered*, and vendors ship undocumented telemetry more often than anyone likes. Ask what a benign-looking callback would prove either way.
++ 2) Less Optimal — Definitive and slow, and it needs skills most teams do not have on shift. Worth doing for evidence and attribution; too slow to drive containment at 08:47. Ask how long it takes and what happens meanwhile.
++ 3) Optimal — The SBOM delta is decisive: modules absent from the last verified build did not arrive legitimately. Ask whether they retain verified build manifests, and who holds them.
+
+@ Internal Execution Indicators
+! duration: 10 mins
+! content
+09:05 UTC — EDR surfaces execution attempts from the supplier component spawning PowerShell and writing staged payloads into `%PROGRAMDATA%\tmp`. Multiple hosts register abnormal thread injection events. Some systems are customer‑facing and cannot be taken down entirely, requiring targeted containment.
+
+# discussion
++ What indicators tell you that tolerated “supplier execution” has crossed into unacceptable runtime risk, and how does that alter containment thresholds?
++ The malicious code runs inside a trusted, expected application. Which of your controls would have allow-listed it precisely because it was the supplier's?
+
+? The component is spawning PowerShell and injecting threads. What contains it without taking customer-facing systems down?
+++ Isolate the affected systems and block execution of the supplier component estate-wide
++ Apply an EDR rule preventing the supplier component from spawning child processes
++ Remove the supplier component from all affected hosts and restart the dependent services
+
+# prompts
++ 1) Optimal — Stops execution everywhere while isolation handles the hosts already compromised. Ask how they block execution of a component that customer-facing services depend on, and what degrades.
++ 2) Less Optimal — Surgical, keeps services running, and is the most attractive option here. It blocks one observed technique while thread injection — also in the inject — proceeds inside the trusted process. Ask what it does not stop.
++ 3) Less Optimal — Decisive eradication attempted before scoping or evidence collection, and it will take customer-facing services down as a side effect. Ask what they lose for the investigation and whether the services survive.
+
+@ Lateral Impact Assessment
+! duration: 5 mins
+! content
+09:28 UTC — Cross‑estate checks show that several business units deployed the tampered component. Version/hash mismatches appear on Windows and Linux variants. Early forensic artefacts suggest potential lateral misuse of the supplier component for discovery actions.
+
+# discussion
++ What internal systems are most at risk when a trusted supplier component is abused as a discovery or lateral‑movement tool?
++ Several business units deployed this independently. What does that tell you about your software intake process, and who else might have it that you have not found?
+
+? How do you establish the full estate-wide footprint and lateral impact?
++ Query the CMDB and software inventory for all recorded deployments of the affected package
+++ Sweep by version and hash across both platforms, and correlate against discovery-pattern activity in EDR and network logs
++ Review EDR telemetry for hosts showing the same PowerShell and thread injection behaviour
+
+# prompts
++ 1) Less Optimal — The obvious starting point and only as good as the inventory. The inject says business units deployed it independently, which is precisely what CMDBs miss. Ask how confident they are in their software inventory.
++ 2) Optimal — Hash-based footprint plus behavioural correlation covers both deployed-and-dormant and actively-abused. Ask whether they can query by hash across Windows and Linux with one tool.
++ 3) Less Optimal — Finds hosts where the malicious logic has already executed, and misses those where it is deployed and dormant. Ask what they would do about a host carrying the component but showing no behaviour.
+
+@ Eradication – Remove Altered Code
+! duration: 10 mins
+! content
+09:52 UTC — Forensic triage confirms malicious branches inserted into the supplier code path: credential scraping logic, sandbox checks, and persistence stubs. Known‑good baselines (signatures, hashes, SBOM) are available, but downstream systems may already have consumed tainted output.
+
+# discussion
++ What residual risks can remain even after trusted components are restored, particularly where tainted outputs or credentials were previously consumed?
++ Credential scraping logic was in the code path. Which credentials passed through that component, and across how many business units?
+
+? Which eradication restores trusted components and deals with what the malicious code did?
++ Replace the component with the verified trusted version and confirm integrity against the known-good hash
+++ Replace the component, rebuild affected hosts, rotate every credential the code path handled, and validate downstream outputs
++ Rebuild all affected systems from clean images with the verified component version included
+
+# prompts
++ 1) Less Optimal — Necessary, and it treats this as a file-replacement problem when the code was scraping credentials. Ask what the attacker keeps after a perfect component swap.
++ 2) Optimal — Component, host, credentials and downstream data. The last is easily missed: tainted output already consumed by other systems does not correct itself. Ask which downstream systems consumed it.
++ 3) Less Optimal — Produces genuinely clean systems and still leaves the scraped credentials valid and the tainted downstream data in place. Ask what a rebuilt host protects if the attacker holds its service account.
+
+@ Recovery & Supplier Assurance
+! duration: 5 mins
+! content
+Post‑eradication — Compromised instances rebuilt. Leadership requests uplift: mandatory supplier SBOM/signing validation, staged update pipelines, enhanced monitoring for code‑path anomalies, periodic access reviews for supplier accounts, and codified supply‑chain incident runbooks.
+
+# discussion
++ What technical assurance signals would provide early warning that supplier insider activity is re‑emerging before malicious updates reach production again?
++ Everything here depends on the supplier's own controls over their own staff. What can you verify yourself, and what are you simply choosing to trust?
+
+? Which controls should be mandated to prevent malicious insider updates reaching production?
+++ Mandatory SBOM and signature validation at intake, staged pipelines with canary cohorts, and monitoring for code-path anomalies
++ Require the supplier to evidence code review, segregation of duties and background screening for engineers
++ Prohibit automatic updates and require manual security review of every supplier release before deployment
+
+# prompts
++ 1) Optimal — Every element sits on your side of the boundary and would have caught this: SBOM validation flags new modules, canary cohorts limit blast radius, anomaly monitoring catches the callbacks. Ask which they would build first.
++ 2) Less Optimal — The correct controls, applied entirely inside an organisation you do not run and cannot audit continuously. This insider passed whatever screening the supplier had. Ask what they would actually verify, and how often.
++ 3) Less Optimal — Maximum control, and it means running known-vulnerable versions while reviews queue. Ask what their review throughput is against supplier release cadence, and what the security debt costs. A genuine trade worth arguing.

@@ -1,0 +1,119 @@
+
+! title: Rootkit / Stealth Persistence
+! author: SC3 / Cyber Capability Toolkit
+! summary
+A privileged server shows signs of stealthy persistence consistent with a rootkit. The technical team must identify kernel‑level compromise, preserve forensic evidence, rebuild securely, and validate that no persistence remains.
+
+@ Initial Detection – Kernel Anomalies
+! duration: 10 mins
+! content
+08:42 UTC — EDR flags an unsigned kernel‑mode driver (`rkdrv64.sys`) loaded on a privileged fileserver (FS-PRD-02 - a High Value Tier 1 server). Sysmon shows multiple SSDT hook attempts and abnormal IRP handlers. Secure Boot attestation for the last boot is missing. SOC also notes a 30‑second gap in the host’s kernel telemetry stream immediately prior to driver load.
+
+# discussion
++ What characteristics indicate a collapse of host trust rather than anomalous behaviour, and how does that change your acceptable response risk?
++ The 30-second telemetry gap sits immediately before the driver load. Is that a collection artefact or part of the attack, and how would you tell the difference?
+
+? Which initial actions best contain the suspected rootkit loader while preserving volatile artefacts for analysis?
++ Quarantine `rkdrv64.sys` with EDR and kill the loading process, then keep the host under close monitoring
++ Drop the host out of the cluster and boot it from known-good WinPE media for offline disk analysis
+++ Isolate the host at the network layer and capture memory before taking any action on the driver
+
+# prompts
++ 1) Less Optimal — The reflex most SOCs actually have, which is why it is here. Ask what happens when anti-tamper is triggered: this family self-deletes, and quarantining the file leaves the loaded driver resident in memory anyway. Listen for whether anyone notices they would be destroying the evidence that proves what happened.
++ 2) Less Optimal — Forensically minded and defensible for a disk-persistence case, but a reboot discards every volatile artefact that distinguishes a rootkit from a misfiled driver. Push the room on order of volatility.
++ 3) Optimal — Network isolation stops lateral movement without touching the host state, and memory is the only place the hook tables and unbacked code live. Probe how they will isolate: a switch-port or EDR containment action, not an interactive shutdown.
+
+@ Hidden Processes & Files
+! duration: 5 mins
+! content
+09:11 UTC — `dir` and `tasklist` show no anomalies, but kernel‑level enumeration via live‑response plugin lists a hidden process (`svchost.exe` PID 1180) with no userland handle and a mapped image at `\Device\HarddiskVolume3\$Reparse\syscache.bin`. A raw MFT pass lists an alternate data stream (ADS) on `C:\Windows\System32\drivers\acpi.sys:telemetry`. This confirms stealth without triggering anti-forensic self-deletion.
+
+# discussion
++ Why can user‑space tooling no longer be trusted once kernel‑level stealth is suspected, and what principles guide reliable verification?
++ Your monitoring stack reports the host as healthy. What else in your estate is reporting health through an agent that would be blind to exactly this, and does that change what "green" means to you?
+
+? Which evidence most reliably confirms rootkit installation or stealth behaviour on the affected host?
++ An offline scan of the mounted disk from a clean analysis host, using current EDR and AV signatures
++ Authenticode signature validation of `acpi.sys` against the vendor catalogue, with a file hash comparison
+++ The delta between kernel-level enumeration and userland tool output, treated as the finding in its own right
+
+# prompts
++ 1) Less Optimal — Reasonable, and worth doing eventually, but it only finds what a signature already describes. Ask what a clean result would actually tell them. The answer is nothing.
++ 2) Less Optimal — The strongest distractor, and the one technical teams pick. It returns clean: the ADS does not alter the base file hash and the signature on `acpi.sys` is genuinely valid. Use this to make the point that a clean integrity check can be actively misleading during a stealth incident.
++ 3) Optimal — The discrepancy *is* the evidence. Nothing else proves that something is actively lying to the operating system. Ask what tooling they would trust to do the enumeration and how it was delivered to the host.
+
+@ Forensic Evidence Preservation
+! duration: 10 mins
+! content
+09:28 UTC — SOC proposes full capture. Memory is stable but volatile artefacts (hook tables, handle tables, driver object lists) are changing every ~90 seconds. A previous case note warns that traditional triage tools trigger anti‑forensic self‑deletion on this family. Chain‑of‑custody worksheet is prepared; controller asks for the acquisition order you will follow.
+
+# discussion
++ What forensic artefacts are most perishable during rootkit incidents, and how should capture order be prioritised to avoid triggering anti‑forensic behaviour?
++ Who signs off an acquisition method that carries a known risk of destroying the evidence, and is that decision yours to make at 09:28 on a Tuesday?
+
+? Artefacts are turning over every 90 seconds and triage tooling is known to trigger self-deletion. Which acquisition order do you follow?
+++ Driver-independent memory image first, then hiberfil and pagefile, then a full disk image once the host is isolated
++ Full disk image first to establish a verified baseline, then memory capture once that image is hashed and stored
++ The standard triage collection script to capture hook and handle tables, followed by memory and disk imaging
+
+# prompts
++ 1) Optimal — Order of volatility, with the acquisition method chosen so it does not depend on the kernel it is examining. Probe whether they have such a tool available *today*, or are describing one they would need to source mid-incident.
++ 2) Less Optimal — Order of volatility applied backwards, usually out of an instinct to secure the "real" evidence first. Ninety seconds of turnover means the hook tables are gone many times over before the image completes. Ask what they expect to still be true about memory an hour later.
++ 3) Less Optimal — Exactly what the case note warns against. Watch whether anyone in the room read the case note; this stage rewards the team that treats prior intelligence as binding rather than advisory.
+
+@ Containment – Privileged Access
+! duration: 10 mins
+! content
+09:49 UTC — Directory audit logs show recent interactive logon by a Tier‑1 admin account on FS-PRD-02 during the anomaly window. Kerberos TGT for that account remains valid. Two additional privileged service accounts show token duplication attempts originating from FS-PRD-02 to APP-PRD-05 over RPC/SMB. Leadership asks whether to rotate privileged credentials immediately or wait until imaging completes.
+
+# discussion
++ How does confirmed kernel compromise invalidate assumptions about credential trust, and which identity actions are justified before forensics completes?
++ Rotating Tier‑1 credentials will break things you have not predicted. What do you need to know about your own service account estate before you can do this at speed, and do you know it now?
+
+? A Tier‑1 TGT is still valid and token duplication is reaching APP-PRD-05. What identity action do you take before imaging completes?
++ Disable the Tier‑1 account and block FS-PRD-02 to APP-PRD-05 at the firewall, holding resets until imaging is finished
++ Reset the Tier‑1 admin password and force re-authentication, deferring the service accounts to the next change window
+++ Reset the Tier‑1 and both service accounts, revoke issued tickets, and begin the double krbtgt rotation
+
+# prompts
++ 1) Less Optimal — Genuinely defensible and the most common answer: it preserves evidence and cuts the observed path. But a disabled account's existing TGT stays valid for its remaining lifetime, and the firewall rule only covers the movement you have already seen. Draw that out rather than correcting it.
++ 2) Less Optimal — Splits the difference in the way that feels operationally responsible, and leaves the service accounts — the ones actually being duplicated — untouched for days. Ask what the change window is protecting and whether that trade still holds at 09:49.
++ 3) Optimal — Credentials that touched a kernel-compromised host are gone, and a password reset alone does not invalidate an issued ticket. Ask whether the room knows why krbtgt is rotated twice and what happens if the second rotation follows too quickly.
+
+@ Eradication – Rebuild from Trusted Media
+! duration: 10 mins
+! content
+10:22 UTC — Attempts to unload `rkdrv64.sys` fail; anti‑tamper blocks driver removal. A boot‑time loader persists via `HKLM\SYSTEM\CurrentControlSet\Services\acpitime` and a scheduled task (`\Windows\UpdateTelemetry`) that re‑drops the driver if removed. Secure rebuild media (hash‑verified) is available; a maintenance window opens in 40 minutes for FS-PRD-02. You must define the eradication path that guarantees a trusted boot chain.
+
+# discussion
++ Why is targeted removal unacceptable for rootkit eradication, and what conditions must be met before trust in the boot chain is restored?
++ A 40-minute window is not long enough to do this properly. What do you tell the business owner, and what is the cost of saying "the server stays down"?
+
+? Which eradication path restores a boot chain you can actually trust?
++ Remove the service key and scheduled task, unload the driver from Safe Mode, then run a full integrity check before returning the host to service
+++ Rebuild from hash-verified media onto wiped storage, re-provision every secret held on the host, and re-attest Secure Boot before it rejoins
++ Restore FS-PRD-02 from the most recent backup predating the telemetry gap, then patch, re-attest, and return it to service
+
+# prompts
++ 1) Less Optimal — Fits the maintenance window, which is exactly its appeal. Ask how they would prove the removal was complete on a host whose kernel they no longer trust, and what the scheduled task re-drops from.
++ 2) Optimal — Only a rebuild from known-good media re-establishes the chain. Probe the secrets question specifically: machine account, cached credentials, certificates, and any service account with a password on that box.
++ 3) Less Optimal — The strongest distractor and the one that sounds most responsible. Ask two questions: how do they know the backup predates the *compromise* rather than the *detection*, and does the backup carry firmware or UEFI state at all?
+
+@ Recovery & Hardening
+! duration: 5 mins
+! content
+Post‑rebuild — FS-PRD-02 passes Secure Boot attestation and kernel integrity checks. Leadership requests a technical plan to reduce recurrence: telemetry shows prior gaps in kernel visibility, legacy boot config allowed fallback, and no continuous export existed for driver load events. Supplier asks for evidence and assurance artefacts to close the incident.
+
+# discussion
++ Which assurance gaps allowed this rootkit to persist undetected, and what telemetry or attestation would demonstrate those gaps are now closed?
++ The 30-second telemetry gap was visible in the data all along and nobody alerted on it. What would it take for absence of telemetry to page someone?
+
+? Which long‑term controls most effectively reduce recurrence of rootkit‑style compromises?
+++ Enforce Secure Boot with attestation, monitor driver loads continuously, and export those events off-host in real time
++ Add a second EDR agent alongside the incumbent to widen detection coverage across kernel and userland
++ Move the role to a hardened VM template with hourly integrity scanning and monthly rebuilds from image
+
+# prompts
++ 1) Optimal — Addresses all three named gaps: boot trust, visibility, and the off-host export that makes a telemetry gap detectable. Ask what alerts on the *absence* of driver-load events.
++ 2) Less Optimal — Sounds like more security and is often proposed after an incident. Two kernel agents contend for the same hooks, degrade the host, and neither addresses the boot chain. Ask what specifically the second agent would have caught here.
++ 3) Less Optimal — Real hardening value and worth doing, but scanning from inside a compromised kernel returns whatever the rootkit wants it to. Ask what an hourly scan would have reported at 08:42.

@@ -31,7 +31,7 @@ For each inject we will pose a Quiz response question to get the conversation st
 
 
 @ Exercise Aims and Objectives
-! duration: 10 mins
+! duration: 5 mins
 ! content
 **AIMS**
 1. Test operational and service-led decision-making under conditions of uncertainty in an emerging cyber incident.
@@ -49,7 +49,7 @@ Participants should be able to:
 
 
 @ DETECTION AND IMMEDIATE SYSTEM SHUTDOWN
-! duration: 10 mins
+! duration: 5 mins
 ! content
 %(../lib/exercise_data/TTXGYM_Warning_red.png | 10%)
 The IT Team has detected suspicious activity on the core operational system. Indicators include unusual authentication attempts and abnormal database queries.
@@ -112,7 +112,7 @@ There is no clarity yet on what was accessed, changed, or stolen.
 ++ We are working with incomplete information; here’s what we do know.
 
 @ CONFIRMED DATA INTEGRITY FAILURE
-! duration: 10 mins
+! duration: 5 mins
 ! content
 ~**Scenario Update**
 Digital Forensic investigation confirms that:
@@ -154,7 +154,7 @@ The volume of data stolen, the content of the data, and its recipients remain un
 + Answer 2: OPTIMAL ANSWER - When data exfiltration is confirmed, even without knowing the volume or recipients, you have a legal, regulatory, and governance obligation to escalate immediately.
 + Answer 3: Staff need guidance, but first priority is compliance and governance. Internal comms come after initial escalation.
 + Answer 4: Non-compliant—waiting for full clarity breaches regulatory timelines and increases liability.
-? Who needs to be notified first?
+? Exfiltration is confirmed but its content and recipients are unknown. Who do you notify first?
 + The public / clients.
 ++ Regulators, IG, and senior management.
 + Staff only—don’t leak information prematurely.

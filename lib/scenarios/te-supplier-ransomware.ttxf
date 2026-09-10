@@ -1,0 +1,118 @@
+! title: Compromised Supplier
+! author: SC3 / Cyber Capability Toolkit
+! summary
+A critical supplier suffers a ransomware attack and becomes unresponsive. Their product—embedded in a critical organisational service—begins showing indicators of compromise. Technical teams must detect, triage, contain, and eradicate risks to prevent wider impact.
+
+@ External Alert – Supplier Ransomware Incident
+! duration: 10 mins
+! content
+08:12 UTC — Sector ISAC and OSINT reports indicate a ransomware outage at the supplier. Contract Manager cannot reach them. Internal monitoring shows minor latency on integrations touching the supplier’s API, but no full outage. CIRP requires rapid classification and dependency scoping while preserving evidence (status pages, audit/API traces) before rollover.
+
+# discussion
++ When a critical supplier goes dark due to ransomware, what assumptions about integration safety and trust immediately become invalid?
++ The supplier is a victim, and their product runs inside your critical service. At what point does their incident become a compromise of yours?
+
+? A critical supplier is down to ransomware and unreachable; your integrations show minor latency. What is your first response?
++ Invoke business continuity for the affected service and plan to operate without the supplier for several days
++ Suspend the supplier integrations and hold them down until the supplier confirms their environment is clean
+++ Classify as a supply chain cyber incident, mobilise the CIRT, and scope every dependency while preserving evidence
+
+# prompts
++ 1) Less Optimal — The natural operational reading, and it treats an availability problem while their software runs inside your estate. Ask what the continuity plan does about a supplier *product* that may already be compromised.
++ 2) Less Optimal — Defensible and possibly right later. It acts before scoping, and "until they confirm clean" hands your recovery timeline to an organisation currently rebuilding from backups. Ask how long they would wait.
++ 3) Optimal — Classification and dependency scoping, with evidence preserved before status pages and API traces roll. Ask how many integrations touch this supplier and whether anyone can list them.
+
+@ Service Degradation – Early Impact
+! duration: 10 mins
+! content
+08:39 UTC — Application metrics show timeouts on supplier‑backed calls for a critical service. API logs record unusual update requests/signatures arriving out‑of‑cadence. Baseline dashboards confirm this pattern is abnormal for this hour/day; business impact is emerging but not yet a full outage.
+
+# discussion
++ What indicators would increase your confidence that supplier disruption has crossed from availability risk into integrity or compromise risk inside your environment?
++ Update requests are arriving out of cadence from a supplier who is mid-ransomware. What is the most likely explanation, and what is the most dangerous one?
+
+? How do you distinguish supplier outage from compromise of their product inside your estate?
++ Contact the supplier's technical team through emergency escalation channels to confirm what is theirs
+++ Compare current behaviour against baseline and inspect the signatures on the out-of-cadence update requests
++ Halt all inbound updates from the supplier and analyse the queued packages before allowing any through
+
+# prompts
++ 1) Less Optimal — The right instinct and the supplier is unreachable, which the inject has already established twice. Ask what they do when nobody answers, and how long they let the updates keep arriving.
++ 2) Optimal — The out-of-cadence updates are the signal that separates the two, and their signatures are checkable without the supplier. Ask whether they hold known-good signing information independently.
++ 3) Less Optimal — Genuinely strong and arguably the better answer: it stops the risky thing while you look. It also halts legitimate security updates and does not itself distinguish outage from compromise. Let the room argue it against option 1.
+
+@ Internal Indicators of Compromise
+! duration: 5 mins
+! content
+09:02 UTC — EDR/SIEM identify suspicious behaviour on hosts running the supplier component: new processes, registry/service changes, and unexpected outbound to the supplier CDN range. Some of these hosts underpin customer‑facing functions that cannot fully stop, requiring targeted isolation.
+
+# discussion
++ What signals indicate this incident can no longer be contained at the supplier boundary and must be treated as an internal compromise?
++ Outbound traffic is going to the supplier's own CDN range — infrastructure you would normally allow. How do you distinguish malicious from legitimate there?
+
+? Suspicious behaviour is confirmed on hosts running the supplier component. What contains it?
++ Block the supplier CDN ranges at the egress firewall and alert on any host attempting to reach them
++ Stop the supplier component service across all affected hosts and monitor whether the behaviour ceases
+++ Isolate the impacted hosts with targeted containment, capturing logs and samples as you go
+
+# prompts
++ 1) Less Optimal — Cuts the observed channel without an outage, which is why it is popular, and leaves compromised hosts inside the estate free to move laterally. Ask what the block protects against once the code is already running.
++ 2) Less Optimal — Directly targets the suspected source and will break the customer-facing functions the inject just flagged. It also destroys running state before capture. Ask what they lose and what they gain.
++ 3) Optimal — Containment plus evidence, with "targeted" carrying the customer-facing constraint. Ask how they choose which hosts, and what they capture before isolating.
+
+@ Response Decision – Supplier Still Unresponsive
+! duration: 10 mins
+! content
+09:28 UTC — Supplier remains offline; no clarification. IOC hunt across the estate shows scattered anomalies (forwarding rules, improbable access, automated replies) in a few adjacent systems that rely on the supplier. A containment decision is required without supplier input.
+
+# discussion
++ How do you balance continuity against containment when the external party you depend on cannot be trusted or consulted at all?
++ The anomalies are now in adjacent systems that merely *rely* on the supplier. What does that suggest about how the compromise is spreading?
+
+? The supplier is still unreachable and anomalies are appearing in adjacent systems. What is your decision?
++ Extend enhanced monitoring to every system that depends on the supplier and hold the current containment
+++ Segregate the supplier product into its own network segment and suspend the integrations
++ Rebuild the affected adjacent systems and reconnect them behind tightened access controls
+
+# prompts
++ 1) Less Optimal — Preserves every service and buys information, which is a real argument when the picture is unclear. It also accepts continued spread while you watch. Ask what threshold would make them act, and whether they would recognise it in time.
++ 2) Optimal — Contains the product rather than chasing each affected system, which is the only move that scales when you cannot consult the supplier. Ask what breaks when the integrations suspend and who signs it off.
++ 3) Less Optimal — Jumps to remediation while the source remains connected and untrusted. Ask what stops the rebuilt systems being reinfected from the same component within the hour.
+
+@ Confirmed Compromise – Malicious Code in Supplier Software
+! duration: 10 mins
+! content
+09:51 UTC — Forensic review of the supplier package indicates malicious code in the delivered update. Hash/signature mismatch confirmed against your known‑good set. Downstream services that consumed the component show inconsistent behaviour; secrets/keys used by the component may be exposed.
+
+# discussion
++ What internal trust must be re‑established before downstream systems can safely rely on recovered supplier components again?
++ The supplier cannot give you a clean version because they are still rebuilding. What do you actually do about a critical dependency with no trustworthy release?
+
+? Malicious code is confirmed in the supplier package. Which eradication restores a trusted state?
++ Roll back to the last supplier version that matches your known-good hash set and redeploy it
++ Rebuild the affected systems from trusted backups and reconnect once integrity checks pass
+++ Remove the compromised components, rebuild affected systems from trusted sources, and rotate every secret the component held
+
+# prompts
++ 1) Less Optimal — Sensible and fast, and it assumes the last matching version was itself clean — plausible, but the tampering window is unknown and the supplier cannot confirm it. Ask how far back their known-good set goes.
++ 2) Less Optimal — Restores the systems and leaves the exposed secrets valid. Ask what an attacker holding the component's keys can still reach after every host is rebuilt.
++ 3) Optimal — The secrets clause is what most plans omit, and the inject explicitly flags exposure. Ask which keys the component held and how many systems accept them.
+
+@ Recovery & Lessons
+! duration: 5 mins
+! content
+Post‑eradication — Critical service is restored via fallback architecture. Supplier is still recovering. Leadership requests assurance: continuous log export in place, supplier assurance uplift (SBOM/signed updates), disabled legacy patterns, and periodic access reviews to prevent recurrence.
+
+# discussion
++ What telemetry or assurance signals would provide early warning that a similar supplier compromise is beginning to affect your environment again?
++ You are running on fallback architecture and the supplier is still down. What is your criteria for reconnecting, and who owns that decision?
+
+? Which long-term controls should be mandated?
+++ Signed update validation at intake, continuous log export, staged deployment, and periodic access reviews for supplier components
++ Require SBOMs, signed updates and independent security attestation from all critical suppliers
++ Architect every critical supplier dependency so a tested fallback can be invoked within the hour
+
+# prompts
++ 1) Optimal — Every element is enforced in your estate: validation at intake catches the tampered update, staged deployment limits blast radius, log export gives evidence. Ask where intake validation would actually sit.
++ 2) Less Optimal — Right controls, placed on the supplier's side of a boundary you cannot audit. This supplier was a ransomware victim; their attestation was probably accurate last month. Ask what they would verify themselves.
++ 3) Less Optimal — Proven its worth in this very incident, since fallback is what restored the service. It is a continuity answer to a compromise problem — it limits impact without reducing the chance of recurrence. Strong paired with option 3.

@@ -1,0 +1,118 @@
+! title: Compromised Supplier Update Pipeline
+! author: SC3 / Cyber Capability Toolkit
+! summary
+A trusted supplier's software update pipeline is compromised. A malicious update is pushed to your environment through the normal update channel. Technical teams must detect integrity failures, contain spread, validate systems, and restore trust in the supply chain.
+
+@ Detection – Suspicious Update from Supplier
+! duration: 10 mins
+! content
+08:18 UTC — Endpoint agents report an urgent supplier update available outside the normal release window. Hash manifests pulled from the repo do not match your known‑good set; signing timestamp is off‑cadence by 2 hours. A handful of staging devices show the update as ‘mandatory’. CIRP scoping must start while preserving artefacts (installer, manifest, signature) before they roll over.
+
+# discussion
++ What assumptions about the supplier’s update pipeline are immediately invalidated by an out‑of‑cadence, mismatched update, and which internal trust boundaries should be questioned first?
++ The update is flagged 'mandatory'. What in your patching policy or tooling would install it automatically, and how long do you have before that happens?
+
+? An urgent supplier update has arrived off-cadence with mismatched hashes. What do you do first?
+++ Block distribution across every update channel and open an incident as a supply chain compromise
++ Hold the update in staging and request verification of the manifest from the supplier before deciding
++ Allow it to install on a small set of non-critical test systems to observe its behaviour
+
+# prompts
++ 1) Optimal — Stopping distribution is the only reversible action here, and the artefacts must be preserved before the repo rolls them. Ask whether they can actually halt updates across every channel — endpoint agent, package manager, and any business unit running its own.
++ 2) Less Optimal — Cautious and correct in shape, and it makes the next step depend on a supplier whose pipeline is the thing in question. Ask what a reassuring reply would be worth from a compromised system.
++ 3) Less Optimal — Controlled-exposure testing that sounds disciplined and executes probable malware inside your estate. "Non-critical" test systems usually hold real credentials and full network reachability. Ask what those systems can reach.
+
+@ Supplier Unreachable – Establishing Origin
+! duration: 10 mins
+! content
+08:41 UTC — Supplier comms remain dark; Contract Manager cannot reach the account team. Internal telemetry shows repeated attempts to fetch the same update from multiple sites. Baselines confirm no scheduled releases at this time. You must decide how to validate origin safely while blocking distribution.
+
+# discussion
++ When a supplier is unresponsive or contradicts observed behaviour, how do you establish confidence in origin without unintentionally spreading the threat?
++ Multiple sites are still trying to fetch this update. Why, and what does that tell you about how completely your block was applied?
+
+? You cannot reach the supplier. How do you safely establish whether the package is malicious?
++ Detonate it on an isolated virtual machine with internet access, and observe what it contacts
+++ Perform static and dynamic analysis in an isolated sandbox with controlled, monitored egress
++ Compare the package's signature and certificate chain against the supplier's published signing key
+
+# prompts
++ 1) Less Optimal — Isolated from your estate and connected to everything else, which lets the payload call home, fetch a second stage, and identify you as a target. Ask who else that VM could attack, and who is liable.
++ 2) Optimal — Static analysis reveals code paths that never execute; controlled egress lets you observe callbacks without granting real reachability. Ask whether such an environment exists today or is being improvised.
++ 3) Less Optimal — Fast, sensible and the trap this attack class sets: a compromised pipeline usually signs with the publisher's legitimate key, so the signature validates perfectly. Ask what a valid signature proves — provenance, not integrity.
+
+@ IoCs Detected from Attempted Update
+! duration: 10 mins
+! content
+09:03 UTC — EDR flags credential harvesting and lateral‑movement tooling on two endpoints where the update was downloaded but not installed. New outbound to supplier‑adjacent CDN ranges appears in NetFlow. Identity logs show token usage tied to the updater service account. Immediate containment is required without collapsing production.
+
+# discussion
++ What indicators tell you that the compromise window has moved from prevention failure into active internal risk, and how does that change containment urgency?
++ The update was downloaded but never installed, and the hosts are compromised anyway. What does that tell you about where the malicious code executed?
+
+? Two hosts are compromised without the update ever installing. What contains this?
++ Block the supplier-adjacent CDN ranges at the egress firewall and disable the updater service account
+++ Isolate the affected systems and disable the supplier update channel estate-wide
++ Suspend the updater service across the estate and revoke its service account tokens
+
+# prompts
++ 1) Less Optimal — Cuts the observed channel and the credential path without an outage, which makes it attractive. It leaves two compromised hosts running lateral-movement tooling inside the estate. Ask what the block protects against now.
++ 2) Optimal — Removes the compromised hosts and stops any further host reaching the same fate. Ask how many other endpoints are mid-download, and whether disabling the channel reaches all of them.
++ 3) Less Optimal — Correctly identifies the updater account as the pivot and is genuinely strong. It stops the mechanism and leaves the two already-compromised hosts to move laterally with harvested credentials. Ask what the tooling on those hosts is for.
+
+@ Integrity Validation – Estate-Wide
+! duration: 10 mins
+! content
+09:27 UTC — Estate‑wide sweep shows mixed versions of the supplier component across business units. Some devices show the new update present in cache; others remain on prior minor versions. CMDB/EDR can extract version and hash at scale; you must choose an efficient integrity audit path.
+
+# discussion
++ What risks arise if estate‑wide integrity validation is incomplete or slow, and which parts of the environment are most likely to retain stale or cached components?
++ Business units are running different versions of the same component. How did that happen, and does anyone own the answer?
+
+? How do you validate software integrity across a mixed-version estate?
+++ Extract version and hash at scale via CMDB and EDR, and reconcile every result against the known-good set
++ Query the CMDB for all recorded deployments of the supplier component and their versions
++ Search every endpoint for the tampered package's hash and the cached installer
+
+# prompts
++ 1) Optimal — Hash reconciliation is what distinguishes a correct version number from a correct file. Ask whether their known-good set covers every version legitimately in use across those business units.
++ 2) Less Optimal — The obvious route and only as accurate as the CMDB, which the version spread suggests is not very. It also records what should be installed, not what is. Ask how they would find an unmanaged device.
++ 3) Less Optimal — Targeted and finds only the specific artefact you know about, missing hosts carrying a different tampered build or a cached copy under another name. Ask what a clean result would let them claim.
+
+@ Eradication – Remove Malicious Components
+! duration: 5 mins
+! content
+09:52 UTC — Lab analysis confirms malicious modules embedded in the tampered package. The code attempts to disable EDR and stage a loader. Known‑good build references (hashes, signatures, SBOM) are available. Secrets and keys used by the updater were accessible on several systems.
+
+# discussion
++ What residual risks remain even after restoring known‑good builds, particularly where systems may have consumed outputs or secrets from the compromised component?
++ The code attempts to disable EDR. On how many hosts did it succeed, and how would you know?
+
+? Which eradication restores a trusted state?
++ Remove the malicious modules and restore the known-good build, verifying against the published hashes
+++ Rebuild from known-good sources, rotate every secret the updater could reach, and verify EDR integrity across the estate
++ Rebuild the affected systems from clean images and redeploy the verified supplier component
+
+# prompts
++ 1) Less Optimal — Efficient and trusts the enumeration on hosts where EDR itself was under attack. If the agent was disabled, the telemetry underpinning that enumeration is unreliable. Ask what they are trusting.
++ 2) Optimal — Rebuild, credentials and the EDR integrity check that tells you which hosts were reporting truthfully. Ask which secrets were in updater scope and how many systems accept them.
++ 3) Less Optimal — Genuinely clean systems, and the updater's secrets and keys — explicitly flagged in the inject — remain valid. Ask what an attacker holding the updater credentials can push tomorrow.
+
+@ Recovery & Supplier Trust Re-Establishment
+! duration: 5 mins
+! content
+Post‑containment — Supplier regains control of the pipeline and publishes signed clean updates with attestation. Leadership requests assurance actions: enforce code‑sign verification, stage future updates, require SBOM/attestations, rotate updater credentials, and monitor for hash drift/repo anomalies going forward.
+
+# discussion
++ What telemetry or verification signals would give early warning that a supplier’s update pipeline integrity is degrading again, before a malicious update reaches production?
++ The supplier says the pipeline is clean and has published attestation. What would you want to see before you re-enable automatic updates, and would you ever?
+
+? Which controls should be mandated to re-establish trust in the update pipeline?
++ Require the supplier to provide SBOMs, signed builds and pipeline attestation for every future release
++ Disable automatic updates entirely and require manual review and approval of every supplier release
+++ Staged deployment with canary cohorts, hash-drift monitoring, rotated updater credentials, and SBOM validation at intake
+
+# prompts
++ 1) Less Optimal — The right requirements, sitting entirely on the supplier's side of the boundary. Signature verification specifically failed to help here, since the compromised pipeline signed legitimately. Ask what they would verify themselves.
++ 2) Less Optimal — Maximum control, and it means running known-vulnerable versions while reviews queue up. Ask what their review throughput is against the supplier's release cadence, and what that security debt costs. A genuine trade worth arguing out.
++ 3) Optimal — Every control operates in your estate: canary cohorts bound the blast radius, hash drift detects the change itself, intake validation catches new modules. Ask where intake validation would sit in their pipeline.
