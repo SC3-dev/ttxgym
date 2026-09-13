@@ -16,7 +16,7 @@
      TTXF.sanitizeHTML(html) -> html              allowlist, for third-party HTML
      TTXF.hydrateMedia(root)                      applies %(url | scale) sizing
      TTXF.MEDIA_CSS                               styling for .SFmedia
-     TTXF.CODE_CSS                                styling for `inline code`
+     TTXF.CODE_CSS                                styling for `inline code` and ``` blocks
 
    The model holds RAW author text throughout. Nothing is escaped or rendered at
    parse time — that is the caller's job at the point of display. Parsing used to
@@ -33,6 +33,7 @@
   var GLOBAL_KEYS = ['title', 'author', 'image', 'summary', 'conclusion'];
   var STAGE_KEYS = ['content', 'duration'];
   var MAX_BLOCK = 10000; // characters per multi-line value
+  var FENCE = /^```/;   // opens and closes a preformatted block inside a value
 
   var MEDIA_CSS =
     '.SFmedia{display:block;margin:1em auto;max-width:min(100%,32em);height:auto;' +
@@ -46,7 +47,15 @@
     'font-size:.88em;padding:.1em .35em;border-radius:4px;' +
     'background:color-mix(in srgb,currentColor 10%,transparent);' +
     'border:1px solid color-mix(in srgb,currentColor 18%,transparent);' +
-    'white-space:pre-wrap;overflow-wrap:break-word}';
+    'white-space:pre-wrap;overflow-wrap:break-word}' +
+    'pre.SFpre{font-family:var(--font-mono,ui-monospace,SFMono-Regular,Menlo,Consolas,monospace);' +
+    'font-size:.82em;line-height:1.55;margin:.9em 0;padding:.7em .85em;border-radius:6px;' +
+    'background:color-mix(in srgb,currentColor 7%,transparent);' +
+    'border:1px solid color-mix(in srgb,currentColor 15%,transparent);' +
+    'white-space:pre-wrap;overflow-wrap:break-word;tab-size:4}' +
+    'pre.SFpre>code{background:none;border:0;padding:0;font-size:inherit;white-space:inherit}' +
+    'pre.SFpre[data-label]::before{content:attr(data-label);display:block;font-size:.78em;' +
+    'font-weight:600;letter-spacing:.08em;text-transform:uppercase;opacity:.75;margin-bottom:.5em}';
 
   /* --- escaping ----------------------------------------------------------- */
 
@@ -114,6 +123,8 @@
     var blockLines = [];
     var blockStart = 0;
     var blockTruncated = false;
+    var inFence = false;       // inside a ``` block, nothing is a directive
+    var fenceStart = 0;
 
     function err(line, message, severity) {
       errors.push({ line: line, message: message, severity: severity || 'warning' });
@@ -134,8 +145,18 @@
       return false;
     }
 
+    function pushBlockLine(raw) {
+      if (blockLines.join('\n').length + raw.length <= MAX_BLOCK) blockLines.push(raw);
+      else blockTruncated = true;
+    }
+
     function closeBlock() {
       if (blockKey === null) return;
+      if (inFence) {
+        err(fenceStart, 'A ``` block opened here was never closed; it ran to the end of "! ' +
+          blockKey + '".', 'error');
+        inFence = false;
+      }
       var value = blockLines.join('\n').replace(/^\n+|\s+$/g, '');
       if (checkKey(blockKey, blockStart)) target()[blockKey] = value;
       if (blockTruncated) {
@@ -166,6 +187,17 @@
       var raw = lines[i];
       var lineNo = i + 1;
       var t = raw.trim();
+
+      /* A fenced block is verbatim: a log line may legitimately begin with //,
+         +, # or ? and must not be read as a comment or a directive. Fences are
+         only meaningful inside a multi-line value, which is the only place
+         arbitrary text can live. */
+      if (blockKey !== null && (inFence || FENCE.test(t))) {
+        if (inFence && FENCE.test(t)) inFence = false;
+        else if (!inFence) { inFence = true; fenceStart = lineNo; }
+        pushBlockLine(raw);
+        continue;
+      }
 
       if (t.indexOf('//') === 0) continue;
 
@@ -250,8 +282,7 @@
           '" has no question or "# " list above it and was ignored.', 'error');
 
       } else if (blockKey !== null) {
-        if (blockLines.join('\n').length + raw.length <= MAX_BLOCK) blockLines.push(raw);
-        else blockTruncated = true;
+        pushBlockLine(raw);
 
       } else if (t !== '') {
         err(lineNo, 'Line "' + trim(t, 40) + '" is not part of any directive and was ignored.');
@@ -358,7 +389,13 @@
   // Any content line that would otherwise read as a directive gets a leading
   // backslash, so serialize(parse(x)) is stable.
   function escapeBlock(value) {
+    /* Inside a ``` fence the parser does not interpret directives, so escaping
+       there would write a literal backslash into the artefact. Mirrors the fence
+       handling in parse() so a file survives a round trip byte for byte. */
+    var fenced = false;
     return String(value).split('\n').map(function (line) {
+      if (FENCE.test(line.trim())) { fenced = !fenced; return line; }
+      if (fenced) return line;
       return (startsDirective(line.trim()) || line.trim().indexOf('\\') === 0) ? '\\' + line : line;
     }).join('\n');
   }
@@ -415,8 +452,30 @@
     function li(item) { return '<li>' + item + '</li>'; }
     function flushAll() { flushPara(); flushLists(); }
 
+    var fence = null;          // collected lines of the open ``` block
+    var fenceLabel = '';
+
     for (var i = 0; i < lines.length; i++) {
       var line = lines[i];
+
+      /* A fenced block is reproduced exactly: no paragraph joining, no inline
+         rules, no list detection. This is what a log excerpt, an email header or
+         a ransom note needs — the shape of the text is the evidence. */
+      if (FENCE.test(line.trim())) {
+        if (fence === null) {
+          flushAll();
+          fence = [];
+          fenceLabel = line.trim().replace(FENCE, '').trim();
+        } else {
+          var attr = fenceLabel ? ' data-label="' + escapeHTML(fenceLabel) + '"' : '';
+          out.push('<pre class="SFpre"' + attr + '><code>' +
+            escapeHTML(fence.join('\n')) + '</code></pre>');
+          fence = null;
+          fenceLabel = '';
+        }
+        continue;
+      }
+      if (fence !== null) { fence.push(line); continue; }
 
       if (line.trim() === '') { flushAll(); continue; }
 
@@ -438,6 +497,11 @@
         flushLists();
         para.push(inline(line));
       }
+    }
+    if (fence !== null) {
+      var attrOpen = fenceLabel ? ' data-label="' + escapeHTML(fenceLabel) + '"' : '';
+      out.push('<pre class="SFpre"' + attrOpen + '><code>' +
+        escapeHTML(fence.join('\n')) + '</code></pre>');
     }
     flushAll();
     return out.join('');
@@ -484,7 +548,7 @@
   var ALLOWED_TAGS = ['A', 'B', 'BLOCKQUOTE', 'BR', 'CODE', 'DIV', 'EM', 'H3', 'H4',
     'HR', 'I', 'IMG', 'LI', 'OL', 'P', 'PRE', 'SMALL', 'SPAN', 'STRONG', 'SUB',
     'SUP', 'TABLE', 'TBODY', 'TD', 'TH', 'THEAD', 'TR', 'U', 'UL'];
-  var ALLOWED_ATTRS = ['href', 'src', 'alt', 'title', 'class', 'width', 'height', 'data-scale'];
+  var ALLOWED_ATTRS = ['href', 'src', 'alt', 'title', 'class', 'width', 'height', 'data-scale', 'data-label'];
   var SAFE_URL = /^(https?:|mailto:|\/|\.\/|\.\.\/|#|data:image\/)/i;
 
   function sanitizeHTML(html) {

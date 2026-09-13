@@ -351,5 +351,82 @@ G('inline code');
   });
 }
 
+G('fenced preformatted blocks');
+{
+  const fence = ls => T.parse('@ S\n! content\n' + ls.join('\n')).doc.stages[0].content;
+
+  t('a log line is never read as a directive inside a fence', () => {
+    const r = T.parse(['@ S', '! content', '```', '+ not an answer', '# not a list',
+      '? not a question', '! not a key', '@ not a stage', '// not a comment', '```',
+      '? A real question', '+ one', '+ two'].join('\n'));
+    eq(r.errors.filter(e => e.severity === 'error'), [], 'errors: ' + JSON.stringify(r.errors));
+    const st = r.doc.stages[0];
+    has(st.content, '+ not an answer');
+    has(st.content, '// not a comment');
+    has(st.content, '@ not a stage');
+    eq(st.questions.length, 1, 'the fence swallowed or leaked a question');
+    eq(st.questions[0].answers, ['one', 'two']);
+  });
+
+  t('a stage after a closed fence still parses', () => {
+    const doc = T.parse(['@ One', '! content', '```', '@ fake', '```', '@ Two', '! content', 'x'].join('\n')).doc;
+    eq(doc.stages.map(s => s.stage), ['One', 'Two']);
+  });
+
+  t('an unclosed fence is reported', () => {
+    const r = T.parse(['@ S', '! content', '```', 'log line', '', '? Q', '+ a', '+ b'].join('\n'));
+    ok(r.errors.some(e => /never closed/.test(e.message)), 'no diagnostic: ' + JSON.stringify(r.errors));
+  });
+
+  t('it renders as pre > code with the shape intact', () => {
+    const html = T.markdown('```\na  b\n   c\n```');
+    has(html, '<pre class="SFpre"><code>');
+    has(html, 'a  b\n   c');
+  });
+
+  t('no inline or block rule reaches inside it', () => {
+    const html = T.markdown('```\n**bold** `code` - item 1. num ~quote\n```');
+    ok(!/<strong>|<code>.*<code>|<li>|<blockquote>/.test(html.replace('<code>', '')), html);
+    has(html, '**bold** `code` - item 1. num ~quote');
+  });
+
+  t('the content is escaped', () =>
+    has(T.markdown('```\n<script>x</script> & <b>\n```'),
+        '&lt;script&gt;x&lt;/script&gt; &amp; &lt;b&gt;'));
+
+  t('an optional label rides on the element', () => {
+    has(T.markdown('```SIEM export\nx\n```'), '<pre class="SFpre" data-label="SIEM export">');
+    has(T.markdown('```\nx\n```'), '<pre class="SFpre"><code>');
+  });
+
+  t('a label is escaped too', () =>
+    has(T.markdown('```a"b<c\nx\n```'), 'data-label="a&quot;b&lt;c"'));
+
+  t('an unterminated fence still renders rather than vanishing', () =>
+    has(T.markdown('```\nstranded'), '<pre class="SFpre"><code>stranded</code></pre>'));
+
+  t('blank lines inside are kept, not collapsed into paragraphs', () => {
+    const html = T.markdown('```\na\n\nb\n```');
+    has(html, 'a\n\nb');
+    ok(!/<p>/.test(html), 'a paragraph was opened inside the block');
+  });
+
+  t('prose either side is unaffected', () => {
+    const html = T.markdown('before\n\n```\nx\n```\n\nafter');
+    has(html, '<p>before</p>');
+    has(html, '<p>after</p>');
+  });
+
+  t('the sanitiser keeps the label attribute', () => {
+    const src = require('fs').readFileSync(require('path').resolve(__dirname, '..', 'js/ttxf.js'), 'utf8');
+    has(src.match(/ALLOWED_ATTRS = \[[^\]]+\]/)[0], "'data-label'");
+  });
+
+  t('a stylesheet for it is exported', () => {
+    has(T.CODE_CSS, 'pre.SFpre{');
+    has(T.CODE_CSS, 'pre.SFpre>code{background:none');
+  });
+}
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

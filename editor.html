@@ -826,6 +826,34 @@
     }
 
 
+    #preview-content pre.SFpre, .stage-summary pre.SFpre {
+      font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, Consolas, monospace);
+      font-size: 0.82em;
+      line-height: 1.55;
+      margin: 0.9em 0;
+      padding: 0.7em 0.85em;
+      border-radius: 6px;
+      background: color-mix(in srgb, currentColor 7%, transparent);
+      border: 1px solid color-mix(in srgb, currentColor 15%, transparent);
+      white-space: pre-wrap;
+      overflow-wrap: break-word;
+      tab-size: 4;
+    }
+    #preview-content pre.SFpre > code, .stage-summary pre.SFpre > code {
+      background: none; border: 0; padding: 0; font-size: inherit; white-space: inherit;
+    }
+    #preview-content pre.SFpre[data-label]::before, .stage-summary pre.SFpre[data-label]::before {
+      content: attr(data-label);
+      display: block;
+      font-family: inherit;
+      font-size: 0.78em;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      opacity: 0.7;
+      margin-bottom: 0.5em;
+    }
+
     #preview-content {
       flex: 1;
       overflow: hidden;

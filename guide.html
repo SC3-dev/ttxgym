@@ -813,6 +813,19 @@ This line continues the same paragraph.</code></pre>
           <div><code>svc_upd.exe</code></div>
         </div>
         <div class="syntax-row">
+          <div><code>&#96;&#96;&#96;label</code><br><code>&hellip;lines&hellip;</code><br><code>&#96;&#96;&#96;</code></div>
+          <div>Preformatted block, for a log excerpt, email headers, a ransom note or any
+            artefact whose exact shape matters. Everything between the fences is reproduced
+            verbatim — no formatting is applied, and lines beginning with
+            <code>#</code>, <code>+</code>, <code>?</code> or <code>//</code> are kept as
+            text rather than read as directives, so a log can be pasted in unaltered. The
+            <em>label</em> after the opening fence is optional and appears above the block.
+            Long lines wrap rather than scroll, so keep excerpts narrow enough to read on a
+            projector</div>
+          <div><div style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted)">SIEM export</div><code style="display:block;white-space:pre-wrap">02:13:47 EDR  unsigned binary
+02:13:48 NET  TLS 443 outbound</code></div>
+        </div>
+        <div class="syntax-row">
           <div><code>- item</code></div>
           <div>Bullet list</div>
           <div>• Item</div>

@@ -286,6 +286,31 @@ G('exported report');
   t('a report file is produced', () => eq(w.__downloads[0].name, 'exercise-report.html'));
 }
 
+G('fenced blocks reach every surface, and stay preformatted');
+{
+  const gymSrc = fs.readFileSync(ROOT + '/gym/index.html', 'utf8');
+  const edSrc = fs.readFileSync(ROOT + '/editor.html', 'utf8');
+  const targets = {
+    'facilitator view': gymSrc.slice(0, gymSrc.indexOf('PRESENTATION_HTML')),
+    'participant window': gymSrc.slice(gymSrc.indexOf('PRESENTATION_HTML')),
+    'exported report': gymSrc.slice(gymSrc.indexOf('REPORT_CSS'), gymSrc.indexOf('REPORT_HEADER')),
+    'builder preview': edSrc,
+  };
+  Object.keys(targets).forEach(name => {
+    t(`the ${name} styles it`, () => ok(/pre\.SFpre/.test(targets[name]), 'no pre.SFpre rule'));
+    t(`the ${name} keeps the shape`, () => {
+      const rule = targets[name].match(/pre\.SFpre\s*\{[^}]*\}/)[0];
+      ok(/white-space:\s*pre-wrap/.test(rule), 'spacing would collapse: ' + rule.slice(0, 60));
+      ok(!/white-space:\s*(normal|nowrap)/.test(rule), 'wrong white-space');
+    });
+    t(`the ${name} does not double-decorate the inner code`, () =>
+      ok(/pre\.SFpre\s*>\s*code\s*\{[^}]*background:\s*none/.test(targets[name]),
+         'the inline code pill will show inside the block'));
+  });
+  t('the report will print the block background', () =>
+    ok(/pre\.SFpre\{[^}]*print-color-adjust/.test(targets['exported report'])));
+}
+
 G('inline code reaches every surface that renders a scenario');
 {
   const gymSrc = fs.readFileSync(ROOT + '/gym/index.html', 'utf8');
