@@ -517,5 +517,21 @@
     "summary": "<p>This technical exercise explores a scenario where a rapidly spreading worm begins propagating across internal endpoints. Teams must detect unusual network scanning, scope infection, isolate affected segments, eradicate malware, and validate recovery.</p>",
     "series": "Malware",
     "order": 1
+  },
+  {
+    "id": "nightshift",
+    "title": "Night Shift",
+    "author": "TTX Gym",
+    "categories": [
+      "Ransomware",
+      "Data Loss",
+      "Identity & Access",
+      "Insider Threat"
+    ],
+    "level": "Just for Fun",
+    "duration": "45 mins",
+    "summary": "<p>A branching incident played as a gamebook. You are the only analyst on shift when the page comes in, and every stage ends in a choice the room votes on. Twenty-three stages, four endings, and one hundred and eleven ways through \u2014 a single run takes about forty minutes, and the second run goes differently.</p>",
+    "series": "Just for Fun",
+    "order": 0
   }
 ]

@@ -1,0 +1,491 @@
+! title: Night Shift
+! author: TTX Gym
+! summary
+**A branching incident, played as a gamebook.** You are the only analyst on shift when the page comes in. Every stage ends in a choice, the room votes, and the exercise jumps to wherever that choice leads. There are twenty-three stages, four endings, and one hundred and eleven ways through. A single run visits six to eight stages and takes about forty minutes.
+
+**How to run it.** Read the stage aloud (or present it), take the vote, then click the destination stage number in the sidebar. The routing is in your facilitator notes under each option — participants never see where a choice leads, which is most of the fun.
+
+**It is still an exercise.** Every choice is one a real on-call analyst has had to make at two in the morning with incomplete information. Nobody is scored, nothing is optimal, and at least one ending is genuinely unfair. That is also realistic.
+
+! conclusion
+~**However it ended**
+
+**You never had enough information.** Every choice in this exercise was made on partial evidence, which is the actual job. Ask the room which decision they would defend tomorrow morning to someone who knows how it turned out — that question separates a bad decision from an unlucky one.
+
+**The clock was a character.** Ninety minutes lost early closes options later. Ask where the room felt time stop being free.
+
+**Escalation is a technical control.** The paths that end well almost all involve waking somebody up. Ask what it costs to wake the duty manager and be wrong, and compare it honestly with what it cost here to be right and alone.
+
+**Run it again.** The point of one hundred and eleven paths is that the second run goes differently. Ask the room to deliberately take the route they argued against.
+
+@ 02:14 — The Page
+! duration: 5 mins
+! content
+Your phone buzzes against a mug of tea you made ninety minutes ago and forgot to drink.
+
+~`PRI-2 · EDR · FIN-SRV-04 · unsigned binary executed from %TEMP% · 02:13:47`
+
+You are the only person on shift. Sam, the duty incident manager, is asleep and has made it clear how they feel about being woken. The last three PRI-2 alerts this week were the backup agent misbehaving, and you have the ticket numbers to prove it.
+
+FIN-SRV-04 is not a backup server.
+
+# discussion
++ What do you actually know at 02:14, and what are you assuming?
+
+? It is 02:14 and the alert is yours. What do you do?
++ Open the console and look at it properly before waking anybody
++ Call Sam now — this is exactly what the on-call rota exists for
++ Check it against the known false positive first; you have seen this three times this week
+
+# prompts
++ 1) **Go to stage 2.** The room chose to establish facts first. Fast, defensible, and they now own whatever the next ten minutes contain.
++ 2) **Go to stage 3.** They escalated on one line of alert text. Ask whether anyone objected, and what they would have said to Sam.
++ 3) **Go to stage 4.** The pattern-match. Before you move, ask who noticed the last line of the inject — and if nobody did, that is the lesson, not a failure.
+
+@ You Look Yourself
+! content
+`svc_upd.exe`, in `C:\Windows\Temp`, running as SYSTEM. Parent process is the patch management agent, which is legitimate and has every right to be there.
+
+```EDR process tree — FIN-SRV-04
+02:13:47  patchagent.exe  (signed, SYSTEM)
+02:13:47   └─ svc_upd.exe  C:\Windows\Temp\svc_upd.exe  (unsigned)
+02:14:27       └─ TLS 443 → 185.199.214.7   ESTABLISHED  11m
+```
+
+Forty seconds after execution it opened an outbound TLS session to a hosting range in a country your company does not operate in. The session is still open. It has been open for eleven minutes.
+
+There is no change ticket. There is no maintenance window. The patch agent has not run a scheduled job since Sunday.
+
+# discussion
++ The parent process is legitimate software behaving normally. What does that tell you about how this started?
+
+? The session is live and you are still the only one awake. What now?
++ Isolate FIN-SRV-04 with EDR containment, right now, and wake Sam while it runs
++ Kill the process and the connection first — stop the bleeding, then decide what to tell anyone
+
+# prompts
++ 1) **Go to stage 5.** Containment and escalation together. Ask what they lose by isolating before they understand it — and whether they care at 02:26.
++ 2) **Go to stage 6.** The instinct to stop the visible thing. Ask what they have just destroyed, and whether the process was the point or the symptom.
+
+@ You Wake Sam
+! content
+Sam answers on the fifth ring, sounding like someone who was asleep four seconds ago, because they were.
+
+"Right. What have we got?"
+
+You read out the alert. There is a pause.
+
+"And what's it doing?"
+
+You realise you have not looked.
+
+# discussion
++ Escalating early is usually right. What made this call land badly, and was it the timing or the preparation?
+
+? Sam is awake and waiting. What do you say?
++ "I don't know yet. Give me four minutes and I'll call you straight back." Then go and find out
++ "I'd like you to authorise isolating FIN-SRV-04 now and we'll investigate after." Ask for the decision you cannot take alone
+
+# prompts
++ 1) **Go to stage 5.** Honest, and it costs four minutes. Ask the room whether they would have the nerve to say that to a woken manager, and what they would say instead.
++ 2) **Go to stage 7.** Asking for authority you may not need. Sam will say yes, and will ask why you did not simply do it — the containment decision was already delegated to the on-call analyst. Ask who in the room knows what they are actually empowered to do at 02:14.
+
+@ You Go Back to Your Tea
+! content
+You open the last three tickets. Same alert class, same `%TEMP%` path, same PRI-2. You close the alert as a duplicate of INC-44192 and write "backup agent, known issue" in the note. It takes forty seconds.
+
+The tea is cold. You make another one.
+
+At 03:31 a second alert fires on FIN-SRV-04 and you are on your break. At 04:02 a third fires on DB-SRV-01, which is nowhere near the finance server, and you are looking at it when a fourth arrives.
+
+# discussion
++ Alert fatigue is a control failure, not a personal one. What in this environment made closing that ticket the rational thing to do?
+
+? It is 04:05 and there are four alerts across two servers. What do you do?
++ Wake Sam immediately and tell them you closed the first one ninety minutes ago
++ Work the four alerts yourself first so you can hand over something coherent
+
+# prompts
++ 1) **Go to stage 7.** Escalating and owning the miss in the same breath. This is harder than it reads — ask the room how many organisations they have worked in where that sentence is safe to say.
++ 2) **Go to stage 8.** Wanting to arrive with answers. Ask what the extra ninety minutes buys the attacker, and whether the instinct is about the incident or about the conversation.
+
+@ 03:02 — It Is Real
+! content
+FIN-SRV-04 is isolated. The TLS session died with it.
+
+In the four minutes before containment took effect, `svc_upd.exe` wrote a scheduled task, added a local account named `svc_backup2`, and read the memory of the process that holds the finance application's database credentials.
+
+Sam is now properly awake and asking the right questions. The first one is: "Is it only that server?"
+
+You do not know.
+
+# discussion
++ Credentials were read at 03:00. Which systems should you now treat as compromised, and how many of them can you name?
+
+? Sam wants an answer on scope. What do you do first?
++ Hunt the estate for the same indicators — the account name, the task, the destination — before touching anything else
++ Reset the finance database credentials now, on the assumption they are gone, and scope afterwards
+
+# prompts
++ 1) **Go to stage 9.** Scope before action. Ask how long the hunt takes and what the attacker does during it.
++ 2) **Go to stage 10.** Acting on the assumption of compromise. Defensible and disruptive — ask what breaks when finance database credentials rotate at 03:10 on a Thursday.
+
+@ You Kill It
+! content
+The process dies. The connection drops. The alert goes green and for about ninety seconds you feel extremely competent.
+
+At 02:31 a new process appears on FIN-SRV-04. It is called `svc_upd2.exe`. It is in the same directory. It opens a session to a different address in the same hosting range.
+
+At 02:33 the same binary name appears on DB-SRV-01.
+
+Whatever put it there is still running, and it is no longer only on one server.
+
+# discussion
++ You removed the payload and not the access. What would you have needed to see to know the difference at 02:26?
+
+? There are now two servers and something you cannot see is placing files. What do you do?
++ Isolate both servers immediately and call Sam from the middle of doing it
++ Stop touching individual processes and go looking for what is deploying them — the patch agent, the management server, whatever has reach into both
+
+# prompts
++ 1) **Go to stage 9.** Containment first, at a cost: two production servers, no authority, 02:33. Ask who they are going to have to explain this to at 09:00 and whether that changes the decision.
++ 2) **Go to stage 11.** Chasing the mechanism rather than the symptom, which is the better instinct and the slower one. Ask what is happening on the servers while they investigate.
+
+@ You Have Lost Ninety Minutes
+! content
+Sam takes it better than you expected, which somehow makes it worse.
+
+By the time you are both looking at the same screen it is 04:20. There are now four servers with the scheduled task. The local account exists on three of them. One of those three is the jump host that the infrastructure team use to reach everything else, and somebody logged into it interactively at 03:47 using an account that belongs to a contractor who left in March.
+
+Sam asks whether you want to wake the CIO or whether that can wait until six.
+
+# discussion
++ A leaver's account was still live and still worked. Who owns that, and when would it have been found without this incident?
+
+? Sam is asking you to make the call. What do you say?
++ Wake them. A live interactive session on the jump host with a leaver's credentials is not a 06:00 conversation
++ Let them sleep until six, but isolate the jump host now and lock the contractor account
+
+# prompts
++ 1) **Go to stage 10.** Escalating hard on solid evidence. Ask what they expect the CIO to actually do at 04:20, and whether "nothing, but they need to know" is a good enough answer. It usually is.
++ 2) **Go to stage 11.** Taking the technical action and deferring the political one, which many strong responders would choose. Ask what happens if it escalates further at 05:00 and the CIO's first question is when you knew.
+
+@ 05:51 — The Helpdesk Queue
+! content
+You worked the alerts. You were good at it. You have a timeline, a list of six affected hosts, three indicators, and a genuinely excellent set of notes.
+
+You also have, as of 05:51, forty-one helpdesk tickets from the early shift in the Glasgow office, all saying the same thing: the finance system is asking them to log in again and their password does not work.
+
+Sam is awake now. So, shortly, is everybody else.
+
+# discussion
++ You did good technical work and lost the incident anyway. What should have interrupted the investigation, and who decides that?
+
+? Forty-one people cannot work and the day shift is arriving. What is your first move?
++ Hand the timeline to Sam and take the technical lead on containment — somebody else can own the comms
++ Get ahead of the user impact first; a finance team that cannot log in will route around you within the hour
+
+# prompts
++ 1) **Go to stage 11.** Splitting the roles properly, which is what an incident manager is for. Ask whether they would have made the same call if Sam were less competent.
++ 2) **Go to stage 12.** Prioritising the visible business impact. Understandable and it leaves the compromise running. Ask what "route around you" looks like — usually somebody resets passwords by hand, in a hurry, over the phone.
+
+@ Contained, You Think
+! content
+By 04:40 you have six hosts isolated, the `svc_backup2` accounts disabled, and the outbound range blocked at the perimeter. The estate is quiet. The dashboards are green.
+
+At 05:10 something on the network attempts to authenticate to the domain controller using a service account nobody in the room recognises. It fails. It tries again ninety seconds later from a different source.
+
+Something is still in here, and it is not using any of your indicators.
+
+# discussion
++ Your indicators were correct and incomplete. How would you know, in the moment, which of those two you are dealing with?
+
+? Your containment held and something is still moving. What now?
++ Go back to first principles — stop hunting your indicators and hunt for behaviour that does not belong
++ Assume identity compromise is the real story and start resetting privileged credentials estate-wide
+
+# prompts
++ 1) **Go to stage 13.** The discipline to abandon a working theory. Ask what it costs emotionally to throw away four hours of indicators at 05:10.
++ 2) **Go to stage 14.** Treating it as an identity incident, which it is. Ask them to sequence it — and to say out loud what breaks when every privileged credential rotates before the day shift.
+
+@ Watch and Learn
+! content
+You leave it running and instrument everything you can. It is a defensible decision and for about an hour it is the right one.
+
+You watch it enumerate the domain. You watch it find the file server. You watch it open, and not copy, a directory called `Payroll_2026_Q1`. You get four new indicators, two destination addresses and a beautiful process tree.
+
+At 06:14 it stops. Everything goes quiet.
+
+You cannot tell whether you contained it, whether it finished, or whether it noticed you.
+
+# discussion
++ Observation buys intelligence and spends time. Who in your organisation is authorised to make that trade, and did they make it here?
+
+? It has gone quiet and you do not know why. What do you do?
++ Treat the silence as the worst case — assume it saw you, assume it has what it came for, and act accordingly
++ Hold the instrumentation and stay quiet yourself; if it resumes you will have the fullest picture anyone has had
+
+# prompts
++ 1) **Go to stage 13.** Pessimism as a planning assumption, which is usually correct in this situation. Ask what "act accordingly" means concretely in the next thirty minutes.
++ 2) **Go to stage 15.** Staying in the observation posture. Genuinely brave and a real intelligence play. Ask who they would need to have already briefed for this to be a decision rather than an omission.
+
+@ Escalate Everything
+! content
+By 05:00 there are nine people on a bridge call, four of whom have no idea why they are on it. The CIO is asking for a written summary. The infrastructure lead wants to know who authorised isolating the jump host. Somebody from the finance directorate has joined and is asking whether payroll will run on Friday.
+
+Nobody is currently investigating anything.
+
+You have the only complete picture in the organisation and you have spent the last twenty-two minutes explaining it.
+
+# discussion
++ Escalation was the right call and the bridge call is now the bottleneck. Whose job is it to fix that, and how?
+
+? You are the only one who understands the incident and you are stuck on a call. What do you do?
++ Hand the narrative to Sam, drop off the bridge, and go back to the keyboard
++ Stay and use the room — you now have every decision-maker you need in one place, so get the authorisations you will need for the next four hours
+
+# prompts
++ 1) **Go to stage 14.** Protecting the technical work. Ask whether Sam can actually carry the narrative, and what happens if the answer is no.
++ 2) **Go to stage 15.** Using a bridge call as an instrument rather than suffering it. Ask what specific authorisations they would extract in the next ten minutes — and whether they have a list ready.
+
+@ Too Late To Be Clever
+! content
+You spend forty minutes on password resets and user comms and you do it well. The finance team is calmer. The helpdesk stops drowning.
+
+At 06:40 the domain controller event log fills with successful authentications for `svc_backup2` — the account you never got round to disabling, on the hosts you never got round to isolating, using credentials that were read out of memory at 03:00 while you were making tea.
+
+The dashboards are still green. Nothing has alerted. It does not need to.
+
+# discussion
++ Everything you did was correct and none of it was the priority. How would a better-run incident have caught that?
+
+? It is 06:40 and the attacker has valid credentials across the estate. What do you do?
++ Declare a major incident, wake everyone, and treat every credential in the domain as compromised
++ Isolate and rebuild the known-affected hosts first, then widen — you cannot boil the ocean at 06:40
+
+# prompts
++ 1) **Go to stage 15.** The full escalation, four hours late. Ask what that meeting is like, and who has to be in it.
++ 2) **Go to stage 16.** Pragmatic sequencing, and it accepts that the attacker keeps working while you go host by host. Ask how they choose the order, and whether that list exists before an incident or during one.
+
+@ 08:00 — The Standup
+! content
+The day shift arrives to a room that smells of last night. You have been awake for nineteen hours and you are the only person who knows what happened between 02:14 and now.
+
+Eleven hosts were touched. Three had credentials read from memory. The outbound connections moved a total of 240 megabytes, which is either nothing or a payroll file, and you cannot yet say which.
+
+Nobody has asked you the difficult question yet. Sam is about to.
+
+# discussion
++ 240MB is either nothing or everything. What would you need to answer that, and do you have it?
+
+? Sam asks: "Do we notify?" What do you say?
++ "Not yet. Give me until midday to establish what left, and I'll give you an answer you can defend"
++ "Yes. We know personal data was on hosts the attacker had access to, and the clock started at 03:00"
+
+# prompts
++ 1) **Go to stage 17.** Buying time to be accurate. Ask whether the regulatory clock cares about their confidence level. It does not — but a wrong notification has costs too. Let the room argue it.
++ 2) **Go to stage 18.** Notifying on the conservative reading. Ask what they are actually notifying — "we don't know" is a legitimate initial report and most rooms do not realise that.
+
+@ The Ransom Note
+! content
+Nothing is encrypted. That is the first strange thing.
+
+The note is a text file on three file servers, and it is polite.
+
+```README_RESTORE.txt
+Good morning.
+
+We have copies of the following from your finance share:
+
+  \FIN-SRV-04\Finance\Payroll_2026_Q1
+  \FIN-SRV-04\Finance\Pensions\Member_Data
+  \FIN-SRV-04\Finance\Supplier_Contracts
+  \FIN-SRV-04\HR\Occupational_Health
+
+Nothing has been encrypted. Your systems are working normally.
+This is not a technical problem. It is a commercial one.
+
+  140,000 GBP.  7 days.  Then publication to interested parties.
+
+# We are reachable at the address below. Please do not involve
+# your insurer's negotiator before reading our terms.
+```
+
+It gives a figure in the low six figures, offers a seven-day window, and is accurate about every directory name.
+
+There is no encryption, no downtime, and no operational impact whatsoever. The business is running perfectly normally.
+
+# discussion
++ There is no outage. What makes this an incident, and who in your organisation needs to understand that it is one?
+
+? The business is running fine and someone wants money. What is your first move?
++ Establish whether they actually have the data — four accurate directory names is not proof of exfiltration
++ Treat it as confirmed exfiltration and start the notification and legal process now
+
+# prompts
++ 1) **Go to stage 16.** Verification before response, and the right technical instinct. Ask how they would prove a negative, and how long they have before the seven days become a decision made under pressure.
++ 2) **Go to stage 18.** Accepting the claim and starting the clock. Ask what it costs to notify on a claim that turns out to be a bluff, and whether that cost is bigger than the alternative.
+
+@ The Data Left On Tuesday
+! content
+The forensic timeline comes back and it is worse than the incident.
+
+The outbound sessions you saw last night were the tail end of it. The first successful exfiltration from this environment was **eleven days ago**, on a Tuesday afternoon, through a host that nobody isolated because nobody knew it was involved.
+
+Last night was not the attack. Last night was somebody coming back for something they forgot.
+
+# discussion
++ Eleven days of exfiltration produced no alert. Which control was supposed to catch that, and what was it doing instead?
+
+? The incident is eleven days old and you found it last night. What changes?
++ Everything — restart the investigation from eleven days ago and treat last night as one event in a longer campaign
++ Nothing about the response; contain and recover as planned, and run the historical analysis alongside
+
+# prompts
++ 1) **Go to stage 16.** Reframing the whole incident, which is correct and expensive. Ask what it does to the team's morale at hour twenty, and whether anyone has slept.
++ 2) **Go to stage 19.** Keeping the response moving while the history is reconstructed. Pragmatic, and it risks recovering into an environment the attacker still understands better than you do. Ask which hosts they would now not trust.
+
+@ Pay, Or Don't
+! content
+The number is £140,000. The legal advice is careful and does not say no. The insurer has a preferred negotiator and has already introduced them. The communications director has drafted two statements and would like to know which one to keep.
+
+The finance director asks the only question that matters, which is whether paying would actually stop the data being published.
+
+Nobody in the room can answer that, because nobody can.
+
+# discussion
++ What would you have to believe about the attacker for payment to be a rational decision?
+
+? The decision is being made in the next ten minutes. What is your recommendation?
++ Do not pay. Notify, prepare for publication, and spend the money on rebuilding and on the people affected
++ Engage the negotiator to buy time and information, without committing to payment
+
+# prompts
++ 1) **Go to stage 19.** A clear position, and the room should be made to say it out loud to the finance director. Ask what they say when asked to guarantee that publication will happen anyway.
++ 2) **Go to stage 20.** Buying time, which is what most organisations actually do. Ask what they will learn from the negotiation that changes the decision, and be sceptical of the answer.
+
+@ The Quiet Morning
+! content
+By 11:00 you have an answer. The 240 megabytes were database backup fragments, already encrypted at rest, and the keys never left the HSM. It is not nothing, but it is not a notifiable breach either, and you can show your working.
+
+The incident is contained. Eleven hosts are being rebuilt. Nobody outside the organisation will ever know this happened.
+
+Sam buys you breakfast. At 11:40 someone from the infrastructure team mentions, in passing, that the contractor account you locked at 04:00 had been used to log into the VPN twice a week since March.
+
+# discussion
++ You are about to find out whether last night was the incident or a symptom. How do you tell the difference?
+
+? Someone has just handed you a thread. What do you do with it?
++ Close the incident as contained, and raise the VPN activity as a separate investigation with a fresh pair of eyes
++ Do not close anything — pull the thread now, while the team, the access and the authority are all still assembled
+
+# prompts
++ 1) **Go to stage 21.** Clean process, proper handover, and it is the right answer in most organisations. Ask what happens to a "separate investigation" raised at noon after a nineteen-hour shift.
++ 2) **Go to stage 23.** Refusing to close. Ask who has the standing to keep an incident open when everyone wants it shut, and whether anyone in the room has ever done it.
+
+@ The Board Wants A Number
+! content
+It is Thursday afternoon. You have been awake for thirty hours and somebody has put you in a meeting.
+
+%news(Council investigating "significant" cyber incident, sources say | Breaking News)
+
+They want three things: how much data, how much money, and when it will be over. You can give an honest answer to none of them, and the honest answer to all three is "between two days and four months, depending on what we find".
+
+The board does not want a range. The board wants a number, and someone more senior than you is about to give them one.
+
+# discussion
++ What is the cost of giving a confident number you cannot support, and who pays it?
+
+? Someone is about to commit to a timeline you know is wrong. What do you do?
++ Say so, in the room, in front of the board. Give the range and explain what would narrow it
++ Let it go and correct it in writing afterwards with the evidence attached
+
+# prompts
++ 1) **Go to stage 20.** Contradicting a senior colleague in front of a board, which is a career decision as much as a technical one. Ask who in the room has done it and what happened.
++ 2) **Go to stage 21.** The written correction, which is safer and slower. Ask what gets decided in the meantime on the strength of the wrong number.
+
+@ Rebuild From Nothing
+! content
+The decision is to rebuild the domain. Not the eleven hosts, not the file servers — the domain.
+
+It is the correct decision and it is going to take eleven weeks. Every service account, every certificate, every trust, every integration nobody has documented since 2019. The project has a name now, and a budget, and a steering group.
+
+You are in the steering group. You have not been on shift since Thursday and you are not sure when you last enjoyed this job.
+
+# discussion
++ Rebuilding was right and it consumes the team for a quarter. What else stops happening, and does anyone account for that?
+
+? Eleven weeks is the estimate and you are the one who has to make it true. What do you push for?
++ Rebuild properly — take the eleven weeks, fix the things that made this possible, and accept the cost
++ Rebuild the minimum needed to be safe and reinvest the rest in detection, so the next one is found in hours
+
+# prompts
++ 1) **Go to stage 20.** The thorough path. Ask what happens in week seven when the business pressure arrives and the steering group starts asking what can be descoped.
++ 2) **Go to stage 22.** Trading completeness for detection capability, which is a serious and defensible strategy. Ask how they would defend it to an auditor who wants to know why the domain was not fully rebuilt.
+
+@ ENDING — The Expensive One
+! content
+~**Ending 1 of 4**
+
+The data was published on a Thursday, eight weeks later, in a searchable archive. Three thousand four hundred payroll records.
+
+%news(Payroll records of 3,400 council staff published online | Live at Six)
+
+The regulator's finding, when it came, was not about the breach — it was about the eleven days nobody noticed.
+
+The final cost was £2.1m, of which the ransom was never part. Most of it was people: the rebuild, the legal work, the two years of credit monitoring, the four staff who left.
+
+You were promoted. You are not sure that was the right outcome either.
+
+# discussion
++ Nothing in this path was obviously wrong at the time. Where, honestly, would you have done differently — and would you have been able to justify it that morning?
++ The regulator's finding was about detection, not prevention. What does that tell you about where to spend next year's budget?
+
+@ ENDING — The Boring One
+! content
+~**Ending 2 of 4**
+
+Nothing happened.
+
+Eleven hosts were rebuilt over a long weekend. A leaver-account process was written and, unusually, implemented. The outbound blocking rule stayed. Somebody finally turned on alerting for local account creation, which had been an open ticket since 2023.
+
+There was no notification, no publication, no headline, and no board paper. The post-incident review was attended by six people and ran for fifty minutes.
+
+Nine months later the same actor tried the same thing and got nowhere, and nobody noticed that either, because that is what working controls look like.
+
+# discussion
++ This is the best realistic outcome and it is completely invisible. How do you get credit for an incident that did not happen, and does it matter?
++ Three of the fixes in this ending were already open tickets. What would it take to close that kind of ticket without an incident to justify it?
+
+@ ENDING — The Long One
+! content
+~**Ending 3 of 4**
+
+You did not rebuild everything. You rebuilt what mattered and spent the rest on seeing properly.
+
+For fourteen months it was the wrong decision. There was an audit finding. There was a difficult conversation with a customer. There was a period where you privately thought you had got it badly wrong.
+
+Then, in the second spring, an alert fired at 14:20 on a Tuesday — a service account authenticating from somewhere it never had — and the whole thing was over in ninety minutes, with four hosts isolated and nothing lost.
+
+Nobody connected the two events. You did.
+
+# discussion
++ This ending trades certainty for capability and takes over a year to pay off. Who in your organisation could hold that position for fourteen months?
++ What would have happened to this strategy if the second incident had arrived in month three instead of month eighteen?
+
+@ ENDING — The One Where You Were Right
+! duration: 5 mins
+! content
+~**Ending 4 of 4 — the rare one**
+
+You did not close the incident.
+
+The VPN thread ran back to March, to a contractor account that was never revoked, on a supplier's laptop that was never in scope, belonging to a firm that had been quietly compromised since the previous autumn. Three other organisations were using the same supplier and none of them knew.
+
+You wrote it up. The NCSC advisory that followed did not name you, and the supplier disputed the timeline for a while, and then stopped.
+
+It is eighteen months later. You still do not sleep well on call nights. But you were right, at 11:40 on a Thursday, when everyone in the building wanted you to be finished — and that turned out to be the whole job.
+
+# discussion
++ This ending required refusing to close an incident everybody wanted closed. What makes that possible: seniority, evidence, culture, or stubbornness?
++ Only seven of the one hundred and eleven paths through this exercise reach here. Is that realistic?

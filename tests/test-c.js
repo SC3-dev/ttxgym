@@ -312,6 +312,32 @@ G('news headlines reach every surface, and the room screen');
        'the builder preview would show a broken image'));
 }
 
+G('a news headline survives to the participant window');
+{
+  const { w } = boot();
+  await loadScenario(w, fs.readFileSync(ROOT + '/lib/scenarios/nightshift.ttxf', 'utf8'), 'nightshift.ttxf');
+
+  t('the facilitator sees the frame', () => {
+    ev(w, 'goToStage(18)');
+    ok(w.document.querySelector('figure.SFnews'), 'no news figure on the page');
+  });
+
+  t('the backdrop is absolutised on its way to the blob window', () => {
+    ev(w, 'goToStage(18)');
+    const msg = JSON.parse(ev(w, 'JSON.stringify(currentStageMessage())'));
+    const src = /<img class="SFnews-shot" src="([^"]+)"/.exec(msg.content);
+    ok(src, 'no backdrop in the payload');
+    // a blob-origin window cannot resolve ../ — it must arrive absolute
+    ok(/^https?:/.test(src[1]), 'relative src would break in the participant window: ' + src[1]);
+  });
+
+  t('the headline itself travels with it', () => {
+    const msg = JSON.parse(ev(w, 'JSON.stringify(currentStageMessage())'));
+    has(msg.content, 'SFnews-line');
+    has(msg.content, 'cyber incident');
+  });
+}
+
 G('fenced blocks reach every surface, and stay preformatted');
 {
   const gymSrc = fs.readFileSync(ROOT + '/gym/index.html', 'utf8');
@@ -337,6 +363,44 @@ G('fenced blocks reach every surface, and stay preformatted');
     ok(/pre\.SFpre\{[^}]*print-color-adjust/.test(targets['exported report'])));
 }
 
+G('a fenced artefact survives to the room screen intact');
+{
+  const { w } = boot();
+  await loadScenario(w, fs.readFileSync(ROOT + '/lib/scenarios/nightshift.ttxf', 'utf8'), 'nightshift.ttxf');
+
+  t('the facilitator sees a pre block, not a run-on paragraph', () => {
+    ev(w, 'goToStage(2)');
+    const html = w.document.getElementById('questionsContainer').innerHTML;
+    ok(/<pre class="SFpre"/.test(html), 'no fenced block rendered');
+    ok(/data-label="EDR process tree/.test(html), 'the label was dropped');
+  });
+
+  t('the ransom note reaches the participant window with its shape', () => {
+    ev(w, 'goToStage(14)');
+    const msg = JSON.parse(ev(w, 'JSON.stringify(currentStageMessage())'));
+    has(msg.content, '<pre class="SFpre" data-label="README_RESTORE.txt">');
+    has(msg.content, '140,000 GBP');
+    // the lines beginning # are part of the artefact, not directives
+    has(msg.content, '# We are reachable');
+    ok(/\n/.test(msg.content), 'line breaks were collapsed');
+  });
+
+  t('no HTML entity shows up as literal text in the block', () => {
+    ev(w, 'goToStage(14)');
+    const pre = w.document.querySelector('#round14 pre.SFpre') ||
+                [...w.document.querySelectorAll('pre.SFpre')].pop();
+    ok(pre, 'no pre element on the page');
+    const text = pre.textContent;
+    ok(!/&(amp|lt|gt|quot|#0?39);/.test(text), 'entity leaked: ' + text.slice(0, 120));
+    has(text, "insurer's negotiator");
+  });
+
+  t('indentation inside the artefact is preserved in the DOM', () => {
+    const pre = [...w.document.querySelectorAll('pre.SFpre')].pop();
+    ok(/\n {2}\\FIN-SRV-04/.test(pre.textContent), 'leading spaces were stripped');
+  });
+}
+
 G('inline code reaches every surface that renders a scenario');
 {
   const gymSrc = fs.readFileSync(ROOT + '/gym/index.html', 'utf8');
@@ -357,6 +421,154 @@ G('inline code reaches every surface that renders a scenario');
     const rules = (gymSrc + edSrc).match(/code[^{]*\{[^}]*\}/g).filter(r => /font-family/.test(r));
     ok(rules.length >= 3, 'found only ' + rules.length + ' code rules');
     rules.forEach(r => ok(!/white-space:\s*nowrap/.test(r), 'nowrap in: ' + r.slice(0, 40)));
+  });
+}
+
+G('inline code renders end to end, facilitator and participant');
+{
+  const { w } = boot();
+  await loadScenario(w, fs.readFileSync(ROOT + '/lib/scenarios/nightshift.ttxf', 'utf8'), 'nightshift.ttxf');
+
+  t('the facilitator sees a code element, not backticks', () => {
+    const html = w.document.getElementById('questionsContainer').innerHTML;
+    ok(/<code>/.test(html), 'no code element rendered');
+    ok(!/`/.test(w.document.getElementById('questionsContainer').textContent), 'raw backticks leaked to the page');
+  });
+
+  t('the participant window gets the same markup', () => {
+    ev(w, 'goToStage(1)');
+    const msg = JSON.parse(ev(w, 'JSON.stringify(currentStageMessage())'));
+    ok(/<code>PRI-2/.test(msg.content), 'no code span in the payload: ' + msg.content.slice(0, 90));
+    ok(!/`/.test(msg.content.replace(/<[^>]+>/g, '')), 'backticks survived into participant text');
+  });
+
+  t('no shipped scenario shows a raw backtick any more', () => {
+    const TTXF = require(ROOT + '/js/ttxf.js');
+    const offenders = [];
+    JSON.parse(fs.readFileSync(ROOT + '/lib/manifest.json', 'utf8')).forEach(e => {
+      const doc = TTXF.parse(fs.readFileSync(ROOT + '/lib/scenarios/' + e.id + '.ttxf', 'utf8')).doc;
+      doc.stages.forEach((s, i) => {
+        const rendered = TTXF.markdown(s.content || '') + s.discussion.map(TTXF.inline).join('');
+        const text = rendered.replace(/<[^>]+>/g, '');
+        if (text.includes('`')) offenders.push(e.id + ' #' + (i + 1));
+      });
+    });
+    eq(offenders, [], 'scenarios still rendering a literal backtick');
+  });
+}
+
+G('a branching scenario is not timed like a linear one');
+{
+  const TTXF = require(ROOT + '/js/ttxf.js');
+  const doc = TTXF.parse(fs.readFileSync(ROOT + '/lib/scenarios/nightshift.ttxf', 'utf8')).doc;
+
+  t('only the opening and the final stage carry a planned duration', () => {
+    const timed = doc.stages.map((s, i) => (s.duration ? i + 1 : null)).filter(Boolean);
+    eq(timed, [1, doc.stages.length], 'timed stages');
+  });
+
+  t('so the planned total is not the sum of every branch', () => {
+    const total = doc.stages.reduce((n, s) => n + TTXF.durationToSeconds(s.duration), 0) / 60;
+    ok(total < 30, 'planned total is ' + total + ' mins, which reads as a full linear run');
+  });
+
+  const { w } = boot();
+  await loadScenario(w, fs.readFileSync(ROOT + '/lib/scenarios/nightshift.ttxf', 'utf8'), 'nightshift.ttxf');
+  ev(w, 'refreshStageTimes()');
+
+  t('an untimed stage still shows a clock, just no target', () => {
+    eq(w.document.getElementById('time5').textContent, '00:00', 'untimed stage 5');
+    ok(/\//.test(w.document.getElementById('time1').textContent), 'timed stage 1 lost its target');
+  });
+}
+
+G('the branching gamebook routes nowhere that does not exist');
+{
+  const TTXF = require(ROOT + '/js/ttxf.js');
+  const src = fs.readFileSync(ROOT + '/lib/scenarios/nightshift.ttxf', 'utf8');
+  const doc = TTXF.parse(src).doc;
+  const stages = doc.stages;
+  // every route the facilitator prompts tell you to take
+  const routesOf = s => s.prompts.map(p => { const m = /go to stage (\d+)/i.exec(p); return m ? +m[1] : null; });
+
+  t('it parses with no diagnostics', () => eq(TTXF.parse(src).errors, []));
+
+  t('every route lands on a stage that exists', () => {
+    const bad = [];
+    stages.forEach((s, i) => routesOf(s).forEach(r => {
+      if (r !== null && (r < 1 || r > stages.length)) bad.push(`stage ${i + 1} -> ${r}`);
+    }));
+    eq(bad, [], 'routes outside 1-' + stages.length);
+  });
+
+  t('every choice has a route, so a vote can never strand the session', () => {
+    const bad = [];
+    stages.forEach((s, i) => {
+      if (!s.questions.length) return;                     // endings have no choice
+      const routes = routesOf(s);
+      if (routes.length !== s.questions[0].answers.length) bad.push(`stage ${i + 1}: ${routes.length} prompts for ${s.questions[0].answers.length} options`);
+      if (routes.some(r => r === null)) bad.push(`stage ${i + 1}: a prompt names no stage`);
+    });
+    eq(bad, []);
+  });
+
+  t('no route goes backwards, so the story cannot loop forever', () => {
+    const back = [];
+    stages.forEach((s, i) => routesOf(s).forEach(r => { if (r !== null && r <= i + 1) back.push(`${i + 1} -> ${r}`); }));
+    eq(back, []);
+  });
+
+  t('every stage is reachable from the opening', () => {
+    const seen = new Set([1]);
+    const walk = n => routesOf(stages[n - 1]).forEach(r => { if (r && !seen.has(r)) { seen.add(r); walk(r); } });
+    walk(1);
+    const orphans = stages.map((_, i) => i + 1).filter(n => !seen.has(n));
+    eq(orphans, [], 'unreachable stages');
+  });
+
+  t('the endings end — no choice, no route onward', () => {
+    const terminal = stages.map((s, i) => [i + 1, s]).filter(([, s]) => !routesOf(s).some(r => r));
+    ok(terminal.length >= 2, 'only ' + terminal.length + ' ending(s)');
+    terminal.forEach(([n, s]) => ok(!s.questions.length, `stage ${n} is an ending but still asks a question`));
+    terminal.forEach(([n, s]) => ok(s.discussion.length >= 1, `ending ${n} has nothing to debrief`));
+  });
+
+  t('the choices are polls, not quizzes — a gamebook has no correct answer', () => {
+    const scored = [];
+    stages.forEach((s, i) => s.questions.forEach(q => { if (q.quizIndex > -1) scored.push(i + 1); }));
+    eq(scored, [], 'stages marking an answer correct');
+  });
+}
+
+G('the gamebook never shows the participants where a choice leads');
+{
+  const { w } = boot();
+  await loadScenario(w, fs.readFileSync(ROOT + '/lib/scenarios/nightshift.ttxf', 'utf8'), 'nightshift.ttxf');
+
+  t('the facilitator can jump to any stage by number', () => {
+    ev(w, 'goToStage(17)');
+    eq(ev(w, 'ActiveStage'), 17);
+    eq(ev(w, 'data[16].stage'), 'The Quiet Morning');
+  });
+
+  t('the routing never reaches the participant window', () => {
+    const leaked = [];
+    for (let n = 1; n <= ev(w, 'roundCounter'); n++) {
+      ev(w, `goToStage(${n})`);
+      const msg = ev(w, 'JSON.stringify(currentStageMessage())');
+      if (/go to stage/i.test(msg)) leaked.push(n);
+    }
+    eq(leaked, [], 'stages leaking the route');
+  });
+
+  t('participants still get the passage and the choice', () => {
+    ev(w, 'goToStage(1)');
+    const msg = JSON.parse(ev(w, 'JSON.stringify(currentStageMessage())'));
+    ok(/02:14/.test(msg.title), 'no title');
+    ok(msg.content.length > 200, 'no passage');
+    eq(msg.questions.length, 1);
+    eq(msg.questions[0].answers.length, 3);
+    eq(msg.questions[0].quiz, false, 'the vote is presented as a quiz');
   });
 }
 

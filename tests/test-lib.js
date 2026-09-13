@@ -484,6 +484,28 @@ G('list rows carry a thumbnail');
   });
 }
 
+G('the Just for Fun section exists and carries the gamebook');
+{
+  const w = boot(okFetch);
+  await wait(200);
+  t('it is offered as a section of its own', () => {
+    const css = w.document.querySelector('style').textContent;
+    ok(/Just for Fun/.test(w.eval('JSON.stringify(SECTIONS)')), 'not in SECTIONS');
+    const s = w.eval('SECTIONS.find(s => s[0] === "Just for Fun")');
+    ok(s && String(s[1]).length > 20, 'the section has no description');
+  });
+  t('it comes last, after the serious ones', () => {
+    const names = JSON.parse(w.eval('JSON.stringify(SECTIONS.map(s => s[0]))'));
+    eq(names[names.length - 1], 'Just for Fun');
+  });
+  t('the shipped manifest files it there', () => {
+    const man = JSON.parse(fs.readFileSync(ROOT + '/lib/manifest.json', 'utf8'));
+    const fun = man.filter(e => (e.series || e.level) === 'Just for Fun');
+    ok(fun.length >= 1, 'nothing is in it');
+    fun.forEach(e => ok(fs.existsSync(ROOT + '/lib/scenarios/' + e.id + '.ttxf'), e.id + ' has no scenario file'));
+  });
+}
+
 G('duration filters by what fits, not by an exact match');
 {
   const MIXED = JSON.stringify([
