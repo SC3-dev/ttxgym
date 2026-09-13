@@ -298,5 +298,58 @@ G('every shipped scenario, exhaustively');
   });
 }
 
+
+G('inline code');
+{
+  t('backticks become a code span', () =>
+    eq(T.inline('run `svc_upd.exe` now'), 'run <code>svc_upd.exe</code> now'));
+
+  t('a code span is immune to the other inline rules', () => {
+    // a glob or a UNC path would otherwise be eaten by the emphasis rules
+    eq(T.inline('glob `*.tmp` here'), 'glob <code>*.tmp</code> here');
+    eq(T.inline('`**literal**`'), '<code>**literal**</code>');
+    eq(T.inline('`C:\\**\\temp`'), '<code>C:\\**\\temp</code>');
+  });
+
+  t('emphasis still works around and inside a span', () => {
+    eq(T.inline('**bold `x` bold**'), '<strong>bold <code>x</code> bold</strong>');
+    eq(T.inline('*a* `b` *c*'), '<em>a</em> <code>b</code> <em>c</em>');
+  });
+
+  t('content inside a span is still escaped', () =>
+    eq(T.inline('`<script>alert(1)</script>`'),
+       '<code>&lt;script&gt;alert(1)&lt;/script&gt;</code>'));
+
+  t('an unpaired backtick is left alone', () => {
+    eq(T.inline('unclosed ` backtick'), 'unclosed ` backtick');
+    eq(T.inline('a ` b ` c ` d'), 'a <code> b </code> c ` d');
+  });
+
+  t('a backtick cannot span a line break', () =>
+    ok(!/<code>/.test(T.inline('open `here\nand close` there'))));
+
+  t('the placeholder cannot be forged by the author', () => {
+    // a literal NUL in the source must not be able to address the span table
+    const out = T.inline('\u00000\u0000 and `real`');
+    eq(out, '0 and <code>real</code>');
+  });
+
+  t('code spans survive block markdown', () => {
+    has(T.markdown('a `b` c'), '<p>a <code>b</code> c</p>');
+    has(T.markdown('- item `x`'), '<li>item <code>x</code></li>');
+    has(T.markdown('~a `b`'), '<blockquote>a <code>b</code></blockquote>');
+  });
+
+  t('the sanitiser keeps code, so rendered output is not stripped', () => {
+    const src = require('fs').readFileSync(require('path').resolve(__dirname, '..', 'js/ttxf.js'), 'utf8');
+    has(src.match(/ALLOWED_TAGS = \[[\s\S]*?\]/)[0], "'CODE'");
+  });
+
+  t('a stylesheet for it is exported for host pages', () => {
+    ok(typeof T.CODE_CSS === 'string' && /code\{/.test(T.CODE_CSS));
+    ok(!/nowrap/.test(T.CODE_CSS), 'a long span would overflow its container');
+  });
+}
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

@@ -16,6 +16,7 @@
      TTXF.sanitizeHTML(html) -> html              allowlist, for third-party HTML
      TTXF.hydrateMedia(root)                      applies %(url | scale) sizing
      TTXF.MEDIA_CSS                               styling for .SFmedia
+     TTXF.CODE_CSS                                styling for `inline code`
 
    The model holds RAW author text throughout. Nothing is escaped or rendered at
    parse time — that is the caller's job at the point of display. Parsing used to
@@ -36,6 +37,16 @@
   var MEDIA_CSS =
     '.SFmedia{display:block;margin:1em auto;max-width:min(100%,32em);height:auto;' +
     'border-radius:6px;object-fit:contain}';
+
+  /* Inline code, in terms a host page can override. currentColor and a
+     transparent-ish ground mean this reads correctly in either theme without
+     knowing which one is active. */
+  var CODE_CSS =
+    'code{font-family:var(--font-mono,ui-monospace,SFMono-Regular,Menlo,Consolas,monospace);' +
+    'font-size:.88em;padding:.1em .35em;border-radius:4px;' +
+    'background:color-mix(in srgb,currentColor 10%,transparent);' +
+    'border:1px solid color-mix(in srgb,currentColor 18%,transparent);' +
+    'white-space:pre-wrap;overflow-wrap:break-word}';
 
   /* --- escaping ----------------------------------------------------------- */
 
@@ -357,12 +368,24 @@
   // Inline: bold, italic, and %(url | scale) images. The source is escaped first,
   // so scenario files cannot inject markup.
   function inline(str) {
-    var s = escapeHTML(str);
+    var s = escapeHTML(str).replace(/\u0000/g, '');
+    /* Code spans come out first and go back in last, so the rest of the inline
+       rules cannot reach inside them. Without this, a path like C:\*\*\temp
+       turns into <strong> and a glob like *.tmp loses its asterisk — which is
+       exactly the text a technical scenario needs to reproduce verbatim. */
+    var spans = [];
+    s = s.replace(/`([^`\n]+)`/g, function (_, body) {
+      spans.push(body);
+      return '\u0000' + (spans.length - 1) + '\u0000';
+    });
     s = s.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
     s = s.replace(/\*(.*?)\*/g, '<em>$1</em>');
     s = s.replace(/%\(([^|)]+?)(?:\|\s*([^)]+?))?\)/g, function (_, src, scale) {
       var attr = scale ? ' data-scale="' + escapeHTML(scale.trim()) + '"' : '';
       return '<img class="SFmedia" src="' + src.trim() + '" alt=""' + attr + '>';
+    });
+    s = s.replace(/\u0000(\d+)\u0000/g, function (_, i) {
+      return '<code>' + spans[Number(i)] + '</code>';
     });
     return s;
   }
@@ -394,6 +417,7 @@
 
     for (var i = 0; i < lines.length; i++) {
       var line = lines[i];
+
       if (line.trim() === '') { flushAll(); continue; }
 
       // a leading backslash is the directive escape; it is not part of the text
@@ -506,6 +530,7 @@
     GLOBAL_KEYS: GLOBAL_KEYS,
     STAGE_KEYS: STAGE_KEYS,
     MEDIA_CSS: MEDIA_CSS,
+    CODE_CSS: CODE_CSS,
   };
 
   if (typeof module !== 'undefined' && module.exports) module.exports = global.TTXF;

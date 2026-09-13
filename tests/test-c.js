@@ -5,6 +5,7 @@ const G = n => console.log('\n' + n);
 const t = (n, f) => { try { f(); console.log('  ok   ' + n); pass++; } catch (e) { console.log('  FAIL ' + n + '\n       ' + e.message); fail++; } };
 const eq = (a, b, m) => { if (JSON.stringify(a) !== JSON.stringify(b)) throw new Error(`${m || ''} expected ${JSON.stringify(b)}, got ${JSON.stringify(a)}`); };
 const ok = (v, m) => { if (!v) throw new Error(m || 'expected truthy'); };
+const has = (s, sub) => { if (!String(s).includes(sub)) throw new Error(`expected ${JSON.stringify(sub)} in ${JSON.stringify(String(s).slice(0, 200))}`); };
 
 (async () => {
 
@@ -283,6 +284,29 @@ G('exported report');
   w.__downloads = [];
   w.exportReport();
   t('a report file is produced', () => eq(w.__downloads[0].name, 'exercise-report.html'));
+}
+
+G('inline code reaches every surface that renders a scenario');
+{
+  const gymSrc = fs.readFileSync(ROOT + '/gym/index.html', 'utf8');
+  const edSrc = fs.readFileSync(ROOT + '/editor.html', 'utf8');
+  // a code span is worthless if the surface it lands on has no style for it
+  t('the facilitator view styles it', () => ok(/\n    code \{/.test(gymSrc), 'no rule in the gym stylesheet'));
+  t('the participant window styles it', () => {
+    const tpl = gymSrc.slice(gymSrc.indexOf('PRESENTATION_HTML'), gymSrc.indexOf('</html>', gymSrc.indexOf('PRESENTATION_HTML')));
+    ok(/code\{font-family/.test(tpl), 'no rule in the participant template');
+  });
+  t('the exported report styles it, and prints it', () => {
+    const css = gymSrc.slice(gymSrc.indexOf('REPORT_CSS'), gymSrc.indexOf('REPORT_HEADER'));
+    ok(/code\{font-family/.test(css), 'no rule in REPORT_CSS');
+    ok(/code\{[^}]*print-color-adjust/.test(css), 'the background will not print');
+  });
+  t('the builder preview styles it', () => ok(/#preview-content code/.test(edSrc), 'no rule in the editor'));
+  t('none of them let a long span overflow', () => {
+    const rules = (gymSrc + edSrc).match(/code[^{]*\{[^}]*\}/g).filter(r => /font-family/.test(r));
+    ok(rules.length >= 3, 'found only ' + rules.length + ' code rules');
+    rules.forEach(r => ok(!/white-space:\s*nowrap/.test(r), 'nowrap in: ' + r.slice(0, 40)));
+  });
 }
 
 console.log(`\n${pass} passed, ${fail} failed`);
