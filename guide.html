@@ -841,6 +841,18 @@ This line continues the same paragraph.</code></pre>
           <div style="border-left:3px solid var(--accent);padding-left:0.5rem;font-style:italic">Quoted statement</div>
         </div>
         <div class="syntax-row">
+          <div><code>%news(headline)</code><br><code>%news(headline | flag)</code></div>
+          <div>Renders the headline as a still from a news broadcast — the studio shot with a
+            strap across the bottom carrying your text. Must be on a line of its own. The
+            <em>flag</em> is the red label at the left of the strap and defaults to
+            <code>Breaking News</code>; set it to <code>Live at Six</code>,
+            <code>Developing</code> or whatever suits the moment. Useful for turning up the
+            pressure mid-exercise, or for showing a room what publication actually looks
+            like</div>
+          <div style="color:var(--text-muted);font-size:12px">Studio backdrop with a red
+            <strong>BREAKING NEWS</strong> flag and your headline beside it</div>
+        </div>
+        <div class="syntax-row">
           <div><code>%(url)</code></div>
           <div>Embed image at full width</div>
           <div style="color:var(--text-muted);font-size:12px">Image rendered from URL</div>

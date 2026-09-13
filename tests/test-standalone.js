@@ -379,6 +379,9 @@ G('the site itself is free of third parties');
         .forEach(d => {
           const v = d.split(':').slice(1).join(':').trim();
           if (/var\(|none|transparent|inherit|currentColor|^#fff/.test(v)) return;
+          // a simulated broadcast graphic is content, not chrome: its colours are
+          // fixed in both themes on purpose, like the screen-off state
+          if (/SFnews|#blankout/.test(sel)) return;
           // accent, status and neutral scrim tints read correctly on either ground
           if (/rgba\((?:46, 125, 224|62, 201, 200|245, 166, 35|224, 82, 82|199, 146, 234|0, 0, 0)/.test(v)) return;
           pinned.push(sel.trim() + ' -> ' + v);

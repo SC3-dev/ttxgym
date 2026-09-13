@@ -17,6 +17,7 @@
      TTXF.hydrateMedia(root)                      applies %(url | scale) sizing
      TTXF.MEDIA_CSS                               styling for .SFmedia
      TTXF.CODE_CSS                                styling for `inline code` and ``` blocks
+     TTXF.setNewsBackdrop(url)                    where %news() finds its backdrop
 
    The model holds RAW author text throughout. Nothing is escaped or rendered at
    parse time — that is the caller's job at the point of display. Parsing used to
@@ -34,6 +35,14 @@
   var STAGE_KEYS = ['content', 'duration'];
   var MAX_BLOCK = 10000; // characters per multi-line value
   var FENCE = /^```/;   // opens and closes a preformatted block inside a value
+  var NEWS = /^%news\(([^)]*)\)$/i;   // a headline, rendered as a news broadcast
+
+  /* The backdrop is a real <img>, not a CSS background, so the host page's
+     absolutize() can resolve it — that is what carries it into the participant
+     window, which runs from a blob URL and cannot resolve a relative path.
+     Authored relative to gym/, matching how scenario media is written. */
+  var newsBackdrop = '../lib/exercise_data/news.jpeg';
+  function setNewsBackdrop(url) { newsBackdrop = String(url == null ? '' : url); }
 
   var MEDIA_CSS =
     '.SFmedia{display:block;margin:1em auto;max-width:min(100%,32em);height:auto;' +
@@ -477,6 +486,24 @@
       }
       if (fence !== null) { fence.push(line); continue; }
 
+      /* A headline on its own line becomes a still from a news broadcast. Handled
+         as a block rather than inline so it is never wrapped in a <p>. */
+      var news = NEWS.exec(line.trim());
+      if (news) {
+        flushAll();
+        var parts = news[1].split('|');
+        var headline = parts[0].trim();
+        var flag = (parts[1] || 'Breaking News').trim();
+        out.push(
+          '<figure class="SFnews" aria-label="News broadcast: ' + escapeHTML(headline) + '">' +
+          '<img class="SFnews-shot" src="' + escapeHTML(newsBackdrop) + '" alt="">' +
+          '<figcaption class="SFnews-ticker">' +
+          '<span class="SFnews-flag">' + escapeHTML(flag) + '</span>' +
+          '<span class="SFnews-line">' + escapeHTML(headline) + '</span>' +
+          '</figcaption></figure>');
+        continue;
+      }
+
       if (line.trim() === '') { flushAll(); continue; }
 
       // a leading backslash is the directive escape; it is not part of the text
@@ -594,6 +621,7 @@
     GLOBAL_KEYS: GLOBAL_KEYS,
     STAGE_KEYS: STAGE_KEYS,
     MEDIA_CSS: MEDIA_CSS,
+    setNewsBackdrop: setNewsBackdrop,
     CODE_CSS: CODE_CSS,
   };
 

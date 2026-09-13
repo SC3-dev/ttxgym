@@ -919,6 +919,11 @@ G('F4.4/F4.5/F4.6 — blank, injects and the projector theme');
   t('an empty inject clears it', () =>
     ok(!w.document.getElementById('injectBox').classList.contains('show')));
 
+  /* Two things are deliberately the same colour in both themes, because they are
+     not interface: #blankout is a screen-off state, and .SFnews is a simulated
+     broadcast graphic whose red and white are the content being shown. */
+  const THEME_EXEMPT = /#blankout|SFnews/;
+
   t('every colour follows the theme, in both directions', () => {
     const css = w.document.querySelector('style').textContent;
     const body = (sel) => {
@@ -939,7 +944,7 @@ G('F4.4/F4.5/F4.6 — blank, injects and the projector theme');
       (decl.match(/(?:color|fill|background(?:-color)?|border(?:-\w+)?-color):\s*([^;]+)/g) || [])
         .forEach(d => {
           const v = d.split(':').slice(1).join(':').trim();
-          if (/rgba\(232,236,242|^#(?!fff)[0-9a-f]{3,6}$/.test(v) && sel.trim() !== '#blankout') {
+          if (/rgba\(232,236,242|^#(?!fff)[0-9a-f]{3,6}$/.test(v) && !THEME_EXEMPT.test(sel)) {
             pinned.push(sel.trim() + ' -> ' + v);
           }
         });

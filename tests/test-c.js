@@ -286,6 +286,32 @@ G('exported report');
   t('a report file is produced', () => eq(w.__downloads[0].name, 'exercise-report.html'));
 }
 
+G('news headlines reach every surface, and the room screen');
+{
+  const gymSrc = fs.readFileSync(ROOT + '/gym/index.html', 'utf8');
+  const edSrc = fs.readFileSync(ROOT + '/editor.html', 'utf8');
+  const targets = {
+    'facilitator view': gymSrc.slice(0, gymSrc.indexOf('PRESENTATION_HTML')),
+    'participant window': gymSrc.slice(gymSrc.indexOf('PRESENTATION_HTML')),
+    'exported report': gymSrc.slice(gymSrc.indexOf('REPORT_CSS'), gymSrc.indexOf('REPORT_HEADER')),
+    'builder preview': edSrc,
+  };
+  Object.keys(targets).forEach(name => {
+    t(`the ${name} styles it`, () => {
+      ok(/figure\.SFnews\{/.test(targets[name]), 'no figure.SFnews rule');
+      ok(/\.SFnews-ticker\{[^}]*position:absolute/.test(targets[name]), 'the strap is not overlaid');
+    });
+  });
+  t('the report will print the strap colours and not split the frame', () => {
+    const css = targets['exported report'];
+    ok(/\.SFnews-flag\{[^}]*print-color-adjust/.test(css), 'the red flag will print white');
+    ok(/figure\.SFnews\{[^}]*break-inside:avoid/.test(css), 'the frame can split across pages');
+  });
+  t('the builder points the backdrop at its own location', () =>
+    ok(/setNewsBackdrop\('lib\/exercise_data\/news\.jpeg'\)/.test(edSrc),
+       'the builder preview would show a broken image'));
+}
+
 G('fenced blocks reach every surface, and stay preformatted');
 {
   const gymSrc = fs.readFileSync(ROOT + '/gym/index.html', 'utf8');

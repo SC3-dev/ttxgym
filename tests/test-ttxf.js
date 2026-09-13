@@ -428,5 +428,63 @@ G('fenced preformatted blocks');
   });
 }
 
+G('%news() headlines');
+{
+  const one = str => { const d = new JSDOM('<body>' + T.markdown(str) + '</body>'); return d.window.document; };
+
+  t('a headline on its own line becomes a news figure', () => {
+    const f = one('%news(Council systems offline)').querySelector('figure.SFnews');
+    ok(f, 'no figure rendered');
+    eq(f.querySelector('.SFnews-line').textContent, 'Council systems offline');
+  });
+
+  t('it is a block, never nested inside a paragraph', () => {
+    const html = T.markdown('before\n\n%news(X)\n\nafter');
+    ok(!/<p>[^<]*<figure/.test(html), 'the figure was wrapped in a paragraph');
+    has(html, '<p>before</p>');
+    has(html, '<p>after</p>');
+  });
+
+  t('the flag defaults, and can be set', () => {
+    eq(one('%news(X)').querySelector('.SFnews-flag').textContent, 'Breaking News');
+    eq(one('%news(X | Live at Six)').querySelector('.SFnews-flag').textContent, 'Live at Six');
+  });
+
+  t('the backdrop is a real img, so host pages can absolutise it', () => {
+    const img = one('%news(X)').querySelector('img.SFnews-shot');
+    ok(img, 'no img — a CSS background would never reach the participant window');
+    ok(/news\.jpe?g$/.test(img.getAttribute('src')), img.getAttribute('src'));
+  });
+
+  t('the backdrop path is configurable per page', () => {
+    T.setNewsBackdrop('lib/exercise_data/news.jpeg');
+    eq(one('%news(X)').querySelector('img').getAttribute('src'), 'lib/exercise_data/news.jpeg');
+    T.setNewsBackdrop('../lib/exercise_data/news.jpeg');
+  });
+
+  t('headline and flag are escaped', () => {
+    const doc = one('%news(<script>x</script> "q" | <b>f</b>)');
+    eq(doc.querySelectorAll('script, b').length, 0, 'markup was injected');
+    has(doc.querySelector('.SFnews-line').textContent, '<script>');
+  });
+
+  t('it is announced to assistive technology', () => {
+    const f = one('%news(Council systems offline)').querySelector('figure');
+    has(f.getAttribute('aria-label'), 'Council systems offline');
+    eq(f.querySelector('img').getAttribute('alt'), '', 'the backdrop should be decorative');
+  });
+
+  t('only a whole line counts, so prose is untouched', () => {
+    has(T.markdown('text %news(inline) more'), '<p>text %news(inline) more</p>');
+  });
+
+  t('an empty headline still renders rather than breaking the stage', () =>
+    ok(one('%news()').querySelector('figure.SFnews')));
+
+  t('the backdrop file exists where the default points', () => {
+    const path = require('path');
+    ok(require('fs').existsSync(path.resolve(__dirname, '..', 'lib/exercise_data/news.jpeg')));
+  });
+}
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
