@@ -1,5 +1,5 @@
 ! title: CEO Spear‑Phish
-! author: Alan Gray (Head of Cyber)
+! author: SC3
 ! summary
 A targeted spear‑phishing email lands in the CEO’s mailbox. MFA was previously removed at the CEO’s request. The CEO opens a malicious attachment. Adversaries obtain access and malware subsequently executes on a network server. This exercise walks through initial discovery, containment, investigation, eradication, recovery, comms, and lessons.
 
