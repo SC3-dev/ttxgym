@@ -424,6 +424,64 @@ G('import no longer discards work silently');
 }
 
 
+G('the builder preview styles everything the renderer can emit');
+{
+  const TTXF = require(ROOT + '/js/ttxf.js');
+  const css = fs.readFileSync(ROOT + '/editor.html', 'utf8');
+  const style = css.slice(css.indexOf('<style>'), css.indexOf('</style>'));
+
+  // Render one document containing every construct, then look at what came out —
+  // so a construct added to js/ttxf.js later is covered without editing this list.
+  const sample = [
+    'Plain prose with **bold**, *italic* and `code`.',
+    '~A quoted scenario update',
+    '- a bullet',
+    '1. a numbered item',
+    '%(../lib/exercise_data/x.png | 50%)',
+    '%news(A headline)',
+    '```log\nan artefact\n```',
+  ].join('\n\n');
+  const html = TTXF.markdown(sample);
+
+  t('the sample exercises every construct', () => {
+    ['<strong>', '<em>', '<code>', '<blockquote>', '<ul>', '<ol>', '<li>',
+     'SFmedia', 'SFnews', 'SFpre'].forEach(bit => has(html, bit));
+  });
+
+  t('each one has a rule in the builder stylesheet', () => {
+    // tag or class -> a selector that must appear somewhere in the preview styles
+    const needed = {
+      'blockquote': /preview-content blockquote|\.preview-content [^{]*blockquote/,
+      'SFmedia':    /preview-content \.SFmedia/,
+      'SFnews':     /figure\.SFnews/,
+      'SFpre':      /pre\.SFpre/,
+      'code':       /#preview-content code|preview-content [^{]*code/,
+      'ul':         /preview-content ul/,
+      'li':         /preview-content li/,
+      'strong':     /preview-content strong/,
+    };
+    const unstyled = Object.keys(needed).filter(k => !needed[k].test(style));
+    eq(unstyled, [], 'renderer output with no styling in the preview');
+  });
+
+  t('a quote actually reaches the preview DOM, styled', () => {
+    const { w } = boot();
+    w.eval('addStage()');
+    w.eval('stages[0].content = "~Scenario update"; updatePreviews();');
+    const bq = w.document.querySelector('.preview-content blockquote');
+    ok(bq, 'no blockquote rendered into the preview');
+    eq(bq.textContent.trim(), 'Scenario update');
+  });
+
+  t('prose cells in the guide table are not flex containers', () => {
+    // a flex cell turns every inline <code> into its own column
+    const guide = fs.readFileSync(ROOT + '/guide.html', 'utf8');
+    const rule = /\.syntax-row>div \{[^}]*\}/.exec(guide);
+    ok(rule, 'no .syntax-row>div rule');
+    ok(!/display:\s*flex/.test(rule[0]), 'cells are flex again: ' + rule[0].replace(/\s+/g, ' '));
+  });
+}
+
 G('the syntax insert bar');
 {
   const TTXF = require(ROOT + '/js/ttxf.js');

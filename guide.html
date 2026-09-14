@@ -258,7 +258,7 @@
     /* ─── SYNTAX TABLE ─── */
     .syntax-grid {
       display: grid;
-      grid-template-columns: auto 1fr 1fr;
+      grid-template-columns: minmax(9rem, auto) minmax(0, 2.4fr) minmax(0, 1.1fr);
       gap: 0;
       border: 1px solid var(--border);
       border-radius: var(--radius-lg);
@@ -288,11 +288,12 @@
     }
 
     .syntax-row>div {
-      padding: 0.65rem 1rem;
+      padding: 0.8rem 1rem;
       border-bottom: 1px solid var(--border);
       color: var(--text-secondary);
-      display: flex;
-      align-items: center;
+      line-height: 1.6;
+      min-width: 0;
+      overflow-wrap: break-word;
     }
 
     .syntax-row:last-child>div {
@@ -302,10 +303,37 @@
     .syntax-row>div:first-child {
       background: var(--surface);
       font-family: var(--font-mono);
-      font-size: 15px;
+      font-size: 13.5px;
       font-weight: 700;
-      justify-content: center;
-      min-width: 50px;
+      color: var(--text-primary);
+    }
+
+    /* Inline code inside a prose cell must sit on the text baseline and wrap with
+       it, never become a block of its own. */
+    .syntax-row>div code {
+      display: inline;
+      white-space: normal;
+      overflow-wrap: break-word;
+    }
+
+    /* The third column is an illustration of the result, so it reads quieter
+       than the explanation beside it. */
+    .syntax-row>div:nth-child(3) {
+      color: var(--text-muted);
+      font-size: 12.5px;
+    }
+
+    /* Three columns stop working long before a phone: below this the grid
+       becomes one column per row, with the syntax banded as a heading. */
+    @media (max-width: 760px) {
+      .syntax-grid { grid-template-columns: 1fr; }
+      .syntax-grid-header { display: none; }
+      .syntax-row>div { border-bottom: none; padding: 0.5rem 1rem; }
+      .syntax-row>div:first-child {
+        padding-top: 0.9rem;
+        border-top: 1px solid var(--border);
+      }
+      .syntax-row>div:last-child { padding-bottom: 0.9rem; }
     }
 
 

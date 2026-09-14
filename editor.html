@@ -845,7 +845,26 @@
     }
 
     /* Inline code in the preview and the stage summary, matching the gym. */
-    #preview-content code, .stage-summary code, #validation code {
+    /* The preview renders the same markdown the gym does, so it needs the same
+       treatment for it. Blockquotes and images were never styled here, which made
+       a ~quote look like ordinary prose and an image sit flush to the text. */
+    #pane-visual .preview-content blockquote {
+      padding: 0.6rem 0.85rem;
+      margin: 0.7rem 0;
+      background: var(--green-glow);
+      border-left: 3px solid var(--green);
+      border-radius: 0 var(--radius) var(--radius) 0;
+    }
+    #pane-visual .preview-content .SFmedia {
+      display: block;
+      margin: 0.8rem auto;
+      max-width: min(100%, 26em);
+      height: auto;
+      border-radius: var(--radius);
+      object-fit: contain;
+    }
+
+    #preview-content code, #validation code {
       font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, Consolas, monospace);
       font-size: 0.88em;
       padding: 0.1em 0.35em;
@@ -863,7 +882,7 @@
     figure.SFnews .SFnews-flag{flex:0 0 auto;display:flex;align-items:center;background:#c8102e;color:#fff;font-weight:800;font-size:.78em;letter-spacing:.06em;text-transform:uppercase;padding:.75em .9em;print-color-adjust:exact;-webkit-print-color-adjust:exact}
     figure.SFnews .SFnews-line{flex:1 1 auto;min-width:0;display:flex;align-items:center;font-size:.78em;background:rgba(11,14,20,.9);color:#fff;font-weight:700;padding:.75em .9em;overflow-wrap:break-word;print-color-adjust:exact;-webkit-print-color-adjust:exact}
 
-    #preview-content pre.SFpre, .stage-summary pre.SFpre {
+    #preview-content pre.SFpre {
       font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, Consolas, monospace);
       font-size: 0.82em;
       line-height: 1.55;
@@ -876,10 +895,10 @@
       overflow-wrap: break-word;
       tab-size: 4;
     }
-    #preview-content pre.SFpre > code, .stage-summary pre.SFpre > code {
+    #preview-content pre.SFpre > code {
       background: none; border: 0; padding: 0; font-size: inherit; white-space: inherit;
     }
-    #preview-content pre.SFpre[data-label]::before, .stage-summary pre.SFpre[data-label]::before {
+    #preview-content pre.SFpre[data-label]::before {
       content: attr(data-label);
       display: block;
       font-family: inherit;
