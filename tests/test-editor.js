@@ -423,6 +423,115 @@ G('import no longer discards work silently');
   t('an empty builder is not nagged', () => ok(!asked));
 }
 
+
+G('the syntax insert bar');
+{
+  const TTXF = require(ROOT + '/js/ttxf.js');
+  const { w } = boot();
+  const bars = () => [...w.document.querySelectorAll('.syntax-bar')];
+
+  t('summary and conclusion both get one', () => {
+    ['f-summary', 'f-conclusion'].forEach(id => {
+      const g = w.document.getElementById(id).closest('.field-group');
+      ok(g.querySelector('.syntax-bar'), id + ' has no bar');
+    });
+  });
+
+  t('a stage content field gets one too', () => {
+    w.eval('addStage()');
+    const ta = [...w.document.querySelectorAll('textarea')]
+      .find(x => /Scenario content/.test(x.placeholder));
+    ok(ta, 'no stage content field');
+    ok(ta.closest('.field-group').querySelector('.syntax-bar'), 'stage content has no bar');
+  });
+
+  t('it offers the syntax an author cannot guess', () => {
+    const keys = JSON.parse(w.eval('JSON.stringify(INSERTS.map(i => i.key))'));
+    ['news', 'image', 'pre', 'code', 'escape'].forEach(k =>
+      ok(keys.includes(k), 'no button for ' + k));
+  });
+
+  t('and deliberately does not duplicate plain Markdown emphasis', () => {
+    const keys = JSON.parse(w.eval('JSON.stringify(INSERTS.map(i => i.key))'));
+    ok(!keys.includes('bold') && !keys.includes('italic'), 'emphasis buttons crept back in');
+  });
+
+  // the drift guard: a button whose syntax the renderer does not understand is worse
+  // than no button, because the preview silently shows the literal text
+  t('every button inserts syntax the renderer actually implements', () => {
+    const snips = JSON.parse(w.eval('JSON.stringify(INSERTS.map(i => ({key: i.key, text: i.snip("")})))'));
+    const broken = [];
+    snips.forEach(({ key, text }) => {
+      const html = TTXF.markdown(text);
+      const plain = html.replace(/<[^>]+>/g, '').trim();
+      // if the construct were unrecognised its markers would survive into the text
+      if (key === 'news'   && !/SFnews/.test(html))        broken.push(key);
+      if (key === 'image'  && !/<img/.test(html))          broken.push(key);
+      if (key === 'pre'    && !/<pre/.test(html))          broken.push(key);
+      if (key === 'code'   && !/<code>/.test(html))        broken.push(key);
+      if (key === 'quote'  && !/<blockquote>/.test(html))  broken.push(key);
+      if (key === 'bullet' && !/<li>/.test(html))          broken.push(key);
+      if (key === 'escape' && /^\\/.test(plain))            broken.push(key);
+    });
+    eq(broken, [], 'buttons the renderer does not understand');
+  });
+
+  t('every TTXF-specific construct in the renderer has a button', () => {
+    const src = fs.readFileSync(ROOT + '/js/ttxf.js', 'utf8');
+    const keys = JSON.parse(w.eval('JSON.stringify(INSERTS.map(i => i.key))'));
+    const required = [
+      [/%news\\\(/, 'news'],
+      [/SFmedia/, 'image'],
+      [/var FENCE/, 'pre'],
+      [/spans\.push/, 'code'],
+    ];
+    const missing = required.filter(([re, key]) => re.test(src) && !keys.includes(key)).map(x => x[1]);
+    eq(missing, [], 'renderer gained a construct with no button');
+  });
+
+  t('inserting drops the snippet into the right field', () => {
+    const ta = w.document.getElementById('f-summary');
+    ta.value = '';
+    const btn = ta.closest('.field-group').querySelector('.syntax-btn');
+    btn.click();
+    ok(ta.value.length > 0, 'nothing was inserted');
+    has(ta.value, '%news(');
+  });
+
+  t('a selection becomes the content of the construct', () => {
+    const ta = w.document.getElementById('f-conclusion');
+    ta.value = 'Systems restored overnight';
+    ta.selectionStart = 0; ta.selectionEnd = ta.value.length;
+    const codeBtn = [...ta.closest('.field-group').querySelectorAll('.syntax-btn')]
+      .find(b => b.textContent === 'Code');
+    codeBtn.click();
+    has(ta.value, '`Systems restored overnight`');
+  });
+
+  t('a block construct is not glued onto the paragraph above it', () => {
+    const ta = w.document.getElementById('f-summary');
+    ta.value = 'Some prose.';
+    ta.selectionStart = ta.selectionEnd = ta.value.length;
+    [...ta.closest('.field-group').querySelectorAll('.syntax-btn')]
+      .find(b => b.textContent === 'News').click();
+    ok(/Some prose\.\n\n%news\(/.test(ta.value), 'no blank line before the block: ' + JSON.stringify(ta.value));
+  });
+
+  t('inserting still updates the draft and the preview', () => {
+    const ta = w.document.getElementById('f-summary');
+    ta.value = '';
+    let fired = 0;
+    ta.addEventListener('input', () => fired++);
+    ta.closest('.field-group').querySelector('.syntax-btn').click();
+    ok(fired > 0, 'no input event, so the preview and autosave never learn about it');
+  });
+
+  t('the bar links to the full reference', () => {
+    const link = bars()[0].querySelector('.syntax-help');
+    ok(link, 'no help link');
+    has(link.getAttribute('href'), 'guide.html');
+  });
+}
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
 })();

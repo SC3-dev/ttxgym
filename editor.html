@@ -144,6 +144,37 @@
       box-shadow: 0 0 0 3px var(--ttxf-directive-glow);
     }
 
+    .syntax-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.25rem;
+      margin-bottom: 0.3rem;
+    }
+    .syntax-btn, .syntax-help {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.2rem 0.45rem;
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+      line-height: 1.6;
+    }
+    .syntax-btn:hover, .syntax-help:hover {
+      color: var(--text-primary);
+      border-color: var(--accent);
+    }
+    .syntax-help {
+      text-decoration: none;
+      margin-left: auto;
+      padding: 0.2rem 0.5rem;
+    }
+
     .field-input {
       width: 100%;
       background: var(--surface);
@@ -1663,6 +1694,7 @@
 
         <div class="field-group" style="margin-top:0.5rem">
           <label class="field-label" style="color:var(--ttxf-stage)"><span class="sigil">@</span> Stage Content</label>
+          ${syntaxBarHTML()}
           <textarea class="field-input" placeholder="Scenario content for this stage…" rows="3"
                     oninput="updateStageField('${stage.id}','content',this.value)">${escH(stage.content)}</textarea>
         </div>
@@ -2329,6 +2361,64 @@
     // one implementation, shared with the gym — see js/ttxf.js
     const escH = TTXF.escapeHTML;
     const processMarkdown = TTXF.markdown;
+
+    /* The syntax an author cannot guess. Emphasis is deliberately absent: people
+       already know **bold**, and a button for it earns nothing. Everything here is
+       either TTXF-specific or diverges from ordinary Markdown, and every entry
+       inserts a worked example rather than an empty husk, so the preview shows
+       something real the moment it is clicked.
+       One array — a new construct in js/ttxf.js means one new line here, and
+       tests/test-editor.js fails if the two drift apart. */
+    const INSERTS = [
+      { key: 'news',   label: 'News',     title: 'Headline as a news broadcast still',
+        block: true,  snip: t => `%news(${t || 'Council systems offline for a third day'})` },
+      { key: 'image',  label: 'Image',    title: 'Embed an image, optionally scaled',
+        block: true,  snip: t => `%(${t || '../lib/exercise_data/your-image.png'} | 60%)` },
+      { key: 'pre',    label: 'Artefact', title: 'Preformatted block — a log, headers, a note',
+        block: true,  snip: t => '```' + 'SIEM export\n' + (t || '02:13:47  EDR  unsigned binary executed') + '\n```' },
+      { key: 'code',   label: 'Code',     title: 'Inline code — a filename, path or registry key',
+        block: false, snip: t => '`' + (t || 'svc_upd.exe') + '`' },
+      { key: 'quote',  label: 'Quote',    title: 'Highlighted quote or scenario update',
+        block: true,  snip: t => `~${t || 'Scenario update'}` },
+      { key: 'bullet', label: 'List',     title: 'Bulleted list',
+        block: true,  snip: t => `- ${t || 'First point'}` },
+      { key: 'escape', label: 'Escape',   title: 'Keep a line that starts with # + ? @ ! as text',
+        block: true,  snip: t => `\\${t || '# a line that would otherwise be read as a directive'}` },
+    ];
+
+    function syntaxBarHTML() {
+      return '<div class="syntax-bar">' +
+        INSERTS.map(i => `<button type="button" class="syntax-btn" title="${escH(i.title)}" onclick="insertSyntax(this,'${i.key}')">${escH(i.label)}</button>`).join('') +
+        '<a class="syntax-help" href="guide.html#markdown" target="_blank" rel="noopener" title="Full syntax reference">?</a>' +
+        '</div>';
+    }
+
+    /* Inserting must not cost the author their undo history, so this goes through
+       execCommand where it still exists; the fallback splices the value and fires
+       input by hand so the draft still saves and the preview still refreshes. */
+    function insertSyntax(btn, key) {
+      const item = INSERTS.find(i => i.key === key);
+      const ta = btn.closest('.field-group').querySelector('textarea');
+      if (!item || !ta) return;
+      ta.focus();
+      const start = ta.selectionStart, end = ta.selectionEnd;
+      const selected = ta.value.slice(start, end).trim();
+      let text = item.snip(selected);
+      // a block construct has to begin its own line, or it is swallowed by the paragraph above
+      if (item.block) {
+        const before = ta.value.slice(0, start);
+        if (before && !/\n\s*$/.test(before)) text = '\n\n' + text;
+        const after = ta.value.slice(end);
+        if (after && !/^\s*\n/.test(after)) text = text + '\n';
+      }
+      let ok = false;
+      try { ok = document.execCommand && document.execCommand('insertText', false, text); } catch (e) { ok = false; }
+      if (!ok) {
+        ta.value = ta.value.slice(0, start) + text + ta.value.slice(end);
+        ta.selectionStart = ta.selectionEnd = start + text.length;
+        ta.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    }
     // The builder sits at the site root; the gym sits one level down, and scenario
     // media is authored relative to the gym. Point %news() at the right place here.
     TTXF.setNewsBackdrop('lib/exercise_data/news.jpeg');
@@ -2340,6 +2430,14 @@
     /* =============================================
        INIT
        ============================================= */
+    // Summary and conclusion render the same markdown as a stage, so they get the
+    // same bar. Injected rather than written into the markup, so the array above
+    // remains the only place a construct is declared.
+    ['f-summary', 'f-conclusion'].forEach(id => {
+      const ta = document.getElementById(id);
+      if (ta) ta.insertAdjacentHTML('beforebegin', syntaxBarHTML());
+    });
+
     // A refresh used to lose every unsaved edit.
     window.addEventListener('beforeunload', (e) => {
       if (!dirty) return;
