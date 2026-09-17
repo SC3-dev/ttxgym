@@ -1271,6 +1271,13 @@
       text-align: center;
       overflow-wrap: anywhere;
     }
+    /* The finish screen is a different kind of thing from a stage, so it reads
+       as one — same card, different accent. */
+    #pane-visual .preview-conclusion .preview-stage-num {
+      background: var(--green-glow);
+      color: var(--green);
+    }
+
     .gallery-empty {
       grid-column: 1 / -1;
       font-size: 11.5px;
@@ -2322,6 +2329,21 @@
       }).join('\n');
     }
 
+    function conclusionPreviewHTML() {
+      const text = (document.getElementById('f-conclusion') || {}).value || '';
+      if (!text.trim()) return '';
+      return `
+    <div class="preview-stage preview-conclusion">
+      <div class="preview-stage-header">
+        <span class="preview-stage-num">Finish</span>
+        <span class="preview-stage-title">Conclusion</span>
+      </div>
+      <div class="preview-stage-body">
+        <div class="preview-content">${processMarkdown(text)}</div>
+      </div>
+    </div>`;
+    }
+
     function buildVisualPreview() {
       const out = document.getElementById('visual-output');
       if (!stages.length) {
@@ -2370,7 +2392,8 @@
         `).join('') : ''}
       </div>
     </div>`;
-      }).join('');
+      }).join('') + conclusionPreviewHTML();
+      retargetPreviewMedia(out);   // before hydrate: scaling measures the loaded image
       TTXF.hydrateMedia(out);
     }
 
@@ -2393,6 +2416,27 @@
        a thumbnail from differ by one level. Getting that wrong is invisible until
        someone runs the exercise, which is exactly the mistake the picker exists to
        prevent. */
+    /* Scenario media is authored relative to gym/, and the builder sits one level
+       up at the site root. Served from a domain root the difference is invisible
+       (".." past the root is clamped), which is why this was easy to miss — but
+       from file:// or a project subpath "../lib/…" escapes the site entirely and
+       the preview shows a broken image. Rewriting on the way into the preview
+       leaves the authored path untouched in the file. */
+    function previewSrc(url) {
+      if (!url) return url;
+      if (/^([a-z][a-z0-9+.-]*:|\/\/|\/|#)/i.test(url)) return url;   // absolute or root-relative
+      return url.replace(/^(\.\.\/)/, '');
+    }
+
+    function retargetPreviewMedia(root) {
+      if (!root || !root.querySelectorAll) return;
+      root.querySelectorAll('img[src]').forEach(img => {
+        const raw = img.getAttribute('src');
+        const fixed = previewSrc(raw);
+        if (fixed !== raw) img.setAttribute('src', fixed);
+      });
+    }
+
     const GALLERY_DIR_FROM_GYM = '../lib/exercise_data/';
     const GALLERY_DIR_FROM_HERE = 'lib/exercise_data/';
     let galleryTarget = null;

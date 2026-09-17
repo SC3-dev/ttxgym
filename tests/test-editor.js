@@ -482,6 +482,50 @@ G('the builder preview styles everything the renderer can emit');
   });
 }
 
+G('the visual preview');
+{
+  // file:// is the case that exposes it — served from a domain root, ".." past the
+  // root is clamped and the broken path looks fine
+  const { w } = boot(null, 'file:///var/www/html/github/ttxgym/editor.html');
+  w.eval('addStage()');
+  w.eval('stages[0].content = "%(../lib/exercise_data/icons/TTXGYM_Warning_red.png | 60%)";'
+       + ' document.getElementById("f-conclusion").value = "**Debrief** text.";'
+       + ' updatePreviews();');
+  await wait(40);
+
+  t('an image dropped into a stage resolves in the preview', () => {
+    const img = w.document.querySelector('.preview-content img');
+    ok(img, 'no image rendered into the preview');
+    eq(img.getAttribute('src'), 'lib/exercise_data/icons/TTXGYM_Warning_red.png',
+       'the preview would look one level above the site');
+  });
+
+  t('but the authored path is left alone in the file', () =>
+    has(w.eval('stages[0].content'), '%(../lib/exercise_data/'));
+
+  t('an absolute URL is not rewritten', () => {
+    eq(w.eval("previewSrc('https://example.com/a.png')"), 'https://example.com/a.png');
+    eq(w.eval("previewSrc('/lib/x.png')"), '/lib/x.png');
+    eq(w.eval("previewSrc('data:image/png;base64,AAA')"), 'data:image/png;base64,AAA');
+  });
+
+  t('only one level is stripped, not every ..', () =>
+    eq(w.eval("previewSrc('../../outside.png')"), '../outside.png'));
+
+  t('the conclusion is previewed after the last stage', () => {
+    const cards = [...w.document.querySelectorAll('.preview-stage')];
+    const last = cards[cards.length - 1];
+    ok(last.classList.contains('preview-conclusion'), 'conclusion is not the final card');
+    has(last.textContent, 'Debrief');
+    ok(last.querySelector('strong'), 'the conclusion is not rendered as markdown');
+  });
+
+  t('and is absent when there is no conclusion to show', () => {
+    w.eval('document.getElementById("f-conclusion").value = ""; updatePreviews();');
+    ok(!w.document.querySelector('.preview-conclusion'), 'an empty conclusion still drew a card');
+  });
+}
+
 G('the image gallery');
 {
   const path = require('path');
