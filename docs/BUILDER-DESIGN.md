@@ -159,11 +159,46 @@ presets, the syntax insert bar, and the image gallery picker.
 | 5. Questions, answers and the audience split | done |
 | 6. Participant view, pacing, scaffolding | done |
 | 7. Import, validation, gallery, syntax bar | done |
-| 8. Parity tests against the existing builder, then swap | |
+| 8a. Parity tests against the existing builder | done |
+| 8b. Swap `editor.html` for the rebuild | |
 
 ## Progress log
 
 **Steps 1–2 — documents.** Review and design written.
+
+**Step 8a — parity, and the gaps it found.**
+
+`tests/test-parity.js` pushes all 39 shipped scenarios through *both* builders and
+compares what comes out — not the bytes, which the two format differently, but the
+exercise the gym would run. **All 39 agree**, and both agree with the file they
+were given, so nothing is lost by switching.
+
+Comparing features rather than output turned up five things the rebuild did not
+have. Four were real:
+
+- **No site navigation.** The new page had no header at all — a page you could
+  not leave.
+- **No `?load=`.** The library's Customise button would have 404'd into an empty
+  builder on the day of the swap. It now wins over a stored draft, but only once
+  the fetch has actually landed, so a bad link leaves the draft alone.
+- **No way to run it.** The gym reads a scenario out of `localStorage.preview`
+  and clears the key; the builder never wrote it.
+- **No scenario cover image.** `! image:` was carried through load and save but
+  had no control, so it could only be set by hand in Source. It now uses the same
+  picker as everything else.
+
+The fifth, stage reordering, the old builder did with up/down buttons. Those are
+here — but the outline rows are draggable too, which is the natural gesture for a
+list that is also the map. Duplicating a stage deep-copies its questions; a
+shared array would have two stages editing the same answers, which nobody would
+find until the exercise was running.
+
+Two smaller repairs came with it. The old builder subtracted a 56px nav from the
+viewport while the nav is 80px tall, so the workspace always ran a little past the
+bottom of the window; `body` is already a flex column, so the new layout takes
+what is left instead of guessing. And a restored draft now says where it came
+from, with a way to start again — arriving to find someone else's half-finished
+scenario and no explanation was the old page's least defensible moment.
 
 **Step 7 — import, problems, the picker.**
 

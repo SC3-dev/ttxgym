@@ -20,8 +20,11 @@
     #b-wrap {
       display: grid;
       grid-template-columns: 250px minmax(0, 1fr);
-      height: calc(100vh - var(--nav-h, 56px));
-      height: calc(100dvh - var(--nav-h, 56px));
+      /* body is already a flex column with the nav in it, so the workspace takes
+         what is left rather than guessing at a nav height — which is what the old
+         builder did, subtracting 56px from a nav that is 80px tall. */
+      flex: 1;
+      min-height: 0;
       overflow: hidden;
       transition: grid-template-columns 0.2s ease;
     }
@@ -674,6 +677,21 @@
     }
     #b-drop.hide { display: none; }
 
+    /* a word about where the scenario in front of you came from */
+    #b-notice {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.45rem 0.9rem;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      font-size: 11.5px;
+      color: var(--text-secondary);
+    }
+    #b-notice.hide { display: none; }
+    #b-notice-text { flex: 1; }
+    #b-notice .btn { padding: 0.2rem 0.5rem; font-size: 11px; }
+
     /* ═══ TOP BAR ═══ */
     #b-top {
       position: relative;                 /* the problems list hangs off it */
@@ -707,6 +725,65 @@
 </head>
 
 <body>
+
+  <nav id="site-nav" role="navigation" aria-label="Main navigation">
+    <a href="/" class="nav-logo" aria-label="TTX Gym Home">
+      <svg viewBox="0 0 210 84" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <g>
+          <path style="fill:#ffffff"
+            d="m 123.95944,30.43245 0.001,-1.117375 5.11724,-6.112717 c 2.81453,-3.361993 5.11729,-6.171028 5.11729,-6.242298 0,-0.07123 -2.30323,-2.881476 -5.1183,-6.244894 l -5.1183,-6.1153013 v -1.086954 -1.086943 l 3.28003,0.0063 3.28005,0.0063 3.8207,4.544782 c 2.10139,2.499633 3.91803,4.6295583 4.03697,4.7331703 0.18592,0.161956 0.77129,-0.476686 4.17186,-4.5515563 l 3.95559,-4.739934 h 3.28934 3.28932 v 1.052384 1.052384 l -5.19039,6.1834383 c -2.85472,3.400899 -5.1886,6.219979 -5.18639,6.264626 0.002,0.04464 2.33524,2.838581 5.18451,6.208731 l 5.18051,6.127543 0.006,1.117375 0.006,1.117376 -3.28004,-0.0032 -3.28003,-0.0032 -4.03542,-4.764205 c -3.77303,-4.454434 -4.04959,-4.7469 -4.25324,-4.498099 -0.1198,0.146359 -1.92418,2.291532 -4.00975,4.767043 l -3.792,4.500917 h -3.23672 -3.23673 l 0.001,-1.117376 z" />
+          <path style="fill:#ffffff"
+            d="M 103.62935,20.159802 V 8.7697787 h -5.767107 -5.767099 v -3.171906 -3.171905 h 14.634016 14.63402 v 3.171905 3.171906 h -5.69501 -5.69501 V 20.159802 31.549826 h -3.1719 -3.17191 z" />
+          <path style="fill:#ffffff"
+            d="M 71.045229,20.159802 V 8.7697787 h -5.695017 -5.695007 v -3.171906 -3.171905 h 14.561929 14.561929 v 3.171905 3.171906 H 83.084046 77.38904 V 20.159802 31.549826 h -3.171906 -3.171905 z" />
+          <path style="fill:#1a6ec0"
+            d="m 56.568246,44.749266 c 0.132103,-1.130608 0.11982,-5.393817 -0.01826,-6.336905 l -0.09381,-0.640428 h 50.057284 50.05728 l -0.0914,0.775254 c -0.14125,1.198686 -0.15482,4.546774 -0.0241,5.932418 l 0.1177,1.247158 H 106.51352 56.453986 Z" />
+          <path style="fill:#1a6ec0"
+            d="m 200.94868,51.986986 c 0,-0.01984 -0.19934,-0.522652 -0.44235,-1.117376 -0.24303,-0.594734 -0.62663,-1.835993 -0.85249,-2.758363 -1.17752,-4.80902 -0.86406,-9.679602 0.90117,-14.002281 l 0.57405,-1.405726 h 4.0357 4.03569 l -0.26157,0.39649 c -1.23002,1.864399 -2.0063,3.624311 -2.54655,5.77324 -0.26627,1.059149 -0.3139,1.638572 -0.30464,3.706429 0.0142,3.191363 0.30209,4.354515 1.81632,7.340458 l 1.06655,2.103165 h -4.01068 c -2.20589,0 -4.01093,-0.01625 -4.0112,-0.03609 z" />
+          <path style="fill:#1a6ec0"
+            d="m 3.0885296,51.941186 c 0,-0.04506 0.44678,-0.969549 0.99284,-2.054529 1.56297,-3.105469 1.81674,-4.159426 1.81148,-7.523519 -0.003,-2.117705 -0.0453,-2.529327 -0.38251,-3.748616 -0.62502,-2.259971 -1.27274,-3.70054 -2.47959,-5.514785 l -0.26374,-0.396489 h 4.03913 4.0391284 l 0.508459,1.214635 c 1.175244,2.807495 1.592501,5.008816 1.600805,8.445255 0.0084,3.455866 -0.441579,6.004916 -1.515078,8.583574 l -0.448069,1.076317 H 7.0399596 c -2.17329,0 -3.95143,-0.03683 -3.95143,-0.08188 z" />
+          <path style="fill:#1a6ec0"
+            d="m 188.14448,64.45835 c -4.60694,-9.066036 -6.34795,-19.950671 -4.79103,-29.952887 0.79263,-5.092105 2.34256,-10.128325 4.37061,-14.201486 l 0.75375,-1.513865 5.15491,-0.03788 5.15492,-0.03788 -1.44187,2.36676 c -1.68405,2.764325 -2.62234,4.771433 -3.60217,7.705364 -1.48568,4.448683 -2.16923,8.595656 -2.16312,13.123333 0.0109,8.068699 2.41694,16.120002 6.77075,22.656654 0.44893,0.674024 0.86412,1.306609 0.92263,1.405726 0.0843,0.142814 -0.97051,0.180221 -5.08108,0.180221 h -5.18744 z" />
+          <path style="fill:#1a6ec0"
+            d="M 13.442562,64.890886 C 21.430959,52.97521 22.612598,37.550731 16.537975,24.485129 16.224594,23.811095 15.34227,22.237758 14.577265,20.988827 L 13.186333,18.71803 h 5.166097 5.166087 l 0.803415,1.698254 c 5.365207,11.340999 6.308978,24.008992 2.687685,36.076248 -0.753947,2.512395 -1.94733,5.507012 -3.117002,7.821643 l -0.928945,1.838262 h -5.183434 -5.183435 z" />
+          <path style="fill:#1a6ec0"
+            d="m 174.53173,78.948193 c -5.15518,-8.267119 -8.66247,-19.326858 -9.79592,-30.890037 -0.24331,-2.48236 -0.24156,-10.536496 0.003,-12.975982 1.12233,-11.203007 4.06279,-20.780917 9.1843,-29.9160563 l 1.53618,-2.74015 h 5.47631 5.47631 l -0.49924,0.68484 c -2.41341,3.310656 -5.29765,8.4418153 -7.00382,12.4600833 -6.83569,16.098892 -7.07266,34.022086 -0.66592,50.365278 1.74301,4.446298 4.74992,9.997815 7.52608,13.895014 0.41656,0.58477 0.72226,1.12003 0.67935,1.18946 -0.0429,0.0694 -2.43321,0.12626 -5.31175,0.12626 h -5.23371 z" />
+          <path style="fill:#ffffff"
+            d="M 121.65153,67.017498 V 52.888101 l 3.13587,5.7e-4 3.13586,5.8e-4 3.17191,3.780699 c 1.74455,2.079391 3.89837,4.64314 4.78628,5.697244 l 1.61436,1.916538 4.77081,-5.697761 4.77081,-5.69787 h 3.16659 3.16657 v 14.129397 14.129405 h -3.09878 -3.09876 l -0.0371,-9.382769 -0.037,-9.382768 -4.75785,5.697085 c -2.61683,3.1334 -4.7903,5.700884 -4.82996,5.705506 -0.0397,0.0042 -2.24556,-2.565511 -4.90203,-5.711405 l -4.82995,-5.719804 -0.037,9.397077 -0.0371,9.397078 h -3.02668 -3.02669 z" />
+          <path style="fill:#ffffff"
+            d="m 100.45743,75.865912 v -5.280979 l -1.344169,-1.819764 c -0.739298,-1.000858 -3.6589,-4.950452 -6.487984,-8.776859 -2.829095,-3.826422 -5.143811,-6.989316 -5.143811,-7.028665 0,-0.03936 1.617879,-0.07154 3.595271,-0.07154 h 3.595282 l 4.42039,5.550836 c 2.431221,3.05296 4.432961,5.550842 4.448301,5.550842 0.0153,0 2.00418,-2.497006 4.41964,-5.54889 l 4.39174,-5.548884 3.64048,-0.0021 c 2.00227,-0.001 3.64048,0.03218 3.64048,0.07376 0,0.04168 -1.83591,2.555739 -4.0798,5.586882 -2.24389,3.031139 -5.16348,6.979234 -6.48798,8.773567 l -2.40819,3.262401 v 5.280114 5.2801 h -3.09983 -3.09982 z" />
+          <path style="fill:#ffffff"
+            d="m 62.502123,80.992853 c -1.603358,-0.38525 -3.146168,-1.67929 -3.90041,-3.2715 l -0.460373,-0.97187 v -9.731985 -9.731983 l 0.47064,-0.962093 c 0.817123,-1.670376 2.149173,-2.774973 3.881596,-3.2188 0.768181,-0.196799 2.098574,-0.22127 10.08887,-0.185561 9.200985,0.04115 9.204277,0.04126 10.016894,0.369845 1.187347,0.480148 2.594836,1.823046 3.180052,3.034115 0.444291,0.91942 0.467685,1.054456 0.522915,3.017034 l 0.05783,2.05453 h -3.115852 -3.115852 v -1.153422 -1.153422 h -8.003075 -8.003064 l 0.03725,7.965804 0.03725,7.965814 7.965804,0.03725 7.965804,0.03725 v -2.163882 -2.163893 h -3.027719 -3.02773 v -3.02772 -3.02773 h 6.134855 6.134866 l -0.04337,6.019414 -0.04337,6.019405 -0.463865,0.94788 c -0.594481,1.21481 -1.698782,2.31911 -2.913576,2.91359 l -0.947886,0.46386 -9.443633,0.0241 c -5.211651,0.0133 -9.686177,-0.0342 -9.984879,-0.106 z" />
+          <path style="fill:#1a6ec0"
+            d="m 25.519705,81.021453 c -0.0439,-0.071 0.03978,-0.28263 0.185983,-0.47036 1.311927,-1.68534 3.639855,-5.502462 5.220114,-8.559464 C 37.220777,59.814061 39.557125,45.873306 37.606851,32.126537 36.200366,22.212685 32.499604,12.59703 26.939043,4.4084047 l -1.3462,-1.982437 5.436392,0.0021 5.436382,0.0021 1.40982,2.557101 c 2.522363,4.575035 4.243812,8.5214633 5.769337,13.2262383 6.107588,18.835993 4.615545,39.223717 -4.167783,56.950123 -0.589373,1.189457 -1.607315,3.006103 -2.262092,4.036963 l -1.190513,1.87431 -5.212463,0.0379 c -2.957294,0.0214 -5.24697,-0.0179 -5.292218,-0.0912 z" />
+        </g>
+      </svg>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">About</a></li>
+      <li><a href="guide.html">How To Use</a></li>
+      <li><a href="library.html">Exercise Library</a></li>
+      <li><a href="editor.html" class="active">Exercise Builder</a></li>
+      <li><a href="gym/" class="launch">Launch</a></li>
+    </ul>
+    <button class="nav-hamburger" onclick="document.getElementById('mobile-nav').classList.toggle('open')"
+      aria-label="Toggle menu">&#9776;</button>
+  </nav>
+
+  <div id="mobile-nav" role="navigation" aria-label="Mobile navigation">
+    <a href="index.html">About</a>
+    <a href="guide.html">How To Use</a>
+    <a href="library.html">Exercise Library</a>
+    <a href="editor.html">Exercise Builder</a>
+    <a href="gym/" class="launch">Launch</a>
+  </div>
+
+  <div id="b-notice" class="hide" role="status">
+    <span id="b-notice-text"></span>
+    <button type="button" class="btn btn-ghost" onclick="bDiscardDraft()">Start something new</button>
+    <button type="button" class="btn btn-ghost" onclick="dismissNotice()" aria-label="Dismiss">✕</button>
+  </div>
+
   <div id="b-top">
     <strong style="font-size:13px">Scenario Builder</strong>
     <button type="button" id="b-status" aria-expanded="false"
@@ -716,6 +793,7 @@
     <button class="btn btn-ghost" onclick="bNewFromShape()">New</button>
     <button class="btn btn-ghost" onclick="bImportPrompt()">Import</button>
     <button class="btn btn-ghost" id="b-room-btn" onclick="bToggleRoom()">Participant view</button>
+    <button class="btn btn-ghost" onclick="bRunInGym()">Run it</button>
     <button class="btn btn-primary" onclick="bExport()">Download .ttxf</button>
   </div>
 
@@ -734,12 +812,12 @@
   </aside>
 
   <div id="b-gallery" class="b-modal hide" role="dialog" aria-modal="true" aria-label="Insert an image"
-       onclick="if (event.target === this) closeGallery()">
+       onclick="if (event.target === this) cancelGallery()">
     <div class="b-modal-box">
       <div class="b-modal-head">
         <span>Insert an image</span>
         <span class="grow"></span>
-        <button class="btn btn-ghost" onclick="closeGallery()" aria-label="Close">✕</button>
+        <button class="btn btn-ghost" onclick="cancelGallery()" aria-label="Close">✕</button>
       </div>
       <div id="b-gal-tabs" role="tablist"></div>
       <div class="b-modal-body"><div id="b-gal-grid"></div></div>
@@ -768,6 +846,8 @@
         <input id="b-title" type="text" placeholder="Title" oninput="bMeta('title', this.value)">
         <input id="b-author" type="text" placeholder="Author" oninput="bMeta('author', this.value)">
         <button class="b-add" style="width:100%;text-align:left" onclick="bFocusMeta('summary')">Summary…</button>
+        <button class="b-add" style="width:100%;text-align:left" onclick="bPickCover()">
+          <span id="b-cover-label">Cover image…</span></button>
       </div>
       <div class="b-rail-head">Stages</div>
       <div id="b-stage-list"></div>
@@ -853,6 +933,10 @@
         const el = document.getElementById('b-' + k);
         if (el && el.value !== (doc[k] || '')) el.value = doc[k] || '';
       });
+      const cover = document.getElementById('b-cover-label');
+      if (cover) cover.textContent = doc.image
+        ? 'Cover: ' + doc.image.split('/').pop()
+        : 'Cover image…';
 
       const list = document.getElementById('b-stage-list');
       const badBy = {};
@@ -871,7 +955,8 @@
         const title = (s.stage || '').trim();
         const pace = paceBy[i];
         return `<button class="b-stage-row${i === focus ? ' current' : ''}" onclick="bFocus(${i})"
-                        title="${pace ? esc('This stage looks ' + pace.how + ' for what is in it') : ''}">
+                        draggable="true" data-i="${i}"
+                        title="${pace ? esc('This stage looks ' + pace.how + ' for what is in it') : 'Drag to reorder'}">
           <span class="n">${i + 1}</span>
           <span class="t${title ? '' : ' b-untitled'}">${esc(title || 'Untitled stage')}${
             badBy[i] ? '<span class="flag" title="Something in this stage needs attention">!</span>' : ''}</span>
@@ -939,6 +1024,60 @@
       if (t) t.focus();
     }
 
+    function bMoveStage(i, dir) {
+      const to = i + dir;
+      if (to < 0 || to >= doc.stages.length) return;
+      doc.stages.splice(to, 0, doc.stages.splice(i, 1)[0]);
+      focus = to;
+      renderAll();
+    }
+
+    /* A duplicate is a deep copy — a shared questions array would have two
+       stages editing the same answers, which is the kind of fault nobody finds
+       until the exercise is running. */
+    function bDuplicateStage(i) {
+      const s = doc.stages[i];
+      doc.stages.splice(i + 1, 0, {
+        stage: s.stage ? s.stage + ' (copy)' : '',
+        content: s.content, duration: s.duration,
+        discussion: s.discussion.slice(),
+        prompts: s.prompts.slice(),
+        questions: s.questions.map(q => ({
+          question: q.question, answers: q.answers.slice(),
+          quizIndex: q.quizIndex, participantHidden: q.participantHidden,
+        })),
+      });
+      focus = i + 1;
+      renderAll();
+    }
+
+    /* Dragging a row in the outline reorders the exercise. The page-wide file
+       drop ignores this because it only reacts to a drag carrying Files. */
+    function initOutlineDrag() {
+      const list = document.getElementById('b-stage-list');
+      let from = null;
+      list.addEventListener('dragstart', ev => {
+        const row = ev.target.closest('.b-stage-row');
+        if (!row) return;
+        from = Number(row.getAttribute('data-i'));
+        if (ev.dataTransfer) { ev.dataTransfer.effectAllowed = 'move'; ev.dataTransfer.setData('text/plain', String(from)); }
+      });
+      list.addEventListener('dragover', ev => { if (from !== null) ev.preventDefault(); });
+      list.addEventListener('drop', ev => {
+        if (from === null) return;
+        ev.preventDefault();
+        const row = ev.target.closest('.b-stage-row');
+        const to = row ? Number(row.getAttribute('data-i')) : doc.stages.length - 1;
+        if (to !== from && doc.stages[from]) {
+          doc.stages.splice(to, 0, doc.stages.splice(from, 1)[0]);
+          focus = to;
+          renderAll();
+        }
+        from = null;
+      });
+      list.addEventListener('dragend', () => { from = null; });
+    }
+
     /* ═══ WORKSPACE ═══ */
     function renderWork() {
       const el = document.getElementById('b-work-inner');
@@ -971,6 +1110,11 @@
           <label>Planned <input type="text" value="${esc(s.duration)}" placeholder="10 mins"
                  oninput="bStage('duration', this.value)"></label>
           <span class="grow" style="flex:1"></span>
+          <button class="b-icon-btn" title="Move this stage earlier"
+                  ${focus === 0 ? 'disabled' : ''} onclick="bMoveStage(${focus}, -1)">↑</button>
+          <button class="b-icon-btn" title="Move this stage later"
+                  ${focus === doc.stages.length - 1 ? 'disabled' : ''} onclick="bMoveStage(${focus}, 1)">↓</button>
+          <button class="b-icon-btn" title="Duplicate this stage" onclick="bDuplicateStage(${focus})">Duplicate</button>
           <button class="b-icon-btn" title="Delete this stage" onclick="bRemoveStage(${focus})">Delete</button>
         </div>
 
@@ -1341,7 +1485,7 @@
 
     function applyShape(which) {
       const shape = SHAPES[which] || SHAPES.lifecycle;
-      doc = { title: '', author: '', summary: '', conclusion: '',
+      doc = { title: '', author: '', summary: '', conclusion: '', image: '',
               stages: shape.names.map(n => blankStage(n)) };
       focus = 0;
       metaFocus = null;
@@ -1634,6 +1778,7 @@
     let galleryData = null;
     let galleryTab = null;
     let galleryTarget = null;
+    let coverPick = false;
 
     function mediaDisplay(root) {
       if (!root || !root.querySelectorAll) return;
@@ -1660,6 +1805,8 @@
       document.getElementById('b-gallery').classList.add('hide');
       galleryTarget = null;
     }
+
+    function cancelGallery() { coverPick = false; closeGallery(); }
 
     function renderGallery() {
       const tabs = document.getElementById('b-gal-tabs');
@@ -1715,6 +1862,7 @@
       const editable = galleryTarget;
       const scale = galleryScale();
       closeGallery();
+      if (coverPick) return setCover(url);
       if (!editable) return;
       editable.focus();
       insertBlock(editable, '%(' + url + ' | ' + scale + ')');
@@ -1763,6 +1911,65 @@
       if (bad.length) { problemsOpen = true; renderProblems(); }
     }
 
+    /* ?load=<id> is the library's Customise button. It arrives with intent, so
+       it wins over whatever draft is in the browser — but only once it has
+       actually landed, so a failed fetch leaves the draft alone. */
+    function loadFromLibrary(id) {
+      const safe = String(id).replace(/[^a-z0-9_-]/gi, '');
+      if (!safe) return Promise.resolve(false);
+      return fetch('lib/scenarios/' + safe + '.ttxf')
+        .then(r => { if (!r.ok) throw new Error(r.statusText); return r.text(); })
+        .then(text => { load(text); dismissNotice(); return true; })
+        .catch(() => {
+          failSafe('could not load "' + safe + '" from the library — try Import instead');
+          return false;
+        });
+    }
+
+    /* Handing the scenario to the gym. The gym reads it out of localStorage and
+       clears the key, so nothing is left lying about for the next session. */
+    function bRunInGym() {
+      if (!doc.stages.length) { failSafe('there is nothing to run yet'); return; }
+      if (!store.set('preview', toTTXF())) { failSafe('could not hand the scenario to the gym'); return; }
+      window.open('gym/', '_blank');
+    }
+
+    /* The cover image is the one piece of media that is not inside a stage — it
+       is the scenario's own, shown on the way in. */
+    function bPickCover() {
+      coverPick = true;
+      openGallery(null);
+    }
+
+    function setCover(url) {
+      doc.image = url || '';
+      coverPick = false;
+      renderOutline();
+      touched();
+    }
+
+    /* ═══ THE DRAFT ═══════════════════════════════════════════════════════
+       Work is saved continuously, which means an author can arrive to find
+       someone else's half-finished scenario with no explanation. Say where it
+       came from, and offer the way out. */
+    function showDraftNotice(text) {
+      document.getElementById('b-notice-text').textContent = text;
+      document.getElementById('b-notice').classList.remove('hide');
+    }
+
+    function dismissNotice() { document.getElementById('b-notice').classList.add('hide'); }
+
+    function bDiscardDraft() {
+      if (hasWork() && !confirm('Start again? What is in the builder will be discarded.')) return;
+      store.del(DRAFT_KEY);
+      doc = { title: '', author: '', summary: '', conclusion: '', image: '', stages: [] };
+      focus = 0;
+      metaFocus = null;
+      dismissNotice();
+      renderAll();
+      bNewFromShape();
+    }
+
     /* The drop target is the whole page, because guessing where to aim is the
        kind of small friction this rebuild exists to remove. */
     function initDrop() {
@@ -1805,12 +2012,24 @@
        referenced before it is defined. */
     function start() {
       const draft = store.get(DRAFT_KEY);
+      let restored = false;
       if (draft) {
-        try { doc = JSON.parse(draft); } catch (e) { /* fall through to empty */ }
+        try { doc = JSON.parse(draft); restored = true; } catch (e) { /* fall through to empty */ }
       }
       if (!doc.stages) doc.stages = [];
       renderAll();
       initDrop();
+      initOutlineDrag();
+
+      let param = '';
+      try { param = new URLSearchParams(window.location.search).get('load') || ''; } catch (e) { param = ''; }
+      if (param) loadFromLibrary(param);
+      else if (restored && hasWork()) {
+        showDraftNotice('Picked up where you left off' +
+                        (doc.title ? ' on "' + doc.title + '"' : '') + '.');
+      } else if (!doc.stages.length) {
+        bNewFromShape();
+      }
       window.addEventListener('resize', () => { if (mirrorOn) mirrorClamp(); });
       // clicking away closes the transient surfaces; Escape does too
       document.addEventListener('click', ev => {
@@ -1820,7 +2039,7 @@
       });
       document.addEventListener('keydown', ev => {
         if (ev.key !== 'Escape') return;
-        if (!document.getElementById('b-gallery').classList.contains('hide')) closeGallery();
+        if (!document.getElementById('b-gallery').classList.contains('hide')) cancelGallery();
         else if (problemsOpen) { problemsOpen = false; renderProblems(); }
       });
       window.addEventListener('beforeunload', save);

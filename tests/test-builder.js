@@ -58,9 +58,9 @@ G('it loads');
     ok(w.document.getElementById('b-room-btn'), 'no control to open it');
   });
   t('an empty builder offers a way in rather than a blank page', () => {
-    const empty = w.document.querySelector('#b-work-inner .b-empty');
-    ok(empty, 'no empty state');
-    has(empty.textContent, 'shape');
+    const work = w.document.getElementById('b-work-inner');
+    has(work.textContent, 'Pick a shape');
+    ok(work.querySelector('[onclick^="applyShape"]'), 'no shape to start from');
   });
   t('it uses its own draft key, so the two builders cannot collide', () => {
     const src = fs.readFileSync(path.join(ROOT, 'builder.html'), 'utf8');
@@ -538,8 +538,9 @@ G('the room view is the real participant window');
 
   t('it stays on this page — no second browser window to lose', () => {
     const src = fs.readFileSync(path.join(ROOT, 'builder.html'), 'utf8');
-    ok(!/window\.open\(/.test(src), 'it still pops out a window');
-    has(src, 'b-mirror-frame');
+    const mirror = src.slice(src.indexOf('const MIRROR_DEFAULT_W'), src.indexOf('function problems()'));
+    ok(!/window\.open\(/.test(mirror), 'it still pops the participant view out');
+    has(mirror, 'b-mirror-frame');
   });
 }
 
