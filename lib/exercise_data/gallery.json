@@ -28,7 +28,7 @@
    "variant": "teal",
    "category": "icons",
    "heading": "Icons",
-   "bytes": 146616
+   "bytes": 23426
   },
   {
    "file": "icons/TTXGYM_Chain_teal.png",
@@ -36,7 +36,7 @@
    "variant": "teal",
    "category": "icons",
    "heading": "Icons",
-   "bytes": 124544
+   "bytes": 19283
   },
   {
    "file": "icons/TTXGYM_Cloud_teal.png",
@@ -44,7 +44,7 @@
    "variant": "teal",
    "category": "icons",
    "heading": "Icons",
-   "bytes": 111443
+   "bytes": 17816
   },
   {
    "file": "icons/TTXGYM_Comms_teal.png",
@@ -52,7 +52,7 @@
    "variant": "teal",
    "category": "icons",
    "heading": "Icons",
-   "bytes": 72277
+   "bytes": 11307
   },
   {
    "file": "icons/TTXGYM_Digilock_teal.png",
@@ -60,7 +60,7 @@
    "variant": "teal",
    "category": "icons",
    "heading": "Icons",
-   "bytes": 127366
+   "bytes": 21071
   },
   {
    "file": "icons/TTXGYM_Documents_teal.png",
@@ -68,7 +68,7 @@
    "variant": "teal",
    "category": "icons",
    "heading": "Icons",
-   "bytes": 72419
+   "bytes": 11481
   },
   {
    "file": "icons/TTXGYM_Envelope_teal.png",
@@ -76,7 +76,7 @@
    "variant": "teal",
    "category": "icons",
    "heading": "Icons",
-   "bytes": 104763
+   "bytes": 16525
   },
   {
    "file": "icons/TTXGYM_Fingerprint_teal.png",
@@ -84,7 +84,7 @@
    "variant": "teal",
    "category": "icons",
    "heading": "Icons",
-   "bytes": 233899
+   "bytes": 39139
   },
   {
    "file": "icons/TTXGYM_Forensic_teal.png",
@@ -92,7 +92,7 @@
    "variant": "teal",
    "category": "icons",
    "heading": "Icons",
-   "bytes": 109192
+   "bytes": 19469
   },
   {
    "file": "icons/TTXGYM_Hacker_teal.png",
@@ -100,7 +100,7 @@
    "variant": "teal",
    "category": "icons",
    "heading": "Icons",
-   "bytes": 100630
+   "bytes": 16010
   },
   {
    "file": "icons/TTXGYM_Padlock_teal.png",
@@ -108,7 +108,7 @@
    "variant": "teal",
    "category": "icons",
    "heading": "Icons",
-   "bytes": 78155
+   "bytes": 11938
   },
   {
    "file": "icons/TTXGYM_Phishhook_teal.png",
@@ -116,7 +116,7 @@
    "variant": "teal",
    "category": "icons",
    "heading": "Icons",
-   "bytes": 75922
+   "bytes": 11362
   },
   {
    "file": "icons/TTXGYM_Shield_teal.png",
@@ -124,7 +124,7 @@
    "variant": "teal",
    "category": "icons",
    "heading": "Icons",
-   "bytes": 117252
+   "bytes": 18633
   },
   {
    "file": "icons/TTXGYM_Warning_red.png",
@@ -132,7 +132,7 @@
    "variant": "red",
    "category": "icons",
    "heading": "Icons",
-   "bytes": 86578
+   "bytes": 11257
   },
   {
    "file": "icons/TTXGYM_Warning_teal.png",
@@ -140,7 +140,7 @@
    "variant": "teal",
    "category": "icons",
    "heading": "Icons",
-   "bytes": 96752
+   "bytes": 15243
   },
   {
    "file": "screenshots/phish_screenshot.png",
