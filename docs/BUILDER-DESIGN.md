@@ -158,12 +158,52 @@ presets, the syntax insert bar, and the image gallery picker.
 | 4. WYSIWYG content areas, with a source toggle | done |
 | 5. Questions, answers and the audience split | done |
 | 6. Participant view, pacing, scaffolding | done |
-| 7. Import, validation, gallery, syntax bar | |
+| 7. Import, validation, gallery, syntax bar | done |
 | 8. Parity tests against the existing builder, then swap | |
 
 ## Progress log
 
 **Steps 1–2 — documents.** Review and design written.
+
+**Step 7 — import, problems, the picker.**
+
+*Problems.* The old builder reported faults against line numbers in a file the
+author never sees, which is information you cannot act on without first finding
+the place it describes. Problems are now attributed to a stage — the model is
+serialised to be checked, every `@ ` line marks where a stage begins, and that
+turns a parser line number back into a stage — listed under the status chip, and
+clicking one goes there. A stage carrying an error is flagged in the outline.
+
+Errors and warnings are also separated in the chip: three genuine faults read
+`3 problems` in red, a missing title reads `1 to check` in grey. A builder that
+cries breakage over a missing author line teaches people to ignore it.
+
+*Import.* A `.ttxf` can arrive through the button or by being dropped anywhere on
+the page — guessing where to aim is exactly the friction this rebuild exists to
+remove. Either way it is parsed before it is accepted. A file with no `@ ` stages
+is refused by name rather than silently replacing an hour's work with an empty
+scenario; replacing real work asks first; and a file that parses with complaints
+opens the problems list, so they are met now rather than in front of a room.
+
+*The picker.* The Image button opened with a hard-coded warning icon in it. It
+now opens the categorised gallery — tabs, thumbnails, a size, and a field for a
+URL — and lands a real image in the WYSIWYG field.
+
+That surfaced a genuine trap. Scenario media is authored relative to `gym/`, and
+the builder sits one level up at the site root; served from a domain root the
+difference is invisible, because `..` past the root is clamped, so it breaks only
+from `file://` or a project subpath. The old builder rewrote the path on the way
+into its preview, which it could afford because its preview was read-only. Here
+the rendered output *is* the document, so a rewritten path would be written back
+to the file. The authored path is kept in `data-src`, which `TTXF.htmlToSource`
+now prefers over `src` — the displayed path and the written path can differ
+without either being wrong. Tested in both suites.
+
+*The syntax bar* was already standing from step 4. One repair it needed:
+`insertBlock` called `document.execCommand` with no fallback, so on an engine
+without it the button would do nothing at all. It now appends the block instead.
+execCommand stays the first choice only because it is the one route to the
+browser's own undo.
 
 **The participant view, rebuilt twice.** It began as a miniature card the builder
 drew itself from the payload fields. That was a second renderer to keep in step

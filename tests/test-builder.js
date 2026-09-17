@@ -678,6 +678,203 @@ G('validation');
   });
 }
 
+G('problems point at the stage, not at a line number');
+{
+  const { w } = boot();
+  const panel = () => w.document.getElementById('b-problems');
+  w.load('! title: X\n\n@ One\n! content\nFine.\n\n@ Two\n! content\n\n@ Three\n! content\nAlso fine.\n');
+
+  t('the status chip counts what is actually wrong', () => {
+    w.eval('status()');
+    const el = w.document.getElementById('b-status');
+    eq(el.className, 'bad');
+    has(el.textContent, 'problem');
+  });
+
+  t('each problem names the stage it is in', () => {
+    const list = JSON.parse(w.eval('JSON.stringify(problems())'));
+    const bad = list.filter(p => p.severity === 'error');
+    eq(bad.length, 1);
+    eq(bad[0].stage, 1, 'the empty stage is the second one');
+    has(bad[0].message, 'empty screen');
+  });
+
+  t('clicking one goes there', () => {
+    w.eval('toggleProblems()');
+    ok(!panel().classList.contains('hide'), 'the list did not open');
+    const row = panel().querySelector('.b-problem.err');
+    ok(row, 'no error listed');
+    has(row.textContent, 'Stage 2');
+    row.click();
+    eq(w.eval('focus'), 1, 'it did not focus the stage with the problem');
+    ok(panel().classList.contains('hide'), 'the list stayed open');
+  });
+
+  t('and the stage is marked in the outline', () => {
+    const rows = w.document.querySelectorAll('#b-stage-list .b-stage-row');
+    ok(rows[1].querySelector('.flag'), 'the bad stage is unmarked');
+    ok(!rows[0].querySelector('.flag'), 'a good stage is marked');
+  });
+
+  t('a clean scenario says so rather than counting nothing', () => {
+    w.load('! title: X\n\n@ One\n! content\nFine.\n');
+    w.eval('status()');
+    const el = w.document.getElementById('b-status');
+    eq(el.className, 'good');
+    eq(el.textContent, 'ready');
+  });
+
+  t('warnings are separated from errors — they do not read as breakage', () => {
+    w.load('@ One\n! content\nNo title on this one.\n');   // missing title is a warning
+    w.eval('status()');
+    const el = w.document.getElementById('b-status');
+    eq(el.className, '', 'a warning was reported as a problem');
+    has(el.textContent, 'check');
+  });
+}
+
+G('the image picker');
+{
+  const { w } = boot();
+  const gallery = JSON.parse(fs.readFileSync(path.join(ROOT, 'lib/exercise_data/gallery.json'), 'utf8'));
+  w.eval('galleryData = ' + JSON.stringify(gallery) + ';');
+  w.load('! title: X\n\n@ One\n! content\nBefore.\n');
+  const editable = () => w.document.querySelector('.b-rich[data-field="content"] .b-editable');
+
+  t('the Image button opens the picker rather than dropping a canned icon', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'builder.html'), 'utf8');
+    ok(!/insertBlock\(editable, '%\(\.\.\/lib/.test(src), 'it still inserts a fixed image');
+    has(src, "openGallery(editable)");
+  });
+
+  t('it opens on a category that has something in it', () => {
+    w.openGallery(editable());
+    ok(!w.document.getElementById('b-gallery').classList.contains('hide'), 'it did not open');
+    eq(w.eval('galleryTab'), 'icons');
+    const tabs = w.document.querySelectorAll('#b-gal-tabs button');
+    eq(tabs.length, gallery.categories.length);
+    eq(tabs[0].getAttribute('aria-selected'), 'true');
+  });
+
+  t('an empty category says how to fill it instead of showing nothing', () => {
+    w.galleryPick('diagrams');
+    has(w.document.getElementById('b-gal-grid').textContent, 'lib/exercise_data/diagrams/');
+    w.galleryPick('icons');
+  });
+
+  t('thumbnails load from where this page can see them', () => {
+    const img = w.document.querySelector('.b-gal-item img');
+    ok(img, 'no thumbnails');
+    ok(img.getAttribute('src').startsWith('lib/exercise_data/'), img.getAttribute('src'));
+    ok(!/%2F/.test(img.getAttribute('src')), 'the path separators were encoded away');
+  });
+
+  t('picking one writes the path the gym will read, not the one shown here', () => {
+    w.insertGalleryImage('icons/TTXGYM_Warning_red.png');
+    const content = w.eval('doc.stages[0].content');
+    has(content, '%(../lib/exercise_data/icons/TTXGYM_Warning_red.png | 60%)');
+  });
+
+  t('but the picture in the editor still loads, which is how this was missed before', () => {
+    const img = editable().querySelector('img.SFmedia');
+    ok(img, 'no image in the editor');
+    eq(img.getAttribute('src'), 'lib/exercise_data/icons/TTXGYM_Warning_red.png');
+    eq(img.getAttribute('data-src'), '../lib/exercise_data/icons/TTXGYM_Warning_red.png');
+  });
+
+  t('and typing on does not rewrite the path to the one the editor used', () => {
+    w.richInput(editable());
+    has(w.eval('doc.stages[0].content'), '../lib/exercise_data/');
+  });
+
+  t('the chosen size is carried through', () => {
+    w.document.getElementById('b-gal-scale').value = '25%';
+    w.openGallery(editable());
+    w.insertGalleryImage('icons/TTXGYM_Warning_red.png');
+    has(w.eval('doc.stages[0].content'), '| 25%)');
+  });
+
+  t('a pasted URL is inserted as it stands', () => {
+    w.openGallery(editable());
+    w.document.getElementById('b-gal-url').value = 'https://example.org/a.png';
+    w.insertGalleryURL();
+    has(w.eval('doc.stages[0].content'), '%(https://example.org/a.png');
+    ok(w.document.getElementById('b-gallery').classList.contains('hide'), 'the picker stayed open');
+  });
+
+  t('an absolute URL is left alone on display too', () => {
+    const img = Array.from(editable().querySelectorAll('img.SFmedia'))
+      .find(i => /example\.org/.test(i.getAttribute('src')));
+    ok(img, 'the pasted image is not in the editor');
+    ok(!img.getAttribute('data-src'), 'an absolute URL was rewritten');
+  });
+}
+
+G('media survives a full round trip through the editor');
+{
+  const { w } = boot();
+  const authored = '! title: X\n\n@ One\n! content\nBefore.\n\n%(../lib/exercise_data/icons/TTXGYM_Warning_red.png | 60%)\n';
+  t('an existing scenario keeps its authored paths', () => {
+    w.load(authored);
+    const editable = w.document.querySelector('.b-rich[data-field="content"] .b-editable');
+    w.richInput(editable);                       // as if the author typed one character
+    has(w.eval('toTTXF()'), '%(../lib/exercise_data/icons/TTXGYM_Warning_red.png | 60%)');
+  });
+}
+
+G('opening a file');
+{
+  const { w } = boot();
+  const good = fs.readFileSync(path.join(ROOT, 'lib/scenarios/cold_start.ttxf'), 'utf8');
+
+  t('a file with nothing the format recognises is refused, not loaded', () => {
+    w.load('! title: Work in progress\n\n@ One\n! content\nMine.\n');
+    w.importText('just some notes I had lying about', 'notes.txt');
+    eq(w.eval('doc.title'), 'Work in progress', 'it threw away the author’s work');
+    eq(w.document.getElementById('b-status').className, 'bad');
+    has(w.document.getElementById('b-status').textContent, 'notes.txt');
+  });
+
+  t('replacing real work asks first', () => {
+    let asked = 0;
+    w.confirm = () => { asked++; return false; };
+    w.importText(good, 'cold_start.ttxf');
+    eq(asked, 1, 'it replaced the scenario without asking');
+    eq(w.eval('doc.title'), 'Work in progress', 'it loaded anyway');
+    w.confirm = () => true;
+    w.importText(good, 'cold_start.ttxf');
+    ok(w.eval('doc.stages.length') > 1, 'it did not load after being told yes');
+  });
+
+  t('a scenario with problems opens the list rather than hiding them', () => {
+    w.confirm = () => true;
+    w.importText('! title: Half done\n\n@ One\n! content\n\n@ Two\n! content\nFine.\n', 'half.ttxf');
+    ok(w.eval('problemsOpen'), 'the problems stayed hidden');
+    ok(w.document.querySelector('#b-problems .b-problem.err'), 'nothing was listed');
+  });
+
+  t('a file dropped anywhere on the page is opened', () => {
+    const files = [{ name: 'dropped.ttxf', size: 10 }];
+    let opened = null;
+    w.openFile = f => { opened = f; };
+    const ev = new w.Event('drop', { bubbles: true, cancelable: true });
+    ev.dataTransfer = { types: ['Files'], files: files };
+    w.dispatchEvent(ev);
+    ok(opened, 'the drop was ignored');
+    eq(opened.name, 'dropped.ttxf');
+  });
+
+  t('and dragging one over the page says where it can go', () => {
+    const veil = w.document.getElementById('b-drop');
+    const ev = new w.Event('dragenter', { bubbles: true, cancelable: true });
+    ev.dataTransfer = { types: ['Files'] };
+    w.dispatchEvent(ev);
+    ok(!veil.classList.contains('hide'), 'no drop target was shown');
+    w.dispatchEvent(new w.Event('dragleave', { bubbles: true }));
+    ok(veil.classList.contains('hide'), 'the drop target stayed up');
+  });
+}
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
 })();

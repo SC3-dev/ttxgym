@@ -537,8 +537,146 @@
     }
     #b-mirror-grip:hover::before, #b-mirror-grip:focus-visible::before { border-color: var(--accent); }
 
+    /* ═══ PROBLEMS, GALLERY, DROP ══════════════════════════════════════════
+       Three things the author needs occasionally and should not have to hunt
+       for: what is wrong, a picture, and a way to open a file. */
+    #b-problems {
+      position: absolute;
+      top: calc(100% + 0.3rem);
+      left: 0.9rem;
+      z-index: 700;
+      width: min(30rem, calc(100vw - 2rem));
+      max-height: 55vh;
+      overflow-y: auto;
+      background: var(--mid);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      padding: 0.35rem;
+    }
+    #b-problems.hide { display: none; }
+    .b-problem {
+      display: block;
+      width: 100%;
+      text-align: left;
+      background: none;
+      border: 0;
+      border-left: 2px solid var(--amber, #d9a441);
+      cursor: pointer;
+      color: var(--text-secondary);
+      font-size: 12px;
+      line-height: 1.45;
+      padding: 0.4rem 0.6rem;
+      margin-bottom: 0.15rem;
+      border-radius: 0 var(--radius) var(--radius) 0;
+    }
+    .b-problem.err { border-left-color: var(--red); }
+    .b-problem:hover { background: var(--surface); color: var(--text-primary); }
+    .b-problem .where { display: block; font-size: 10.5px; font-family: var(--font-mono); color: var(--text-muted); }
+    .b-stage-row .flag { color: var(--red); margin-left: 0.25rem; }
+
+    /* the gallery */
+    .b-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 800;
+      background: rgba(0, 0, 0, 0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+    .b-modal.hide { display: none; }
+    .b-modal-box {
+      background: var(--mid);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      width: min(52rem, 100%);
+      max-height: 100%;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .b-modal-head {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.7rem 0.9rem;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .b-modal-body { padding: 0.8rem 0.9rem; overflow-y: auto; }
+    .b-modal-foot {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.7rem 0.9rem;
+      border-top: 1px solid var(--border);
+    }
+    #b-gal-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.15rem;
+      border-bottom: 1px solid var(--border);
+      padding: 0 0.9rem;
+    }
+    #b-gal-tabs button {
+      background: none;
+      border: 0;
+      border-bottom: 2px solid transparent;
+      color: var(--text-secondary);
+      font: inherit;
+      font-size: 12px;
+      cursor: pointer;
+      padding: 0.5rem 0.6rem;
+    }
+    #b-gal-tabs button:hover { color: var(--text-primary); }
+    #b-gal-tabs button[aria-selected="true"] { color: var(--accent); border-bottom-color: var(--accent); }
+    #b-gal-tabs .count { color: var(--text-muted); font-size: 10px; margin-left: 0.3rem; }
+    #b-gal-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
+      gap: 0.5rem;
+    }
+    .b-gal-item {
+      background: var(--back);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      cursor: pointer;
+      padding: 0.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+      color: var(--text-secondary);
+      font-size: 10.5px;
+      text-align: center;
+    }
+    .b-gal-item:hover, .b-gal-item:focus-visible { border-color: var(--accent); color: var(--text-primary); }
+    .b-gal-item img { width: 100%; height: 5rem; object-fit: contain; }
+    .b-gal-empty { color: var(--text-muted); font-size: 12px; padding: 1.5rem 0; text-align: center; }
+
+    /* dropping a file anywhere on the page */
+    #b-drop {
+      position: fixed;
+      inset: 0;
+      z-index: 900;
+      background: rgba(0, 0, 0, 0.6);
+      border: 3px dashed var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      color: var(--text-primary);
+      pointer-events: none;
+    }
+    #b-drop.hide { display: none; }
+
     /* ═══ TOP BAR ═══ */
     #b-top {
+      position: relative;                 /* the problems list hangs off it */
       display: flex;
       align-items: center;
       gap: 0.6rem;
@@ -548,10 +686,16 @@
     }
     #b-top .grow { flex: 1; }
     #b-status {
+      background: none;
+      border: 0;
+      padding: 0.1rem 0.3rem;
+      border-radius: var(--radius);
+      cursor: pointer;
       font-family: var(--font-mono);
       font-size: 10px;
       color: var(--text-muted);
     }
+    #b-status:hover { background: var(--surface); }
     #b-status.bad { color: var(--red); }
     #b-status.good { color: var(--green); }
 
@@ -565,7 +709,9 @@
 <body>
   <div id="b-top">
     <strong style="font-size:13px">Scenario Builder</strong>
-    <span id="b-status">—</span>
+    <button type="button" id="b-status" aria-expanded="false"
+            aria-controls="b-problems" onclick="toggleProblems()">—</button>
+    <div id="b-problems" class="hide" role="region" aria-label="Problems in this scenario"></div>
     <span class="grow"></span>
     <button class="btn btn-ghost" onclick="bNewFromShape()">New</button>
     <button class="btn btn-ghost" onclick="bImportPrompt()">Import</button>
@@ -586,6 +732,34 @@
     </div>
     <div id="b-mirror-wrap"><iframe id="b-mirror-frame" title="Live preview of the participant screen" tabindex="-1"></iframe></div>
   </aside>
+
+  <div id="b-gallery" class="b-modal hide" role="dialog" aria-modal="true" aria-label="Insert an image"
+       onclick="if (event.target === this) closeGallery()">
+    <div class="b-modal-box">
+      <div class="b-modal-head">
+        <span>Insert an image</span>
+        <span class="grow"></span>
+        <button class="btn btn-ghost" onclick="closeGallery()" aria-label="Close">✕</button>
+      </div>
+      <div id="b-gal-tabs" role="tablist"></div>
+      <div class="b-modal-body"><div id="b-gal-grid"></div></div>
+      <div class="b-modal-foot">
+        <label for="b-gal-scale" style="font-size:11.5px;color:var(--text-secondary)">Size</label>
+        <select id="b-gal-scale" class="b-input" style="width:auto">
+          <option value="25%">25%</option>
+          <option value="40%">40%</option>
+          <option value="60%" selected>60%</option>
+          <option value="80%">80%</option>
+          <option value="100%">100%</option>
+        </select>
+        <input id="b-gal-url" class="b-input" type="text" style="flex:1" placeholder="…or paste an image URL"
+               onkeydown="if (event.key === 'Enter') { event.preventDefault(); insertGalleryURL(); }">
+        <button class="btn btn-primary" onclick="insertGalleryURL()">Insert URL</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="b-drop" class="hide"><span>Drop a <strong>.ttxf</strong> file to open it</span></div>
 
   <div id="b-wrap">
     <aside id="b-outline">
@@ -651,14 +825,6 @@
       if (!ok) { el.textContent = 'could not save draft'; el.className = 'bad'; }
     }
 
-    function status() {
-      const el = document.getElementById('b-status');
-      const { errors } = TTXF.parse(toTTXF());
-      const bad = errors.filter(e => e.severity === 'error');
-      if (bad.length) { el.textContent = bad.length + ' problem' + (bad.length > 1 ? 's' : ''); el.className = 'bad'; }
-      else { el.textContent = 'ready'; el.className = 'good'; }
-    }
-
     function toTTXF() { return TTXF.serialize(doc); }
 
     function load(text) {
@@ -689,6 +855,8 @@
       });
 
       const list = document.getElementById('b-stage-list');
+      const badBy = {};
+      problems().forEach(p => { if (p.severity === 'error' && p.stage > -1) badBy[p.stage] = true; });
       const paceBy = {};
       pacing().forEach(p => { paceBy[p.i] = p; });
       const secs = doc.stages.map(s => TTXF.durationToSeconds(s.duration));
@@ -705,7 +873,8 @@
         return `<button class="b-stage-row${i === focus ? ' current' : ''}" onclick="bFocus(${i})"
                         title="${pace ? esc('This stage looks ' + pace.how + ' for what is in it') : ''}">
           <span class="n">${i + 1}</span>
-          <span class="t${title ? '' : ' b-untitled'}">${esc(title || 'Untitled stage')}</span>
+          <span class="t${title ? '' : ' b-untitled'}">${esc(title || 'Untitled stage')}${
+            badBy[i] ? '<span class="flag" title="Something in this stage needs attention">!</span>' : ''}</span>
           ${bits.length ? `<span class="sub">${esc(bits.join(' · '))}${
             pace ? `<span class="warn"> · ${pace.how} for its content</span>` : ''}</span>` : ''}
           ${secs[i] ? `<span class="b-bar"><i style="width:${Math.round(secs[i] / longest * 100)}%"></i></span>` : ''}
@@ -783,7 +952,7 @@
           <section class="b-zone screen"><div class="b-zone-head">On screen</div>
             <div class="b-zone-body">${richHTML(metaFocus, doc[metaFocus] || '', note)}</div>
           </section>`;
-        el.querySelectorAll('.b-editable').forEach(lockWidgets);
+        el.querySelectorAll('.b-editable').forEach(dressEditable);
         return;
       }
       const s = doc.stages[focus];
@@ -840,7 +1009,7 @@
             </div>
           </div>
         </section>`;
-      el.querySelectorAll('.b-editable').forEach(lockWidgets);
+      el.querySelectorAll('.b-editable').forEach(dressEditable);
     }
 
     /* ═══ RICH EDITING ═══════════════════════════════════════════════════
@@ -935,11 +1104,14 @@
         if (source.trim() || !editable.textContent.trim()) {
           writeField(richField(btn), source);
           editable.innerHTML = TTXF.markdown(source);
-          lockWidgets(editable);
+          dressEditable(editable);
         }
         ta.hidden = true; editable.hidden = false; btn.classList.remove('on');
       }
     }
+
+    /* Everything a freshly rendered editable needs before an author touches it. */
+    function dressEditable(el) { mediaDisplay(el); lockWidgets(el); }
 
     /* Blocks are objects, not text: made non-editable so a caret cannot land
        inside one and quietly break the markup it round-trips to. */
@@ -966,7 +1138,7 @@
         source = text;
       }
       document.execCommand('insertHTML', false, TTXF.markdown(source));
-      lockWidgets(editable);
+      dressEditable(editable);
       richInput(editable);
     }
 
@@ -983,16 +1155,24 @@
         else if (cmd === 'code') {
           const sel = String(document.getSelection());
           document.execCommand('insertHTML', false, '<code>' + esc(sel || 'code') + '</code>');
-        } else if (cmd === 'image') insertBlock(editable, '%(../lib/exercise_data/icons/TTXGYM_Warning_red.png | 60%)');
+        } else if (cmd === 'image') { openGallery(editable); return; }
         else if (cmd === 'news') insertBlock(editable, '%news(Council systems offline for a third day)');
         else if (cmd === 'pre') insertBlock(editable, '```SIEM export\n02:13:47  EDR  unsigned binary executed\n```');
       } catch (e) { /* execCommand is deprecated but still the only route to native undo */ }
-      lockWidgets(editable);
+      dressEditable(editable);
       richInput(editable);
     }
 
+    /* execCommand is deprecated and already missing from some engines. It stays
+       the first choice because it is the only route to the browser's own undo,
+       but a block that cannot be inserted must still land somewhere the author
+       can see it, so the fallback appends to the end of the field. */
     function insertBlock(editable, source) {
-      document.execCommand('insertHTML', false, TTXF.markdown(source) + '<p><br></p>');
+      const html = TTXF.markdown(source) + '<p><br></p>';
+      let ok = false;
+      try { ok = !!(document.execCommand && document.execCommand('insertHTML', false, html)); }
+      catch (e) { ok = false; }
+      if (!ok) editable.insertAdjacentHTML('beforeend', html);
     }
 
     /* ═══ QUESTIONS ═══════════════════════════════════════════════════════
@@ -1383,19 +1563,229 @@
     /* The document announces itself once loaded, so there is no delay to race. */
     window.addEventListener('message', ev => { if (ev.data && ev.data.type === 'ready') sendRoom(); });
 
-    /* ═══ IMPORT / EXPORT ═══ */
+    /* ═══ PROBLEMS ════════════════════════════════════════════════════════
+       The old builder reported problems against line numbers in a file the
+       author never saw. Here a problem is attributed to the stage it is in and
+       clicking it goes there — the only form of the information that leads to a
+       fix rather than a hunt. */
+    let problemsOpen = false;
+
+    /* The model is serialised to be checked, so the parser's line numbers point
+       into text nobody is looking at; every "@ " line marks the start of a stage
+       and turns that line number back into a stage. */
+    function problems() {
+      const text = toTTXF();
+      const { errors } = TTXF.parse(text);
+      const starts = [];
+      text.split('\n').forEach((l, i) => { if (/^@\s/.test(l)) starts.push(i + 1); });
+      return errors.map(e => {
+        let i = -1;
+        for (let n = 0; n < starts.length; n++) if (e.line >= starts[n]) i = n;
+        return { message: e.message, severity: e.severity, stage: i };
+      });
+    }
+
+    function status() {
+      const el = document.getElementById('b-status');
+      const all = problems();
+      const bad = all.filter(p => p.severity === 'error').length;
+      const warn = all.length - bad;
+      if (bad) { el.textContent = bad + ' problem' + (bad > 1 ? 's' : ''); el.className = 'bad'; }
+      else if (warn) { el.textContent = warn + ' to check'; el.className = ''; }
+      else { el.textContent = 'ready'; el.className = 'good'; }
+      el.title = all.length ? 'Show what needs attention' : 'Nothing to fix';
+      if (problemsOpen) renderProblems();
+    }
+
+    function toggleProblems() { problemsOpen = !problemsOpen; renderProblems(); }
+
+    function renderProblems() {
+      const panel = document.getElementById('b-problems');
+      const all = problems();
+      document.getElementById('b-status').setAttribute('aria-expanded', String(problemsOpen));
+      panel.classList.toggle('hide', !problemsOpen);
+      if (!problemsOpen) return;
+      if (!all.length) { panel.innerHTML = '<div class="b-gal-empty">Nothing to fix.</div>'; return; }
+      panel.innerHTML = all.map(p => {
+        const where = p.stage > -1
+          ? 'Stage ' + (p.stage + 1) + ' · ' + ((doc.stages[p.stage] || {}).stage || 'Untitled')
+          : 'The exercise as a whole';
+        return `<button type="button" class="b-problem${p.severity === 'error' ? ' err' : ''}"
+                  onclick="goToProblem(${p.stage})">
+                  <span class="where">${esc(where)}</span>${esc(p.message)}</button>`;
+      }).join('');
+    }
+
+    function goToProblem(i) {
+      problemsOpen = false;
+      renderProblems();
+      if (i > -1 && doc.stages[i]) bFocus(i);
+    }
+
+    /* ═══ GALLERY ═════════════════════════════════════════════════════════
+       Scenario media is authored relative to gym/, and this page sits one level
+       up at the site root. Served from a domain root the difference is invisible
+       — ".." past the root is clamped — but from file:// or a project subpath
+       "../lib/…" escapes the site and the picture breaks. The authored path is
+       kept in data-src, which TTXF.htmlToSource prefers, so what gets displayed
+       and what gets written to the file can differ without either being wrong. */
+    const GALLERY_DIR = 'lib/exercise_data/';        // from this page
+    const GALLERY_AUTHORED = '../lib/exercise_data/'; // from gym/, where it is played
+    let galleryData = null;
+    let galleryTab = null;
+    let galleryTarget = null;
+
+    function mediaDisplay(root) {
+      if (!root || !root.querySelectorAll) return;
+      root.querySelectorAll('img.SFmedia').forEach(img => {
+        const raw = img.getAttribute('data-src') || img.getAttribute('src') || '';
+        if (/^([a-z][a-z0-9+.-]*:|\/\/|\/|#)/i.test(raw)) return;   // absolute already
+        img.setAttribute('data-src', raw);
+        img.setAttribute('src', raw.replace(/^(\.\.\/)+/, ''));
+      });
+    }
+
+    function openGallery(editable) {
+      galleryTarget = editable;
+      document.getElementById('b-gallery').classList.remove('hide');
+      document.getElementById('b-gal-url').value = '';
+      if (galleryData) return renderGallery();
+      fetch(GALLERY_DIR + 'gallery.json')
+        .then(r => (r.ok ? r.json() : null))
+        .then(d => { galleryData = d && d.images ? d : { categories: [], images: [] }; renderGallery(); })
+        .catch(() => { galleryData = { categories: [], images: [] }; renderGallery(); });
+    }
+
+    function closeGallery() {
+      document.getElementById('b-gallery').classList.add('hide');
+      galleryTarget = null;
+    }
+
+    function renderGallery() {
+      const tabs = document.getElementById('b-gal-tabs');
+      const grid = document.getElementById('b-gal-grid');
+      const cats = (galleryData && galleryData.categories) || [];
+      const images = (galleryData && galleryData.images) || [];
+
+      if (!cats.length && !images.length) {
+        tabs.innerHTML = '';
+        grid.innerHTML = '<div class="b-gal-empty">No gallery found — paste a URL below.</div>';
+        return;
+      }
+
+      // open on a category that has something in it, never on an empty panel
+      if (!galleryTab || !cats.some(c => c.name === galleryTab)) {
+        galleryTab = (cats.find(c => images.some(i => i.category === c.name)) || cats[0]).name;
+      }
+
+      tabs.innerHTML = cats.map(c => {
+        const n = images.filter(i => i.category === c.name).length;
+        return `<button type="button" role="tab" aria-selected="${c.name === galleryTab}"
+                  onclick="galleryPick('${esc(c.name)}')">${esc(c.heading)}<span class="count">${n}</span></button>`;
+      }).join('');
+
+      const items = images.filter(i => i.category === galleryTab);
+      if (!items.length) {
+        grid.innerHTML = `<div class="b-gal-empty">Nothing here yet — drop images into ` +
+                         `<code>lib/exercise_data/${esc(galleryTab)}/</code> and run the build.</div>`;
+        return;
+      }
+      grid.innerHTML = items.map(i => {
+        // each segment separately: encoding the whole path would turn "/" into %2F
+        const src = GALLERY_DIR + i.file.split('/').map(encodeURIComponent).join('/');
+        const label = esc(i.label + (i.variant ? ' (' + i.variant + ')' : ''));
+        return `<button type="button" class="b-gal-item" title="${esc(i.file)}"
+                  onclick="insertGalleryImage('${esc(i.file).replace(/'/g, "\\'")}')">
+                  <img src="${src}" alt="" loading="lazy"><span>${label}</span></button>`;
+      }).join('');
+    }
+
+    function galleryPick(name) { galleryTab = name; renderGallery(); }
+
+    function galleryScale() { return document.getElementById('b-gal-scale').value || '60%'; }
+
+    function insertGalleryImage(file) { insertMedia(GALLERY_AUTHORED + file); }
+
+    function insertGalleryURL() {
+      const url = document.getElementById('b-gal-url').value.trim();
+      if (url) insertMedia(url);
+    }
+
+    function insertMedia(url) {
+      const editable = galleryTarget;
+      const scale = galleryScale();
+      closeGallery();
+      if (!editable) return;
+      editable.focus();
+      insertBlock(editable, '%(' + url + ' | ' + scale + ')');
+      dressEditable(editable);
+      richInput(editable);
+    }
+
+    /* ═══ IMPORT / EXPORT ══════════════════════════════════════════════════
+       A file can arrive through the button or by being dropped anywhere on the
+       page. Either way it is parsed before it is accepted: a file with nothing
+       the format recognises is refused rather than silently replacing an hour of
+       work with an empty scenario, and a file that parses with complaints opens
+       the problems list so they are seen now rather than in front of a room. */
     function bImportPrompt() {
       const input = document.createElement('input');
       input.type = 'file';
       input.accept = '.ttxf,.txt';
-      input.onchange = e => {
-        const f = e.target.files && e.target.files[0];
-        if (!f) return;
-        const r = new FileReader();
-        r.onload = () => load(String(r.result));
-        r.readAsText(f);
-      };
+      input.onchange = e => { const f = e.target.files && e.target.files[0]; if (f) openFile(f); };
       input.click();
+    }
+
+    function hasWork() {
+      return !!(doc.title || doc.summary || doc.conclusion ||
+                doc.stages.some(s => s.stage || s.content));
+    }
+
+    function openFile(file) {
+      if (!file) return;
+      if (file.size > 2 * 1024 * 1024) { failSafe('that file is too large to be a scenario'); return; }
+      const r = new FileReader();
+      r.onerror = () => failSafe('could not read ' + file.name);
+      r.onload = () => importText(String(r.result), file.name);
+      r.readAsText(file);
+    }
+
+    function importText(text, name) {
+      const label = name ? '"' + name + '"' : 'that file';
+      const { doc: parsed } = TTXF.parse(text);
+      if (!parsed.stages || !parsed.stages.length) {
+        failSafe('nothing in ' + label + ' looks like a scenario — no "@ " stages found');
+        return;
+      }
+      if (hasWork() && !confirm('Open ' + label + '? This replaces what is in the builder.')) return;
+      load(text);
+      const bad = problems();
+      if (bad.length) { problemsOpen = true; renderProblems(); }
+    }
+
+    /* The drop target is the whole page, because guessing where to aim is the
+       kind of small friction this rebuild exists to remove. */
+    function initDrop() {
+      const veil = document.getElementById('b-drop');
+      let depth = 0;
+      const carries = ev => Array.prototype.some.call((ev.dataTransfer || {}).types || [],
+                                                      t => t === 'Files');
+      window.addEventListener('dragenter', ev => {
+        if (!carries(ev)) return;
+        depth++; veil.classList.remove('hide'); ev.preventDefault();
+      });
+      window.addEventListener('dragover', ev => { if (carries(ev)) ev.preventDefault(); });
+      window.addEventListener('dragleave', () => {
+        depth = Math.max(0, depth - 1);
+        if (!depth) veil.classList.add('hide');
+      });
+      window.addEventListener('drop', ev => {
+        if (!carries(ev)) return;
+        ev.preventDefault();
+        depth = 0; veil.classList.add('hide');
+        const f = ev.dataTransfer.files && ev.dataTransfer.files[0];
+        if (f) openFile(f);
+      });
     }
 
     function bExport() {
@@ -1420,7 +1810,19 @@
       }
       if (!doc.stages) doc.stages = [];
       renderAll();
+      initDrop();
       window.addEventListener('resize', () => { if (mirrorOn) mirrorClamp(); });
+      // clicking away closes the transient surfaces; Escape does too
+      document.addEventListener('click', ev => {
+        if (problemsOpen && !(ev.target.closest && ev.target.closest('#b-problems, #b-status'))) {
+          problemsOpen = false; renderProblems();
+        }
+      });
+      document.addEventListener('keydown', ev => {
+        if (ev.key !== 'Escape') return;
+        if (!document.getElementById('b-gallery').classList.contains('hide')) closeGallery();
+        else if (problemsOpen) { problemsOpen = false; renderProblems(); }
+      });
       window.addEventListener('beforeunload', save);
     }
     start();
