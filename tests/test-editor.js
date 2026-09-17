@@ -482,6 +482,137 @@ G('the builder preview styles everything the renderer can emit');
   });
 }
 
+G('the image gallery');
+{
+  const path = require('path');
+  const DIR = path.join(ROOT, 'lib', 'exercise_data');
+  const gallery = JSON.parse(fs.readFileSync(path.join(DIR, 'gallery.json'), 'utf8'));
+
+  t('it is generated, and matches the folders exactly', () => {
+    const before = fs.readFileSync(path.join(DIR, 'gallery.json'), 'utf8');
+    require(path.join(ROOT, 'tools', 'build-gallery.js')).build({ quiet: true });
+    eq(fs.readFileSync(path.join(DIR, 'gallery.json'), 'utf8'), before,
+       'gallery.json is out of step with lib/exercise_data — run npm run build');
+  });
+
+  t('categories are the subfolders, so adding one needs no code', () => {
+    const onDisk = fs.readdirSync(DIR, { withFileTypes: true })
+      .filter(d => d.isDirectory()).map(d => d.name).sort();
+    eq(gallery.categories.map(c => c.name).sort(), onDisk);
+    gallery.categories.forEach(c => ok(c.heading && c.heading !== c.name.toLowerCase(),
+      'category has no readable heading: ' + c.name));
+  });
+
+  t('every entry points at a file that exists', () => {
+    const missing = gallery.images.filter(e => !fs.existsSync(path.join(DIR, e.file))).map(e => e.file);
+    eq(missing, []);
+  });
+
+  t('every entry carries its category folder in the path', () =>
+    eq(gallery.images.filter(e => !e.file.startsWith(e.category + '/')).map(e => e.file), []));
+
+  t('the %news() backdrop is not offered as clip art', () =>
+    ok(!gallery.images.some(e => /news\.jpe?g$/.test(e.file))));
+
+  t('no image is left loose outside a category', () => {
+    const loose = fs.readdirSync(DIR)
+      .filter(f => /\.(png|jpe?g|gif|webp|svg)$/i.test(f) && f !== 'news.jpeg');
+    eq(loose, [], 'images in the root are skipped by the build and invisible in the picker');
+  });
+
+  // the property that matters: the path written into a scenario must resolve
+  // from gym/, where the exercise actually runs
+  t('a picked path resolves from the gym', () => {
+    const broken = gallery.images.filter(e =>
+      !fs.existsSync(path.resolve(ROOT, 'gym', '../lib/exercise_data/' + e.file))).map(e => e.file);
+    eq(broken, []);
+  });
+
+  t('and every image a shipped scenario references still exists', () => {
+    const broken = [];
+    fs.readdirSync(path.join(ROOT, 'lib', 'scenarios')).forEach(f => {
+      const src = fs.readFileSync(path.join(ROOT, 'lib', 'scenarios', f), 'utf8');
+      (src.match(/%\(([^|)]+)/g) || []).forEach(m => {
+        const rel = m.slice(2).trim();
+        if (/^https?:/.test(rel)) return;
+        if (!fs.existsSync(path.resolve(ROOT, 'gym', rel))) broken.push(f + ' -> ' + rel);
+      });
+    });
+    eq(broken, [], 'scenario media that would 404 when the exercise runs');
+  });
+
+  const { w } = boot(null, null, (u) =>
+    Promise.resolve({ ok: /gallery\.json/.test(String(u)), json: () => Promise.resolve(gallery) }));
+
+  // the picker renders once the manifest fetch resolves — poll rather than guess
+  // at a delay, so a slow run cannot turn this into a flake
+  w.eval("openGallery(document.getElementById('f-summary'))");
+  for (let i = 0; i < 100 && !w.document.querySelector('.gallery-tab'); i++) await wait(10);
+
+  t('every category is a tab, with a count', () => {
+    const tabs = [...w.document.querySelectorAll('.gallery-tab')];
+    eq(tabs.length, gallery.categories.length, 'one tab per category');
+    gallery.categories.forEach((c, i) => {
+      has(tabs[i].textContent, c.heading);
+      has(tabs[i].textContent, String(gallery.images.filter(im => im.category === c.name).length));
+    });
+  });
+
+  t('it opens on a category that has something in it', () => {
+    const active = w.document.querySelector('.gallery-tab.active');
+    ok(active, 'no tab is active');
+    ok(w.document.querySelectorAll('.gallery-item').length > 0, 'opened on an empty tab');
+  });
+
+  t('only the selected tab is shown', () => {
+    w.eval("selectGalleryTab('screenshots')");
+    const shown = [...w.document.querySelectorAll('.gallery-item')].map(b => b.getAttribute('title'));
+    const expected = gallery.images.filter(i => i.category === 'screenshots').map(i => i.file);
+    eq(shown.sort(), expected.sort());
+  });
+
+  t('thumbnail URLs actually resolve — each path segment encoded, not the whole path', () => {
+    const path = require('path');
+    const broken = [];
+    gallery.categories.forEach(c => {
+      w.eval(`selectGalleryTab('${c.name}')`);
+      [...w.document.querySelectorAll('.gallery-item img')].forEach(img => {
+        const src = img.getAttribute('src');
+        if (/%2F/i.test(src)) return broken.push(src + '  (slash was encoded)');
+        const onDisk = path.join(ROOT, decodeURIComponent(src));
+        if (!fs.existsSync(onDisk)) broken.push(src);
+      });
+    });
+    eq(broken, [], 'gallery thumbnails that would render as broken images');
+  });
+
+  t('an empty category says how to fill it rather than showing nothing', () => {
+    const empty = gallery.categories.find(c => !gallery.images.some(i => i.category === c.name));
+    if (!empty) return ok(true, 'no empty categories to check');
+    w.eval(`selectGalleryTab('${empty.name}')`);
+    const note = w.document.querySelector('.gallery-empty');
+    ok(note, 'empty tab shows nothing at all');
+    has(note.textContent, empty.name);
+  });
+
+  t('choosing one inserts a gym-relative path including the folder', () => {
+    const ta = w.document.getElementById('f-summary');
+    ta.value = '';
+    w.eval("openGallery(document.getElementById('f-summary'))");
+    w.eval("pickGalleryImage('icons/TTXGYM_Warning_red.png')");
+    has(ta.value, '%(../lib/exercise_data/icons/TTXGYM_Warning_red.png | 60%)');
+  });
+
+  t('a pasted URL still works', () => {
+    const ta = w.document.getElementById('f-conclusion');
+    ta.value = '';
+    w.eval("openGallery(document.getElementById('f-conclusion'))");
+    w.document.getElementById('gallery-url').value = 'https://example.com/diagram.png';
+    w.eval('insertGalleryUrl()');
+    has(ta.value, '%(https://example.com/diagram.png | 60%)');
+  });
+}
+
 G('the syntax insert bar');
 {
   const TTXF = require(ROOT + '/js/ttxf.js');

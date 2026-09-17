@@ -1193,6 +1193,97 @@
     }
 
     /* ─── MODAL ─── */
+    .gallery-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.25rem;
+      margin-bottom: 0.7rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.5rem;
+    }
+    .gallery-tab {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: var(--radius);
+      padding: 0.25rem 0.55rem;
+      cursor: pointer;
+      transition: color 0.15s, background 0.15s, border-color 0.15s;
+    }
+    .gallery-tab:hover { color: var(--text-primary); }
+    .gallery-tab.active {
+      color: var(--text-primary);
+      background: var(--surface);
+      border-color: var(--accent);
+    }
+    .gallery-tab-count {
+      font-size: 9px;
+      color: var(--text-muted);
+      background: var(--surface-raised, var(--surface));
+      border-radius: 99px;
+      padding: 0 0.35rem;
+      line-height: 1.5;
+    }
+    .gallery-tab.active .gallery-tab-count { color: var(--accent); }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+      gap: 0.5rem;
+      max-height: 42vh;
+      overflow-y: auto;
+      padding: 0.15rem;
+    }
+    .gallery-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.5rem 0.35rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      cursor: pointer;
+      font: inherit;
+      color: var(--text-secondary);
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .gallery-item:hover, .gallery-item:focus-visible {
+      border-color: var(--accent);
+      color: var(--text-primary);
+      outline: none;
+    }
+    .gallery-item img {
+      width: 100%;
+      height: 58px;
+      object-fit: contain;
+    }
+    .gallery-item span {
+      font-size: 10.5px;
+      line-height: 1.3;
+      text-align: center;
+      overflow-wrap: anywhere;
+    }
+    .gallery-empty {
+      grid-column: 1 / -1;
+      font-size: 11.5px;
+      color: var(--text-muted);
+      padding: 0.35rem 0 0.2rem;
+    }
+    .gallery-empty code {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+    }
+    .gallery-custom { margin-top: 0.9rem; }
+    .gallery-custom .field-label { margin-bottom: 0.3rem; }
+
     .modal-backdrop {
       position: fixed;
       inset: 0;
@@ -1487,6 +1578,33 @@
   <!-- ══════════════════════════════════════════
        IMPORT MODAL
        ══════════════════════════════════════════ -->
+  <div id="gallery-modal" class="modal-backdrop" onclick="if(event.target===this) closeGallery()">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Insert an Image</h2>
+        <button class="icon-btn" onclick="closeGallery()" aria-label="Close">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
+            <path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z" />
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div id="gallery-tabs" class="gallery-tabs" role="tablist"></div>
+        <div id="gallery-grid" class="gallery-grid"></div>
+        <div class="gallery-custom">
+          <label class="field-label" for="gallery-url">Or paste a URL</label>
+          <input id="gallery-url" class="field-input" type="text"
+                 placeholder="https://example.com/diagram.png — or a path relative to the gym"
+                 onkeydown="if(event.key==='Enter'){event.preventDefault();insertGalleryUrl();}">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeGallery()">Cancel</button>
+        <button class="btn btn-primary" onclick="insertGalleryUrl()">Insert URL</button>
+      </div>
+    </div>
+  </div>
+
   <div id="import-modal" class="modal-backdrop" onclick="handleModalBackdropClick(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <div class="modal-header">
@@ -2270,6 +2388,113 @@
     /* =============================================
        IMPORT / EXPORT
        ============================================= */
+    /* Scenario media is authored relative to gym/, but the builder sits at the
+       site root — so the path written into the file and the path the builder loads
+       a thumbnail from differ by one level. Getting that wrong is invisible until
+       someone runs the exercise, which is exactly the mistake the picker exists to
+       prevent. */
+    const GALLERY_DIR_FROM_GYM = '../lib/exercise_data/';
+    const GALLERY_DIR_FROM_HERE = 'lib/exercise_data/';
+    let galleryTarget = null;
+    let galleryItems = null;
+    let galleryTab = null;
+
+    function openGallery(textarea) {
+      galleryTarget = textarea;
+      document.getElementById('gallery-modal').classList.add('open');
+      document.getElementById('gallery-url').value = '';
+      if (galleryItems) return renderGallery();
+      fetch(GALLERY_DIR_FROM_HERE + 'gallery.json')
+        .then(r => (r.ok ? r.json() : null))
+        .then(data => { galleryItems = data && data.images ? data : { categories: [], images: [] }; renderGallery(); })
+        .catch(() => { galleryItems = { categories: [], images: [] }; renderGallery(); });
+    }
+
+    function closeGallery() {
+      document.getElementById('gallery-modal').classList.remove('open');
+      galleryTarget = null;
+    }
+
+    function renderGallery() {
+      const tabs = document.getElementById('gallery-tabs');
+      const grid = document.getElementById('gallery-grid');
+      const cats = (galleryItems && galleryItems.categories) || [];
+      const images = (galleryItems && galleryItems.images) || [];
+
+      if (!images.length && !cats.length) {
+        tabs.innerHTML = '';
+        grid.innerHTML = '<div class="gallery-empty">No gallery images found — paste a URL below.</div>';
+        return;
+      }
+
+      // open on the first category that actually has something in it, so the
+      // picker never greets you with an empty panel
+      if (!galleryTab || !cats.some(c => c.name === galleryTab)) {
+        const firstFull = cats.find(c => images.some(i => i.category === c.name));
+        galleryTab = (firstFull || cats[0]).name;
+      }
+
+      tabs.innerHTML = cats.map(c => {
+        const n = images.filter(i => i.category === c.name).length;
+        const on = c.name === galleryTab;
+        return `<button type="button" role="tab" aria-selected="${on}"
+                  class="gallery-tab${on ? ' active' : ''}"
+                  onclick="selectGalleryTab('${escH(c.name)}')">${escH(c.heading)}` +
+               `<span class="gallery-tab-count">${n}</span></button>`;
+      }).join('');
+
+      const items = images.filter(i => i.category === galleryTab);
+      if (!items.length) {
+        const cat = cats.find(c => c.name === galleryTab) || { name: galleryTab };
+        grid.innerHTML = `<div class="gallery-empty">Nothing here yet — drop images into ` +
+                         `<code>lib/exercise_data/${escH(cat.name)}/</code> and run the build.</div>`;
+        return;
+      }
+
+      grid.innerHTML = items.map(i => {
+        const label = escH(i.label + (i.variant ? ' (' + i.variant + ')' : ''));
+        // encode each segment: encoding the whole path would turn "/" into %2F
+        const src = GALLERY_DIR_FROM_HERE + i.file.split('/').map(encodeURIComponent).join('/');
+        return `<button type="button" class="gallery-item" title="${escH(i.file)}"
+                  onclick="pickGalleryImage('${escH(i.file).replace(/'/g, "\\'")}')">
+                  <img src="${src}" alt="" loading="lazy"><span>${label}</span></button>`;
+      }).join('');
+    }
+
+    function selectGalleryTab(name) {
+      galleryTab = name;
+      renderGallery();
+    }
+
+    function pickGalleryImage(file) {
+      insertImageMarkup(GALLERY_DIR_FROM_GYM + file);
+    }
+
+    function insertGalleryUrl() {
+      const url = document.getElementById('gallery-url').value.trim();
+      if (url) insertImageMarkup(url);
+    }
+
+    function insertImageMarkup(url) {
+      const ta = galleryTarget;
+      closeGallery();
+      if (!ta) return;
+      ta.focus();
+      const start = ta.selectionStart, end = ta.selectionEnd;
+      let text = `%(${url} | 60%)`;
+      const before = ta.value.slice(0, start);
+      if (before && !/\n\s*$/.test(before)) text = '\n\n' + text;
+      const after = ta.value.slice(end);
+      if (after && !/^\s*\n/.test(after)) text = text + '\n';
+      let ok = false;
+      try { ok = document.execCommand && document.execCommand('insertText', false, text); } catch (e) { ok = false; }
+      if (!ok) {
+        ta.value = ta.value.slice(0, start) + text + ta.value.slice(end);
+        ta.selectionStart = ta.selectionEnd = start + text.length;
+        ta.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    }
+
     function openImportModal() { document.getElementById('import-modal').classList.add('open'); }
     function closeImportModal() {
       document.getElementById('import-modal').classList.remove('open');
@@ -2391,8 +2616,9 @@
     const INSERTS = [
       { key: 'news',   label: 'News',     title: 'Headline as a news broadcast still',
         block: true,  snip: t => `%news(${t || 'Council systems offline for a third day'})` },
-      { key: 'image',  label: 'Image',    title: 'Embed an image, optionally scaled',
-        block: true,  snip: t => `%(${t || '../lib/exercise_data/your-image.png'} | 60%)` },
+      { key: 'image',  label: 'Image',    title: 'Insert an image from the gallery, or by URL',
+        block: true,  picker: 'gallery',
+        snip: t => `%(${t || '../lib/exercise_data/your-image.png'} | 60%)` },
       { key: 'pre',    label: 'Artefact', title: 'Preformatted block — a log, headers, a note',
         block: true,  snip: t => '```' + 'SIEM export\n' + (t || '02:13:47  EDR  unsigned binary executed') + '\n```' },
       { key: 'code',   label: 'Code',     title: 'Inline code — a filename, path or registry key',
@@ -2419,6 +2645,7 @@
       const item = INSERTS.find(i => i.key === key);
       const ta = btn.closest('.field-group').querySelector('textarea');
       if (!item || !ta) return;
+      if (item.picker === 'gallery') { openGallery(ta); return; }
       ta.focus();
       const start = ta.selectionStart, end = ta.selectionEnd;
       const selected = ta.value.slice(start, end).trim();

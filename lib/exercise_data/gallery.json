@@ -1,0 +1,170 @@
+{
+ "categories": [
+  {
+   "name": "icons",
+   "heading": "Icons"
+  },
+  {
+   "name": "stock-photos",
+   "heading": "Stock Photos"
+  },
+  {
+   "name": "screenshots",
+   "heading": "Screenshots"
+  },
+  {
+   "name": "documents",
+   "heading": "Documents"
+  },
+  {
+   "name": "diagrams",
+   "heading": "Diagrams"
+  }
+ ],
+ "images": [
+  {
+   "file": "icons/TTXGYM_Brokenshield_teal.png",
+   "label": "Brokenshield",
+   "variant": "teal",
+   "category": "icons",
+   "heading": "Icons",
+   "bytes": 146616
+  },
+  {
+   "file": "icons/TTXGYM_Chain_teal.png",
+   "label": "Chain",
+   "variant": "teal",
+   "category": "icons",
+   "heading": "Icons",
+   "bytes": 124544
+  },
+  {
+   "file": "icons/TTXGYM_Cloud_teal.png",
+   "label": "Cloud",
+   "variant": "teal",
+   "category": "icons",
+   "heading": "Icons",
+   "bytes": 111443
+  },
+  {
+   "file": "icons/TTXGYM_Comms_teal.png",
+   "label": "Comms",
+   "variant": "teal",
+   "category": "icons",
+   "heading": "Icons",
+   "bytes": 72277
+  },
+  {
+   "file": "icons/TTXGYM_Digilock_teal.png",
+   "label": "Digilock",
+   "variant": "teal",
+   "category": "icons",
+   "heading": "Icons",
+   "bytes": 127366
+  },
+  {
+   "file": "icons/TTXGYM_Documents_teal.png",
+   "label": "Documents",
+   "variant": "teal",
+   "category": "icons",
+   "heading": "Icons",
+   "bytes": 72419
+  },
+  {
+   "file": "icons/TTXGYM_Envelope_teal.png",
+   "label": "Envelope",
+   "variant": "teal",
+   "category": "icons",
+   "heading": "Icons",
+   "bytes": 104763
+  },
+  {
+   "file": "icons/TTXGYM_Fingerprint_teal.png",
+   "label": "Fingerprint",
+   "variant": "teal",
+   "category": "icons",
+   "heading": "Icons",
+   "bytes": 233899
+  },
+  {
+   "file": "icons/TTXGYM_Forensic_teal.png",
+   "label": "Forensic",
+   "variant": "teal",
+   "category": "icons",
+   "heading": "Icons",
+   "bytes": 109192
+  },
+  {
+   "file": "icons/TTXGYM_Hacker_teal.png",
+   "label": "Hacker",
+   "variant": "teal",
+   "category": "icons",
+   "heading": "Icons",
+   "bytes": 100630
+  },
+  {
+   "file": "icons/TTXGYM_Padlock_teal.png",
+   "label": "Padlock",
+   "variant": "teal",
+   "category": "icons",
+   "heading": "Icons",
+   "bytes": 78155
+  },
+  {
+   "file": "icons/TTXGYM_Phishhook_teal.png",
+   "label": "Phishhook",
+   "variant": "teal",
+   "category": "icons",
+   "heading": "Icons",
+   "bytes": 75922
+  },
+  {
+   "file": "icons/TTXGYM_Shield_teal.png",
+   "label": "Shield",
+   "variant": "teal",
+   "category": "icons",
+   "heading": "Icons",
+   "bytes": 117252
+  },
+  {
+   "file": "icons/TTXGYM_Warning_red.png",
+   "label": "Warning",
+   "variant": "red",
+   "category": "icons",
+   "heading": "Icons",
+   "bytes": 86578
+  },
+  {
+   "file": "icons/TTXGYM_Warning_teal.png",
+   "label": "Warning",
+   "variant": "teal",
+   "category": "icons",
+   "heading": "Icons",
+   "bytes": 96752
+  },
+  {
+   "file": "screenshots/phish_screenshot.png",
+   "label": "Phish screenshot",
+   "variant": "",
+   "category": "screenshots",
+   "heading": "Screenshots",
+   "bytes": 91262
+  },
+  {
+   "file": "screenshots/TTXGYM_Phishing email highlighted.png",
+   "label": "Phishing email highlighted",
+   "variant": "",
+   "category": "screenshots",
+   "heading": "Screenshots",
+   "bytes": 105221
+  },
+  {
+   "file": "screenshots/TTXGYM_Phishing email unhighlighted.png",
+   "label": "Phishing email unhighlighted",
+   "variant": "",
+   "category": "screenshots",
+   "heading": "Screenshots",
+   "bytes": 113335
+  }
+ ]
+}

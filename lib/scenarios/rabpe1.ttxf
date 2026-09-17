@@ -12,7 +12,7 @@ Additionally, it covers your response in the case of a successful attack, and yo
 ! content
 Your finance team have received an email from a customer, below, stating they've attempted to make a payment but are having trouble.
 The email comes from a different address than the customer typically uses, containing only a slight misspelling of the customer's name.
-%(../lib/exercise_data/phish_screenshot.png)
+%(../lib/exercise_data/screenshots/phish_screenshot.png)
 
 # discussion
 + What mechanisms does your organisation have in place to make it difficult for attackers to reach your users — both technical controls such as email filtering and domain authentication, and human controls such as user awareness training?
