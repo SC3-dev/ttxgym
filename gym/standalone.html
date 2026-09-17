@@ -3262,9 +3262,14 @@ document.addEventListener('DOMContentLoaded',function(){hydrateMedia(document);}
 
   var BLOCK_DIRECTIVE = /^(!|@|#|\?|\+|\/\/|~|```|\\|-\s|\d+\.\s)/;
 
+  /* data-src wins over src. An editor that renders media in place may have to
+     load a picture from a different path than the one it writes to the file —
+     scenario media is authored relative to gym/ — and the authored path is the
+     one that belongs in the source. */
   function mediaSource(el) {
     var scale = el.getAttribute('data-scale');
-    return '%(' + (el.getAttribute('src') || '') + (scale ? ' | ' + scale : '') + ')';
+    var url = el.getAttribute('data-src') || el.getAttribute('src') || '';
+    return '%(' + url + (scale ? ' | ' + scale : '') + ')';
   }
 
   function inlineSource(node) {

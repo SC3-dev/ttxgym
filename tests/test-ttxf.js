@@ -78,6 +78,19 @@ G('C3 — one image implementation, no inline handlers');
     T.hydrateMedia(d.window.document);
     eq(img.style.width, '120px');
   });
+
+  /* An editor that renders media in place may have to load a picture from a
+     different path than the one belonging in the file — scenario media is
+     authored relative to gym/, and a builder does not sit there. */
+  t('converting back prefers the authored path over the displayed one', () => {
+    const d = new JSDOM('<div><img class="SFmedia" src="lib/x.png" ' +
+                        'data-src="../lib/x.png" data-scale="60%"></div>');
+    eq(T.htmlToSource(d.window.document.querySelector('div')), '%(../lib/x.png | 60%)');
+  });
+  t('and falls back to src when there is no authored path', () => {
+    const d = new JSDOM('<div><img class="SFmedia" src="https://x/i.png"></div>');
+    eq(T.htmlToSource(d.window.document.querySelector('div')), '%(https://x/i.png)');
+  });
 }
 
 G('C5 — directive lines inside content can be escaped');
