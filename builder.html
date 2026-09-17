@@ -1,0 +1,1346 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TTX Gym - Scenario Builder</title>
+  <meta name="description" content="Build and edit your own .ttxf tabletop exercise scenarios in the browser, with a live preview of exactly what facilitators and participants will see.">
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <meta name="theme-color" content="#141820">
+  <link rel="stylesheet" href="css/fonts.css">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* ═══ LAYOUT ═══════════════════════════════════════════════════════════
+       Three zones replacing one long scroll: an outline that is both map and
+       navigation, a workspace showing one stage at a time, and the room view.
+       See docs/BUILDER-DESIGN.md. */
+    #b-wrap {
+      --room-w: 420px;
+      display: grid;
+      grid-template-columns: 250px minmax(0, 1fr) 0 0;
+      height: calc(100vh - var(--nav-h, 56px));
+      height: calc(100dvh - var(--nav-h, 56px));
+      overflow: hidden;
+      transition: grid-template-columns 0.2s ease;
+    }
+    #b-wrap.show-room { grid-template-columns: 250px minmax(0, 1fr) 6px var(--room-w); }
+    /* no transition while dragging, or the panel lags behind the pointer */
+    #b-wrap.dragging { transition: none; }
+
+    #b-split {
+      cursor: col-resize;
+      background: var(--border);
+      position: relative;
+      touch-action: none;
+    }
+    #b-wrap:not(.show-room) #b-split { display: none; }
+    #b-split:hover, #b-split:focus-visible, #b-wrap.dragging #b-split { background: var(--accent); }
+    #b-split:focus-visible { outline: none; }
+    /* a 6px target is too mean for a pointer, so widen the hit area either side */
+    #b-split::after {
+      content: '';
+      position: absolute;
+      inset: 0 -5px;
+    }
+    body.b-dragging { cursor: col-resize; user-select: none; }
+
+    /* ═══ OUTLINE ═══ */
+    #b-outline {
+      border-right: 1px solid var(--border);
+      background: var(--mid);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+    .b-rail-head {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 0.85rem 0.9rem 0.35rem;
+    }
+    .b-meta { padding: 0 0.7rem 0.6rem; }
+    .b-meta input, .b-meta textarea {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text-primary);
+      font-family: var(--font-display);
+      font-size: 12.5px;
+      padding: 0.4rem 0.55rem;
+      margin-bottom: 0.3rem;
+      outline: none;
+    }
+    .b-meta textarea { resize: vertical; min-height: 3.2em; line-height: 1.5; }
+    .b-meta input:focus, .b-meta textarea:focus { border-color: var(--accent); }
+
+    #b-stage-list { padding: 0 0.5rem; flex: 1; }
+    .b-stage-row {
+      display: grid;
+      grid-template-columns: 1.4rem minmax(0, 1fr);
+      gap: 0.45rem;
+      align-items: baseline;
+      width: 100%;
+      text-align: left;
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: var(--radius);
+      padding: 0.4rem 0.45rem;
+      margin-bottom: 0.15rem;
+      cursor: pointer;
+      color: var(--text-secondary);
+      font: inherit;
+      font-size: 12.5px;
+    }
+    .b-stage-row:hover { color: var(--text-primary); background: var(--surface); }
+    .b-stage-row.current {
+      color: var(--text-primary);
+      background: var(--surface);
+      border-color: var(--accent);
+    }
+    .b-stage-row .n {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+    .b-stage-row.current .n { color: var(--accent); }
+    .b-stage-row .t { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .b-stage-row .sub {
+      grid-column: 2;
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      color: var(--text-muted);
+      margin-top: 0.1rem;
+    }
+    .b-untitled { opacity: 0.55; font-style: italic; }
+
+    /* a stage's share of the running time, so pacing is visible while authoring */
+    .b-bar { grid-column: 2; height: 2px; background: var(--border); border-radius: 2px; margin-top: 0.3rem; }
+    .b-bar i { display: block; height: 100%; background: var(--accent); border-radius: 2px; }
+
+    #b-rail-foot {
+      border-top: 1px solid var(--border);
+      padding: 0.6rem 0.9rem;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+    #b-rail-foot .over { color: var(--amber); }
+
+    /* ═══ WORKSPACE ═══ */
+    #b-work { overflow-y: auto; min-height: 0; }
+    #b-work-inner { max-width: 760px; margin: 0 auto; padding: 1.1rem 1.4rem 4rem; }
+
+    .b-stage-title {
+      width: 100%;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid transparent;
+      color: var(--text-primary);
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 600;
+      padding: 0.1rem 0 0.35rem;
+      outline: none;
+    }
+    .b-stage-title:hover { border-bottom-color: var(--border); }
+    .b-stage-title:focus { border-bottom-color: var(--accent); }
+
+    .b-stage-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin: 0.45rem 0 1.3rem;
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      color: var(--text-muted);
+    }
+    .b-stage-meta input {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      padding: 0.25rem 0.45rem;
+      width: 6.5rem;
+      outline: none;
+    }
+    .b-stage-meta input:focus { border-color: var(--accent); }
+
+    /* the two audiences, as two surfaces */
+    .b-zone { margin-bottom: 1.6rem; }
+    .b-zone-head {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      margin-bottom: 0.55rem;
+    }
+    .b-zone-head::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+    .b-zone.screen .b-zone-head { color: var(--accent); }
+    .b-zone.notes .b-zone-head { color: var(--amber); }
+    .b-zone-body {
+      border-left: 2px solid var(--border);
+      padding-left: 0.9rem;
+    }
+    .b-zone.screen .b-zone-body { border-left-color: color-mix(in srgb, var(--accent) 40%, transparent); }
+    .b-zone.notes .b-zone-body { border-left-color: color-mix(in srgb, var(--amber) 40%, transparent); }
+
+    .b-field { margin-bottom: 0.9rem; }
+    .b-field-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.3rem;
+      display: block;
+    }
+    .b-input {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text-primary);
+      font-family: var(--font-display);
+      font-size: 13.5px;
+      line-height: 1.6;
+      padding: 0.6rem 0.8rem;
+      outline: none;
+      resize: vertical;
+    }
+    .b-input:focus { border-color: var(--accent); }
+
+    .b-list-item { display: flex; gap: 0.4rem; margin-bottom: 0.3rem; align-items: flex-start; }
+    .b-list-item .b-input { flex: 1; }
+    .b-icon-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: var(--radius);
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 0.3rem 0.45rem;
+      font: inherit;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+    .b-icon-btn:hover { color: var(--red); border-color: var(--border); }
+    .b-add {
+      background: transparent;
+      border: 1px dashed var(--border);
+      border-radius: var(--radius);
+      color: var(--text-muted);
+      cursor: pointer;
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      padding: 0.3rem 0.6rem;
+      margin-top: 0.15rem;
+    }
+    .b-add:hover { color: var(--accent); border-color: var(--accent); }
+
+    /* ═══ WYSIWYG CONTENT ═══
+       The author edits the rendered thing. A source toggle sits behind it for
+       when that is not what they want. */
+    .b-rich { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+    .b-rich:focus-within { border-color: var(--accent); }
+    .b-rich-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.15rem;
+      padding: 0.3rem 0.35rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .b-rich-bar button {
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: var(--radius);
+      color: var(--text-muted);
+      cursor: pointer;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.03em;
+      padding: 0.2rem 0.4rem;
+    }
+    .b-rich-bar button:hover { color: var(--text-primary); border-color: var(--border); }
+    .b-rich-bar .sep { width: 1px; background: var(--border); margin: 0.2rem 0.25rem; }
+    .b-rich-bar .grow { flex: 1; }
+    .b-rich-bar .on { color: var(--accent); border-color: var(--accent); }
+
+    .b-editable {
+      min-height: 7em;
+      padding: 0.7rem 0.85rem;
+      color: var(--text-primary);
+      font-family: var(--font-display);
+      font-size: 13.5px;
+      line-height: 1.7;
+      outline: none;
+      overflow-wrap: break-word;
+    }
+    .b-editable:empty::before {
+      content: attr(data-placeholder);
+      color: var(--text-muted);
+    }
+    .b-editable p { margin: 0 0 0.6rem; }
+    .b-editable p:last-child { margin-bottom: 0; }
+    .b-editable strong { color: var(--text-primary); }
+    .b-editable ul, .b-editable ol { margin: 0 0 0.6rem; padding-left: 1.3rem; }
+    .b-editable li { margin-bottom: 0.2rem; }
+    .b-editable blockquote {
+      margin: 0.6rem 0;
+      padding: 0.5rem 0.8rem;
+      background: var(--green-glow);
+      border-left: 3px solid var(--green);
+      border-radius: 0 var(--radius) var(--radius) 0;
+    }
+    .b-editable code {
+      font-family: var(--font-mono);
+      font-size: 0.88em;
+      padding: 0.1em 0.35em;
+      border-radius: 4px;
+      background: color-mix(in srgb, currentColor 10%, transparent);
+      border: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+    }
+    /* blocks are atomic: selectable and removable, never typed into */
+    .b-editable pre.SFpre, .b-editable figure.SFnews, .b-editable img.SFmedia {
+      user-select: all;
+    }
+    .b-editable pre.SFpre {
+      font-family: var(--font-mono);
+      font-size: 0.82em;
+      line-height: 1.55;
+      margin: 0.7rem 0;
+      padding: 0.6rem 0.75rem;
+      border-radius: var(--radius);
+      background: color-mix(in srgb, currentColor 7%, transparent);
+      border: 1px solid color-mix(in srgb, currentColor 15%, transparent);
+      white-space: pre-wrap;
+      overflow-wrap: break-word;
+    }
+    .b-editable pre.SFpre > code { background: none; border: 0; padding: 0; font-size: inherit; }
+    .b-editable pre.SFpre[data-label]::before {
+      content: attr(data-label);
+      display: block;
+      font-family: var(--font-display);
+      font-size: 0.78em;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      opacity: 0.7;
+      margin-bottom: 0.4rem;
+    }
+    .b-editable img.SFmedia { display: block; margin: 0.7rem auto; max-width: min(100%, 22em); height: auto; border-radius: var(--radius); }
+    .b-editable figure.SFnews {
+      position: relative; display: block; margin: 0.7rem auto; max-width: min(100%, 26em);
+      border-radius: var(--radius); overflow: hidden; container-type: inline-size; font-size: 11px;
+    }
+    @supports (container-type:inline-size) { .b-editable figure.SFnews { font-size: clamp(6px, 2.5cqi, 16px) } }
+    .b-editable figure.SFnews img { display: block; width: 100%; height: auto; }
+    .b-editable figure.SFnews figcaption { position: absolute; left: 0; right: 0; bottom: 0; display: flex; }
+    .b-editable .SFnews-flag { background: #c8102e; color: #fff; font-weight: 800; font-size: .78em; text-transform: uppercase; padding: .7em .8em; }
+    .b-editable .SFnews-line { flex: 1; background: rgba(11,14,20,.9); color: #fff; font-weight: 700; font-size: .78em; padding: .7em .8em; }
+
+    .b-source {
+      width: 100%;
+      border: 0;
+      background: transparent;
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      line-height: 1.65;
+      padding: 0.7rem 0.85rem;
+      outline: none;
+      resize: vertical;
+      min-height: 9em;
+    }
+
+    /* ═══ QUESTIONS ═══ */
+    .b-q {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      padding: 0.6rem 0.7rem;
+      margin-bottom: 0.55rem;
+    }
+    .b-q-top { display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.5rem; }
+    .b-q-text {
+      flex: 1;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid transparent;
+      color: var(--text-primary);
+      font-family: var(--font-display);
+      font-size: 13.5px;
+      font-weight: 600;
+      padding: 0.15rem 0;
+      outline: none;
+    }
+    .b-q-text:hover { border-bottom-color: var(--border); }
+    .b-q-text:focus { border-bottom-color: var(--accent); }
+
+    .b-ans { display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.25rem; }
+    .b-ans input[type=text] {
+      flex: 1;
+      background: var(--back);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text-primary);
+      font-family: var(--font-display);
+      font-size: 12.5px;
+      padding: 0.3rem 0.5rem;
+      outline: none;
+    }
+    .b-ans input[type=text]:focus { border-color: var(--accent); }
+    .b-ans.correct input[type=text] { border-color: var(--green); }
+    /* marking an answer correct is what turns a poll into a scored question */
+    .b-mark {
+      width: 1.35rem; height: 1.35rem;
+      flex: 0 0 auto;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 11px;
+      line-height: 1;
+      padding: 0;
+    }
+    .b-mark:hover { border-color: var(--green); color: var(--green); }
+    .b-ans.correct .b-mark { background: var(--green); border-color: var(--green); color: #06251f; }
+
+    .b-q-foot {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      margin-top: 0.4rem;
+      flex-wrap: wrap;
+    }
+    .b-q-foot select {
+      background: var(--back);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      padding: 0.25rem 0.35rem;
+      outline: none;
+    }
+    .b-q-kind {
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      border-radius: 99px;
+      padding: 0.1rem 0.45rem;
+    }
+    .b-q-kind.scored { color: var(--green); border-color: color-mix(in srgb, var(--green) 45%, transparent); }
+
+    /* ═══ ROOM VIEW ═══
+       A miniature of the participant window, built from the same payload the gym
+       would send. Dark in both themes because the room screen is. */
+    #b-room { background: #141820; }
+    .b-room-head {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(232,236,242,.45);
+      padding: 0.7rem 0.9rem 0.4rem;
+      display: flex;
+      justify-content: space-between;
+    }
+    .b-room-card {
+      margin: 0 0.75rem 0.9rem;
+      background: rgba(30,37,53,.96);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 10px;
+      padding: 0.9rem 1rem 1rem;
+      color: #e8ecf2;
+      font-size: 12.5px;
+      line-height: 1.7;
+    }
+    .b-room-card h4 {
+      font-size: 15px;
+      font-weight: 800;
+      text-align: center;
+      color: rgba(232,236,242,.92);
+      margin: 0 0 0.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+    }
+    .b-room-card p { margin: 0 0 0.5rem; }
+    .b-room-card strong { color: #e8ecf2; }
+    .b-room-card blockquote {
+      margin: 0.5rem 0; padding: 0.5rem 0.7rem;
+      background: rgba(30,75,86,.5); border-left: 3px solid #3ec9c8;
+      border-radius: 0 4px 4px 0;
+    }
+    .b-room-card code {
+      font-family: var(--font-mono); font-size: .88em; padding: .1em .35em;
+      border-radius: 4px; background: rgba(232,236,242,.12); border: 1px solid rgba(232,236,242,.2);
+    }
+    .b-room-card pre.SFpre {
+      font-family: var(--font-mono); font-size: .8em; line-height: 1.55;
+      margin: .6rem 0; padding: .55rem .7rem; border-radius: 6px;
+      background: rgba(232,236,242,.08); border: 1px solid rgba(232,236,242,.16);
+      white-space: pre-wrap; overflow-wrap: break-word;
+    }
+    .b-room-card pre.SFpre > code { background: none; border: 0; padding: 0; font-size: inherit; }
+    .b-room-card img.SFmedia { display: block; margin: .6rem auto; max-width: 100%; height: auto; border-radius: 6px; }
+    .b-room-card figure.SFnews { position: relative; margin: .6rem 0; border-radius: 6px; overflow: hidden; }
+    .b-room-card figure.SFnews img { display: block; width: 100%; height: auto; }
+    .b-room-card figure.SFnews figcaption { position: absolute; left: 0; right: 0; bottom: 0; display: flex; font-size: 9px; }
+    .b-room-card .SFnews-flag { background: #c8102e; color: #fff; font-weight: 800; text-transform: uppercase; padding: .6em .7em; }
+    .b-room-card .SFnews-line { flex: 1; background: rgba(11,14,20,.9); color: #fff; font-weight: 700; padding: .6em .7em; }
+
+    .b-room-talk {
+      margin: 0.6rem 0 0; padding: 0.55rem 0.7rem;
+      background: rgba(0,51,102,.3); border-left: 3px solid #2e7de0;
+      border-radius: 0 4px 4px 0;
+    }
+    .b-room-talk ol { margin: 0; padding-left: 1.1rem; font-style: italic; }
+    .b-room-q {
+      margin-top: 0.5rem; padding: 0.5rem 0.65rem;
+      background: rgba(44,54,80,.7); border: 1px solid rgba(255,255,255,.07);
+      border-left: 3px solid #2e7de0; border-radius: 6px;
+    }
+    .b-room-q .qt { font-weight: 600; font-size: 12px; margin-bottom: 0.35rem; }
+    .b-room-q .opts { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+    .b-room-q .opt {
+      font-size: 10.5px; font-style: italic; padding: .2rem .5rem;
+      border: 1px solid rgba(255,255,255,.08); border-radius: 99px;
+      background: rgba(255,255,255,.05);
+    }
+    .b-room-note {
+      padding: 0 0.95rem 1rem; font-size: 10.5px; line-height: 1.6;
+      color: rgba(232,236,242,.4); font-family: var(--font-mono);
+    }
+
+    /* pacing: a stage whose clock looks out of step with what is in it */
+    .b-stage-row .warn { color: var(--amber); }
+    #b-pace {
+      font-family: var(--font-mono); font-size: 10px; color: var(--amber);
+      padding: 0 0.9rem 0.6rem;
+    }
+
+    .b-empty {
+      color: var(--text-muted);
+      font-size: 12.5px;
+      padding: 2.5rem 0;
+      text-align: center;
+    }
+
+    /* ═══ TOP BAR ═══ */
+    #b-top {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.5rem 0.9rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--mid);
+    }
+    #b-top .grow { flex: 1; }
+    #b-status {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+    #b-status.bad { color: var(--red); }
+    #b-status.good { color: var(--green); }
+
+    @media (max-width: 900px) {
+      #b-wrap, #b-wrap.show-room { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+      #b-outline { max-height: 34vh; }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="b-top">
+    <strong style="font-size:13px">Scenario Builder</strong>
+    <span id="b-status">—</span>
+    <span class="grow"></span>
+    <button class="btn btn-ghost" onclick="bNewFromShape()">New</button>
+    <button class="btn btn-ghost" onclick="bImportPrompt()">Import</button>
+    <button class="btn btn-ghost" onclick="bToggleRoom()">Room view</button>
+    <button class="btn btn-primary" onclick="bExport()">Download .ttxf</button>
+  </div>
+
+  <div id="b-wrap">
+    <aside id="b-outline">
+      <div class="b-rail-head">Exercise</div>
+      <div class="b-meta">
+        <input id="b-title" type="text" placeholder="Title" oninput="bMeta('title', this.value)">
+        <input id="b-author" type="text" placeholder="Author" oninput="bMeta('author', this.value)">
+        <button class="b-add" style="width:100%;text-align:left" onclick="bFocusMeta('summary')">Summary…</button>
+      </div>
+      <div class="b-rail-head">Stages</div>
+      <div id="b-stage-list"></div>
+      <div style="padding:0.3rem 0.7rem 0.8rem">
+        <button class="b-add" style="width:100%" onclick="bAddStage()">+ Add stage</button>
+      </div>
+      <div class="b-rail-head">Debrief</div>
+      <div class="b-meta">
+        <button class="b-add" style="width:100%;text-align:left" onclick="bFocusMeta('conclusion')">Conclusion…</button>
+      </div>
+      <div id="b-rail-foot"><span id="b-foot-count"></span><span id="b-foot-time"></span></div>
+    </aside>
+
+    <main id="b-work"><div id="b-work-inner"></div></main>
+    <div id="b-split" role="separator" aria-orientation="vertical" tabindex="0"
+         aria-label="Resize the room view" title="Drag to resize · double-click to reset"></div>
+    <aside id="b-room" style="overflow:auto"></aside>
+  </div>
+
+  <!-- versioned: builder.html depends on TTXF.htmlToSource, and a cached copy
+       of the module without it would silently swallow the author's typing -->
+  <script src="js/ttxf.js?v=2"></script>
+  <script>
+    /* ═══ MODEL ═══════════════════════════════════════════════════════════
+       One document, one focused stage. Everything goes through TTXF.parse and
+       TTXF.serialize so the file is the single source of truth and the
+       round-trip guarantee the tests protect keeps holding. */
+    const DRAFT_KEY = 'ttxgym_builder_draft';     // distinct from the old builder's
+    let doc = { title: '', author: '', summary: '', conclusion: '', stages: [] };
+    let focus = 0;
+    let metaFocus = null;                    // 'summary' | 'conclusion' | null
+    let saveTimer = null;
+
+    const store = {
+      get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+      set(k, v) { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } },
+      del(k) { try { localStorage.removeItem(k); } catch (e) {} },
+    };
+
+    const esc = TTXF.escapeHTML;
+    const blankStage = (name) => ({ stage: name || '', content: '', duration: '',
+                                    discussion: [], prompts: [], questions: [] });
+
+    function bMeta(key, value) { doc[key] = value; touched(); }
+
+    function touched() {
+      renderOutline();
+      renderRoom();
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(save, 400);
+      status();
+    }
+
+    function save() {
+      const ok = store.set(DRAFT_KEY, JSON.stringify(doc));
+      const el = document.getElementById('b-status');
+      if (!ok) { el.textContent = 'could not save draft'; el.className = 'bad'; }
+    }
+
+    function status() {
+      const el = document.getElementById('b-status');
+      const { errors } = TTXF.parse(toTTXF());
+      const bad = errors.filter(e => e.severity === 'error');
+      if (bad.length) { el.textContent = bad.length + ' problem' + (bad.length > 1 ? 's' : ''); el.className = 'bad'; }
+      else { el.textContent = 'ready'; el.className = 'good'; }
+    }
+
+    function toTTXF() { return TTXF.serialize(doc); }
+
+    function load(text) {
+      const { doc: parsed } = TTXF.parse(text);
+      doc = {
+        title: parsed.title || '', author: parsed.author || '',
+        summary: parsed.summary || '', conclusion: parsed.conclusion || '',
+        image: parsed.image || '',
+        stages: (parsed.stages || []).map(s => ({
+          stage: s.stage || '', content: s.content || '', duration: s.duration || '',
+          discussion: (s.discussion || []).slice(),
+          prompts: (s.prompts || []).slice(),
+          questions: (s.questions || []).map(q => ({
+            question: q.question, answers: (q.answers || []).slice(),
+            quizIndex: q.quizIndex, participantHidden: !!q.participantHidden,
+          })),
+        })),
+      };
+      focus = 0;
+      renderAll();
+    }
+
+    /* ═══ OUTLINE ═══ */
+    function renderOutline() {
+      ['title', 'author'].forEach(k => {
+        const el = document.getElementById('b-' + k);
+        if (el && el.value !== (doc[k] || '')) el.value = doc[k] || '';
+      });
+
+      const list = document.getElementById('b-stage-list');
+      const paceBy = {};
+      pacing().forEach(p => { paceBy[p.i] = p; });
+      const secs = doc.stages.map(s => TTXF.durationToSeconds(s.duration));
+      const longest = Math.max(1, ...secs);
+      list.innerHTML = doc.stages.map((s, i) => {
+        const bits = [];
+        if (s.duration) bits.push(s.duration);
+        const qs = s.questions.filter(q => (q.question || '').trim()).length;
+        if (qs) bits.push(qs + 'q');
+        const d = s.discussion.filter(x => x.trim()).length;
+        if (d) bits.push(d + 'd');
+        const title = (s.stage || '').trim();
+        const pace = paceBy[i];
+        return `<button class="b-stage-row${i === focus ? ' current' : ''}" onclick="bFocus(${i})"
+                        title="${pace ? esc('This stage looks ' + pace.how + ' for what is in it') : ''}">
+          <span class="n">${i + 1}</span>
+          <span class="t${title ? '' : ' b-untitled'}">${esc(title || 'Untitled stage')}</span>
+          ${bits.length ? `<span class="sub">${esc(bits.join(' · '))}${
+            pace ? `<span class="warn"> · ${pace.how} for its content</span>` : ''}</span>` : ''}
+          ${secs[i] ? `<span class="b-bar"><i style="width:${Math.round(secs[i] / longest * 100)}%"></i></span>` : ''}
+        </button>`;
+      }).join('') || '<div class="b-empty" style="padding:1rem 0;font-size:11.5px">No stages yet</div>';
+
+      const total = secs.reduce((a, b) => a + b, 0);
+      document.getElementById('b-foot-count').textContent =
+        doc.stages.length + ' stage' + (doc.stages.length === 1 ? '' : 's');
+      document.getElementById('b-foot-time').textContent = total
+        ? (total >= 3600
+            ? Math.floor(total / 3600) + 'h ' + String(Math.round(total % 3600 / 60)).padStart(2, '0') + 'm'
+            : Math.round(total / 60) + ' min') + ' planned'
+        : 'untimed';
+    }
+
+    /* ═══ PACING ══════════════════════════════════════════════════════════
+       The content review had to build this model to repair pacing across the
+       whole library, because nothing in authoring ever surfaced that a stage
+       with six discussion points had the same clock as one with one. Weighting
+       here is the same: a discussion point is worth about two and a half
+       minutes, a question about one, and prose about 45 seconds per hundred
+       words, plus a little for arriving at the stage at all. */
+    function stageWeight(s) {
+      const words = (s.content || '').split(/\s+/).filter(Boolean).length;
+      return 0.2 + 0.003 * words
+           + 1.0 * s.discussion.filter(d => d.trim()).length
+           + 0.4 * s.questions.filter(q => (q.question || '').trim()).length;
+    }
+
+    /* Only meaningful once enough of the exercise is timed to compare against,
+       and only worth saying when a stage is well out of step — this is a nudge,
+       not a rule. */
+    function pacing() {
+      const timed = doc.stages.filter(s => TTXF.durationToSeconds(s.duration) > 0);
+      if (timed.length < 3) return [];
+      const totalW = doc.stages.reduce((n, s) => n + stageWeight(s), 0);
+      const totalT = timed.reduce((n, s) => n + TTXF.durationToSeconds(s.duration), 0);
+      if (!totalW || !totalT) return [];
+      return doc.stages.map((s, i) => {
+        const secs = TTXF.durationToSeconds(s.duration);
+        if (!secs) return null;
+        const expected = stageWeight(s) / totalW * totalT;
+        const ratio = secs / expected;
+        if (ratio > 1.8) return { i, how: 'long', ratio };
+        if (ratio < 0.55) return { i, how: 'short', ratio };
+        return null;
+      }).filter(Boolean);
+    }
+
+    function bFocus(i) { metaFocus = null; focus = i; renderWork(); renderOutline(); renderRoom(); document.getElementById('b-work').scrollTop = 0; }
+
+    /* Summary and conclusion are prose like a stage is prose, so they are edited
+       in the workspace with the same tools rather than crammed into the rail. */
+    function bFocusMeta(field) { metaFocus = field; renderWork(); renderOutline(); renderRoom(); }
+
+    function bAddStage() {
+      doc.stages.push(blankStage());
+      focus = doc.stages.length - 1;
+      renderAll();
+      const t = document.querySelector('.b-stage-title');
+      if (t) t.focus();
+    }
+
+    /* ═══ WORKSPACE ═══ */
+    function renderWork() {
+      const el = document.getElementById('b-work-inner');
+      if (metaFocus) {
+        const heading = metaFocus === 'summary' ? 'Summary' : 'Conclusion';
+        const note = metaFocus === 'summary'
+          ? 'Shown before the exercise begins — what the room is walking into.'
+          : 'The finish screen. The last thing the room reads.';
+        el.innerHTML = `<input class="b-stage-title" type="text" value="${esc(heading)}" disabled>
+          <div class="b-stage-meta"><span>${esc(note)}</span></div>
+          <section class="b-zone screen"><div class="b-zone-head">On screen</div>
+            <div class="b-zone-body">${richHTML(metaFocus, doc[metaFocus] || '', note)}</div>
+          </section>`;
+        el.querySelectorAll('.b-editable').forEach(lockWidgets);
+        return;
+      }
+      const s = doc.stages[focus];
+      if (!s) {
+        el.innerHTML = `<div class="b-empty">Nothing to edit yet.<br><br>
+          <button class="b-add" onclick="bNewFromShape()">Start from a shape</button>
+          <button class="b-add" onclick="bAddStage()">Add one blank stage</button></div>`;
+        return;
+      }
+      el.innerHTML = `
+        <input class="b-stage-title" type="text" value="${esc(s.stage)}"
+               placeholder="Stage title" oninput="bStage('stage', this.value)">
+        <div class="b-stage-meta">
+          <span>Stage ${focus + 1} of ${doc.stages.length}</span>
+          <span>·</span>
+          <label>Planned <input type="text" value="${esc(s.duration)}" placeholder="10 mins"
+                 oninput="bStage('duration', this.value)"></label>
+          <span class="grow" style="flex:1"></span>
+          <button class="b-icon-btn" title="Delete this stage" onclick="bRemoveStage(${focus})">Delete</button>
+        </div>
+
+        <section class="b-zone screen">
+          <div class="b-zone-head">On screen</div>
+          <div class="b-zone-body">
+            <div class="b-field">
+              <label class="b-field-label">Content</label>
+              ${richHTML('content', s.content, 'What the room sees when this stage opens.')}
+            </div>
+            <div class="b-field">
+              <label class="b-field-label">Discussion points</label>
+              ${listHTML('discussion', s.discussion, 'A question for the room')}
+              <button class="b-add" onclick="bAddItem('discussion')">+ Add discussion point</button>
+            </div>
+            <div class="b-field">
+              <label class="b-field-label">Questions the room answers</label>
+              ${questionsHTML(false)}
+              <button class="b-add" onclick="bAddQuestion(false)">+ Add question</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="b-zone notes">
+          <div class="b-zone-head">Your notes — never shown to participants</div>
+          <div class="b-zone-body">
+            <div class="b-field">
+              <label class="b-field-label">Facilitator prompts</label>
+              ${listHTML('prompts', s.prompts, 'What to probe, what a good answer sounds like')}
+              <button class="b-add" onclick="bAddItem('prompts')">+ Add prompt</button>
+            </div>
+            <div class="b-field">
+              <label class="b-field-label">Questions kept off the screen</label>
+              ${questionsHTML(true)}
+              <button class="b-add" onclick="bAddQuestion(true)">+ Add private question</button>
+            </div>
+          </div>
+        </section>`;
+      el.querySelectorAll('.b-editable').forEach(lockWidgets);
+    }
+
+    /* ═══ RICH EDITING ═══════════════════════════════════════════════════
+       The author works in the rendered output. On input the DOM is converted
+       straight back to .ttxf through the shared module, so the file stays the
+       source of truth and nothing is stored in a second representation.
+
+       A stage the author never types into is never re-serialised, so opening a
+       scenario cannot churn its formatting — only real edits change bytes. */
+    const RICH_BUTTONS = [
+      ['B', 'bold', 'Bold'],
+      ['I', 'italic', 'Italic'],
+      ['&lt;/&gt;', 'code', 'Inline code'],
+      ['sep'],
+      ['&bull;', 'ul', 'Bulleted list'],
+      ['1.', 'ol', 'Numbered list'],
+      ['&rdquo;', 'quote', 'Quote'],
+      ['sep'],
+      ['Image', 'image', 'Insert an image'],
+      ['News', 'news', 'Insert a news headline'],
+      ['Artefact', 'pre', 'Insert a log or artefact block'],
+    ];
+
+    function richHTML(field, value, placeholder) {
+      const bar = RICH_BUTTONS.map(([label, cmd, title]) =>
+        cmd ? `<button type="button" title="${esc(title)}" onmousedown="event.preventDefault()"
+                 onclick="richCmd(this,'${cmd}')">${label}</button>`
+            : '<span class="sep"></span>').join('');
+      return `<div class="b-rich" data-field="${field}">
+        <div class="b-rich-bar">${bar}<span class="grow"></span>
+          <button type="button" class="b-src-toggle" title="Edit the underlying .ttxf"
+                  onclick="richToggleSource(this)">Source</button>
+        </div>
+        <div class="b-editable" contenteditable="true" data-placeholder="${esc(placeholder)}"
+             oninput="richInput(this)" onpaste="richPaste(event, this)">${TTXF.markdown(value)}</div>
+        <textarea class="b-source" hidden oninput="richSourceInput(this)">${esc(value)}</textarea>
+      </div>`;
+    }
+
+    function richOwner(el) { return el.closest('.b-rich'); }
+    function richField(el) { return richOwner(el).getAttribute('data-field'); }
+
+    function richInput(editable) {
+      lockWidgets(editable);
+      let source;
+      try {
+        source = TTXF.htmlToSource(editable);
+      } catch (e) {
+        // Losing an author's typing to a conversion fault is the worst thing this
+        // page could do, so say so loudly and keep the text rather than write ''.
+        failSafe('could not read the editor — switch to Source to keep working');
+        return;
+      }
+      if (typeof source !== 'string') { failSafe('editor conversion unavailable'); return; }
+      writeField(richField(editable), source);
+    }
+
+    function failSafe(message) {
+      const el = document.getElementById('b-status');
+      el.textContent = message;
+      el.className = 'bad';
+    }
+
+    function richSourceInput(ta) { writeField(richField(ta), ta.value); }
+
+    function writeField(field, source) {
+      if (field === 'content') doc.stages[focus].content = source;
+      else doc[field] = source;
+      touched();
+    }
+
+    function readField(field) {
+      return field === 'content' ? doc.stages[focus].content : (doc[field] || '');
+    }
+
+    function richToggleSource(btn) {
+      const rich = richOwner(btn);
+      const editable = rich.querySelector('.b-editable');
+      const ta = rich.querySelector('.b-source');
+      const toSource = ta.hasAttribute('hidden');
+      if (toSource) {
+        // read the live DOM, which is the thing the author can actually see;
+        // fall back to the model only if that conversion is unavailable
+        let live = null;
+        try { live = TTXF.htmlToSource(editable); } catch (e) { live = null; }
+        ta.value = typeof live === 'string' && live.trim() ? live : readField(richField(btn));
+        ta.hidden = false; editable.hidden = true; btn.classList.add('on');
+        ta.focus();
+      } else {
+        const source = ta.value;
+        // never replace visible content with nothing
+        if (source.trim() || !editable.textContent.trim()) {
+          writeField(richField(btn), source);
+          editable.innerHTML = TTXF.markdown(source);
+          lockWidgets(editable);
+        }
+        ta.hidden = true; editable.hidden = false; btn.classList.remove('on');
+      }
+    }
+
+    /* Blocks are objects, not text: made non-editable so a caret cannot land
+       inside one and quietly break the markup it round-trips to. */
+    function lockWidgets(root) {
+      root.querySelectorAll('pre.SFpre, figure.SFnews, img.SFmedia').forEach(el => {
+        el.setAttribute('contenteditable', 'false');
+      });
+    }
+
+    /* Anything pasted is pushed through the format and back, so what lands is
+       always something .ttxf can express — no smuggled markup, no surprises. */
+    function richPaste(ev, editable) {
+      ev.preventDefault();
+      const cb = ev.clipboardData;
+      if (!cb) return;
+      const html = cb.getData('text/html');
+      const text = cb.getData('text/plain');
+      let source;
+      if (html) {
+        const holder = document.createElement('div');
+        holder.innerHTML = TTXF.sanitizeHTML(html);
+        source = TTXF.htmlToSource(holder);
+      } else {
+        source = text;
+      }
+      document.execCommand('insertHTML', false, TTXF.markdown(source));
+      lockWidgets(editable);
+      richInput(editable);
+    }
+
+    function richCmd(btn, cmd) {
+      const rich = richOwner(btn);
+      const editable = rich.querySelector('.b-editable');
+      if (editable.hidden) return;                      // in source mode
+      editable.focus();
+      const simple = { bold: 'bold', italic: 'italic',
+                       ul: 'insertUnorderedList', ol: 'insertOrderedList' };
+      try {
+        if (simple[cmd]) document.execCommand(simple[cmd], false, null);
+        else if (cmd === 'quote') document.execCommand('formatBlock', false, 'blockquote');
+        else if (cmd === 'code') {
+          const sel = String(document.getSelection());
+          document.execCommand('insertHTML', false, '<code>' + esc(sel || 'code') + '</code>');
+        } else if (cmd === 'image') insertBlock(editable, '%(../lib/exercise_data/icons/TTXGYM_Warning_red.png | 60%)');
+        else if (cmd === 'news') insertBlock(editable, '%news(Council systems offline for a third day)');
+        else if (cmd === 'pre') insertBlock(editable, '```SIEM export\n02:13:47  EDR  unsigned binary executed\n```');
+      } catch (e) { /* execCommand is deprecated but still the only route to native undo */ }
+      lockWidgets(editable);
+      richInput(editable);
+    }
+
+    function insertBlock(editable, source) {
+      document.execCommand('insertHTML', false, TTXF.markdown(source) + '<p><br></p>');
+    }
+
+    /* ═══ QUESTIONS ═══════════════════════════════════════════════════════
+       A question sits on whichever side of the stage its audience is on, and
+       moving it across is how `?-` gets set. The flag stops being an obscure
+       toggle and becomes the visible act of taking a question off the screen. */
+    const ANSWER_PRESETS = {
+      confidence5: { label: 'Confidence (5-point)',
+        answers: ['Not at all confident', 'Slightly confident', 'Somewhat confident',
+                  'Fairly confident', 'Completely confident'] },
+      agreement5: { label: 'Agreement (5-point)',
+        answers: ['Strongly disagree', 'Disagree', 'Neither agree nor disagree',
+                  'Agree', 'Strongly agree'] },
+      maturity4: { label: 'Maturity (4-point)',
+        answers: ['Not in place', 'Partially in place', 'Mostly in place', 'Fully in place'] },
+      frequency4: { label: 'Frequency (4-point)',
+        answers: ['Never', 'Occasionally', 'Usually', 'Always'] },
+      yesno: { label: 'Yes / No / Unsure', answers: ['Yes', 'No', 'Unsure'] },
+      blank: { label: 'Write my own', answers: ['', ''] },
+    };
+
+    function questionsHTML(hidden) {
+      const s = doc.stages[focus];
+      const rows = s.questions
+        .map((q, i) => ({ q, i }))
+        .filter(({ q }) => !!q.participantHidden === hidden);
+      return rows.map(({ q, i }) => {
+        const scored = q.quizIndex > -1;
+        const answers = q.answers.map((a, ai) => `
+          <div class="b-ans${ai === q.quizIndex ? ' correct' : ''}">
+            <button class="b-mark" title="${ai === q.quizIndex ? 'The correct answer' : 'Mark as the correct answer'}"
+                    onclick="bMarkAnswer(${i}, ${ai})">${ai === q.quizIndex ? '✓' : ''}</button>
+            <input type="text" value="${esc(a)}" placeholder="Answer"
+                   oninput="bAnswer(${i}, ${ai}, this.value)">
+            <button class="b-icon-btn" title="Remove answer" onclick="bRemoveAnswer(${i}, ${ai})">✕</button>
+          </div>`).join('');
+        return `<div class="b-q">
+          <div class="b-q-top">
+            <input class="b-q-text" type="text" value="${esc(q.question)}" placeholder="What are you asking the room?"
+                   oninput="bQuestion(${i}, this.value)">
+            <span class="b-q-kind${scored ? ' scored' : ''}">${scored ? 'scored' : 'poll'}</span>
+            <button class="b-icon-btn" title="Delete question" onclick="bRemoveQuestion(${i})">✕</button>
+          </div>
+          ${answers}
+          <div class="b-q-foot">
+            <button class="b-add" onclick="bAddAnswer(${i})">+ Answer</button>
+            <select onchange="bPreset(${i}, this.value); this.selectedIndex = 0">
+              <option value="">Preset…</option>
+              ${Object.entries(ANSWER_PRESETS).map(([k, v]) => `<option value="${k}">${esc(v.label)}</option>`).join('')}
+            </select>
+            ${scored ? `<button class="b-add" onclick="bMarkAnswer(${i}, -1)">Clear correct answer</button>` : ''}
+            <span style="flex:1"></span>
+            <button class="b-add" title="${hidden ? 'Put this question on the participants’ screen' : 'Keep this question off the participants’ screen'}"
+                    onclick="bMoveQuestion(${i})">${hidden ? '↑ Show to the room' : '↓ Keep private'}</button>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    function bQuestion(i, v) { doc.stages[focus].questions[i].question = v; touched(); }
+    function bAnswer(i, ai, v) { doc.stages[focus].questions[i].answers[ai] = v; touched(); }
+    function bAddAnswer(i) { doc.stages[focus].questions[i].answers.push(''); renderWork(); touched(); }
+
+    function bRemoveAnswer(i, ai) {
+      const q = doc.stages[focus].questions[i];
+      q.answers.splice(ai, 1);
+      // the correct answer is an index, so it has to move with the list
+      if (q.quizIndex === ai) q.quizIndex = -1;
+      else if (q.quizIndex > ai) q.quizIndex--;
+      renderWork(); touched();
+    }
+
+    function bMarkAnswer(i, ai) {
+      const q = doc.stages[focus].questions[i];
+      q.quizIndex = (q.quizIndex === ai) ? -1 : ai;   // clicking the marked one clears it
+      renderWork(); touched();
+    }
+
+    function bPreset(i, key) {
+      const preset = ANSWER_PRESETS[key];
+      if (!preset) return;
+      const q = doc.stages[focus].questions[i];
+      q.answers = preset.answers.slice();
+      q.quizIndex = -1;                                // a rating scale has no right answer
+      renderWork(); touched();
+    }
+
+    function bAddQuestion(hidden) {
+      doc.stages[focus].questions.push({
+        question: '', answers: ['', ''], quizIndex: -1, participantHidden: !!hidden,
+      });
+      renderWork(); touched();
+    }
+
+    function bRemoveQuestion(i) { doc.stages[focus].questions.splice(i, 1); renderWork(); touched(); }
+
+    function bMoveQuestion(i) {
+      const q = doc.stages[focus].questions[i];
+      q.participantHidden = !q.participantHidden;
+      renderWork(); touched();
+    }
+
+    function listHTML(field, items, placeholder) {
+      return items.map((v, i) => `
+        <div class="b-list-item">
+          <textarea class="b-input" rows="2" placeholder="${esc(placeholder)}"
+                    oninput="bItem('${field}', ${i}, this.value)">${esc(v)}</textarea>
+          <button class="b-icon-btn" title="Remove" onclick="bRemoveItem('${field}', ${i})">✕</button>
+        </div>`).join('');
+    }
+
+    function bStage(key, value) { doc.stages[focus][key] = value; touched(); }
+    function bItem(field, i, value) { doc.stages[focus][field][i] = value; touched(); }
+    function bAddItem(field) { doc.stages[focus][field].push(''); renderWork(); touched(); }
+    function bRemoveItem(field, i) { doc.stages[focus][field].splice(i, 1); renderWork(); touched(); }
+
+    function bRemoveStage(i) {
+      doc.stages.splice(i, 1);
+      if (focus >= doc.stages.length) focus = Math.max(0, doc.stages.length - 1);
+      renderAll();
+    }
+
+    /* ═══ SHAPES ═══
+       23 of the technical scenarios follow the same arc, so offer it. */
+    const SHAPES = {
+      lifecycle: {
+        label: 'Incident lifecycle',
+        note: 'Detection through to lessons — the arc most of the library follows.',
+        names: ['Detection', 'Triage and Assessment', 'Containment',
+                'Eradication', 'Recovery', 'Lessons and Hardening'],
+      },
+      supplier: {
+        label: 'Supplier / third party',
+        note: 'Something reaches you through someone else’s environment.',
+        names: ['External Alert', 'Internal Indicators', 'Containment',
+                'Scope Assessment', 'Eradication', 'Assurance and Reconnection'],
+      },
+      decision: {
+        label: 'Short decision exercise',
+        note: 'Four stages for an hour or less, built around one hard choice.',
+        names: ['Opening Situation', 'Escalation', 'Decision Point', 'Debrief'],
+      },
+      blank: { label: 'Blank', note: 'One empty stage.', names: [''] },
+    };
+
+    /* Offer the shape rather than impose it — but never a blank page, which is
+       the thing the old builder gave everyone. */
+    function bNewFromShape(which) {
+      if (which && SHAPES[which]) return applyShape(which);
+      metaFocus = null;
+      document.getElementById('b-work-inner').innerHTML = `
+        <input class="b-stage-title" type="text" value="Start a new exercise" disabled>
+        <div class="b-stage-meta"><span>Pick a shape. Every stage arrives named and empty — nothing is written for you.</span></div>
+        <section class="b-zone screen"><div class="b-zone-head">Shapes</div><div class="b-zone-body">
+          ${Object.entries(SHAPES).map(([k, v]) => `
+            <div class="b-field">
+              <button class="b-add" style="width:100%;text-align:left;padding:0.55rem 0.7rem"
+                      onclick="applyShape('${k}')">
+                <strong style="font-size:12px;color:var(--text-primary)">${esc(v.label)}</strong>
+                <span style="display:block;margin-top:0.15rem;font-family:var(--font-display);font-size:11.5px">${esc(v.note)}</span>
+                ${v.names[0] ? `<span style="display:block;margin-top:0.25rem;opacity:.7">${esc(v.names.join(' → '))}</span>` : ''}
+              </button>
+            </div>`).join('')}
+        </div></section>`;
+    }
+
+    function applyShape(which) {
+      const shape = SHAPES[which] || SHAPES.lifecycle;
+      doc = { title: '', author: '', summary: '', conclusion: '',
+              stages: shape.names.map(n => blankStage(n)) };
+      focus = 0;
+      metaFocus = null;
+      renderAll();
+    }
+
+    /* ═══ IMPORT / EXPORT ═══ */
+    function bImportPrompt() {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.ttxf,.txt';
+      input.onchange = e => {
+        const f = e.target.files && e.target.files[0];
+        if (!f) return;
+        const r = new FileReader();
+        r.onload = () => load(String(r.result));
+        r.readAsText(f);
+      };
+      input.click();
+    }
+
+    function bExport() {
+      const name = (doc.title || 'scenario').toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'scenario';
+      const blob = new Blob([toTTXF()], { type: 'text/plain' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = name + '.ttxf';
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+    }
+
+    /* ═══ RESIZABLE ROOM VIEW ═══════════════════════════════════════════
+       The right answer for "how wide should this be" depends on the screen and
+       on what the author is doing, so let them decide and remember it. */
+    const ROOM_DEFAULT = 420;
+    const ROOM_MIN = 260;
+    const WORK_MIN = 380;                 // never squeeze the workspace out of use
+    const ROOM_KEY = 'ttxgym_builder_room_w';
+
+    function roomMax() {
+      const rail = 250, splitter = 6;
+      return Math.max(ROOM_MIN, window.innerWidth - rail - splitter - WORK_MIN);
+    }
+
+    function splitSet(px) {
+      const w = Math.round(Math.min(Math.max(px, ROOM_MIN), roomMax()));
+      document.getElementById('b-wrap').style.setProperty('--room-w', w + 'px');
+      store.set(ROOM_KEY, String(w));
+      const el = document.getElementById('b-split');
+      if (el) el.setAttribute('aria-valuenow', String(w));
+    }
+
+    function splitStart(ev) {
+      const wrap = document.getElementById('b-wrap');
+      if (!wrap.classList.contains('show-room')) return;
+      if (ev.preventDefault) ev.preventDefault();
+      const handle = document.getElementById('b-split');
+
+      /* Pointer capture keeps events coming if the pointer leaves the handle, but
+         it is an enhancement: the listeners go on the window either way, so the
+         drag still works where capture is unavailable. */
+      let captured = false;
+      try {
+        if (handle.setPointerCapture && ev.pointerId != null) {
+          handle.setPointerCapture(ev.pointerId);
+          captured = true;
+        }
+      } catch (e) { captured = false; }
+
+      wrap.classList.add('dragging');
+      document.body.classList.add('b-dragging');
+
+      const move = e => splitSet(window.innerWidth - e.clientX);
+      const stop = () => {
+        window.removeEventListener('pointermove', move);
+        window.removeEventListener('pointerup', stop);
+        window.removeEventListener('pointercancel', stop);
+        if (captured) { try { handle.releasePointerCapture(ev.pointerId); } catch (e) {} }
+        wrap.classList.remove('dragging');
+        document.body.classList.remove('b-dragging');
+      };
+      window.addEventListener('pointermove', move);
+      window.addEventListener('pointerup', stop);
+      window.addEventListener('pointercancel', stop);
+    }
+
+    /* A drag handle nobody can reach from the keyboard is a drag handle half the
+       people cannot use. */
+    function splitKey(ev) {
+      const step = ev.shiftKey ? 48 : 16;
+      const current = parseInt(store.get(ROOM_KEY) || ROOM_DEFAULT, 10);
+      if (ev.key === 'ArrowLeft') { splitSet(current + step); ev.preventDefault(); }
+      else if (ev.key === 'ArrowRight') { splitSet(current - step); ev.preventDefault(); }
+      else if (ev.key === 'Home') { splitSet(ROOM_DEFAULT); ev.preventDefault(); }
+    }
+
+    function bToggleRoom() {
+      document.getElementById('b-wrap').classList.toggle('show-room');
+      renderRoom();
+    }
+
+    /* ═══ ROOM VIEW ═══════════════════════════════════════════════════════
+       Built from the same fields the gym puts in its participant payload —
+       title, content, discussion, questions that are not marked ?- — so this
+       cannot drift into showing something the room would never see. */
+    function renderRoom() {
+      const panel = document.getElementById('b-room');
+      if (!document.getElementById('b-wrap').classList.contains('show-room')) { panel.innerHTML = ''; return; }
+      const s = doc.stages[focus];
+      if (metaFocus || !s) {
+        const text = metaFocus ? (doc[metaFocus] || '') : '';
+        panel.innerHTML = `<div class="b-room-head"><span>On the room's screen</span></div>
+          <div class="b-room-card">${text ? TTXF.markdown(text) : '<p style="opacity:.5">Nothing to show yet.</p>'}</div>`;
+        return;
+      }
+      const visible = s.questions.filter(q => !q.participantHidden && (q.question || '').trim());
+      const discussion = s.discussion.filter(d => d.trim());
+      panel.innerHTML = `
+        <div class="b-room-head">
+          <span>On the room's screen</span>
+          <span>${focus + 1} / ${doc.stages.length}</span>
+        </div>
+        <div class="b-room-card">
+          <h4>${esc(s.stage || 'Untitled stage')}</h4>
+          ${s.content.trim() ? TTXF.markdown(s.content) : '<p style="opacity:.45">No content yet.</p>'}
+          ${discussion.length ? `<div class="b-room-talk"><ol>${
+            discussion.map(d => `<li>${TTXF.inline(d)}</li>`).join('')}</ol></div>` : ''}
+          ${visible.map(q => `<div class="b-room-q">
+            <div class="qt">${esc(q.question)}</div>
+            <div class="opts">${q.answers.filter(a => a.trim())
+              .map(a => `<span class="opt">${esc(a)}</span>`).join('')}</div>
+          </div>`).join('')}
+        </div>
+        <div class="b-room-note">${roomOmissions(s)}</div>`;
+      // scenario media is written relative to gym/; this page sits one level up
+      panel.querySelectorAll('img[src]').forEach(img => {
+        const raw = img.getAttribute('src');
+        if (!/^([a-z][a-z0-9+.-]*:|\/\/|\/|#)/i.test(raw)) img.setAttribute('src', raw.replace(/^\.\.\//, ''));
+      });
+    }
+
+    /* Saying what is being withheld is as useful as showing what is not. */
+    function roomOmissions(s) {
+      const bits = [];
+      const hidden = s.questions.filter(q => q.participantHidden && (q.question || '').trim()).length;
+      const prompts = s.prompts.filter(p => p.trim()).length;
+      if (prompts) bits.push(prompts + ' facilitator prompt' + (prompts === 1 ? '' : 's'));
+      if (hidden) bits.push(hidden + ' private question' + (hidden === 1 ? '' : 's'));
+      if (s.duration) bits.push('timing (' + esc(s.duration) + ')');
+      return bits.length ? 'Held back from this screen: ' + bits.join(', ') + '.' : '';
+    }
+
+    function renderAll() { renderOutline(); renderWork(); renderRoom(); status(); clearTimeout(saveTimer); saveTimer = setTimeout(save, 400); }
+
+    /* ═══ START ═══ everything runs from here, at the bottom, so nothing is
+       referenced before it is defined. */
+    function start() {
+      const draft = store.get(DRAFT_KEY);
+      if (draft) {
+        try { doc = JSON.parse(draft); } catch (e) { /* fall through to empty */ }
+      }
+      if (!doc.stages) doc.stages = [];
+      splitSet(parseInt(store.get(ROOM_KEY) || ROOM_DEFAULT, 10));
+      // bound here rather than as inline attributes: pointer events are not
+      // recognised as handler attributes everywhere, and this is testable
+      const split = document.getElementById('b-split');
+      split.addEventListener('pointerdown', splitStart);
+      split.addEventListener('mousedown', splitStart);        // fallback where PointerEvent is absent
+      split.addEventListener('dblclick', () => splitSet(ROOM_DEFAULT));
+      split.addEventListener('keydown', splitKey);
+      window.addEventListener('resize', () =>
+        splitSet(parseInt(store.get(ROOM_KEY) || ROOM_DEFAULT, 10)));
+      renderAll();
+      window.addEventListener('beforeunload', save);
+    }
+    start();
+  </script>
+</body>
+
+</html>

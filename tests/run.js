@@ -7,6 +7,7 @@ const suites = [
   ['gym player', 'test-b.js'],
   ['format integration', 'test-c.js'],
   ['scenario builder', 'test-editor.js'],
+  ['builder (rebuild)', 'test-builder.js'],
   ['exercise library', 'test-lib.js'],
   ['participant window', 'test-participant.js'],
   ['features', 'test-f.js'],
