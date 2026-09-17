@@ -2708,6 +2708,7 @@
      TTXF.MEDIA_CSS                               styling for .SFmedia
      TTXF.CODE_CSS                                styling for `inline code` and ``` blocks
      TTXF.setNewsBackdrop(url)                    where %news() finds its backdrop
+     TTXF.htmlToSource(el)                        rendered DOM back to .ttxf
 
    The model holds RAW author text throughout. Nothing is escaped or rendered at
    parse time — that is the caller's job at the point of display. Parsing used to
@@ -3224,6 +3225,95 @@
     return out.join('');
   }
 
+  /* --- DOM back to source -------------------------------------------------- */
+
+  /* The inverse of markdown(), for an editable region: take the rendered DOM an
+     author has been working in and produce .ttxf again. Ten node types, which is
+     what makes a visual editor tractable for this format at all.
+
+     Not perfectly lossless in one respect, and deliberately so: markdown() joins
+     consecutive lines into one paragraph, so a soft line break inside a paragraph
+     cannot be recovered from the HTML and comes back re-wrapped. Callers that
+     care should keep the original source for anything the author did not touch. */
+
+  var BLOCK_DIRECTIVE = /^(!|@|#|\?|\+|\/\/|~|```|\\|-\s|\d+\.\s)/;
+
+  function mediaSource(el) {
+    var scale = el.getAttribute('data-scale');
+    return '%(' + (el.getAttribute('src') || '') + (scale ? ' | ' + scale : '') + ')';
+  }
+
+  function inlineSource(node) {
+    var out = '';
+    var kids = node.childNodes;
+    for (var i = 0; i < kids.length; i++) {
+      var n = kids[i];
+      if (n.nodeType === 3) { out += n.nodeValue; continue; }
+      if (n.nodeType !== 1) continue;
+      var tag = n.tagName.toLowerCase();
+      if (tag === 'br') out += '\n';
+      else if (tag === 'strong' || tag === 'b') out += '**' + inlineSource(n) + '**';
+      else if (tag === 'em' || tag === 'i') out += '*' + inlineSource(n) + '*';
+      else if (tag === 'code') out += '`' + n.textContent + '`';
+      else if (tag === 'img' && n.className.indexOf('SFmedia') > -1) out += mediaSource(n);
+      else out += inlineSource(n);
+    }
+    return out;
+  }
+
+  function htmlToSource(root) {
+    if (!root) return '';
+    var out = [];
+    function line(text) {
+      // a content line that would otherwise read as a directive needs its escape back
+      out.push(BLOCK_DIRECTIVE.test(text.trim()) ? '\\' + text : text);
+    }
+    function gap() { if (out.length && out[out.length - 1] !== '') out.push(''); }
+
+    var kids = root.childNodes;
+    for (var i = 0; i < kids.length; i++) {
+      var n = kids[i];
+      if (n.nodeType === 3) { if (n.nodeValue.trim()) { line(n.nodeValue.trim()); gap(); } continue; }
+      if (n.nodeType !== 1) continue;
+      var tag = n.tagName.toLowerCase();
+      var cls = typeof n.className === 'string' ? n.className : '';
+
+      if (tag === 'pre') {
+        out.push('```' + (n.getAttribute('data-label') || ''));
+        var body = n.textContent.replace(/\n$/, '');
+        body.split('\n').forEach(function (l) { out.push(l); });
+        out.push('```'); gap();
+      } else if (tag === 'figure' && cls.indexOf('SFnews') > -1) {
+        var head = n.querySelector('.SFnews-line');
+        var flag = n.querySelector('.SFnews-flag');
+        var f = flag ? flag.textContent.trim() : '';
+        out.push('%news(' + (head ? head.textContent.trim() : '') +
+                 (f && f.toLowerCase() !== 'breaking news' ? ' | ' + f : '') + ')');
+        gap();
+      } else if (tag === 'blockquote') {
+        out.push('~' + inlineSource(n).trim()); gap();
+      } else if (tag === 'ul' || tag === 'ol') {
+        var items = n.children, ordered = tag === 'ol';
+        for (var j = 0; j < items.length; j++) {
+          if (items[j].tagName.toLowerCase() !== 'li') continue;
+          out.push((ordered ? (j + 1) + '. ' : '- ') + inlineSource(items[j]).trim());
+        }
+        gap();
+      } else if (tag === 'img' && cls.indexOf('SFmedia') > -1) {
+        out.push(mediaSource(n)); gap();
+      } else if (tag === 'hr') {
+        gap();
+      } else {
+        // p, div, headings, anything else: one paragraph of inline content
+        var text = inlineSource(n);
+        if (!text.trim()) continue;
+        text.split('\n').forEach(function (l) { line(l); });
+        gap();
+      }
+    }
+    return out.join('\n').replace(/\n{3,}/g, '\n\n').replace(/^\n+|\s+$/g, '');
+  }
+
   /* --- media sizing ------------------------------------------------------- */
 
   // %(url | 50%) means 50% of the image's own natural width; anything with a unit
@@ -3310,6 +3400,7 @@
     applyMediaScale: applyMediaScale,
     GLOBAL_KEYS: GLOBAL_KEYS,
     STAGE_KEYS: STAGE_KEYS,
+    htmlToSource: htmlToSource,
     MEDIA_CSS: MEDIA_CSS,
     setNewsBackdrop: setNewsBackdrop,
     CODE_CSS: CODE_CSS,
