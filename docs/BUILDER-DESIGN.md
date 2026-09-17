@@ -157,13 +157,40 @@ presets, the syntax insert bar, and the image gallery picker.
 | 3. Shell: layout, outline, stage workspace, round-trip, autosave | done |
 | 4. WYSIWYG content areas, with a source toggle | done |
 | 5. Questions, answers and the audience split | done |
-| 6. Room preview, pacing, scaffolding | done |
+| 6. Participant view, pacing, scaffolding | done |
 | 7. Import, validation, gallery, syntax bar | |
 | 8. Parity tests against the existing builder, then swap | |
 
 ## Progress log
 
 **Steps 1–2 — documents.** Review and design written.
+
+**The participant view, rebuilt twice.** It began as a miniature card the builder
+drew itself from the payload fields. That was a second renderer to keep in step
+with the first, and it could agree with the model while disagreeing with the
+room. It now embeds `PRESENTATION_HTML` — the participant document itself, the
+one the gym serves — in an iframe, so there is nothing left to drift.
+
+Making that possible meant lifting the document out of `gym/index.html` into
+`js/participant-view.js`, shared by both pages and inlined by the standalone
+build. The gym shrank by 455 lines and gained nothing it did not have.
+
+The first attempt at embedding opened a real browser window, which was the wrong
+reading of the ask: the gym's own picture-in-picture is the thing to copy. It is
+now a floating panel — draggable by its header, resizable from the corner grip
+(arrow keys too, since a grip is useless without a mouse), collapsible to its
+header, and clamped back into view after every change so it cannot be stranded
+off-screen with its own handle out of reach. Size and position persist.
+
+The panel chrome is written fresh rather than extracted. The gym's mirror is tied
+to eight functions of its own — theme relay, viewport state, `sendToParticipants`
+— and unpicking a well-tested production feature to share ~150 lines of drag
+maths was a bad trade. The part where fidelity actually matters, the document, is
+shared.
+
+A payload detail survives both rewrites: scenario media is written relative to
+`gym/`, the builder sits one level up, and a blob-origin iframe can resolve
+neither. Every `img` src is made absolute before it crosses.
 
 **A bug found in use, and what it changed.** The Source toggle appeared to erase
 content. The trigger was a cached `js/ttxf.js` without the new `htmlToSource`,
@@ -208,15 +235,13 @@ than against itself — it reads `currentStageMessage()` and fails if prompts ev
 start reaching the participant window, which would make the whole On screen /
 Your notes division a lie.
 
-**Step 6 — room view, pacing, shapes.**
+**Step 6 — participant view, pacing, shapes.**
 
-*Room view.* A miniature of the participant window, built from the same fields
-the gym puts in its payload — title, content, discussion, questions not marked
-`?-`. Moving a question across the divide visibly removes it from the room view,
-which is the split proving itself. Under the card it says what is being withheld
-("Held back from this screen: 4 facilitator prompts, 1 private question, timing")
-— saying what the room will *not* see turns out to be as useful as showing what
-it will.
+*Participant view.* The payload the gym would send — title, content, discussion,
+questions not marked `?-` — rendered by the participant document itself. Moving a
+question across the divide visibly removes it from that screen, which is the
+split proving itself. (First built as a card the builder drew; see *The
+participant view, rebuilt twice* above.)
 
 *Pacing.* The content-weight model the scenario review had to build to repair the
 library, brought forward into authoring: a discussion point is worth about two

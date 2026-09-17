@@ -21,7 +21,10 @@ function boot(draft, width) {
     runScripts: 'dangerously', url: 'https://ttxgym.com/builder.html', virtualConsole: vc,
     beforeParse(w) {
       w.eval(fs.readFileSync(path.join(ROOT, 'js/ttxf.js'), 'utf8'));
+      w.eval(fs.readFileSync(path.join(ROOT, 'js/participant-view.js'), 'utf8'));
       if (width) Object.defineProperty(w, 'innerWidth', { value: width, configurable: true });
+      w.URL.createObjectURL = () => 'blob:stub';
+      w.URL.revokeObjectURL = () => {};
       Object.defineProperty(w, 'localStorage', { value: {
         getItem: k => (k in store ? store[k] : null),
         setItem: (k, v) => { store[k] = String(v); },
@@ -38,10 +41,21 @@ G('it loads');
 {
   const { w, errs } = boot();
   t('with no script errors', () => eq(errs, []));
-  t('and shows the three zones of the layout', () => {
+  t('and shows the outline and the workspace', () => {
     ok(w.document.getElementById('b-outline'), 'no outline');
     ok(w.document.getElementById('b-work'), 'no workspace');
-    ok(w.document.getElementById('b-room'), 'no room panel');
+  });
+
+  t('the participant view floats over the workspace rather than taking a column', () => {
+    ok(!w.document.getElementById('b-room'), 'the room column is back');
+    const cols = /#b-wrap\s*\{[^}]*grid-template-columns:\s*([^;]+);/
+      .exec(fs.readFileSync(path.join(ROOT, 'builder.html'), 'utf8'));
+    ok(cols, 'no layout to check');
+    eq(cols[1].trim().split(/\s+(?![^(]*\))/).length, 2, 'the layout still reserves a column for it');
+    const panel = w.document.getElementById('b-mirror');
+    ok(panel, 'no participant view');
+    ok(panel.classList.contains('hide'), 'it is open before anyone asks for it');
+    ok(w.document.getElementById('b-room-btn'), 'no control to open it');
   });
   t('an empty builder offers a way in rather than a blank page', () => {
     const empty = w.document.querySelector('#b-work-inner .b-empty');
@@ -452,51 +466,158 @@ G('starting from a shape');
 }
 
 
-G('the room view shows only what the room gets');
+G('the room view is the real participant window');
 {
   const { w } = boot();
   w.load(fs.readFileSync(path.join(ROOT, 'lib/scenarios/cold_start.ttxf'), 'utf8'));
-  w.bToggleRoom();
   w.bFocus(1);                       // a visible quiz plus a hidden confidence poll
-  const room = () => w.document.getElementById('b-room');
+  const payload = () => w.roomPayload();
 
-  t('it shows the stage as the participants would see it', () => {
-    has(room().querySelector('h4').textContent, 'DETECTION');
-    ok(room().querySelector('p'), 'no content rendered');
+  t('it uses the participant document the gym uses, not a copy', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'builder.html'), 'utf8');
+    has(src, 'PRESENTATION_HTML');
+    has(src, 'js/participant-view.js');
+    ok(!/b-room-card/.test(src), 'a second, smaller participant view is still in the builder');
   });
 
-  t('visible questions appear', () => ok(room().querySelectorAll('.b-room-q').length >= 1));
+  t('and the same shared file the gym loads', () => {
+    const gym = fs.readFileSync(path.join(ROOT, 'gym/index.html'), 'utf8');
+    has(gym, 'js/participant-view.js');
+    ok(!/const PRESENTATION_HTML = `/.test(gym), 'the gym still carries its own copy');
+  });
+
+  t('the payload carries exactly the fields the gym sends', () => {
+    const gymSrc = fs.readFileSync(path.join(ROOT, 'gym/index.html'), 'utf8');
+    const fn = gymSrc.slice(gymSrc.indexOf('function currentStageMessage'),
+                            gymSrc.indexOf('function broadcastCurrentStage'));
+    const expected = ['type', 'title', 'content', 'discussion', 'questions', 'image'];
+    expected.forEach(k => ok(new RegExp(k + ':').test(fn), 'the gym no longer sends ' + k));
+    expected.forEach(k => ok(k in payload(), 'the builder does not send ' + k));
+  });
+
+  t('visible questions travel', () => {
+    const p = payload();
+    eq(p.questions.length, 1);
+    has(p.questions[0].question, 'immediate action');
+  });
 
   t('a ?- question does not', () => {
     const hidden = JSON.parse(w.eval('JSON.stringify(doc.stages[1].questions.filter(q => q.participantHidden).map(q => q.question))'));
-    ok(hidden.length, 'fixture has no hidden question to check');
-    hidden.forEach(q => ok(!room().textContent.includes(q.slice(0, 30)), 'a private question reached the room view'));
+    ok(hidden.length, 'fixture has no hidden question');
+    const sent = JSON.stringify(payload());
+    hidden.forEach(q => ok(!sent.includes(q.slice(0, 30)), 'a private question reached the room'));
   });
 
   t('and neither do facilitator prompts', () => {
     const prompts = JSON.parse(w.eval('JSON.stringify(doc.stages[1].prompts)'));
-    ok(prompts.length, 'fixture has no prompts to check');
-    prompts.forEach(p => ok(!room().textContent.includes(p.slice(0, 25)), 'a prompt reached the room view'));
+    ok(prompts.length, 'fixture has no prompts');
+    const sent = JSON.stringify(payload());
+    prompts.forEach(x => ok(!sent.includes(x.slice(0, 25)), 'a prompt reached the room'));
   });
 
-  t('it says what is being held back', () => {
-    const note = room().querySelector('.b-room-note').textContent;
-    has(note, 'Held back');
-    has(note, 'prompt');
-  });
-
-  t('moving a question across the divide takes it off the room view', () => {
-    const before = room().querySelectorAll('.b-room-q').length;
+  t('moving a question across the divide takes it off the room screen', () => {
+    const before = payload().questions.length;
     w.bMoveQuestion(0);
-    eq(room().querySelectorAll('.b-room-q').length, before - 1);
+    eq(payload().questions.length, before - 1);
     w.bMoveQuestion(0);
   });
 
-  t('images resolve from the builder, not one level above the site', () => {
-    w.eval('doc.stages[1].content = "%(../lib/exercise_data/icons/TTXGYM_Warning_red.png | 60%)"; renderRoom();');
-    const img = room().querySelector('img');
-    ok(img, 'no image in the room view');
-    eq(img.getAttribute('src'), 'lib/exercise_data/icons/TTXGYM_Warning_red.png');
+  t('media is made absolute, because a blob window can resolve nothing', () => {
+    w.eval('doc.stages[1].content = "%(../lib/exercise_data/icons/TTXGYM_Warning_red.png | 60%)";');
+    const src = /<img[^>]*src="([^"]+)"/.exec(payload().content);
+    ok(src, 'no image in the payload');
+    ok(/^https?:/.test(src[1]), 'a relative path would break in the participant window: ' + src[1]);
+  });
+
+  t('nothing is sent while the view is closed', () => {
+    let posted = 0;
+    w.document.getElementById('b-mirror-frame').contentWindow = { postMessage: () => { posted++; } };
+    w.sendRoom();
+    eq(posted, 0, 'it posted to a panel nobody is looking at');
+  });
+
+  t('it stays on this page — no second browser window to lose', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'builder.html'), 'utf8');
+    ok(!/window\.open\(/.test(src), 'it still pops out a window');
+    has(src, 'b-mirror-frame');
+  });
+}
+
+G('the participant view is a panel you can place');
+{
+  const { w } = boot(null, 1400);
+  const panel = () => w.document.getElementById('b-mirror');
+  const width = () => parseInt(panel().style.getPropertyValue('--mirror-w'), 10);
+
+  t('the button opens and closes it', () => {
+    w.bToggleRoom();
+    ok(!panel().classList.contains('hide'), 'it did not open');
+    has(w.document.getElementById('b-room-btn').textContent, 'Hide');
+    w.bToggleRoom();
+    ok(panel().classList.contains('hide'), 'it did not close');
+    w.bToggleRoom();
+  });
+
+  t('it shows the real participant document, not a rebuild of it', () => {
+    ok(w.document.getElementById('b-mirror-frame').src, 'the frame is empty');
+    ok(typeof w.PRESENTATION_HTML === 'string', 'the shared document did not load');
+  });
+
+  t('the document is scaled to whatever width the panel is given', () => {
+    w.mirrorSetWidth(640, false);
+    eq(width(), 640);
+    eq(panel().style.getPropertyValue('--mirror-scale'), '0.5000', 'a 1280-wide screen at 640 is half size');
+  });
+
+  t('it cannot be shrunk to nothing or grown past the window', () => {
+    w.mirrorSetWidth(20, false);
+    eq(width(), 240, 'it went below a usable size');
+    w.mirrorSetWidth(99999, false);
+    ok(width() <= 1400 - 60, 'it grew wider than the page');
+  });
+
+  t('arrow keys resize it, for anyone not using a mouse', () => {
+    w.mirrorSetWidth(400, false);
+    const grip = w.document.getElementById('b-mirror-grip');
+    const key = k => {
+      const ev = new w.KeyboardEvent('keydown', { key: k, bubbles: true, cancelable: true });
+      grip.dispatchEvent(ev);
+    };
+    key('ArrowLeft');
+    eq(width(), 416, 'left did not widen it');
+    key('ArrowRight');
+    eq(width(), 400, 'right did not narrow it');
+  });
+
+  t('collapsing leaves the header, so it can be brought back', () => {
+    w.mirrorCollapse();
+    ok(panel().classList.contains('collapsed'), 'it did not collapse');
+    ok(w.document.getElementById('b-mirror-head').offsetParent !== null ||
+       !panel().classList.contains('hide'), 'the header went with it');
+    w.mirrorCollapse();
+    ok(!panel().classList.contains('collapsed'), 'it did not come back');
+  });
+
+  t('dragging moves it, and it cannot be dragged off the page', () => {
+    const head = w.document.getElementById('b-mirror-head');
+    const down = new w.MouseEvent('mousedown', { clientX: 500, clientY: 500, bubbles: true });
+    head.dispatchEvent(down);
+    w.dispatchEvent(new w.MouseEvent('pointermove', { clientX: -5000, clientY: -5000, bubbles: true }));
+    w.dispatchEvent(new w.MouseEvent('pointerup', { bubbles: true }));
+    ok(parseInt(panel().style.right, 10) <= 1400 - width(), 'it left the page to the left');
+    ok(parseInt(panel().style.bottom, 10) >= 0, 'it left the page downward');
+  });
+
+  t('size and place are remembered between sessions', () => {
+    w.mirrorSetWidth(520, true);
+    const saved = JSON.parse(w.localStorage.getItem('ttxgym_builder_mirror'));
+    eq(saved.w, 520);
+  });
+
+  t('reset puts it back in the corner at a sane size', () => {
+    w.mirrorReset();
+    eq(width(), 400);
+    eq(panel().style.right, '20px');
   });
 }
 
@@ -519,74 +640,6 @@ G('pacing is visible while authoring');
     const { w: w2 } = boot();
     w2.bAddStage(); w2.bStage('duration', '90 mins');
     eq(JSON.parse(w2.eval('JSON.stringify(pacing())')), [], 'guessed from a single stage');
-  });
-}
-
-G('the room view can be resized');
-{
-  const { w } = boot(null, 1600);
-  w.bToggleRoom();
-  const wrap = () => w.document.getElementById('b-wrap');
-  const split = () => w.document.getElementById('b-split');
-  const width = () => parseInt(wrap().style.getPropertyValue('--room-w'), 10);
-
-  t('there is a separator, and it is reachable from the keyboard', () => {
-    ok(split(), 'no separator');
-    eq(split().getAttribute('role'), 'separator');
-    eq(split().getAttribute('tabindex'), '0');
-    has(split().getAttribute('aria-label').toLowerCase(), 'resize');
-  });
-
-  t('dragging it follows the pointer', () => {
-    const down = new w.Event('pointerdown', { bubbles: true });
-    down.pointerId = 1; down.clientX = 1180;
-    split().dispatchEvent(down);
-    ok(wrap().classList.contains('dragging'), 'drag did not start');
-    const move = new w.Event('pointermove', { bubbles: true });
-    move.clientX = 1000;
-    w.dispatchEvent(move);
-    eq(width(), 600, 'panel did not follow the pointer');
-  });
-
-  t('releasing ends the drag and clears the drag cursor', () => {
-    w.dispatchEvent(new w.Event('pointerup', { bubbles: true }));
-    ok(!wrap().classList.contains('dragging'));
-    ok(!w.document.body.classList.contains('b-dragging'), 'the page is left in a drag state');
-  });
-
-  t('the width is remembered', () => {
-    eq(w.localStorage.getItem('ttxgym_builder_room_w'), '600');
-    const { w: again } = boot(null, 1600);
-    eq(parseInt(again.document.getElementById('b-wrap').style.getPropertyValue('--room-w'), 10), 420,
-       'a fresh session should start at the default');
-  });
-
-  t('arrow keys move it too', () => {
-    const before = width();
-    const k = new w.Event('keydown', { bubbles: true });
-    k.key = 'ArrowLeft'; k.preventDefault = () => {};
-    split().dispatchEvent(k);
-    ok(width() > before, 'ArrowLeft did not widen the room view');
-  });
-
-  t('double-clicking resets it', () => {
-    split().dispatchEvent(new w.Event('dblclick', { bubbles: true }));
-    eq(width(), 420);
-  });
-
-  t('it cannot be dragged past either end', () => {
-    w.splitSet(10);
-    ok(width() >= 260, 'the room view can be squeezed to nothing: ' + width());
-    w.splitSet(99999);
-    ok(width() <= 1600 - 250 - 6 - 380, 'the workspace can be squeezed out of use: ' + width());
-  });
-
-  t('the drag survives a browser without pointer capture', () => {
-    // setPointerCapture is absent in some engines; it is an enhancement, not a requirement
-    const src = fs.readFileSync(path.join(ROOT, 'builder.html'), 'utf8');
-    has(src, 'handle.setPointerCapture &&');
-    ok(/window\.addEventListener\('pointermove'/.test(src),
-       'the drag relies on capture rather than window listeners');
   });
 }
 

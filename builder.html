@@ -13,38 +13,19 @@
   <link rel="stylesheet" href="style.css">
   <style>
     /* ═══ LAYOUT ═══════════════════════════════════════════════════════════
-       Three zones replacing one long scroll: an outline that is both map and
-       navigation, a workspace showing one stage at a time, and the room view.
-       See docs/BUILDER-DESIGN.md. */
+       Two zones replacing one long scroll: an outline that is both map and
+       navigation, and a workspace showing one stage at a time. The participant
+       view floats over them rather than taking a column of its own — it is 16:9,
+       and a column is the wrong shape for it. See docs/BUILDER-DESIGN.md. */
     #b-wrap {
-      --room-w: 420px;
       display: grid;
-      grid-template-columns: 250px minmax(0, 1fr) 0 0;
+      grid-template-columns: 250px minmax(0, 1fr);
       height: calc(100vh - var(--nav-h, 56px));
       height: calc(100dvh - var(--nav-h, 56px));
       overflow: hidden;
       transition: grid-template-columns 0.2s ease;
     }
-    #b-wrap.show-room { grid-template-columns: 250px minmax(0, 1fr) 6px var(--room-w); }
-    /* no transition while dragging, or the panel lags behind the pointer */
-    #b-wrap.dragging { transition: none; }
 
-    #b-split {
-      cursor: col-resize;
-      background: var(--border);
-      position: relative;
-      touch-action: none;
-    }
-    #b-wrap:not(.show-room) #b-split { display: none; }
-    #b-split:hover, #b-split:focus-visible, #b-wrap.dragging #b-split { background: var(--accent); }
-    #b-split:focus-visible { outline: none; }
-    /* a 6px target is too mean for a pointer, so widen the hit area either side */
-    #b-split::after {
-      content: '';
-      position: absolute;
-      inset: 0 -5px;
-    }
-    body.b-dragging { cursor: col-resize; user-select: none; }
 
     /* ═══ OUTLINE ═══ */
     #b-outline {
@@ -455,87 +436,6 @@
     }
     .b-q-kind.scored { color: var(--green); border-color: color-mix(in srgb, var(--green) 45%, transparent); }
 
-    /* ═══ ROOM VIEW ═══
-       A miniature of the participant window, built from the same payload the gym
-       would send. Dark in both themes because the room screen is. */
-    #b-room { background: #141820; }
-    .b-room-head {
-      font-family: var(--font-mono);
-      font-size: 10px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: rgba(232,236,242,.45);
-      padding: 0.7rem 0.9rem 0.4rem;
-      display: flex;
-      justify-content: space-between;
-    }
-    .b-room-card {
-      margin: 0 0.75rem 0.9rem;
-      background: rgba(30,37,53,.96);
-      border: 1px solid rgba(255,255,255,.08);
-      border-radius: 10px;
-      padding: 0.9rem 1rem 1rem;
-      color: #e8ecf2;
-      font-size: 12.5px;
-      line-height: 1.7;
-    }
-    .b-room-card h4 {
-      font-size: 15px;
-      font-weight: 800;
-      text-align: center;
-      color: rgba(232,236,242,.92);
-      margin: 0 0 0.5rem;
-      padding-bottom: 0.5rem;
-      border-bottom: 1px solid rgba(255,255,255,.07);
-    }
-    .b-room-card p { margin: 0 0 0.5rem; }
-    .b-room-card strong { color: #e8ecf2; }
-    .b-room-card blockquote {
-      margin: 0.5rem 0; padding: 0.5rem 0.7rem;
-      background: rgba(30,75,86,.5); border-left: 3px solid #3ec9c8;
-      border-radius: 0 4px 4px 0;
-    }
-    .b-room-card code {
-      font-family: var(--font-mono); font-size: .88em; padding: .1em .35em;
-      border-radius: 4px; background: rgba(232,236,242,.12); border: 1px solid rgba(232,236,242,.2);
-    }
-    .b-room-card pre.SFpre {
-      font-family: var(--font-mono); font-size: .8em; line-height: 1.55;
-      margin: .6rem 0; padding: .55rem .7rem; border-radius: 6px;
-      background: rgba(232,236,242,.08); border: 1px solid rgba(232,236,242,.16);
-      white-space: pre-wrap; overflow-wrap: break-word;
-    }
-    .b-room-card pre.SFpre > code { background: none; border: 0; padding: 0; font-size: inherit; }
-    .b-room-card img.SFmedia { display: block; margin: .6rem auto; max-width: 100%; height: auto; border-radius: 6px; }
-    .b-room-card figure.SFnews { position: relative; margin: .6rem 0; border-radius: 6px; overflow: hidden; }
-    .b-room-card figure.SFnews img { display: block; width: 100%; height: auto; }
-    .b-room-card figure.SFnews figcaption { position: absolute; left: 0; right: 0; bottom: 0; display: flex; font-size: 9px; }
-    .b-room-card .SFnews-flag { background: #c8102e; color: #fff; font-weight: 800; text-transform: uppercase; padding: .6em .7em; }
-    .b-room-card .SFnews-line { flex: 1; background: rgba(11,14,20,.9); color: #fff; font-weight: 700; padding: .6em .7em; }
-
-    .b-room-talk {
-      margin: 0.6rem 0 0; padding: 0.55rem 0.7rem;
-      background: rgba(0,51,102,.3); border-left: 3px solid #2e7de0;
-      border-radius: 0 4px 4px 0;
-    }
-    .b-room-talk ol { margin: 0; padding-left: 1.1rem; font-style: italic; }
-    .b-room-q {
-      margin-top: 0.5rem; padding: 0.5rem 0.65rem;
-      background: rgba(44,54,80,.7); border: 1px solid rgba(255,255,255,.07);
-      border-left: 3px solid #2e7de0; border-radius: 6px;
-    }
-    .b-room-q .qt { font-weight: 600; font-size: 12px; margin-bottom: 0.35rem; }
-    .b-room-q .opts { display: flex; flex-wrap: wrap; gap: 0.3rem; }
-    .b-room-q .opt {
-      font-size: 10.5px; font-style: italic; padding: .2rem .5rem;
-      border: 1px solid rgba(255,255,255,.08); border-radius: 99px;
-      background: rgba(255,255,255,.05);
-    }
-    .b-room-note {
-      padding: 0 0.95rem 1rem; font-size: 10.5px; line-height: 1.6;
-      color: rgba(232,236,242,.4); font-family: var(--font-mono);
-    }
-
     /* pacing: a stage whose clock looks out of step with what is in it */
     .b-stage-row .warn { color: var(--amber); }
     #b-pace {
@@ -549,6 +449,93 @@
       padding: 2.5rem 0;
       text-align: center;
     }
+
+    /* ═══ THE MIRROR ═══════════════════════════════════════════════════════
+       The participant document itself, at 1280x720, scaled down and floated over
+       the workspace — the same picture-in-picture the gym gives a facilitator.
+       One width drives the panel, the 16:9 frame and the scale of the document
+       inside it; CSS cannot divide by a length, so the scale is set alongside. */
+    #b-mirror {
+      position: fixed;
+      right: 1.25rem;
+      bottom: 1.25rem;
+      z-index: 600;
+      --mirror-w: 400px;
+      --mirror-scale: 0.3125;
+      --mirror-ratio: 0.5625;
+      --mirror-vw: 1280px;
+      --mirror-vh: 720px;
+      width: var(--mirror-w);
+      background: var(--mid);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    #b-mirror.hide { display: none; }
+
+    #b-mirror-head {
+      cursor: move;
+      touch-action: none;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.4rem 0.35rem 0.4rem 0.7rem;
+      font-size: 11px;
+      font-family: var(--font-mono);
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border);
+    }
+    #b-mirror-head .grow { flex: 1; }
+    #b-mirror-head button {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 13px;
+      line-height: 1;
+      padding: 0.15rem 0.4rem;
+      border-radius: var(--radius);
+    }
+    #b-mirror-head button:hover { color: var(--text-primary); background: var(--surface); }
+
+    #b-mirror-wrap {
+      width: var(--mirror-w);
+      height: calc(var(--mirror-w) * var(--mirror-ratio));
+      overflow: hidden;
+      background: var(--back);
+    }
+    #b-mirror.collapsed #b-mirror-wrap { display: none; }
+
+    /* live, not a picture: it is the real document, scaled */
+    #b-mirror iframe {
+      width: var(--mirror-vw);
+      height: var(--mirror-vh);
+      border: 0;
+      transform: scale(var(--mirror-scale));
+      transform-origin: top left;
+    }
+
+    /* drag the corner to resize */
+    #b-mirror-grip {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 14px;
+      height: 14px;
+      cursor: nwse-resize;
+      touch-action: none;
+      z-index: 2;
+    }
+    #b-mirror-grip::before {
+      content: '';
+      position: absolute;
+      inset: 4px;
+      border-top: 2px solid var(--text-muted);
+      border-left: 2px solid var(--text-muted);
+      border-radius: 2px 0 0 0;
+    }
+    #b-mirror-grip:hover::before, #b-mirror-grip:focus-visible::before { border-color: var(--accent); }
 
     /* ═══ TOP BAR ═══ */
     #b-top {
@@ -569,7 +556,7 @@
     #b-status.good { color: var(--green); }
 
     @media (max-width: 900px) {
-      #b-wrap, #b-wrap.show-room { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+      #b-wrap { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
       #b-outline { max-height: 34vh; }
     }
   </style>
@@ -582,9 +569,23 @@
     <span class="grow"></span>
     <button class="btn btn-ghost" onclick="bNewFromShape()">New</button>
     <button class="btn btn-ghost" onclick="bImportPrompt()">Import</button>
-    <button class="btn btn-ghost" onclick="bToggleRoom()">Room view</button>
+    <button class="btn btn-ghost" id="b-room-btn" onclick="bToggleRoom()">Participant view</button>
     <button class="btn btn-primary" onclick="bExport()">Download .ttxf</button>
   </div>
+
+  <aside id="b-mirror" class="hide" aria-label="Participant view mirror">
+    <div id="b-mirror-grip" role="separator" aria-orientation="vertical" tabindex="0"
+         aria-label="Resize the participant view. Drag, or use the arrow keys."
+         title="Drag to resize · double-click to reset"></div>
+    <div id="b-mirror-head">
+      <span>Participant view</span>
+      <span class="grow"></span>
+      <button type="button" onclick="mirrorReset()" title="Reset size and position" aria-label="Reset size and position">⤢</button>
+      <button type="button" id="b-mirror-toggle" onclick="mirrorCollapse()" title="Collapse" aria-label="Collapse the participant view">–</button>
+      <button type="button" onclick="bToggleRoom()" title="Close" aria-label="Close the participant view">✕</button>
+    </div>
+    <div id="b-mirror-wrap"><iframe id="b-mirror-frame" title="Live preview of the participant screen" tabindex="-1"></iframe></div>
+  </aside>
 
   <div id="b-wrap">
     <aside id="b-outline">
@@ -607,14 +608,12 @@
     </aside>
 
     <main id="b-work"><div id="b-work-inner"></div></main>
-    <div id="b-split" role="separator" aria-orientation="vertical" tabindex="0"
-         aria-label="Resize the room view" title="Drag to resize · double-click to reset"></div>
-    <aside id="b-room" style="overflow:auto"></aside>
   </div>
 
   <!-- versioned: builder.html depends on TTXF.htmlToSource, and a cached copy
        of the module without it would silently swallow the author's typing -->
   <script src="js/ttxf.js?v=2"></script>
+  <script src="js/participant-view.js?v=2"></script>
   <script>
     /* ═══ MODEL ═══════════════════════════════════════════════════════════
        One document, one focused stage. Everything goes through TTXF.parse and
@@ -640,7 +639,7 @@
 
     function touched() {
       renderOutline();
-      renderRoom();
+      sendRoom();
       clearTimeout(saveTimer);
       saveTimer = setTimeout(save, 400);
       status();
@@ -757,11 +756,11 @@
       }).filter(Boolean);
     }
 
-    function bFocus(i) { metaFocus = null; focus = i; renderWork(); renderOutline(); renderRoom(); document.getElementById('b-work').scrollTop = 0; }
+    function bFocus(i) { metaFocus = null; focus = i; renderWork(); renderOutline(); sendRoom(); document.getElementById('b-work').scrollTop = 0; }
 
     /* Summary and conclusion are prose like a stage is prose, so they are edited
        in the workspace with the same tools rather than crammed into the rail. */
-    function bFocusMeta(field) { metaFocus = field; renderWork(); renderOutline(); renderRoom(); }
+    function bFocusMeta(field) { metaFocus = field; renderWork(); renderOutline(); sendRoom(); }
 
     function bAddStage() {
       doc.stages.push(blankStage());
@@ -1169,6 +1168,221 @@
       renderAll();
     }
 
+    /* ═══ THE MIRROR ═══════════════════════════════════════════════════════
+       The participant view, embedded rather than popped out: an iframe of the
+       real document floating over the workspace, the same picture-in-picture the
+       gym gives a facilitator.
+
+       The document comes from js/participant-view.js, shared with the gym, so the
+       thing an author checks against is the thing the room gets. Only the panel
+       chrome — drag, resize, collapse — is written here; the gym's own mirror is
+       wired into its participant-state relay and was not worth unpicking. */
+    const MIRROR_DEFAULT_W = 400;
+    const MIRROR_MIN_W = 240;
+    const MIRROR_KEY = 'ttxgym_builder_mirror';
+    let mirrorOn = false;
+
+    function mirrorPanel() { return document.getElementById('b-mirror'); }
+    function mirrorFrame() { return document.getElementById('b-mirror-frame'); }
+
+    function bToggleRoom() {
+      mirrorOn = !mirrorOn;
+      mirrorPanel().classList.toggle('hide', !mirrorOn);
+      const btn = document.getElementById('b-room-btn');
+      if (btn) btn.textContent = mirrorOn ? 'Hide participant view' : 'Participant view';
+      if (mirrorOn) { mirrorMount(); sendRoom(); }
+    }
+
+    function mirrorMount() {
+      const frame = mirrorFrame();
+      if (!frame || frame.dataset.mounted) return;
+      if (typeof PRESENTATION_HTML !== 'string') {
+        failSafe('the participant view did not load — try a hard refresh');
+        return;
+      }
+      const blob = new Blob([PRESENTATION_HTML], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      frame.addEventListener('load', () => { try { URL.revokeObjectURL(url); } catch (e) {} sendRoom(); }, { once: true });
+      frame.src = url;
+      frame.dataset.mounted = '1';
+      mirrorRestore();
+      mirrorInitDrag();
+      mirrorInitResize();
+      mirrorClamp();
+    }
+
+    function mirrorSetWidth(px, remember) {
+      const max = Math.max(MIRROR_MIN_W, window.innerWidth - 60);
+      const w = Math.round(Math.min(Math.max(px, MIRROR_MIN_W), max));
+      const panel = mirrorPanel();
+      panel.style.setProperty('--mirror-w', w + 'px');
+      // CSS cannot divide by a length, so the document's scale is set alongside
+      panel.style.setProperty('--mirror-scale', (w / 1280).toFixed(4));
+      if (remember) mirrorRemember({ w: w });
+      return w;
+    }
+
+    function mirrorWidth() {
+      return parseInt(mirrorPanel().style.getPropertyValue('--mirror-w'), 10) || MIRROR_DEFAULT_W;
+    }
+
+    function mirrorSetPosition(right, bottom, remember) {
+      const panel = mirrorPanel();
+      panel.style.right = Math.round(right) + 'px';
+      panel.style.bottom = Math.round(bottom) + 'px';
+      if (remember) mirrorRemember({ right: Math.round(right), bottom: Math.round(bottom) });
+    }
+
+    function mirrorRemember(patch) {
+      let saved = {};
+      try { saved = JSON.parse(store.get(MIRROR_KEY) || '{}'); } catch (e) { saved = {}; }
+      store.set(MIRROR_KEY, JSON.stringify(Object.assign(saved, patch)));
+    }
+
+    function mirrorRestore() {
+      let saved = {};
+      try { saved = JSON.parse(store.get(MIRROR_KEY) || '{}'); } catch (e) { saved = {}; }
+      mirrorSetWidth(saved.w || MIRROR_DEFAULT_W, false);
+      mirrorSetPosition(saved.right == null ? 20 : saved.right,
+                        saved.bottom == null ? 20 : saved.bottom, false);
+    }
+
+    function mirrorReset() {
+      mirrorSetWidth(MIRROR_DEFAULT_W, true);
+      mirrorSetPosition(20, 20, true);
+      mirrorPanel().classList.remove('collapsed');
+    }
+
+    function mirrorCollapse() {
+      const panel = mirrorPanel();
+      const collapsed = panel.classList.toggle('collapsed');
+      const btn = document.getElementById('b-mirror-toggle');
+      if (btn) { btn.textContent = collapsed ? '+' : '–'; btn.title = collapsed ? 'Expand' : 'Collapse'; }
+      mirrorClamp();
+    }
+
+    /* A panel dragged near an edge and then expanded can end up off-screen with
+       its own drag bar out of reach, so it is pulled back after every change. */
+    function mirrorClamp() {
+      const panel = mirrorPanel();
+      const w = mirrorWidth();
+      const h = panel.offsetHeight || 260;
+      const right = parseInt(panel.style.right, 10) || 0;
+      const bottom = parseInt(panel.style.bottom, 10) || 0;
+      const maxRight = Math.max(0, window.innerWidth - w);
+      const maxBottom = Math.max(0, window.innerHeight - h);
+      mirrorSetPosition(Math.min(Math.max(right, 0), maxRight),
+                        Math.min(Math.max(bottom, 0), maxBottom), false);
+    }
+
+    function mirrorDragWith(ev, onMove) {
+      if (ev.preventDefault) ev.preventDefault();
+      const move = e => onMove(e);
+      const stop = () => {
+        window.removeEventListener('pointermove', move);
+        window.removeEventListener('pointerup', stop);
+        window.removeEventListener('pointercancel', stop);
+        mirrorRemember({ w: mirrorWidth(),
+                         right: parseInt(mirrorPanel().style.right, 10) || 0,
+                         bottom: parseInt(mirrorPanel().style.bottom, 10) || 0 });
+      };
+      window.addEventListener('pointermove', move);
+      window.addEventListener('pointerup', stop);
+      window.addEventListener('pointercancel', stop);
+    }
+
+    function mirrorInitDrag() {
+      const head = document.getElementById('b-mirror-head');
+      if (!head || head.dataset.wired) return;
+      head.dataset.wired = '1';
+      const begin = ev => {
+        if (ev.target.closest('button')) return;          // the controls are not a handle
+        const panel = mirrorPanel();
+        const startX = ev.clientX, startY = ev.clientY;
+        const right0 = parseInt(panel.style.right, 10) || 0;
+        const bottom0 = parseInt(panel.style.bottom, 10) || 0;
+        mirrorDragWith(ev, e => {
+          mirrorSetPosition(right0 - (e.clientX - startX), bottom0 - (e.clientY - startY), false);
+          mirrorClamp();
+        });
+      };
+      head.addEventListener('pointerdown', begin);
+      head.addEventListener('mousedown', begin);
+    }
+
+    function mirrorInitResize() {
+      const grip = document.getElementById('b-mirror-grip');
+      if (!grip || grip.dataset.wired) return;
+      grip.dataset.wired = '1';
+      const begin = ev => {
+        const startX = ev.clientX;
+        const w0 = mirrorWidth();
+        mirrorDragWith(ev, e => { mirrorSetWidth(w0 - (e.clientX - startX), false); mirrorClamp(); });
+      };
+      grip.addEventListener('pointerdown', begin);
+      grip.addEventListener('mousedown', begin);
+      grip.addEventListener('dblclick', () => mirrorReset());
+      grip.addEventListener('keydown', ev => {
+        const step = ev.shiftKey ? 48 : 16;
+        if (ev.key === 'ArrowLeft') { mirrorSetWidth(mirrorWidth() + step, true); ev.preventDefault(); }
+        else if (ev.key === 'ArrowRight') { mirrorSetWidth(mirrorWidth() - step, true); ev.preventDefault(); }
+        else if (ev.key === 'Home') { mirrorReset(); ev.preventDefault(); }
+      });
+    }
+
+    /* Scenario media is written relative to gym/; this page is one level up, and
+       the iframe has a blob origin that can resolve neither. Absolute is the only
+       thing that survives the crossing. */
+    function roomAbsolute(html) {
+      if (!html || html.indexOf('src=') === -1) return html;
+      const holder = document.createElement('div');
+      holder.innerHTML = html;
+      holder.querySelectorAll('img[src]').forEach(img => {
+        const raw = img.getAttribute('src');
+        try { img.src = new URL(raw.replace(/^\.\.\//, ''), document.baseURI).href; } catch (e) {}
+      });
+      return holder.innerHTML;
+    }
+
+    /* Exactly the fields the gym puts in its payload — so what the author sees is
+       what the room gets, including what it does not get. */
+    function roomPayload() {
+      const place = { step: focus + 1, steps: doc.stages.length };
+      if (metaFocus) {
+        return Object.assign({ type: 'update',
+          title: metaFocus === 'summary' ? 'Before we start' : 'Debrief',
+          content: roomAbsolute(TTXF.markdown(doc[metaFocus] || '')),
+          discussion: [], questions: [], image: null }, { step: 0, steps: doc.stages.length });
+      }
+      const s = doc.stages[focus];
+      if (!s) return Object.assign({ type: 'update', title: 'Nothing to show yet', content: '',
+                                     discussion: [], questions: [], image: null }, place);
+      return Object.assign({
+        type: 'update',
+        title: s.stage || 'Untitled stage',
+        content: roomAbsolute(TTXF.markdown(s.content || '')),
+        discussion: s.discussion.filter(d => d.trim()).map(d => roomAbsolute(TTXF.inline(d))),
+        questions: s.questions
+          .filter(q => !q.participantHidden && (q.question || '').trim())
+          .map((q, i) => {
+            const answers = q.answers.filter(a => a.trim());
+            return { name: 'b' + focus + '_' + i, question: q.question, answers: answers,
+                     quiz: q.quizIndex > -1, counts: answers.map(() => 0) };
+          }),
+        image: null,
+      }, place);
+    }
+
+    function sendRoom() {
+      if (!mirrorOn) return;
+      const frame = mirrorFrame();
+      if (!frame || !frame.contentWindow) return;
+      try { frame.contentWindow.postMessage(roomPayload(), '*'); } catch (e) { /* not ready yet */ }
+    }
+
+    /* The document announces itself once loaded, so there is no delay to race. */
+    window.addEventListener('message', ev => { if (ev.data && ev.data.type === 'ready') sendRoom(); });
+
     /* ═══ IMPORT / EXPORT ═══ */
     function bImportPrompt() {
       const input = document.createElement('input');
@@ -1195,128 +1409,7 @@
       setTimeout(() => URL.revokeObjectURL(a.href), 5000);
     }
 
-    /* ═══ RESIZABLE ROOM VIEW ═══════════════════════════════════════════
-       The right answer for "how wide should this be" depends on the screen and
-       on what the author is doing, so let them decide and remember it. */
-    const ROOM_DEFAULT = 420;
-    const ROOM_MIN = 260;
-    const WORK_MIN = 380;                 // never squeeze the workspace out of use
-    const ROOM_KEY = 'ttxgym_builder_room_w';
-
-    function roomMax() {
-      const rail = 250, splitter = 6;
-      return Math.max(ROOM_MIN, window.innerWidth - rail - splitter - WORK_MIN);
-    }
-
-    function splitSet(px) {
-      const w = Math.round(Math.min(Math.max(px, ROOM_MIN), roomMax()));
-      document.getElementById('b-wrap').style.setProperty('--room-w', w + 'px');
-      store.set(ROOM_KEY, String(w));
-      const el = document.getElementById('b-split');
-      if (el) el.setAttribute('aria-valuenow', String(w));
-    }
-
-    function splitStart(ev) {
-      const wrap = document.getElementById('b-wrap');
-      if (!wrap.classList.contains('show-room')) return;
-      if (ev.preventDefault) ev.preventDefault();
-      const handle = document.getElementById('b-split');
-
-      /* Pointer capture keeps events coming if the pointer leaves the handle, but
-         it is an enhancement: the listeners go on the window either way, so the
-         drag still works where capture is unavailable. */
-      let captured = false;
-      try {
-        if (handle.setPointerCapture && ev.pointerId != null) {
-          handle.setPointerCapture(ev.pointerId);
-          captured = true;
-        }
-      } catch (e) { captured = false; }
-
-      wrap.classList.add('dragging');
-      document.body.classList.add('b-dragging');
-
-      const move = e => splitSet(window.innerWidth - e.clientX);
-      const stop = () => {
-        window.removeEventListener('pointermove', move);
-        window.removeEventListener('pointerup', stop);
-        window.removeEventListener('pointercancel', stop);
-        if (captured) { try { handle.releasePointerCapture(ev.pointerId); } catch (e) {} }
-        wrap.classList.remove('dragging');
-        document.body.classList.remove('b-dragging');
-      };
-      window.addEventListener('pointermove', move);
-      window.addEventListener('pointerup', stop);
-      window.addEventListener('pointercancel', stop);
-    }
-
-    /* A drag handle nobody can reach from the keyboard is a drag handle half the
-       people cannot use. */
-    function splitKey(ev) {
-      const step = ev.shiftKey ? 48 : 16;
-      const current = parseInt(store.get(ROOM_KEY) || ROOM_DEFAULT, 10);
-      if (ev.key === 'ArrowLeft') { splitSet(current + step); ev.preventDefault(); }
-      else if (ev.key === 'ArrowRight') { splitSet(current - step); ev.preventDefault(); }
-      else if (ev.key === 'Home') { splitSet(ROOM_DEFAULT); ev.preventDefault(); }
-    }
-
-    function bToggleRoom() {
-      document.getElementById('b-wrap').classList.toggle('show-room');
-      renderRoom();
-    }
-
-    /* ═══ ROOM VIEW ═══════════════════════════════════════════════════════
-       Built from the same fields the gym puts in its participant payload —
-       title, content, discussion, questions that are not marked ?- — so this
-       cannot drift into showing something the room would never see. */
-    function renderRoom() {
-      const panel = document.getElementById('b-room');
-      if (!document.getElementById('b-wrap').classList.contains('show-room')) { panel.innerHTML = ''; return; }
-      const s = doc.stages[focus];
-      if (metaFocus || !s) {
-        const text = metaFocus ? (doc[metaFocus] || '') : '';
-        panel.innerHTML = `<div class="b-room-head"><span>On the room's screen</span></div>
-          <div class="b-room-card">${text ? TTXF.markdown(text) : '<p style="opacity:.5">Nothing to show yet.</p>'}</div>`;
-        return;
-      }
-      const visible = s.questions.filter(q => !q.participantHidden && (q.question || '').trim());
-      const discussion = s.discussion.filter(d => d.trim());
-      panel.innerHTML = `
-        <div class="b-room-head">
-          <span>On the room's screen</span>
-          <span>${focus + 1} / ${doc.stages.length}</span>
-        </div>
-        <div class="b-room-card">
-          <h4>${esc(s.stage || 'Untitled stage')}</h4>
-          ${s.content.trim() ? TTXF.markdown(s.content) : '<p style="opacity:.45">No content yet.</p>'}
-          ${discussion.length ? `<div class="b-room-talk"><ol>${
-            discussion.map(d => `<li>${TTXF.inline(d)}</li>`).join('')}</ol></div>` : ''}
-          ${visible.map(q => `<div class="b-room-q">
-            <div class="qt">${esc(q.question)}</div>
-            <div class="opts">${q.answers.filter(a => a.trim())
-              .map(a => `<span class="opt">${esc(a)}</span>`).join('')}</div>
-          </div>`).join('')}
-        </div>
-        <div class="b-room-note">${roomOmissions(s)}</div>`;
-      // scenario media is written relative to gym/; this page sits one level up
-      panel.querySelectorAll('img[src]').forEach(img => {
-        const raw = img.getAttribute('src');
-        if (!/^([a-z][a-z0-9+.-]*:|\/\/|\/|#)/i.test(raw)) img.setAttribute('src', raw.replace(/^\.\.\//, ''));
-      });
-    }
-
-    /* Saying what is being withheld is as useful as showing what is not. */
-    function roomOmissions(s) {
-      const bits = [];
-      const hidden = s.questions.filter(q => q.participantHidden && (q.question || '').trim()).length;
-      const prompts = s.prompts.filter(p => p.trim()).length;
-      if (prompts) bits.push(prompts + ' facilitator prompt' + (prompts === 1 ? '' : 's'));
-      if (hidden) bits.push(hidden + ' private question' + (hidden === 1 ? '' : 's'));
-      if (s.duration) bits.push('timing (' + esc(s.duration) + ')');
-      return bits.length ? 'Held back from this screen: ' + bits.join(', ') + '.' : '';
-    }
-
-    function renderAll() { renderOutline(); renderWork(); renderRoom(); status(); clearTimeout(saveTimer); saveTimer = setTimeout(save, 400); }
+    function renderAll() { renderOutline(); renderWork(); sendRoom(); status(); clearTimeout(saveTimer); saveTimer = setTimeout(save, 400); }
 
     /* ═══ START ═══ everything runs from here, at the bottom, so nothing is
        referenced before it is defined. */
@@ -1326,17 +1419,8 @@
         try { doc = JSON.parse(draft); } catch (e) { /* fall through to empty */ }
       }
       if (!doc.stages) doc.stages = [];
-      splitSet(parseInt(store.get(ROOM_KEY) || ROOM_DEFAULT, 10));
-      // bound here rather than as inline attributes: pointer events are not
-      // recognised as handler attributes everywhere, and this is testable
-      const split = document.getElementById('b-split');
-      split.addEventListener('pointerdown', splitStart);
-      split.addEventListener('mousedown', splitStart);        // fallback where PointerEvent is absent
-      split.addEventListener('dblclick', () => splitSet(ROOM_DEFAULT));
-      split.addEventListener('keydown', splitKey);
-      window.addEventListener('resize', () =>
-        splitSet(parseInt(store.get(ROOM_KEY) || ROOM_DEFAULT, 10)));
       renderAll();
+      window.addEventListener('resize', () => { if (mirrorOn) mirrorClamp(); });
       window.addEventListener('beforeunload', save);
     }
     start();
