@@ -20,6 +20,8 @@ const MODULE = path.join(ROOT, 'js/ttxf.js');
 const OUTPUT = path.join(ROOT, 'gym/standalone.html');
 
 const MODULE_TAG = '  <script src="../js/ttxf.js"></script>';
+const VIEW = path.join(ROOT, 'js/participant-view.js');
+const VIEW_TAG = '  <script src="../js/participant-view.js"></script>';
 const FONT_TAG = '  <link rel="stylesheet" href="../css/fonts.css">';
 const BANNER = `
   <!-- Built by tools/build-standalone.js — do not edit.
@@ -30,15 +32,19 @@ const BANNER = `
 function build() {
   const html = fs.readFileSync(SOURCE, 'utf8');
   const module = fs.readFileSync(MODULE, 'utf8');
+  const view = fs.readFileSync(VIEW, 'utf8');
 
   if (!html.includes(MODULE_TAG)) throw new Error('gym/index.html no longer loads ../js/ttxf.js as expected');
+  if (!html.includes(VIEW_TAG)) throw new Error('gym/index.html no longer loads ../js/participant-view.js as expected');
   if (!html.includes(FONT_TAG)) throw new Error('gym/index.html no longer loads ../css/fonts.css as expected');
 
   // A closing tag inside the module source would end the inline script early.
   const safe = module.replace(/<\/script>/gi, '<\\/script>');
+  const safeView = view.replace(/<\/script>/gi, '<\\/script>');
 
   return html
     .replace(MODULE_TAG, `  <script>\n${safe}\n  </script>`)
+    .replace(VIEW_TAG, `  <script>\n${safeView}\n  </script>`)
     // relative paths have nothing to resolve against once the file is moved
     .replace(FONT_TAG, '  <link rel="stylesheet" href="https://ttxgym.com/css/fonts.css">')
     .replace('<link rel="canonical" href="https://ttxgym.com/gym/">',

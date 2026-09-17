@@ -19,6 +19,8 @@ function boot() {
     beforeParse(w) {
       // jsdom does not fetch <script src>, so evaluate the shared module in-window
       w.eval(fs.readFileSync(path.join(ROOT, 'js/ttxf.js'), 'utf8'));
+      // the page loads this too; jsdom does not fetch <script src>
+      w.eval(fs.readFileSync(path.join(ROOT, 'js/participant-view.js'), 'utf8'));
       w.BroadcastChannel = class {
         constructor(name) { this.name = name; this.onmessage = null; }
         postMessage(m) { posted.push(m); }

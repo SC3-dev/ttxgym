@@ -20,6 +20,8 @@ function bootPage(file, { url, store = {}, fetchImpl } = {}) {
     runScripts: 'dangerously', url, virtualConsole: vc,
     beforeParse(w) {
       w.eval(fs.readFileSync(`${ROOT}/js/ttxf.js`, 'utf8'));
+      // gym/index.html loads this too; jsdom does not fetch <script src>
+      w.eval(fs.readFileSync(`${ROOT}/js/participant-view.js`, 'utf8'));
       Object.defineProperty(w, 'localStorage', { value: {
         getItem: k => (k in store ? store[k] : null),
         setItem: (k, v) => { store[k] = String(v); },

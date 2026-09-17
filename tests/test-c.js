@@ -291,8 +291,8 @@ G('news headlines reach every surface, and the room screen');
   const gymSrc = fs.readFileSync(ROOT + '/gym/index.html', 'utf8');
   const edSrc = fs.readFileSync(ROOT + '/editor.html', 'utf8');
   const targets = {
-    'facilitator view': gymSrc.slice(0, gymSrc.indexOf('PRESENTATION_HTML')),
-    'participant window': gymSrc.slice(gymSrc.indexOf('PRESENTATION_HTML')),
+    'facilitator view': gymSrc,
+    'participant window': fs.readFileSync(ROOT + '/js/participant-view.js', 'utf8'),
     'exported report': gymSrc.slice(gymSrc.indexOf('REPORT_CSS'), gymSrc.indexOf('REPORT_HEADER')),
     'builder preview': edSrc,
   };
@@ -343,8 +343,8 @@ G('fenced blocks reach every surface, and stay preformatted');
   const gymSrc = fs.readFileSync(ROOT + '/gym/index.html', 'utf8');
   const edSrc = fs.readFileSync(ROOT + '/editor.html', 'utf8');
   const targets = {
-    'facilitator view': gymSrc.slice(0, gymSrc.indexOf('PRESENTATION_HTML')),
-    'participant window': gymSrc.slice(gymSrc.indexOf('PRESENTATION_HTML')),
+    'facilitator view': gymSrc,
+    'participant window': fs.readFileSync(ROOT + '/js/participant-view.js', 'utf8'),
     'exported report': gymSrc.slice(gymSrc.indexOf('REPORT_CSS'), gymSrc.indexOf('REPORT_HEADER')),
     'builder preview': edSrc,
   };
@@ -408,7 +408,7 @@ G('inline code reaches every surface that renders a scenario');
   // a code span is worthless if the surface it lands on has no style for it
   t('the facilitator view styles it', () => ok(/\n    code \{/.test(gymSrc), 'no rule in the gym stylesheet'));
   t('the participant window styles it', () => {
-    const tpl = gymSrc.slice(gymSrc.indexOf('PRESENTATION_HTML'), gymSrc.indexOf('</html>', gymSrc.indexOf('PRESENTATION_HTML')));
+    const tpl = fs.readFileSync(ROOT + '/js/participant-view.js', 'utf8');
     ok(/code\{font-family/.test(tpl), 'no rule in the participant template');
   });
   t('the exported report styles it, and prints it', () => {

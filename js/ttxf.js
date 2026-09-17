@@ -16,6 +16,7 @@
      TTXF.sanitizeHTML(html) -> html              allowlist, for third-party HTML
      TTXF.hydrateMedia(root)                      applies %(url | scale) sizing
      TTXF.MEDIA_CSS                               styling for .SFmedia
+     TTXF.MEDIA_HYDRATE_JS                        that sizing, for standalone documents
      TTXF.CODE_CSS                                styling for `inline code` and ``` blocks
      TTXF.setNewsBackdrop(url)                    where %news() finds its backdrop
      TTXF.htmlToSource(el)                        rendered DOM back to .ttxf
@@ -66,6 +67,29 @@
     'pre.SFpre>code{background:none;border:0;padding:0;font-size:inherit;white-space:inherit}' +
     'pre.SFpre[data-label]::before{content:attr(data-label);display:block;font-size:.78em;' +
     'font-weight:600;letter-spacing:.08em;text-transform:uppercase;opacity:.75;margin-bottom:.5em}';
+
+  /* The report and the participant window are standalone documents that cannot
+     load this module, so the media-sizing logic is inlined into both. One copy,
+     here, matching applyMediaScale() below. */
+  var MEDIA_HYDRATE_JS = `
+function applySFmediaScale(img){
+  var spec=(img.getAttribute('data-scale')||'').trim(); if(!spec) return;
+  if(/^\\d+(\\.\\d+)?\\s*%?$/.test(spec)){
+    if(!img.naturalWidth) return;
+    var px=Math.round(img.naturalWidth*(parseFloat(spec)/100));
+    img.style.width=px+'px'; img.style.maxWidth=px+'px';
+  } else { img.style.width=spec; img.style.maxWidth=spec; }
+  img.style.maxHeight='none';
+}
+function hydrateMedia(root){
+  var imgs=(root||document).querySelectorAll('img.SFmedia[data-scale]');
+  for(var i=0;i<imgs.length;i++){(function(img){
+    if(img.complete) applySFmediaScale(img);
+    else img.addEventListener('load',function(){applySFmediaScale(img);});
+  })(imgs[i]);}
+}
+document.addEventListener('DOMContentLoaded',function(){hydrateMedia(document);});
+`;
 
   /* --- escaping ----------------------------------------------------------- */
 
@@ -712,6 +736,7 @@
     STAGE_KEYS: STAGE_KEYS,
     htmlToSource: htmlToSource,
     MEDIA_CSS: MEDIA_CSS,
+    MEDIA_HYDRATE_JS: MEDIA_HYDRATE_JS,
     setNewsBackdrop: setNewsBackdrop,
     CODE_CSS: CODE_CSS,
   };
