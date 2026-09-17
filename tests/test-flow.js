@@ -58,13 +58,13 @@ G('library → Customise → builder → Preview in TTX Gym');
   });
   await wait(400);
   t('the builder loads the library scenario', () => {
-    eq(ed.document.getElementById('f-title').value, 'Bring your own device');
-    eq(ed.eval('stages.length'), 4);
+    eq(ed.document.getElementById('b-title').value, 'Bring your own device');
+    eq(ed.eval('doc.stages.length'), 4);
     eq(edErrs, []);
   });
 
-  ed.postToNewTab();
-  t('Preview hands the scenario over and opens the gym', () => {
+  ed.bRunInGym();
+  t('Run it hands the scenario over and opens the gym', () => {
     eq(ed.__opened, ['gym/']);
     ok(store.preview, 'nothing was handed over');
   });
@@ -201,7 +201,7 @@ G('library scenarios survive the whole chain');
       fetchImpl: () => Promise.resolve({ ok: true, text: () => Promise.resolve(source) }),
     });
     await wait(250);
-    ed.postToNewTab();
+    ed.bRunInGym();
     const { w: gym, errs } = bootPage('gym/index.html', { url: 'https://ttxgym.com/gym/', store });
     await wait(150);
     const pe = gym.document.getElementById('parse-error');

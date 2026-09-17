@@ -1,13 +1,13 @@
-/* Parity: the rebuilt builder against the one it replaces.
+/* The ways in and out of the builder: the library's Customise link, the handoff
+   to the gym, the download, and the exercise-level things an author can only
+   reach from the outline.
 
-   The rebuild is a different page with a different model, so the only meaningful
-   question is whether an author ends up with the same scenario. Every shipped
-   scenario is pushed through both and the parsed results compared — not the
-   bytes, which the two format differently, but the exercise the gym would run.
-
-   The second half checks the paths in and out, because those are what the rest
-   of the site links to and are the only way a swap can quietly break something
-   outside this page. See docs/BUILDER-DESIGN.md. */
+   These are what the rest of the site depends on, and the only part of the
+   builder that can break something outside its own page. They began as the
+   parity suite that gated the 2026 rebuild — that version compared both builders
+   over all 39 shipped scenarios and is preserved at commit 5007bbc, the last
+   commit where both pages existed. The corpus check survives here against the
+   files themselves, which is the part that still has a second opinion to offer. */
 const fs = require('fs');
 const path = require('path');
 const { JSDOM, VirtualConsole } = require('jsdom');
@@ -75,32 +75,17 @@ function shape(text) {
 
 const files = fs.readdirSync(path.join(ROOT, 'lib/scenarios')).filter(f => f.endsWith('.ttxf')).sort();
 
-G(`the same scenario comes out the same: ${files.length} files through both builders`);
+G(`a scenario comes out as it went in: all ${files.length} shipped files`);
 {
-  const { w: oldB } = boot('editor.html');
-  const { w: newB } = boot('builder.html');
-
-  const divergent = [];
-  const lostByOld = [];
+  const { w } = boot('editor.html');
+  const lost = [];
   files.forEach(f => {
     const source = fs.readFileSync(path.join(ROOT, 'lib/scenarios', f), 'utf8');
-    const want = shape(source);
-
-    oldB.parseTTXF(source);
-    const fromOld = shape(oldB.buildTTXF());
-
-    newB.load(source);
-    const fromNew = shape(newB.toTTXF());
-
-    if (JSON.stringify(fromOld) !== JSON.stringify(want)) lostByOld.push(f);
-    if (JSON.stringify(fromNew) !== JSON.stringify(fromOld)) divergent.push(f);
+    w.load(source);
+    if (JSON.stringify(shape(w.toTTXF())) !== JSON.stringify(shape(source))) lost.push(f);
   });
-
-  t('the rebuild agrees with the builder it replaces on every shipped scenario',
-    () => eq(divergent, [], 'these came out differently'));
-
-  t('and both agree with the file they were given',
-    () => eq(lostByOld, [], 'the existing builder already loses something in these'));
+  t('opening and saving changes the exercise in none of them',
+    () => eq(lost, [], 'these came back different'));
 }
 
 G('the ways in');
@@ -108,8 +93,8 @@ G('the ways in');
   const wanted = 'https://ttxgym.com/lib/scenarios/byod1.ttxf';
   let asked = null;
   const source = fs.readFileSync(path.join(ROOT, 'lib/scenarios/byod1.ttxf'), 'utf8');
-  const { w } = boot('builder.html', {
-    url: 'https://ttxgym.com/builder.html?load=byod1',
+  const { w } = boot('editor.html', {
+    url: 'https://ttxgym.com/editor.html?load=byod1',
     fetchImpl: u => { asked = u; return Promise.resolve({ ok: true, text: () => Promise.resolve(source) }); },
   });
   await wait(50);
@@ -130,8 +115,8 @@ G('the ways in');
   });
 
   t('a library id that does not exist says so instead of emptying the page', async () => {
-    const { w: w2 } = boot('builder.html', {
-      url: 'https://ttxgym.com/builder.html?load=nope',
+    const { w: w2 } = boot('editor.html', {
+      url: 'https://ttxgym.com/editor.html?load=nope',
       store: { ttxgym_builder_draft: JSON.stringify({ title: 'Mine', stages: [] }) },
       fetchImpl: () => Promise.resolve({ ok: false, statusText: 'Not Found' }),
     });
@@ -144,7 +129,7 @@ G('the ways in');
 
 G('the ways out');
 {
-  const { w, store } = boot('builder.html');
+  const { w, store } = boot('editor.html');
   w.load(fs.readFileSync(path.join(ROOT, 'lib/scenarios/byod1.ttxf'), 'utf8'));
 
   t('Run it hands the scenario to the gym the way the gym expects to find it', () => {
@@ -161,7 +146,7 @@ G('the ways out');
   });
 
   t('an empty scenario is not handed over at all', () => {
-    const { w: w2, store: s2 } = boot('builder.html');
+    const { w: w2, store: s2 } = boot('editor.html');
     w2.eval('doc = { title: "", author: "", summary: "", conclusion: "", image: "", stages: [] };');
     w2.bRunInGym();
     ok(!s2.preview, 'it sent the gym an empty exercise');
@@ -178,7 +163,7 @@ G('the ways out');
 
 G('everything the old page could do');
 {
-  const { w } = boot('builder.html');
+  const { w } = boot('editor.html');
   w.load('! title: T\n! author: A\n! image: https://x/c.png\n\n! summary\nBefore.\n\n@ One\n! content\nFirst.\n\n@ Two\n! content\nSecond.\n\n! conclusion\nAfter.\n');
 
   t('the exercise-level image survives a page that never shows it a text box', () => {
@@ -229,7 +214,7 @@ G('everything the old page could do');
   });
 
   t('starting again clears the draft rather than leaving it to come back', () => {
-    const { w: w2, store } = boot('builder.html', {
+    const { w: w2, store } = boot('editor.html', {
       store: { ttxgym_builder_draft: JSON.stringify({ title: 'Old work', stages: [{ stage: 'S', content: 'c', duration: '', discussion: [], prompts: [], questions: [] }] }) },
     });
     ok(!w2.document.getElementById('b-notice').classList.contains('hide'), 'nothing said where this came from');
@@ -238,6 +223,31 @@ G('everything the old page could do');
     eq(w2.eval('doc.title'), '');
     ok(!store.ttxgym_builder_draft || !JSON.parse(store.ttxgym_builder_draft).title,
        'the old draft is still in storage');
+  });
+
+  t('work left open in the builder this page replaced is brought across', () => {
+    // the shape the old page saved: an envelope, and an id on every stage
+    const legacy = JSON.stringify({ savedAt: 1, doc: {
+      title: 'Half-written', author: 'A', image: 'https://x/c.png',
+      summary: 'S', conclusion: 'C',
+      stages: [{ id: 3, stage: 'One', content: 'c', discussion: ['d'], prompts: ['p'],
+                 questions: [{ question: 'Q', answers: ['a', 'b'], quizIndex: 1, participantHidden: true }] }],
+    } });
+    const { w: w2, store } = boot('editor.html', { store: { ttxgym_editor_draft: legacy } });
+    eq(w2.eval('doc.title'), 'Half-written', 'the old draft was left stranded');
+    eq(w2.eval('doc.stages[0].questions[0].quizIndex'), 1);
+    eq(w2.eval('doc.stages[0].questions[0].participantHidden'), true);
+    has(w2.eval('toTTXF()'), '! image: https://x/c.png');
+    has(w2.document.getElementById('b-notice-text').textContent, 'previous builder');
+    ok(store.ttxgym_builder_draft, 'it was not saved under the new key');
+    ok(!store.ttxgym_editor_draft, 'the old key was left to be adopted again');
+  });
+
+  t('and rubbish under the old key is ignored rather than crashing the page', () => {
+    const { w: w2, errs } = boot('editor.html', { store: { ttxgym_editor_draft: '{"doc":{"stages":"nope"}}' } });
+    eq(errs, []);
+    eq(w2.eval('doc.title'), '');
+    ok(w2.document.getElementById('b-outline'), 'the builder failed to start');
   });
 
   t('the site navigation is there, so the builder is not a page you fall out of', () => {

@@ -1,7 +1,8 @@
 # Exercise Builder — redesign
 
-Design and progress log for the rebuilt builder. Lives at `builder.html`
-alongside the existing `editor.html` until it is ready to replace it.
+Design and progress log for the rebuilt builder. It was developed as
+`builder.html` alongside the page it replaces, and took over `editor.html` at
+step 8b.
 
 Companion document: [BUILDER-UX-REVIEW.md](BUILDER-UX-REVIEW.md).
 
@@ -160,15 +161,44 @@ presets, the syntax insert bar, and the image gallery picker.
 | 6. Participant view, pacing, scaffolding | done |
 | 7. Import, validation, gallery, syntax bar | done |
 | 8a. Parity tests against the existing builder | done |
-| 8b. Swap `editor.html` for the rebuild | |
+| 8b. Swap `editor.html` for the rebuild | done |
 
 ## Progress log
 
 **Steps 1–2 — documents.** Review and design written.
 
+**Step 8b — the swap.** `builder.html` is now `editor.html`; the page it
+replaces is gone. The URL does not change, so every link into the builder — the
+site nav on four pages, the library's Customise button, the canonical and
+og:url — keeps working untouched.
+
+The old page's public identity was carried across whole: title, description,
+canonical, Open Graph and Twitter cards. The rebuild's `noindex` went with the
+prototype it belonged to.
+
+The test suites moved with the pages. `tests/test-editor.js` tested a page that
+no longer exists and was retired; `test-builder.js` took its name. Two of its
+groups were worth keeping and were ported rather than dropped: the one that
+renders every construct the format can emit and fails if any of them has no rule
+in the stylesheet the author is looking at, and the one that checks the guide's
+table cells are not flex containers. Stage counts, planned length and unreadable
+durations were re-covered against the new outline foot.
+
+Anyone with unfinished work open on the day of the swap would have arrived at an
+empty page with their scenario still sitting in the browser under the old key and
+no way to reach it. That draft is adopted once — the old format is an envelope
+around nearly the same model, with an id on every stage — saved under the new key,
+and the old key released. Rubbish under it is ignored rather than crashing the
+page.
+
+`test-parity.js` could not survive the swap — it compared two builders, and there
+is now one. It is `test-handoff.js`: the corpus round-trip against the shipped
+files, plus the ways in and out. The two-builder comparison is preserved at
+commit `5007bbc`, the last commit where both pages existed.
+
 **Step 8a — parity, and the gaps it found.**
 
-`tests/test-parity.js` pushes all 39 shipped scenarios through *both* builders and
+`tests/test-parity.js` pushed all 39 shipped scenarios through *both* builders and
 compares what comes out — not the bytes, which the two format differently, but the
 exercise the gym would run. **All 39 agree**, and both agree with the file they
 were given, so nothing is lost by switching.
@@ -290,8 +320,9 @@ organising idea and is enforced by the gym in one function.
 No repo test encoded the wrong assumption; the checker that did was a scratch
 tool used during the scenario content review and is not part of the project.
 
-**Step 3 — the shell.** `builder.html` exists alongside `editor.html`, with its
-own test suite (`tests/test-builder.js`, 26 tests) wired into `npm test`.
+**Step 3 — the shell.** `builder.html` was built alongside `editor.html`, with its
+own test suite (`tests/test-builder.js`, 26 tests) wired into `npm test`. Both
+names were retired at the swap in step 8b.
 
 Standing up: the three-zone layout; the outline as map and navigation, with a
 per-stage share-of-time bar and a planned total at its foot; the workspace

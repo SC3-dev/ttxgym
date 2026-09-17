@@ -298,8 +298,8 @@ G('news headlines reach every surface, and the room screen');
   };
   Object.keys(targets).forEach(name => {
     t(`the ${name} styles it`, () => {
-      ok(/figure\.SFnews\{/.test(targets[name]), 'no figure.SFnews rule');
-      ok(/\.SFnews-ticker\{[^}]*position:absolute/.test(targets[name]), 'the strap is not overlaid');
+      ok(/figure\.SFnews\s*\{/.test(targets[name]), 'no figure.SFnews rule');
+      ok(/\.SFnews-ticker\s*\{[^}]*position:\s*absolute/.test(targets[name]), 'the strap is not overlaid');
     });
   });
   t('the report will print the strap colours and not split the frame', () => {
@@ -416,7 +416,7 @@ G('inline code reaches every surface that renders a scenario');
     ok(/code\{font-family/.test(css), 'no rule in REPORT_CSS');
     ok(/code\{[^}]*print-color-adjust/.test(css), 'the background will not print');
   });
-  t('the builder preview styles it', () => ok(/#preview-content code/.test(edSrc), 'no rule in the editor'));
+  t('the builder preview styles it', () => ok(/\.b-editable code/.test(edSrc), 'no rule in the editor'));
   t('none of them let a long span overflow', () => {
     const rules = (gymSrc + edSrc).match(/code[^{]*\{[^}]*\}/g).filter(r => /font-family/.test(r));
     ok(rules.length >= 3, 'found only ' + rules.length + ' code rules');

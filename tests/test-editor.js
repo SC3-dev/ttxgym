@@ -1,434 +1,888 @@
+/* The Exercise Builder (editor.html), rebuilt from the ground up in 2026 —
+   see docs/BUILDER-UX-REVIEW.md for why and docs/BUILDER-DESIGN.md for what. */
 const fs = require('fs');
+const path = require('path');
 const { JSDOM, VirtualConsole } = require('jsdom');
-const ROOT = require('path').resolve(__dirname, '..');
+const ROOT = path.resolve(__dirname, '..');
+const T = require(path.join(ROOT, 'js/ttxf.js'));
 let pass = 0, fail = 0;
 const G = n => console.log('\n' + n);
 const t = (n, f) => { try { f(); console.log('  ok   ' + n); pass++; } catch (e) { console.log('  FAIL ' + n + '\n       ' + e.message); fail++; } };
-const eq = (a, b, m) => { if (JSON.stringify(a) !== JSON.stringify(b)) throw new Error(`${m || ''}\n         expected: ${JSON.stringify(b)}\n         actual:   ${JSON.stringify(a)}`); };
+const eq = (a, b, m) => { if (JSON.stringify(a) !== JSON.stringify(b)) throw new Error(`${m || ''} expected ${JSON.stringify(b)}, got ${JSON.stringify(a)}`); };
 const ok = (v, m) => { if (!v) throw new Error(m || 'expected truthy'); };
-const has = (s, sub) => { if (!String(s).includes(sub)) throw new Error(`expected to contain ${JSON.stringify(sub)}\n         in: ${JSON.stringify(String(s).slice(0, 300))}`); };
+const has = (s, sub) => { if (!String(s).includes(sub)) throw new Error(`expected ${JSON.stringify(sub)} in ${JSON.stringify(String(s).slice(0, 200))}`); };
 
-function boot(seedDraft, url, fetchImpl) {
+function boot(draft, width) {
   const vc = new VirtualConsole();
   const errs = [];
   vc.on('jsdomError', e => errs.push(e.message));
-  const store = seedDraft ? { ttxgym_editor_draft: seedDraft } : {};
-  const dom = new JSDOM(fs.readFileSync(ROOT + '/editor.html', 'utf8'), {
-    runScripts: 'dangerously', url: url || 'https://ttxgym.com/editor.html', virtualConsole: vc,
+  const store = draft ? { ttxgym_builder_draft: draft } : {};
+  const dom = new JSDOM(fs.readFileSync(path.join(ROOT, 'editor.html'), 'utf8'), {
+    runScripts: 'dangerously', url: 'https://ttxgym.com/editor.html', virtualConsole: vc,
     beforeParse(w) {
-      w.eval(fs.readFileSync(ROOT + '/js/ttxf.js', 'utf8'));
+      w.eval(fs.readFileSync(path.join(ROOT, 'js/ttxf.js'), 'utf8'));
+      w.eval(fs.readFileSync(path.join(ROOT, 'js/participant-view.js'), 'utf8'));
+      if (width) Object.defineProperty(w, 'innerWidth', { value: width, configurable: true });
+      w.URL.createObjectURL = () => 'blob:stub';
+      w.URL.revokeObjectURL = () => {};
       Object.defineProperty(w, 'localStorage', { value: {
         getItem: k => (k in store ? store[k] : null),
         setItem: (k, v) => { store[k] = String(v); },
         removeItem: k => { delete store[k]; }, _store: store,
       }, configurable: true });
-      w.confirm = () => true;
-      w.requestAnimationFrame = cb => setTimeout(cb, 0);
-      w.Element.prototype.scrollIntoView = function () {};
-      if (fetchImpl) w.fetch = fetchImpl;
-      w.URL.createObjectURL = () => 'blob:stub';
-      w.URL.revokeObjectURL = () => {};
-      w.HTMLAnchorElement.prototype.click = function () { (w.__downloads ||= []).push(this.download); };
-      w.open = (url) => { (w.__opened ||= []).push(url); return null; };
     },
   });
   return { w: dom.window, errs, store };
 }
-const wait = ms => new Promise(r => setTimeout(r, ms));
-const ev = (w, e) => w.eval(e);
-
-const SAMPLE = `! title: Round Trip Test
-! author: Jane Doe
-! image: https://example.com/c.jpg
-! summary
-First line.
-Second line.
-
-@ Stage One
-! content
-Body line one.
-Body line two.
-
-# discussion
-+ Discussion point
-# prompts
-+ Prompt point
-? A rating question
-+ Low
-+ High
-?- A hidden quiz
-+ Wrong
-++ Right
-`;
 
 (async () => {
 
-G('C1 — the editor round-trips through the shared module');
+G('it loads');
 {
   const { w, errs } = boot();
-  t('the page boots without error', () => eq(errs.length, 0, errs.join(' | ')));
-  w.parseTTXF(SAMPLE);
-  await wait(200);
-  t('header fields are populated', () => {
-    eq(w.document.getElementById('f-title').value, 'Round Trip Test');
-    eq(w.document.getElementById('f-author').value, 'Jane Doe');
-    has(w.document.getElementById('f-summary').value, 'First line.');
+  t('with no script errors', () => eq(errs, []));
+  t('and shows the outline and the workspace', () => {
+    ok(w.document.getElementById('b-outline'), 'no outline');
+    ok(w.document.getElementById('b-work'), 'no workspace');
   });
-  t('stages are loaded', () => eq(ev(w, 'stages.length'), 1));
-  t('the quiz answer is stored by index', () => eq(ev(w, 'stages[0].questions[1].quizIndex'), 1));
-  t('the rating question has no correct answer', () => eq(ev(w, 'stages[0].questions[0].quizIndex'), -1));
-  t('participant-hidden survives the import', () => eq(ev(w, 'stages[0].questions[1].participantHidden'), true));
-  t('export re-emits an identical file', () => eq(w.buildTTXF().trim(), SAMPLE.trim()));
-  t('a second round-trip is still identical', () => {
-    w.parseTTXF(w.buildTTXF());
-    eq(w.buildTTXF().trim(), SAMPLE.trim());
+
+  t('the participant view floats over the workspace rather than taking a column', () => {
+    ok(!w.document.getElementById('b-room'), 'the room column is back');
+    const cols = /#b-wrap\s*\{[^}]*grid-template-columns:\s*([^;]+);/
+      .exec(fs.readFileSync(path.join(ROOT, 'editor.html'), 'utf8'));
+    ok(cols, 'no layout to check');
+    eq(cols[1].trim().split(/\s+(?![^(]*\))/).length, 2, 'the layout still reserves a column for it');
+    const panel = w.document.getElementById('b-mirror');
+    ok(panel, 'no participant view');
+    ok(panel.classList.contains('hide'), 'it is open before anyone asks for it');
+    ok(w.document.getElementById('b-room-btn'), 'no control to open it');
+  });
+  t('an empty builder offers a way in rather than a blank page', () => {
+    const work = w.document.getElementById('b-work-inner');
+    has(work.textContent, 'Pick a shape');
+    ok(work.querySelector('[onclick^="applyShape"]'), 'no shape to start from');
+  });
+  t('it saves under its own key, and only reads the old one to adopt it', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'editor.html'), 'utf8');
+    has(src, 'ttxgym_builder_draft');
+    // the old key survives in exactly one place: the one-time migration
+    const mentions = src.split('ttxgym_editor_draft').length - 1;
+    eq(mentions, 1, 'the retired draft key is referenced more than the migration needs');
+    has(src, 'OLD_DRAFT_KEY');
   });
 }
 
-G('C3 — the preview matches what the gym will render');
+G('the file is the source of truth');
 {
   const { w } = boot();
-  w.parseTTXF(SAMPLE);
-  await wait(200);
-  w.buildVisualPreview();
-  const out = w.document.getElementById('visual-output');
-  t('adjacent content lines join into one paragraph, as in the gym', () => {
-    const ps = out.querySelectorAll('.preview-content p');
-    eq(ps.length, 1, out.querySelector('.preview-content').innerHTML);
-    eq(ps[0].textContent, 'Body line one. Body line two.');
+  const manifest = JSON.parse(fs.readFileSync(path.join(ROOT, 'lib/manifest.json'), 'utf8'));
+
+  t('every shipped scenario survives a load and save unchanged', () => {
+    const broken = [];
+    manifest.forEach(e => {
+      const src = fs.readFileSync(path.join(ROOT, 'lib/scenarios', e.id + '.ttxf'), 'utf8');
+      w.load(src);
+      const before = JSON.stringify(T.parse(src).doc);
+      const after = JSON.stringify(T.parse(w.toTTXF()).doc);
+      if (before !== after) broken.push(e.id);
+    });
+    eq(broken, [], 'scenarios the builder would alter just by opening them');
   });
-  t('the correct quiz answer is highlighted by position', () => {
-    const correct = out.querySelectorAll('.preview-answer.correct');
-    eq(correct.length, 1);
-    eq(correct[0].textContent, 'Right');
+
+  t('including the parts it cannot yet edit', () => {
+    // questions are step 5; loading and saving must not drop them meanwhile
+    const src = fs.readFileSync(path.join(ROOT, 'lib/scenarios/cold_start.ttxf'), 'utf8');
+    w.load(src);
+    const out = T.parse(w.toTTXF()).doc;
+    const orig = T.parse(src).doc;
+    eq(out.stages.map(s => s.questions.length), orig.stages.map(s => s.questions.length));
+    eq(out.stages[1].questions[0].answers, orig.stages[1].questions[0].answers);
   });
 }
+
+G('the outline is the map');
 {
   const { w } = boot();
-  w.parseTTXF(`! title: T
-! summary: S
+  w.load(fs.readFileSync(path.join(ROOT, 'lib/scenarios/cold_start.ttxf'), 'utf8'));
 
-@ S
-! content
-%(https://x/i.png | 50%)
-`);
-  await wait(200);
-  w.buildVisualPreview();
-  const img = w.document.querySelector('#visual-output .preview-content img');
-  t('images use the same .SFmedia contract as the gym', () => {
-    ok(img, 'no image rendered');
-    eq(img.className, 'SFmedia');
-    eq(img.getAttribute('data-scale'), '50%');
+  t('one row per stage', () =>
+    eq(w.document.querySelectorAll('.b-stage-row').length, T.parse(
+      fs.readFileSync(path.join(ROOT, 'lib/scenarios/cold_start.ttxf'), 'utf8')).doc.stages.length));
+
+  t('it shows planned time for the whole exercise', () => {
+    has(w.document.getElementById('b-foot-time').textContent, 'planned');
+    has(w.document.getElementById('b-foot-count').textContent, 'stages');
+  });
+
+  t('a stage with no title still reads as something', () => {
+    w.eval('doc.stages[0].stage = ""; renderOutline();');
+    has(w.document.querySelector('.b-stage-row').textContent, 'Untitled');
+  });
+
+  t('clicking a row focuses that stage, and only that stage is rendered', () => {
+    w.bFocus(4);
+    eq(w.eval('focus'), 4);
+    const titles = [...w.document.querySelectorAll('.b-stage-title')];
+    eq(titles.length, 1, 'more than one stage is on screen at once');
+    has(w.document.querySelector('.b-stage-meta').textContent, 'Stage 5 of');
   });
 }
 
-G('D2 — duplicate answers no longer confuse the correct one');
+G('a stage is split by audience');
 {
   const { w } = boot();
-  w.parseTTXF('! title: T\n! summary: S\n\n@ S\n! content: c\n? Q\n+ Yes\n++ Yes\n+ No\n');
-  await wait(200);
-  t('exactly one option is marked correct in the UI', () =>
-    eq(w.document.querySelectorAll('.answer-correct-toggle.correct').length, 1));
-  t('and it is the second "Yes"', () => eq(ev(w, 'stages[0].questions[0].quizIndex'), 1));
-  t('editing the other "Yes" does not steal correctness', () => {
-    w.updateAnswer(ev(w, 'stages[0].id'), ev(w, 'stages[0].questions[0].id'), 0, 'Maybe');
-    eq(ev(w, 'stages[0].questions[0].quizIndex'), 1);
+  w.load(fs.readFileSync(path.join(ROOT, 'lib/scenarios/te-rootkit.ttxf'), 'utf8'));
+
+  t('the room’s half and the facilitator’s half are separate sections', () => {
+    const zones = [...w.document.querySelectorAll('.b-zone')];
+    eq(zones.length, 2);
+    ok(zones[0].classList.contains('screen'), 'first zone is not the participant side');
+    ok(zones[1].classList.contains('notes'), 'second zone is not the facilitator side');
   });
-  t('an empty answer can be marked correct', () => {
-    const sid = ev(w, 'stages[0].id'), qid = ev(w, 'stages[0].questions[0].id');
-    w.updateAnswer(sid, qid, 2, '');
-    w.setCorrectAnswer(sid, qid, 2);
-    eq(ev(w, 'stages[0].questions[0].quizIndex'), 2);
+
+  t('content and discussion sit on the room’s side', () => {
+    const screen = w.document.querySelector('.b-zone.screen').textContent;
+    has(screen, 'Content');
+    has(screen, 'Discussion');
   });
-  t('removing an answer above the correct one keeps the right option', () => {
-    const sid = ev(w, 'stages[0].id'), qid = ev(w, 'stages[0].questions[0].id');
-    w.updateAnswer(sid, qid, 2, 'Third');
-    w.setCorrectAnswer(sid, qid, 2);
-    w.removeAnswer(sid, qid, 0);
-    eq(ev(w, 'stages[0].questions[0].quizIndex'), 1);
-    eq(ev(w, 'stages[0].questions[0].answers[1]'), 'Third');
+
+  t('prompts sit on the facilitator’s side, labelled as private', () => {
+    const notes = w.document.querySelector('.b-zone.notes');
+    has(notes.textContent, 'Facilitator prompts');
+    has(w.document.querySelector('.b-zone.notes .b-zone-head').textContent, 'never shown to participants');
+  });
+
+  t('the split matches what the gym actually sends to the room', () => {
+    // the participant payload carries content, discussion and questions — not prompts
+    const gym = fs.readFileSync(path.join(ROOT, 'gym/index.html'), 'utf8');
+    const fn = gym.slice(gym.indexOf('function currentStageMessage'), gym.indexOf('function broadcastCurrentStage'));
+    ok(/content:/.test(fn) && /discussion:/.test(fn), 'expected content and discussion in the payload');
+    ok(!/prompts/.test(fn), 'prompts reach participants — the builder’s split would be wrong');
   });
 }
 
-G('D3 — validation panel');
+G('content is edited as rendered output, not markup');
 {
   const { w } = boot();
-  w.parseTTXF('! title: T\n! summary: S\n\n@ Stage One\n! content: c\n? Q\n+ a\n+ b\n');
-  await wait(250);
-  t('a clean scenario reports as ready', () => {
-    const p = w.document.getElementById('validation-panel');
-    ok(p.classList.contains('clean'), p.className);
-    has(p.textContent, 'valid and ready to run');
+  w.load(fs.readFileSync(path.join(ROOT, 'lib/scenarios/te-rootkit.ttxf'), 'utf8'));
+  const editable = () => w.document.querySelector('.b-editable');
+
+  t('the content area shows the rendered thing', () => {
+    ok(editable(), 'no editable region');
+    ok(/<p>/.test(editable().innerHTML), 'content is not rendered');
+    ok(!/%\(|```/.test(editable().textContent), 'raw markup is visible to the author');
+  });
+
+  t('and converts back to exactly the source it came from', () => {
+    const back = w.TTXF.htmlToSource(editable());
+    eq(back.trim(), w.eval('doc.stages[0].content').trim());
+  });
+
+  t('blocks are atomic — a caret cannot land inside one', () => {
+    w.eval("doc.stages[0].content = '```log\\nline\\n```'; renderWork();");
+    const pre = editable().querySelector('pre.SFpre');
+    ok(pre, 'no artefact block rendered');
+    eq(pre.getAttribute('contenteditable'), 'false');
+  });
+
+  t('opening a scenario and touching nothing changes nothing', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'lib/scenarios/cold_start.ttxf'), 'utf8');
+    w.load(src);
+    const before = w.toTTXF();
+    w.bFocusMeta('summary'); w.bFocusMeta('conclusion');
+    for (let i = 0; i < w.eval('doc.stages.length'); i++) w.bFocus(i);
+    eq(w.toTTXF(), before, 'merely opening a scenario re-wrote it');
+  });
+
+  t('a source toggle is always available', () => {
+    w.load(fs.readFileSync(path.join(ROOT, 'lib/scenarios/te-rootkit.ttxf'), 'utf8'));
+    const btn = w.document.querySelector('.b-src-toggle');
+    ok(btn, 'no source toggle');
+    w.richToggleSource(btn);
+    const ta = w.document.querySelector('.b-source');
+    ok(!ta.hidden, 'source did not open');
+    eq(ta.value.trim(), w.eval('doc.stages[0].content').trim());
+    w.richToggleSource(btn);
+    ok(!editable().hidden, 'did not return to the rendered view');
+  });
+
+  t('editing the source writes through to the model', () => {
+    const btn = w.document.querySelector('.b-src-toggle');
+    w.richToggleSource(btn);
+    const ta = w.document.querySelector('.b-source');
+    ta.value = 'Rewritten in source mode.';
+    w.richSourceInput(ta);
+    eq(w.eval('doc.stages[0].content'), 'Rewritten in source mode.');
+  });
+
+  t('summary and conclusion get the same editor, in the workspace', () => {
+    w.load(fs.readFileSync(path.join(ROOT, 'lib/scenarios/cold_start.ttxf'), 'utf8'));
+    w.bFocusMeta('summary');
+    ok(w.document.querySelector('.b-editable'), 'summary has no rich editor');
+    ok(w.document.querySelector('.b-src-toggle'), 'summary has no source toggle');
   });
 }
+
+G('the editor never silently loses what was typed');
+{
+  // The reported failure: a cached js/ttxf.js without htmlToSource meant every
+  // keystroke threw, the model stayed empty, and opening Source showed nothing —
+  // which read as the editor erasing the content.
+  t('a stale module keeps the text on screen and says something is wrong', () => {
+    const { w } = boot();
+    delete w.TTXF.htmlToSource;
+    w.bAddStage();
+    const ed = w.document.querySelector('.b-editable');
+    ed.innerHTML = 'Typed content that must not vanish.';
+    ed.dispatchEvent(new w.Event('input', { bubbles: true }));
+    has(ed.textContent, 'must not vanish');
+    eq(w.document.getElementById('b-status').className, 'bad');
+  });
+
+  t('and a toggle to source and back does not wipe it', () => {
+    const { w } = boot();
+    delete w.TTXF.htmlToSource;
+    w.bAddStage();
+    const ed = w.document.querySelector('.b-editable');
+    ed.innerHTML = 'Still here.';
+    ed.dispatchEvent(new w.Event('input', { bubbles: true }));
+    const btn = w.document.querySelector('.b-src-toggle');
+    btn.click(); btn.click();
+    has(w.document.querySelector('.b-editable').textContent, 'Still here');
+  });
+
+  t('the source view reads the live editor, not a model that may lag', () => {
+    const { w } = boot();
+    w.bAddStage();
+    const ed = w.document.querySelector('.b-editable');
+    ed.innerHTML = '<p>Edited in the DOM.</p>';        // no input event fired
+    w.document.querySelector('.b-src-toggle').click();
+    has(w.document.querySelector('.b-source').value, 'Edited in the DOM');
+  });
+
+  t('returning from source writes what is in the box', () => {
+    const { w } = boot();
+    w.bAddStage();
+    const btn = w.document.querySelector('.b-src-toggle');
+    btn.click();
+    const ta = w.document.querySelector('.b-source');
+    ta.value = 'Written as source.';
+    btn.click();
+    eq(w.eval('doc.stages[0].content'), 'Written as source.');
+    has(w.document.querySelector('.b-editable').textContent, 'Written as source');
+  });
+
+  t('the module is requested with a version, so a cache cannot serve a stale one', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'editor.html'), 'utf8');
+    ok(/js\/ttxf\.js\?v=/.test(src), 'editor.html loads the module uncache-busted');
+  });
+}
+
+G('the DOM converts back to source');
+{
+  const { JSDOM: J } = require('jsdom');
+  const win = new J('<body></body>').window;
+  const from = html => { const d = win.document.createElement('div'); d.innerHTML = html; return T.htmlToSource(d); };
+
+  t('every construct survives the trip', () => {
+    eq(from('<p>plain</p>'), 'plain');
+    eq(from('<p><strong>b</strong> and <em>i</em> and <code>c</code></p>'), '**b** and *i* and `c`');
+    eq(from('<blockquote>quoted</blockquote>'), '~quoted');
+    eq(from('<ul><li>one</li><li>two</li></ul>'), '- one\n- two');
+    eq(from('<ol><li>one</li><li>two</li></ol>'), '1. one\n2. two');
+    eq(from('<pre class="SFpre" data-label="log"><code>a\nb</code></pre>'), '```log\na\nb\n```');
+    eq(from('<img class="SFmedia" src="x.png" data-scale="60%">'), '%(x.png | 60%)');
+  });
+
+  t('a news frame comes back as %news()', () => {
+    const html = T.markdown('%news(Systems offline | Live at Six)');
+    eq(from(html), '%news(Systems offline | Live at Six)');
+    eq(from(T.markdown('%news(Systems offline)')), '%news(Systems offline)');
+  });
+
+  t('a line that would read as a directive is escaped on the way back', () => {
+    eq(from('<p># not a heading</p>'), '\\# not a heading');
+    eq(from('<p>+ not an answer</p>'), '\\+ not an answer');
+  });
+
+  t('it round-trips every stage body in the library without changing what renders', () => {
+    const manifest = JSON.parse(fs.readFileSync(path.join(ROOT, 'lib/manifest.json'), 'utf8'));
+    const bad = [];
+    let n = 0;
+    manifest.forEach(e => {
+      T.parse(fs.readFileSync(path.join(ROOT, 'lib/scenarios', e.id + '.ttxf'), 'utf8')).doc.stages.forEach((s, i) => {
+        if (!s.content) return;
+        n++;
+        const a = T.markdown(s.content).replace(/\s+/g, ' ').trim();
+        const b = T.markdown(from(T.markdown(s.content))).replace(/\s+/g, ' ').trim();
+        if (a !== b) bad.push(e.id + ' #' + (i + 1));
+      });
+    });
+    ok(n > 200, 'only checked ' + n + ' bodies');
+    eq(bad, [], 'stage bodies a visual edit would alter');
+  });
+}
+
+G('editing');
 {
   const { w } = boot();
-  w.parseTTXF('! title: T\n! summary: S\n\n@ Stage With No Content\n? Q\n+ a\n');
-  await wait(250);
-  const p = w.document.getElementById('validation-panel');
-  t('a stage with no content is flagged', () => has(p.textContent, 'has no "! content"'));
-  t('a question with one answer is flagged', () => has(p.textContent, 'only one answer'));
-  t('the panel is marked as having faults', () => ok(p.classList.contains('has-errors'), p.className));
+  w.bAddStage();
+
+  t('adding a stage focuses it', () => {
+    eq(w.eval('doc.stages.length'), 1);
+    eq(w.eval('focus'), 0);
+  });
+
+  t('typing a title reaches the model and the outline', () => {
+    w.bStage('stage', 'Containment');
+    has(w.document.querySelector('.b-stage-row').textContent, 'Containment');
+  });
+
+  t('discussion points and prompts can be added and removed', () => {
+    w.bAddItem('discussion'); w.bAddItem('prompts');
+    w.bItem('discussion', 0, 'What do you know?');
+    w.bItem('prompts', 0, 'Probe for assumptions.');
+    eq(w.eval('doc.stages[0].discussion'), ['What do you know?']);
+    eq(w.eval('doc.stages[0].prompts'), ['Probe for assumptions.']);
+    w.bRemoveItem('prompts', 0);
+    eq(w.eval('doc.stages[0].prompts'), []);
+  });
+
+  t('what is typed comes back out as valid ttxf', () => {
+    w.bStage('content', 'The team must decide how far to isolate.');
+    const out = w.toTTXF();
+    const { doc: d, errors } = T.parse(out);
+    eq(errors.filter(e => e.severity === 'error'), []);
+    eq(d.stages[0].stage, 'Containment');
+    eq(d.stages[0].discussion, ['What do you know?']);
+  });
+
+  t('deleting a stage keeps the focus somewhere real', () => {
+    w.bAddStage(); w.bAddStage();
+    w.bRemoveStage(2);
+    ok(w.eval('focus') < w.eval('doc.stages.length'), 'focus points past the end');
+  });
 }
 
-G('D1 — drafts survive a refresh');
-{
-  const { w, store } = boot();
-  w.document.getElementById('f-title').value = 'My Work In Progress';
-  w.addStage();
-  await wait(1200);   // scheduleUpdate (120ms) then the draft debounce (800ms)
-  t('the draft reaches localStorage', () => {
-    ok(store.ttxgym_editor_draft, 'nothing saved');
-    has(store.ttxgym_editor_draft, 'My Work In Progress');
-  });
-  // simulate the refresh
-  const { w: w2 } = boot(store.ttxgym_editor_draft);
-  await wait(400);
-  t('a reload restores the work', () => eq(w2.document.getElementById('f-title').value, 'My Work In Progress'));
-  t('...and says so', () => {
-    const n = w2.document.getElementById('draft-notice');
-    ok(n.classList.contains('visible'), 'notice hidden');
-    has(n.textContent, 'Picked up the draft');
-  });
-  t('Start a new scenario clears it', () => {
-    w2.discardDraft();
-    eq(w2.document.getElementById('f-title').value, '');
-    eq(w2.localStorage.getItem('ttxgym_editor_draft'), null);
-  });
-}
+G('questions sit with their audience');
 {
   const { w } = boot();
-  await wait(100);
-  t('an untouched editor shows no draft notice', () =>
-    ok(!w.document.getElementById('draft-notice').classList.contains('visible')));
-  t('...and no validation noise', () =>
-    ok(!w.document.getElementById('validation-panel').classList.contains('visible')));
+  w.load(fs.readFileSync(path.join(ROOT, 'lib/scenarios/cold_start.ttxf'), 'utf8'));
+  w.bFocus(1);                       // a visible quiz plus a hidden confidence poll
+  const screen = () => w.document.querySelector('.b-zone.screen');
+  const notes = () => w.document.querySelector('.b-zone.notes');
+
+  t('a visible question is on the room’s side', () => eq(screen().querySelectorAll('.b-q').length, 1));
+  t('a ?- question is on the facilitator’s side', () => eq(notes().querySelectorAll('.b-q').length, 1));
+
+  t('which matches what the gym would actually send', () => {
+    const stage = w.eval('JSON.stringify(doc.stages[1].questions.map(q => !!q.participantHidden))');
+    eq(JSON.parse(stage), [false, true]);
+  });
+
+  t('a scored question is labelled as one, and its answer marked', () => {
+    ok(screen().querySelector('.b-q-kind.scored'), 'no scored badge');
+    eq(screen().querySelectorAll('.b-ans.correct').length, 1);
+  });
+
+  t('moving a question across the divide is what sets ?-', () => {
+    const before = w.eval('doc.stages[1].questions[0].participantHidden');
+    w.bMoveQuestion(0);
+    eq(w.eval('doc.stages[1].questions[0].participantHidden'), !before);
+    eq(notes().querySelectorAll('.b-q').length, 2, 'it did not move zone');
+    has(w.toTTXF(), '?- ');
+    w.bMoveQuestion(0);
+  });
+
+  t('marking an answer correct turns a poll into a scored question', () => {
+    w.bAddQuestion(false);
+    const i = w.eval('doc.stages[1].questions.length') - 1;
+    w.bAnswer(i, 0, 'Isolate the host'); w.bAnswer(i, 1, 'Wait and see');
+    eq(w.eval(`doc.stages[1].questions[${i}].quizIndex`), -1);
+    w.bMarkAnswer(i, 0);
+    eq(w.eval(`doc.stages[1].questions[${i}].quizIndex`), 0);
+    has(w.toTTXF(), '++ Isolate the host');
+  });
+
+  t('clicking the marked answer again clears it', () => {
+    const i = w.eval('doc.stages[1].questions.length') - 1;
+    w.bMarkAnswer(i, 0);
+    eq(w.eval(`doc.stages[1].questions[${i}].quizIndex`), -1);
+  });
+
+  t('deleting an answer moves the correct index with it', () => {
+    const i = w.eval('doc.stages[1].questions.length') - 1;
+    w.bAddAnswer(i); w.bAnswer(i, 2, 'Third');
+    w.bMarkAnswer(i, 2);
+    w.bRemoveAnswer(i, 0);                       // removing an earlier answer
+    eq(w.eval(`doc.stages[1].questions[${i}].quizIndex`), 1, 'the correct answer drifted');
+    w.bMarkAnswer(i, 1);
+    w.bRemoveAnswer(i, 1);                       // removing the correct one
+    eq(w.eval(`doc.stages[1].questions[${i}].quizIndex`), -1, 'a deleted answer is still marked correct');
+    w.bRemoveQuestion(i);
+  });
+
+  t('a preset fills the answers and leaves it a poll', () => {
+    w.bAddQuestion(true);
+    const i = w.eval('doc.stages[1].questions.length') - 1;
+    w.bPreset(i, 'confidence5');
+    eq(w.eval(`doc.stages[1].questions[${i}].answers.length`), 5);
+    eq(w.eval(`doc.stages[1].questions[${i}].quizIndex`), -1, 'a rating scale should have no right answer');
+    w.bRemoveQuestion(i);
+  });
+
+  t('everything still serialises to valid ttxf', () => {
+    const { errors } = T.parse(w.toTTXF());
+    eq(errors.filter(e => e.severity === 'error'), []);
+  });
 }
 
-G('export filenames');
+G('starting from a shape');
 {
   const { w } = boot();
-  w.document.getElementById('f-title').value = 'Ransomware: "Phase 2" / Recovery';
-  w.updatePreviews();
-  t('a title with punctuation yields a safe filename', () =>
-    eq(w.document.getElementById('preview-filename').textContent, 'ransomware-phase-2-recovery.ttxf'));
-  w.exportTTXF();
-  t('the download uses it', () => eq(w.__downloads[0], 'ransomware-phase-2-recovery.ttxf'));
+
+  t('New offers shapes rather than building one unasked', () => {
+    w.bNewFromShape();
+    const offers = [...w.document.querySelectorAll('.b-zone-body .b-add strong')].map(b => b.textContent);
+    ok(offers.length >= 3, 'only ' + offers.length + ' shapes offered');
+    ok(offers.some(o => /lifecycle/i.test(o)), 'no incident lifecycle shape');
+    eq(w.eval('doc.stages.length'), 0, 'it built a scenario without being asked');
+  });
+
+  t('choosing one names the stages after the arc the library follows', () => {
+    w.applyShape('lifecycle');
+    const names = JSON.parse(w.eval('JSON.stringify(doc.stages.map(s => s.stage))'));
+    ok(names.length >= 5, 'too few stages');
+    has(names.join(' '), 'Detection');
+    has(names.join(' '), 'Containment');
+    has(names.join(' '), 'Recovery');
+  });
+
+  t('and writes none of the content', () =>
+    eq(w.eval('doc.stages.every(s => !s.content && !s.discussion.length && !s.questions.length)'), true));
+
+  t('a blank start is still available', () => {
+    w.applyShape('blank');
+    eq(w.eval('doc.stages.length'), 1);
+    eq(w.eval('doc.stages[0].stage'), '');
+  });
 }
 
-G('every library scenario survives an editor round-trip');
-{
-  const files = fs.readdirSync(ROOT + '/lib/scenarios').filter(f => f.endsWith('.ttxf'));
-  const bad = [];
-  const { w } = boot();
-  for (const f of files) {
-    const src = fs.readFileSync(ROOT + '/lib/scenarios/' + f, 'utf8');
-    w.parseTTXF(src);
-    const out = w.buildTTXF();
-    const a = JSON.stringify(w.TTXF.parse(src).doc);
-    const b = JSON.stringify(w.TTXF.parse(out).doc);
-    if (JSON.stringify(a) !== JSON.stringify(b)) bad.push(f);
-  }
-  t(`all ${files.length} scenarios import and re-export losslessly`, () => ok(!bad.length, bad.join(', ')));
-}
 
-G('F4.1 — the builder can set a stage duration');
-{
-  const { w } = boot();
-  w.parseTTXF('! title: T\n! summary: S\n\n@ S\n! content: c\n! duration: 10 mins\n? Q\n+ a\n+ b\n');
-  await wait(200);
-  t('an imported duration is shown in a field', () => {
-    const input = [...w.document.querySelectorAll('.field-input')]
-      .find(i => i.value === '10 mins');
-    ok(input, 'no duration field carrying the value');
-  });
-  t('it round-trips back out', () => has(w.buildTTXF(), '! duration: 10 mins'));
-  t('editing it updates the file', () => {
-    w.updateStageField(ev(w, 'stages[0].id'), 'duration', '25 mins');
-    has(w.buildTTXF(), '! duration: 25 mins');
-  });
-  t('an unreadable duration is flagged', async () => { ok(true); });
-}
+G('the room view is the real participant window');
 {
   const { w } = boot();
-  w.parseTTXF('! title: T\n! summary: S\n\n@ S\n! content: c\n! duration: whenever\n? Q\n+ a\n+ b\n');
-  await wait(250);
-  t('an unreadable duration is flagged in validation', () =>
-    has(w.document.getElementById('validation-panel').textContent, 'could not be read'));
-}
+  w.load(fs.readFileSync(path.join(ROOT, 'lib/scenarios/cold_start.ttxf'), 'utf8'));
+  w.bFocus(1);                       // a visible quiz plus a hidden confidence poll
+  const payload = () => w.roomPayload();
 
-G('F5.2 — Customise in Builder');
-{
-  const SRC = '! title: From The Library\n! summary: S\n\n@ Stage One\n! content: c\n? Q\n+ a\n+ b\n';
-  const okFetch = () => Promise.resolve({ ok: true, text: () => Promise.resolve(SRC) });
-  const { w } = boot(null, 'https://ttxgym.com/editor.html?load=byod1', okFetch);
-  await wait(250);
-  t('the scenario is fetched and loaded straight in', () => {
-    eq(w.document.getElementById('f-title').value, 'From The Library');
-    eq(ev(w, 'stages.length'), 1);
+  t('it uses the participant document the gym uses, not a copy', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'editor.html'), 'utf8');
+    has(src, 'PRESENTATION_HTML');
+    has(src, 'js/participant-view.js');
+    ok(!/b-room-card/.test(src), 'a second, smaller participant view is still in the builder');
   });
-  t('it does not resurrect an unrelated draft', () =>
-    ok(!w.document.getElementById('draft-notice').classList.contains('visible')));
-}
-{
-  const badFetch = () => Promise.resolve({ ok: false, statusText: 'Not Found' });
-  const { w } = boot(null, 'https://ttxgym.com/editor.html?load=nope', badFetch);
-  await wait(250);
-  t('a missing scenario says so instead of failing silently', () =>
-    has(w.document.getElementById('validation-panel').textContent, 'Could not load that scenario'));
-}
 
-G('answer presets — the biggest piece of authoring friction');
-{
-  const { w } = boot();
-  w.addStage();
-  await wait(200);
-  const sid = ev(w, 'stages[0].id');
-  w.addQuestion(sid);
-  await wait(200);
+  t('and the same shared file the gym loads', () => {
+    const gym = fs.readFileSync(path.join(ROOT, 'gym/index.html'), 'utf8');
+    has(gym, 'js/participant-view.js');
+    ok(!/const PRESENTATION_HTML = `/.test(gym), 'the gym still carries its own copy');
+  });
 
-  t('a new question arrives with the scale almost every question uses', () => {
-    eq(ev(w, 'stages[0].questions[0].answers'), [
-      'Not at all confident', 'Slightly confident', 'Somewhat confident',
-      'Fairly confident', 'Completely confident']);
+  t('the payload carries exactly the fields the gym sends', () => {
+    const gymSrc = fs.readFileSync(path.join(ROOT, 'gym/index.html'), 'utf8');
+    const fn = gymSrc.slice(gymSrc.indexOf('function currentStageMessage'),
+                            gymSrc.indexOf('function broadcastCurrentStage'));
+    const expected = ['type', 'title', 'content', 'discussion', 'questions', 'image'];
+    expected.forEach(k => ok(new RegExp(k + ':').test(fn), 'the gym no longer sends ' + k));
+    expected.forEach(k => ok(k in payload(), 'the builder does not send ' + k));
   });
-  t('so it exports as a usable question immediately', () => {
-    w.updateQuestionField(sid, ev(w, 'stages[0].questions[0].id'), 'question', 'Are we ready');
-    const out = w.buildTTXF();
-    has(out, '? Are we ready');
-    has(out, '+ Not at all confident');
-    has(out, '+ Completely confident');
+
+  t('visible questions travel', () => {
+    const p = payload();
+    eq(p.questions.length, 1);
+    has(p.questions[0].question, 'immediate action');
   });
-  t('the picker knows which preset is in use', () => {
-    const sel = w.document.querySelector('.answer-preset');
-    ok(sel, 'no preset picker');
-    eq(sel.value, 'confidence5');
-    ok(![...sel.options].some(o => o.value === '' ), 'a Custom option is offered for a known preset');
+
+  t('a ?- question does not', () => {
+    const hidden = JSON.parse(w.eval('JSON.stringify(doc.stages[1].questions.filter(q => q.participantHidden).map(q => q.question))'));
+    ok(hidden.length, 'fixture has no hidden question');
+    const sent = JSON.stringify(payload());
+    hidden.forEach(q => ok(!sent.includes(q.slice(0, 30)), 'a private question reached the room'));
   });
-  t('switching preset replaces the answers', () => {
-    const qid = ev(w, 'stages[0].questions[0].id');
-    w.applyPreset(sid, qid, 'yesno');
-    eq(ev(w, 'stages[0].questions[0].answers'), ['Yes', 'No', 'Unsure']);
+
+  t('and neither do facilitator prompts', () => {
+    const prompts = JSON.parse(w.eval('JSON.stringify(doc.stages[1].prompts)'));
+    ok(prompts.length, 'fixture has no prompts');
+    const sent = JSON.stringify(payload());
+    prompts.forEach(x => ok(!sent.includes(x.slice(0, 25)), 'a prompt reached the room'));
   });
-  t('"Write my own" clears them back to empty boxes', () => {
-    const qid = ev(w, 'stages[0].questions[0].id');
-    w.applyPreset(sid, qid, 'blank');
-    eq(ev(w, 'stages[0].questions[0].answers'), ['', '']);
-    eq(w.document.querySelector('.answer-preset').value, 'blank');
+
+  t('moving a question across the divide takes it off the room screen', () => {
+    const before = payload().questions.length;
+    w.bMoveQuestion(0);
+    eq(payload().questions.length, before - 1);
+    w.bMoveQuestion(0);
   });
-  t('hand-written answers show as Custom', () => {
-    const qid = ev(w, 'stages[0].questions[0].id');
-    w.updateAnswer(sid, qid, 0, 'Something of my own');
-    w.renderAllStages();
-    eq(w.document.querySelector('.answer-preset').value, '');
+
+  t('media is made absolute, because a blob window can resolve nothing', () => {
+    w.eval('doc.stages[1].content = "%(../lib/exercise_data/icons/TTXGYM_Warning_red.png | 60%)";');
+    const src = /<img[^>]*src="([^"]+)"/.exec(payload().content);
+    ok(src, 'no image in the payload');
+    ok(/^https?:/.test(src[1]), 'a relative path would break in the participant window: ' + src[1]);
   });
-  t('switching preset keeps a quiz answer in range', () => {
-    const qid = ev(w, 'stages[0].questions[0].id');
-    w.applyPreset(sid, qid, 'confidence5');
-    w.setQuestionType(sid, qid, 'quiz');
-    w.setCorrectAnswer(sid, qid, 4);
-    w.applyPreset(sid, qid, 'yesno');           // 5 options down to 3
-    const q = ev(w, 'stages[0].questions[0]');
-    ok(q.quizIndex >= 0 && q.quizIndex < q.answers.length, 'quizIndex ' + q.quizIndex);
+
+  t('nothing is sent while the view is closed', () => {
+    let posted = 0;
+    w.document.getElementById('b-mirror-frame').contentWindow = { postMessage: () => { posted++; } };
+    w.sendRoom();
+    eq(posted, 0, 'it posted to a panel nobody is looking at');
   });
-  t('an imported question keeps its own answers', () => {
-    w.parseTTXF('! title: T\n! summary: S\n\n@ S\n! content: c\n? Q\n+ Bespoke one\n+ Bespoke two\n');
-    eq(ev(w, 'stages[0].questions[0].answers'), ['Bespoke one', 'Bespoke two']);
+
+  t('it stays on this page — no second browser window to lose', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'editor.html'), 'utf8');
+    const mirror = src.slice(src.indexOf('const MIRROR_DEFAULT_W'), src.indexOf('function problems()'));
+    ok(!/window\.open\(/.test(mirror), 'it still pops the participant view out');
+    has(mirror, 'b-mirror-frame');
   });
 }
 
-G('duplicating a stage');
+G('the participant view is a panel you can place');
 {
-  const { w } = boot();
-  w.parseTTXF('! title: T\n! summary: S\n\n@ First\n! duration: 10 mins\n! content: Body\n# discussion\n+ point\n? Q\n+ a\n++ b\n\n@ Second\n! content: c\n');
-  await wait(200);
-  const firstId = ev(w, 'stages[0].id');
-  w.duplicateStage(firstId);
-  await wait(200);
+  const { w } = boot(null, 1400);
+  const panel = () => w.document.getElementById('b-mirror');
+  const width = () => parseInt(panel().style.getPropertyValue('--mirror-w'), 10);
 
-  t('the copy lands directly after the original', () =>
-    eq(ev(w, 'stages.map(s => s.stage)'), ['First', 'First (copy)', 'Second']));
-  t('it brings the content, duration, discussion and questions', () => {
-    const c = ev(w, 'stages[1]');
-    eq(c.content, 'Body');
-    eq(c.duration, '10 mins');
-    eq(c.discussion, ['point']);
-    eq(c.questions.length, 1);
-    eq(c.questions[0].quizIndex, 1);
+  t('the button opens and closes it', () => {
+    w.bToggleRoom();
+    ok(!panel().classList.contains('hide'), 'it did not open');
+    has(w.document.getElementById('b-room-btn').textContent, 'Hide');
+    w.bToggleRoom();
+    ok(panel().classList.contains('hide'), 'it did not close');
+    w.bToggleRoom();
   });
-  t('the copy is independent of the original', () => {
-    w.updateStageField(ev(w, 'stages[1].id'), 'content', 'Changed');
-    eq(ev(w, 'stages[0].content'), 'Body');
+
+  t('it shows the real participant document, not a rebuild of it', () => {
+    ok(w.document.getElementById('b-mirror-frame').src, 'the frame is empty');
+    ok(typeof w.PRESENTATION_HTML === 'string', 'the shared document did not load');
   });
-  t('ids are fresh, so editing one does not edit the other', () => {
-    const a = ev(w, 'stages[0].questions[0].id'), b = ev(w, 'stages[1].questions[0].id');
-    ok(a !== b, 'question ids were reused');
-    w.updateQuestionField(ev(w, 'stages[1].id'), b, 'question', 'Only the copy');
-    eq(ev(w, 'stages[0].questions[0].question'), 'Q');
+
+  t('the document is scaled to whatever width the panel is given', () => {
+    w.mirrorSetWidth(640, false);
+    eq(width(), 640);
+    eq(panel().style.getPropertyValue('--mirror-scale'), '0.5000', 'a 1280-wide screen at 640 is half size');
   });
-  t('and it survives a round-trip through the format', () => {
-    const out = w.buildTTXF();
-    eq((out.match(/^@ /gm) || []).length, 3);
-    has(out, '@ First (copy)');
+
+  t('it cannot be shrunk to nothing or grown past the window', () => {
+    w.mirrorSetWidth(20, false);
+    eq(width(), 240, 'it went below a usable size');
+    w.mirrorSetWidth(99999, false);
+    ok(width() <= 1400 - 60, 'it grew wider than the page');
+  });
+
+  t('arrow keys resize it, for anyone not using a mouse', () => {
+    w.mirrorSetWidth(400, false);
+    const grip = w.document.getElementById('b-mirror-grip');
+    const key = k => {
+      const ev = new w.KeyboardEvent('keydown', { key: k, bubbles: true, cancelable: true });
+      grip.dispatchEvent(ev);
+    };
+    key('ArrowLeft');
+    eq(width(), 416, 'left did not widen it');
+    key('ArrowRight');
+    eq(width(), 400, 'right did not narrow it');
+  });
+
+  t('collapsing leaves the header, so it can be brought back', () => {
+    w.mirrorCollapse();
+    ok(panel().classList.contains('collapsed'), 'it did not collapse');
+    ok(w.document.getElementById('b-mirror-head').offsetParent !== null ||
+       !panel().classList.contains('hide'), 'the header went with it');
+    w.mirrorCollapse();
+    ok(!panel().classList.contains('collapsed'), 'it did not come back');
+  });
+
+  t('dragging moves it, and it cannot be dragged off the page', () => {
+    const head = w.document.getElementById('b-mirror-head');
+    const down = new w.MouseEvent('mousedown', { clientX: 500, clientY: 500, bubbles: true });
+    head.dispatchEvent(down);
+    w.dispatchEvent(new w.MouseEvent('pointermove', { clientX: -5000, clientY: -5000, bubbles: true }));
+    w.dispatchEvent(new w.MouseEvent('pointerup', { bubbles: true }));
+    ok(parseInt(panel().style.right, 10) <= 1400 - width(), 'it left the page to the left');
+    ok(parseInt(panel().style.bottom, 10) >= 0, 'it left the page downward');
+  });
+
+  t('size and place are remembered between sessions', () => {
+    w.mirrorSetWidth(520, true);
+    const saved = JSON.parse(w.localStorage.getItem('ttxgym_builder_mirror'));
+    eq(saved.w, 520);
+  });
+
+  t('reset puts it back in the corner at a sane size', () => {
+    w.mirrorReset();
+    eq(width(), 400);
+    eq(panel().style.right, '20px');
   });
 }
 
-G('knowing what you have built');
-{
-  const { w } = boot();
-  t('an empty builder says nothing', () => eq(w.document.getElementById('stages-summary').textContent, ''));
-  w.parseTTXF('! title: T\n! summary: S\n\n@ A\n! duration: 20 mins\n! content: c\n? Q1\n+ a\n+ b\n\n@ B\n! duration: 40 mins\n! content: c\n? Q2\n+ a\n+ b\n');
-  await wait(250);
-  t('it reports stages, questions and the planned length', () => {
-    const txt = w.document.getElementById('stages-summary').textContent;
-    has(txt, '2 stages');
-    has(txt, '2 questions');
-    has(txt, '1h 00m planned');
-  });
-  t('short exercises read in minutes', async () => { ok(true); });
-}
-{
-  const { w } = boot();
-  w.parseTTXF('! title: T\n! summary: S\n\n@ A\n! duration: 25 mins\n! content: c\n');
-  await wait(250);
-  t('a short exercise reads in minutes', () =>
-    has(w.document.getElementById('stages-summary').textContent, '25 mins planned'));
-}
-
-G('import no longer discards work silently');
-{
-  const { w } = boot();
-  w.document.getElementById('f-title').value = 'Work in progress';
-  w.addStage();
-  await wait(200);
-  let asked = false;
-  w.confirm = () => { asked = true; return false; };
-  w.__pending = true;
-  w.eval('pendingImportData = "! title: Replacement\\n! summary: S\\n\\n@ S\\n! content: c\\n"');
-  w.confirmImport();
-  t('it asks before replacing', () => ok(asked));
-  t('and declining leaves your work alone', () =>
-    eq(w.document.getElementById('f-title').value, 'Work in progress'));
-  w.confirm = () => true;
-  w.confirmImport();
-  t('accepting imports', () => eq(w.document.getElementById('f-title').value, 'Replacement'));
-}
+G('pacing is visible while authoring');
 {
   const { w } = boot();
-  await wait(100);
-  let asked = false;
-  w.confirm = () => { asked = true; return true; };
-  w.eval('pendingImportData = "! title: Fresh\\n! summary: S\\n\\n@ S\\n! content: c\\n"');
-  w.confirmImport();
-  t('an empty builder is not nagged', () => ok(!asked));
+  w.load(fs.readFileSync(path.join(ROOT, 'lib/scenarios/te-rootkit.ttxf'), 'utf8'));
+
+  t('a scenario already weighted to its content says nothing', () =>
+    eq(JSON.parse(w.eval('JSON.stringify(pacing())')), []));
+
+  t('a stage far out of step with what is in it is flagged', () => {
+    w.eval('doc.stages[0].duration = "45 mins"; renderOutline();');
+    const flags = JSON.parse(w.eval('JSON.stringify(pacing())'));
+    ok(flags.some(f => f.i === 0 && f.how === 'long'), 'an obviously over-long stage was not flagged');
+    ok(w.document.querySelector('.b-stage-row .warn'), 'the outline shows no warning');
+  });
+
+  t('it stays quiet until enough of the exercise is timed to compare against', () => {
+    const { w: w2 } = boot();
+    w2.bAddStage(); w2.bStage('duration', '90 mins');
+    eq(JSON.parse(w2.eval('JSON.stringify(pacing())')), [], 'guessed from a single stage');
+  });
 }
 
-
-G('the builder preview styles everything the renderer can emit');
+G('drafts');
 {
-  const TTXF = require(ROOT + '/js/ttxf.js');
-  const css = fs.readFileSync(ROOT + '/editor.html', 'utf8');
-  const style = css.slice(css.indexOf('<style>'), css.indexOf('</style>'));
+  const draft = JSON.stringify({ title: 'Recovered', author: '', summary: '', conclusion: '',
+                                 stages: [{ stage: 'One', content: 'x', duration: '', discussion: [], prompts: [], questions: [] }] });
+  const { w } = boot(draft);
+  t('a draft is restored on load', () => {
+    eq(w.document.getElementById('b-title').value, 'Recovered');
+    eq(w.document.querySelectorAll('.b-stage-row').length, 1);
+  });
+  t('and editing writes a new one', () => {
+    w.bMeta('title', 'Changed');
+    w.eval('save()');
+    has(w.localStorage.getItem('ttxgym_builder_draft'), 'Changed');
+  });
+  t('a corrupt draft does not stop the builder loading', () => {
+    const { w: w2, errs } = boot('{not json');
+    eq(errs, []);
+    ok(w2.document.getElementById('b-outline'), 'the builder failed to start');
+  });
+}
+
+G('validation');
+{
+  const { w } = boot();
+  t('a valid scenario reports ready', () => {
+    w.load('! title: X\n\n@ One\n! content\nSomething.\n\n? Q\n+ a\n+ b\n');
+    w.eval('status()');
+    eq(w.document.getElementById('b-status').className, 'good');
+  });
+  t('a problem is surfaced without leaving the page', () => {
+    w.eval("doc.stages.push({stage:'', content:'', duration:'', discussion:[], prompts:[], questions:[{question:'Q', answers:[], quizIndex:-1, participantHidden:false}]}); status();");
+    eq(w.document.getElementById('b-status').className, 'bad');
+  });
+}
+
+G('problems point at the stage, not at a line number');
+{
+  const { w } = boot();
+  const panel = () => w.document.getElementById('b-problems');
+  w.load('! title: X\n\n@ One\n! content\nFine.\n\n@ Two\n! content\n\n@ Three\n! content\nAlso fine.\n');
+
+  t('the status chip counts what is actually wrong', () => {
+    w.eval('status()');
+    const el = w.document.getElementById('b-status');
+    eq(el.className, 'bad');
+    has(el.textContent, 'problem');
+  });
+
+  t('each problem names the stage it is in', () => {
+    const list = JSON.parse(w.eval('JSON.stringify(problems())'));
+    const bad = list.filter(p => p.severity === 'error');
+    eq(bad.length, 1);
+    eq(bad[0].stage, 1, 'the empty stage is the second one');
+    has(bad[0].message, 'empty screen');
+  });
+
+  t('clicking one goes there', () => {
+    w.eval('toggleProblems()');
+    ok(!panel().classList.contains('hide'), 'the list did not open');
+    const row = panel().querySelector('.b-problem.err');
+    ok(row, 'no error listed');
+    has(row.textContent, 'Stage 2');
+    row.click();
+    eq(w.eval('focus'), 1, 'it did not focus the stage with the problem');
+    ok(panel().classList.contains('hide'), 'the list stayed open');
+  });
+
+  t('and the stage is marked in the outline', () => {
+    const rows = w.document.querySelectorAll('#b-stage-list .b-stage-row');
+    ok(rows[1].querySelector('.flag'), 'the bad stage is unmarked');
+    ok(!rows[0].querySelector('.flag'), 'a good stage is marked');
+  });
+
+  t('a clean scenario says so rather than counting nothing', () => {
+    w.load('! title: X\n\n@ One\n! content\nFine.\n');
+    w.eval('status()');
+    const el = w.document.getElementById('b-status');
+    eq(el.className, 'good');
+    eq(el.textContent, 'ready');
+  });
+
+  t('warnings are separated from errors — they do not read as breakage', () => {
+    w.load('@ One\n! content\nNo title on this one.\n');   // missing title is a warning
+    w.eval('status()');
+    const el = w.document.getElementById('b-status');
+    eq(el.className, '', 'a warning was reported as a problem');
+    has(el.textContent, 'check');
+  });
+}
+
+G('the image picker');
+{
+  const { w } = boot();
+  const gallery = JSON.parse(fs.readFileSync(path.join(ROOT, 'lib/exercise_data/gallery.json'), 'utf8'));
+  w.eval('galleryData = ' + JSON.stringify(gallery) + ';');
+  w.load('! title: X\n\n@ One\n! content\nBefore.\n');
+  const editable = () => w.document.querySelector('.b-rich[data-field="content"] .b-editable');
+
+  t('the Image button opens the picker rather than dropping a canned icon', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'editor.html'), 'utf8');
+    ok(!/insertBlock\(editable, '%\(\.\.\/lib/.test(src), 'it still inserts a fixed image');
+    has(src, "openGallery(editable)");
+  });
+
+  t('it opens on a category that has something in it', () => {
+    w.openGallery(editable());
+    ok(!w.document.getElementById('b-gallery').classList.contains('hide'), 'it did not open');
+    eq(w.eval('galleryTab'), 'icons');
+    const tabs = w.document.querySelectorAll('#b-gal-tabs button');
+    eq(tabs.length, gallery.categories.length);
+    eq(tabs[0].getAttribute('aria-selected'), 'true');
+  });
+
+  t('an empty category says how to fill it instead of showing nothing', () => {
+    w.galleryPick('diagrams');
+    has(w.document.getElementById('b-gal-grid').textContent, 'lib/exercise_data/diagrams/');
+    w.galleryPick('icons');
+  });
+
+  t('thumbnails load from where this page can see them', () => {
+    const img = w.document.querySelector('.b-gal-item img');
+    ok(img, 'no thumbnails');
+    ok(img.getAttribute('src').startsWith('lib/exercise_data/'), img.getAttribute('src'));
+    ok(!/%2F/.test(img.getAttribute('src')), 'the path separators were encoded away');
+  });
+
+  t('picking one writes the path the gym will read, not the one shown here', () => {
+    w.insertGalleryImage('icons/TTXGYM_Warning_red.png');
+    const content = w.eval('doc.stages[0].content');
+    has(content, '%(../lib/exercise_data/icons/TTXGYM_Warning_red.png | 60%)');
+  });
+
+  t('but the picture in the editor still loads, which is how this was missed before', () => {
+    const img = editable().querySelector('img.SFmedia');
+    ok(img, 'no image in the editor');
+    eq(img.getAttribute('src'), 'lib/exercise_data/icons/TTXGYM_Warning_red.png');
+    eq(img.getAttribute('data-src'), '../lib/exercise_data/icons/TTXGYM_Warning_red.png');
+  });
+
+  t('and typing on does not rewrite the path to the one the editor used', () => {
+    w.richInput(editable());
+    has(w.eval('doc.stages[0].content'), '../lib/exercise_data/');
+  });
+
+  t('the chosen size is carried through', () => {
+    w.document.getElementById('b-gal-scale').value = '25%';
+    w.openGallery(editable());
+    w.insertGalleryImage('icons/TTXGYM_Warning_red.png');
+    has(w.eval('doc.stages[0].content'), '| 25%)');
+  });
+
+  t('a pasted URL is inserted as it stands', () => {
+    w.openGallery(editable());
+    w.document.getElementById('b-gal-url').value = 'https://example.org/a.png';
+    w.insertGalleryURL();
+    has(w.eval('doc.stages[0].content'), '%(https://example.org/a.png');
+    ok(w.document.getElementById('b-gallery').classList.contains('hide'), 'the picker stayed open');
+  });
+
+  t('an absolute URL is left alone on display too', () => {
+    const img = Array.from(editable().querySelectorAll('img.SFmedia'))
+      .find(i => /example\.org/.test(i.getAttribute('src')));
+    ok(img, 'the pasted image is not in the editor');
+    ok(!img.getAttribute('data-src'), 'an absolute URL was rewritten');
+  });
+}
+
+G('media survives a full round trip through the editor');
+{
+  const { w } = boot();
+  const authored = '! title: X\n\n@ One\n! content\nBefore.\n\n%(../lib/exercise_data/icons/TTXGYM_Warning_red.png | 60%)\n';
+  t('an existing scenario keeps its authored paths', () => {
+    w.load(authored);
+    const editable = w.document.querySelector('.b-rich[data-field="content"] .b-editable');
+    w.richInput(editable);                       // as if the author typed one character
+    has(w.eval('toTTXF()'), '%(../lib/exercise_data/icons/TTXGYM_Warning_red.png | 60%)');
+  });
+}
+
+G('opening a file');
+{
+  const { w } = boot();
+  const good = fs.readFileSync(path.join(ROOT, 'lib/scenarios/cold_start.ttxf'), 'utf8');
+
+  t('a file with nothing the format recognises is refused, not loaded', () => {
+    w.load('! title: Work in progress\n\n@ One\n! content\nMine.\n');
+    w.importText('just some notes I had lying about', 'notes.txt');
+    eq(w.eval('doc.title'), 'Work in progress', 'it threw away the author’s work');
+    eq(w.document.getElementById('b-status').className, 'bad');
+    has(w.document.getElementById('b-status').textContent, 'notes.txt');
+  });
+
+  t('replacing real work asks first', () => {
+    let asked = 0;
+    w.confirm = () => { asked++; return false; };
+    w.importText(good, 'cold_start.ttxf');
+    eq(asked, 1, 'it replaced the scenario without asking');
+    eq(w.eval('doc.title'), 'Work in progress', 'it loaded anyway');
+    w.confirm = () => true;
+    w.importText(good, 'cold_start.ttxf');
+    ok(w.eval('doc.stages.length') > 1, 'it did not load after being told yes');
+  });
+
+  t('a scenario with problems opens the list rather than hiding them', () => {
+    w.confirm = () => true;
+    w.importText('! title: Half done\n\n@ One\n! content\n\n@ Two\n! content\nFine.\n', 'half.ttxf');
+    ok(w.eval('problemsOpen'), 'the problems stayed hidden');
+    ok(w.document.querySelector('#b-problems .b-problem.err'), 'nothing was listed');
+  });
+
+  t('a file dropped anywhere on the page is opened', () => {
+    const files = [{ name: 'dropped.ttxf', size: 10 }];
+    let opened = null;
+    w.openFile = f => { opened = f; };
+    const ev = new w.Event('drop', { bubbles: true, cancelable: true });
+    ev.dataTransfer = { types: ['Files'], files: files };
+    w.dispatchEvent(ev);
+    ok(opened, 'the drop was ignored');
+    eq(opened.name, 'dropped.ttxf');
+  });
+
+  t('and dragging one over the page says where it can go', () => {
+    const veil = w.document.getElementById('b-drop');
+    const ev = new w.Event('dragenter', { bubbles: true, cancelable: true });
+    ev.dataTransfer = { types: ['Files'] };
+    w.dispatchEvent(ev);
+    ok(!veil.classList.contains('hide'), 'no drop target was shown');
+    w.dispatchEvent(new w.Event('dragleave', { bubbles: true }));
+    ok(veil.classList.contains('hide'), 'the drop target stayed up');
+  });
+}
+
+G('the editor styles everything the renderer can emit');
+{
+  const src = fs.readFileSync(path.join(ROOT, 'editor.html'), 'utf8');
+  const style = src.slice(src.indexOf('<style>'), src.indexOf('</style>'));
 
   // Render one document containing every construct, then look at what came out —
   // so a construct added to js/ttxf.js later is covered without editing this list.
@@ -441,330 +895,75 @@ G('the builder preview styles everything the renderer can emit');
     '%news(A headline)',
     '```log\nan artefact\n```',
   ].join('\n\n');
-  const html = TTXF.markdown(sample);
+  const html = T.markdown(sample);
 
   t('the sample exercises every construct', () => {
     ['<strong>', '<em>', '<code>', '<blockquote>', '<ul>', '<ol>', '<li>',
      'SFmedia', 'SFnews', 'SFpre'].forEach(bit => has(html, bit));
   });
 
-  t('each one has a rule in the builder stylesheet', () => {
-    // tag or class -> a selector that must appear somewhere in the preview styles
+  t('each one has a rule where the author is looking at it', () => {
     const needed = {
-      'blockquote': /preview-content blockquote|\.preview-content [^{]*blockquote/,
-      'SFmedia':    /preview-content \.SFmedia/,
-      'SFnews':     /figure\.SFnews/,
-      'SFpre':      /pre\.SFpre/,
-      'code':       /#preview-content code|preview-content [^{]*code/,
-      'ul':         /preview-content ul/,
-      'li':         /preview-content li/,
-      'strong':     /preview-content strong/,
+      blockquote: /\.b-editable blockquote/,
+      SFmedia: /\.b-editable [^{]*img\.SFmedia|img\.SFmedia/,
+      SFnews: /figure\.SFnews/,
+      SFpre: /pre\.SFpre/,
+      code: /\.b-editable code/,
+      ul: /\.b-editable ul/,
+      li: /\.b-editable li/,
+      strong: /\.b-editable strong/,
     };
     const unstyled = Object.keys(needed).filter(k => !needed[k].test(style));
-    eq(unstyled, [], 'renderer output with no styling in the preview');
+    eq(unstyled, [], 'renderer output with no styling in the editor');
   });
 
-  t('a quote actually reaches the preview DOM, styled', () => {
+  t('and a quote really does arrive in the editor as a blockquote', () => {
     const { w } = boot();
-    w.eval('addStage()');
-    w.eval('stages[0].content = "~Scenario update"; updatePreviews();');
-    const bq = w.document.querySelector('.preview-content blockquote');
-    ok(bq, 'no blockquote rendered into the preview');
+    w.load('! title: T\n\n@ One\n! content\n~Scenario update\n');
+    const bq = w.document.querySelector('.b-editable blockquote');
+    ok(bq, 'no blockquote rendered into the editor');
     eq(bq.textContent.trim(), 'Scenario update');
   });
 
   t('prose cells in the guide table are not flex containers', () => {
     // a flex cell turns every inline <code> into its own column
-    const guide = fs.readFileSync(ROOT + '/guide.html', 'utf8');
+    const guide = fs.readFileSync(path.join(ROOT, 'guide.html'), 'utf8');
     const rule = /\.syntax-row>div \{[^}]*\}/.exec(guide);
     ok(rule, 'no .syntax-row>div rule');
     ok(!/display:\s*flex/.test(rule[0]), 'cells are flex again: ' + rule[0].replace(/\s+/g, ' '));
   });
 }
 
-G('the visual preview');
+G('the exercise adds up to something the author can see');
 {
-  // file:// is the case that exposes it — served from a domain root, ".." past the
-  // root is clamped and the broken path looks fine
-  const { w } = boot(null, 'file:///var/www/html/github/ttxgym/editor.html');
-  w.eval('addStage()');
-  w.eval('stages[0].content = "%(../lib/exercise_data/icons/TTXGYM_Warning_red.png | 60%)";'
-       + ' document.getElementById("f-conclusion").value = "**Debrief** text.";'
-       + ' updatePreviews();');
-  await wait(40);
-
-  t('an image dropped into a stage resolves in the preview', () => {
-    const img = w.document.querySelector('.preview-content img');
-    ok(img, 'no image rendered into the preview');
-    eq(img.getAttribute('src'), 'lib/exercise_data/icons/TTXGYM_Warning_red.png',
-       'the preview would look one level above the site');
-  });
-
-  t('but the authored path is left alone in the file', () =>
-    has(w.eval('stages[0].content'), '%(../lib/exercise_data/'));
-
-  t('an absolute URL is not rewritten', () => {
-    eq(w.eval("previewSrc('https://example.com/a.png')"), 'https://example.com/a.png');
-    eq(w.eval("previewSrc('/lib/x.png')"), '/lib/x.png');
-    eq(w.eval("previewSrc('data:image/png;base64,AAA')"), 'data:image/png;base64,AAA');
-  });
-
-  t('only one level is stripped, not every ..', () =>
-    eq(w.eval("previewSrc('../../outside.png')"), '../outside.png'));
-
-  t('the conclusion is previewed after the last stage', () => {
-    const cards = [...w.document.querySelectorAll('.preview-stage')];
-    const last = cards[cards.length - 1];
-    ok(last.classList.contains('preview-conclusion'), 'conclusion is not the final card');
-    has(last.textContent, 'Debrief');
-    ok(last.querySelector('strong'), 'the conclusion is not rendered as markdown');
-  });
-
-  t('and is absent when there is no conclusion to show', () => {
-    w.eval('document.getElementById("f-conclusion").value = ""; updatePreviews();');
-    ok(!w.document.querySelector('.preview-conclusion'), 'an empty conclusion still drew a card');
-  });
-}
-
-G('the image gallery');
-{
-  const path = require('path');
-  const DIR = path.join(ROOT, 'lib', 'exercise_data');
-  const gallery = JSON.parse(fs.readFileSync(path.join(DIR, 'gallery.json'), 'utf8'));
-
-  t('it is generated, and matches the folders exactly', () => {
-    const before = fs.readFileSync(path.join(DIR, 'gallery.json'), 'utf8');
-    require(path.join(ROOT, 'tools', 'build-gallery.js')).build({ quiet: true });
-    eq(fs.readFileSync(path.join(DIR, 'gallery.json'), 'utf8'), before,
-       'gallery.json is out of step with lib/exercise_data — run npm run build');
-  });
-
-  t('categories are the subfolders, so adding one needs no code', () => {
-    const onDisk = fs.readdirSync(DIR, { withFileTypes: true })
-      .filter(d => d.isDirectory()).map(d => d.name).sort();
-    eq(gallery.categories.map(c => c.name).sort(), onDisk);
-    gallery.categories.forEach(c => ok(c.heading && c.heading !== c.name.toLowerCase(),
-      'category has no readable heading: ' + c.name));
-  });
-
-  t('every entry points at a file that exists', () => {
-    const missing = gallery.images.filter(e => !fs.existsSync(path.join(DIR, e.file))).map(e => e.file);
-    eq(missing, []);
-  });
-
-  t('every entry carries its category folder in the path', () =>
-    eq(gallery.images.filter(e => !e.file.startsWith(e.category + '/')).map(e => e.file), []));
-
-  t('the %news() backdrop is not offered as clip art', () =>
-    ok(!gallery.images.some(e => /news\.jpe?g$/.test(e.file))));
-
-  t('no image is left loose outside a category', () => {
-    const loose = fs.readdirSync(DIR)
-      .filter(f => /\.(png|jpe?g|gif|webp|svg)$/i.test(f) && f !== 'news.jpeg');
-    eq(loose, [], 'images in the root are skipped by the build and invisible in the picker');
-  });
-
-  // the property that matters: the path written into a scenario must resolve
-  // from gym/, where the exercise actually runs
-  t('a picked path resolves from the gym', () => {
-    const broken = gallery.images.filter(e =>
-      !fs.existsSync(path.resolve(ROOT, 'gym', '../lib/exercise_data/' + e.file))).map(e => e.file);
-    eq(broken, []);
-  });
-
-  t('and every image a shipped scenario references still exists', () => {
-    const broken = [];
-    fs.readdirSync(path.join(ROOT, 'lib', 'scenarios')).forEach(f => {
-      const src = fs.readFileSync(path.join(ROOT, 'lib', 'scenarios', f), 'utf8');
-      (src.match(/%\(([^|)]+)/g) || []).forEach(m => {
-        const rel = m.slice(2).trim();
-        if (/^https?:/.test(rel)) return;
-        if (!fs.existsSync(path.resolve(ROOT, 'gym', rel))) broken.push(f + ' -> ' + rel);
-      });
-    });
-    eq(broken, [], 'scenario media that would 404 when the exercise runs');
-  });
-
-  const { w } = boot(null, null, (u) =>
-    Promise.resolve({ ok: /gallery\.json/.test(String(u)), json: () => Promise.resolve(gallery) }));
-
-  // the picker renders once the manifest fetch resolves — poll rather than guess
-  // at a delay, so a slow run cannot turn this into a flake
-  w.eval("openGallery(document.getElementById('f-summary'))");
-  for (let i = 0; i < 100 && !w.document.querySelector('.gallery-tab'); i++) await wait(10);
-
-  t('every category is a tab, with a count', () => {
-    const tabs = [...w.document.querySelectorAll('.gallery-tab')];
-    eq(tabs.length, gallery.categories.length, 'one tab per category');
-    gallery.categories.forEach((c, i) => {
-      has(tabs[i].textContent, c.heading);
-      has(tabs[i].textContent, String(gallery.images.filter(im => im.category === c.name).length));
-    });
-  });
-
-  t('it opens on a category that has something in it', () => {
-    const active = w.document.querySelector('.gallery-tab.active');
-    ok(active, 'no tab is active');
-    ok(w.document.querySelectorAll('.gallery-item').length > 0, 'opened on an empty tab');
-  });
-
-  t('only the selected tab is shown', () => {
-    w.eval("selectGalleryTab('screenshots')");
-    const shown = [...w.document.querySelectorAll('.gallery-item')].map(b => b.getAttribute('title'));
-    const expected = gallery.images.filter(i => i.category === 'screenshots').map(i => i.file);
-    eq(shown.sort(), expected.sort());
-  });
-
-  t('thumbnail URLs actually resolve — each path segment encoded, not the whole path', () => {
-    const path = require('path');
-    const broken = [];
-    gallery.categories.forEach(c => {
-      w.eval(`selectGalleryTab('${c.name}')`);
-      [...w.document.querySelectorAll('.gallery-item img')].forEach(img => {
-        const src = img.getAttribute('src');
-        if (/%2F/i.test(src)) return broken.push(src + '  (slash was encoded)');
-        const onDisk = path.join(ROOT, decodeURIComponent(src));
-        if (!fs.existsSync(onDisk)) broken.push(src);
-      });
-    });
-    eq(broken, [], 'gallery thumbnails that would render as broken images');
-  });
-
-  t('an empty category says how to fill it rather than showing nothing', () => {
-    const empty = gallery.categories.find(c => !gallery.images.some(i => i.category === c.name));
-    if (!empty) return ok(true, 'no empty categories to check');
-    w.eval(`selectGalleryTab('${empty.name}')`);
-    const note = w.document.querySelector('.gallery-empty');
-    ok(note, 'empty tab shows nothing at all');
-    has(note.textContent, empty.name);
-  });
-
-  t('choosing one inserts a gym-relative path including the folder', () => {
-    const ta = w.document.getElementById('f-summary');
-    ta.value = '';
-    w.eval("openGallery(document.getElementById('f-summary'))");
-    w.eval("pickGalleryImage('icons/TTXGYM_Warning_red.png')");
-    has(ta.value, '%(../lib/exercise_data/icons/TTXGYM_Warning_red.png | 60%)');
-  });
-
-  t('a pasted URL still works', () => {
-    const ta = w.document.getElementById('f-conclusion');
-    ta.value = '';
-    w.eval("openGallery(document.getElementById('f-conclusion'))");
-    w.document.getElementById('gallery-url').value = 'https://example.com/diagram.png';
-    w.eval('insertGalleryUrl()');
-    has(ta.value, '%(https://example.com/diagram.png | 60%)');
-  });
-}
-
-G('the syntax insert bar');
-{
-  const TTXF = require(ROOT + '/js/ttxf.js');
   const { w } = boot();
-  const bars = () => [...w.document.querySelectorAll('.syntax-bar')];
-
-  t('summary and conclusion both get one', () => {
-    ['f-summary', 'f-conclusion'].forEach(id => {
-      const g = w.document.getElementById(id).closest('.field-group');
-      ok(g.querySelector('.syntax-bar'), id + ' has no bar');
-    });
+  t('an empty builder counts nothing', () => {
+    eq(w.document.getElementById('b-foot-count').textContent, '0 stages');
   });
-
-  t('a stage content field gets one too', () => {
-    w.eval('addStage()');
-    const ta = [...w.document.querySelectorAll('textarea')]
-      .find(x => /Scenario content/.test(x.placeholder));
-    ok(ta, 'no stage content field');
-    ok(ta.closest('.field-group').querySelector('.syntax-bar'), 'stage content has no bar');
+  t('stages, and the planned length, are reported', () => {
+    w.load('! title: T\n\n@ A\n! duration: 20 mins\n! content: c\n\n@ B\n! duration: 40 mins\n! content: c\n');
+    has(w.document.getElementById('b-foot-count').textContent, '2 stages');
+    has(w.document.getElementById('b-foot-time').textContent, '1h 00m planned');
   });
-
-  t('it offers the syntax an author cannot guess', () => {
-    const keys = JSON.parse(w.eval('JSON.stringify(INSERTS.map(i => i.key))'));
-    ['news', 'image', 'pre', 'code', 'escape'].forEach(k =>
-      ok(keys.includes(k), 'no button for ' + k));
+  t('a short exercise reads in minutes', () => {
+    w.load('! title: T\n\n@ A\n! duration: 25 mins\n! content: c\n');
+    has(w.document.getElementById('b-foot-time').textContent, '25 min planned');
   });
-
-  t('and deliberately does not duplicate plain Markdown emphasis', () => {
-    const keys = JSON.parse(w.eval('JSON.stringify(INSERTS.map(i => i.key))'));
-    ok(!keys.includes('bold') && !keys.includes('italic'), 'emphasis buttons crept back in');
+  t('an untimed one says so rather than showing a zero', () => {
+    w.load('! title: T\n\n@ A\n! content: c\n');
+    eq(w.document.getElementById('b-foot-time').textContent, 'untimed');
   });
-
-  // the drift guard: a button whose syntax the renderer does not understand is worse
-  // than no button, because the preview silently shows the literal text
-  t('every button inserts syntax the renderer actually implements', () => {
-    const snips = JSON.parse(w.eval('JSON.stringify(INSERTS.map(i => ({key: i.key, text: i.snip("")})))'));
-    const broken = [];
-    snips.forEach(({ key, text }) => {
-      const html = TTXF.markdown(text);
-      const plain = html.replace(/<[^>]+>/g, '').trim();
-      // if the construct were unrecognised its markers would survive into the text
-      if (key === 'news'   && !/SFnews/.test(html))        broken.push(key);
-      if (key === 'image'  && !/<img/.test(html))          broken.push(key);
-      if (key === 'pre'    && !/<pre/.test(html))          broken.push(key);
-      if (key === 'code'   && !/<code>/.test(html))        broken.push(key);
-      if (key === 'quote'  && !/<blockquote>/.test(html))  broken.push(key);
-      if (key === 'bullet' && !/<li>/.test(html))          broken.push(key);
-      if (key === 'escape' && /^\\/.test(plain))            broken.push(key);
-    });
-    eq(broken, [], 'buttons the renderer does not understand');
+  t('a duration is editable and round-trips', () => {
+    w.eval("bStage('duration', '25 mins');");
+    has(w.eval('toTTXF()'), '! duration: 25 mins');
   });
-
-  t('every TTXF-specific construct in the renderer has a button', () => {
-    const src = fs.readFileSync(ROOT + '/js/ttxf.js', 'utf8');
-    const keys = JSON.parse(w.eval('JSON.stringify(INSERTS.map(i => i.key))'));
-    const required = [
-      [/%news\\\(/, 'news'],
-      [/SFmedia/, 'image'],
-      [/var FENCE/, 'pre'],
-      [/spans\.push/, 'code'],
-    ];
-    const missing = required.filter(([re, key]) => re.test(src) && !keys.includes(key)).map(x => x[1]);
-    eq(missing, [], 'renderer gained a construct with no button');
-  });
-
-  t('inserting drops the snippet into the right field', () => {
-    const ta = w.document.getElementById('f-summary');
-    ta.value = '';
-    const btn = ta.closest('.field-group').querySelector('.syntax-btn');
-    btn.click();
-    ok(ta.value.length > 0, 'nothing was inserted');
-    has(ta.value, '%news(');
-  });
-
-  t('a selection becomes the content of the construct', () => {
-    const ta = w.document.getElementById('f-conclusion');
-    ta.value = 'Systems restored overnight';
-    ta.selectionStart = 0; ta.selectionEnd = ta.value.length;
-    const codeBtn = [...ta.closest('.field-group').querySelectorAll('.syntax-btn')]
-      .find(b => b.textContent === 'Code');
-    codeBtn.click();
-    has(ta.value, '`Systems restored overnight`');
-  });
-
-  t('a block construct is not glued onto the paragraph above it', () => {
-    const ta = w.document.getElementById('f-summary');
-    ta.value = 'Some prose.';
-    ta.selectionStart = ta.selectionEnd = ta.value.length;
-    [...ta.closest('.field-group').querySelectorAll('.syntax-btn')]
-      .find(b => b.textContent === 'News').click();
-    ok(/Some prose\.\n\n%news\(/.test(ta.value), 'no blank line before the block: ' + JSON.stringify(ta.value));
-  });
-
-  t('inserting still updates the draft and the preview', () => {
-    const ta = w.document.getElementById('f-summary');
-    ta.value = '';
-    let fired = 0;
-    ta.addEventListener('input', () => fired++);
-    ta.closest('.field-group').querySelector('.syntax-btn').click();
-    ok(fired > 0, 'no input event, so the preview and autosave never learn about it');
-  });
-
-  t('the bar links to the full reference', () => {
-    const link = bars()[0].querySelector('.syntax-help');
-    ok(link, 'no help link');
-    has(link.getAttribute('href'), 'guide.html');
+  t('and one the parser cannot read is reported as a problem', () => {
+    w.eval("bStage('duration', 'whenever'); status();");
+    const listed = JSON.parse(w.eval('JSON.stringify(problems())'));
+    ok(listed.some(p => /duration/.test(p.message)), 'an unreadable duration passed silently');
   });
 }
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
 })();
