@@ -1,15 +1,5 @@
 [
  {
-  "file": "ambulance.jpg",
-  "licence": "CC BY 2.0",
-  "author": "hha124l (Chris Sampson)",
-  "title": "EEAS-ambulance.jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:EEAS-ambulance.jpg",
-  "year": "2010",
-  "uk": true,
-  "where": "United Kingdom"
- },
- {
   "file": "boardroom.jpg",
   "licence": "CC0",
   "author": "Breather breather",
@@ -50,66 +40,6 @@
   "where": ""
  },
  {
-  "file": "data-hall.jpg",
-  "licence": "CC BY-SA 3.0",
-  "author": "Florian Hirzinger - www.fh-ap.com",
-  "title": "CERN Server 03.jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:CERN Server 03.jpg",
-  "year": "2009",
-  "uk": false,
-  "where": "Switzerland"
- },
- {
-  "file": "delivery-lorry.jpg",
-  "licence": "CC BY-SA 2.0",
-  "author": "Jaggery",
-  "title": "Gist articulated lorry descending the A4051 Malpas Road, Newport - geograph.org.uk - 6441263.jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:Gist articulated lorry descending the A4051 Malpas Road, Newport - geograph.org.uk - 6441263.jpg",
-  "year": "2020",
-  "uk": true,
-  "where": "United Kingdom"
- },
- {
-  "file": "factory-floor.jpg",
-  "licence": "CC BY-SA 4.0",
-  "author": "Alainmac",
-  "title": "EDM LTD Production .jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:EDM LTD Production .jpg",
-  "year": "2016",
-  "uk": true,
-  "where": "United Kingdom"
- },
- {
-  "file": "fire-service.jpg",
-  "licence": "CC BY-SA 2.0",
-  "author": "Oast House Archive",
-  "title": "Fire engines at Eastbourne Pier fire - geograph.org.uk - 4096729.jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:Fire engines at Eastbourne Pier fire - geograph.org.uk - 4096729.jpg",
-  "year": "2014",
-  "uk": true,
-  "where": "United Kingdom"
- },
- {
-  "file": "high-street.jpg",
-  "licence": "CC BY-SA 4.0",
-  "author": "Mutney",
-  "title": "Convenience store and Takeaways, Bird Cage Walk, Harlow Town Centre.jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:Convenience store and Takeaways, Bird Cage Walk, Harlow Town Centre.jpg",
-  "year": "2021",
-  "uk": true,
-  "where": "United Kingdom"
- },
- {
-  "file": "hospital-exterior.jpg",
-  "licence": "CC BY-SA 2.0",
-  "author": "David Hallam-Jones",
-  "title": "Leicester General Hospital, Evington, Leicester - geograph.org.uk - 4292391.jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:Leicester General Hospital, Evington, Leicester - geograph.org.uk - 4292391.jpg",
-  "year": "2014",
-  "uk": true,
-  "where": "United Kingdom"
- },
- {
   "file": "hospital-room.jpg",
   "licence": "Public domain",
   "author": "Official Navy Page from United States of America MC2 Todd Frantom/U.S. Marine Corps",
@@ -128,16 +58,6 @@
   "year": "2017",
   "uk": false,
   "where": "Italy"
- },
- {
-  "file": "local-substation.jpg",
-  "licence": "CC BY-SA 4.0",
-  "author": "Andy Mabbett",
-  "title": "Beeches Road Substation - 2020-11-30 - Andy Mabbett - 02.jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:Beeches Road Substation - 2020-11-30 - Andy Mabbett - 02.jpg",
-  "year": "2020",
-  "uk": true,
-  "where": "United Kingdom"
  },
  {
   "file": "meeting-room.jpg",
@@ -162,16 +82,6 @@
   "why": "A rack of patch cables looks the same now as it did then."
  },
  {
-  "file": "open-plan-office.jpg",
-  "licence": "CC BY-SA 3.0",
-  "author": "MUGENUP",
-  "title": "30134 jissekiimage3.JPG",
-  "source": "https://commons.wikimedia.org/wiki/File:30134 jissekiimage3.JPG",
-  "year": "2013",
-  "uk": false,
-  "where": ""
- },
- {
   "file": "operations-centre.jpg",
   "licence": "Public domain",
   "author": "Zonk43",
@@ -180,66 +90,6 @@
   "year": "2009",
   "uk": false,
   "where": ""
- },
- {
-  "file": "police.jpg",
-  "licence": "CC BY-SA 2.0",
-  "author": "West Midlands Police from West Midlands, United Kingdom",
-  "title": "Day 315 - West Midlands Police - Tackling Street Racers (8169532471).jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:Day 315 - West Midlands Police - Tackling Street Racers (8169532471).jpg",
-  "year": "2012",
-  "uk": true,
-  "where": "United Kingdom"
- },
- {
-  "file": "rack-cabinet.jpg",
-  "licence": "CC BY-SA 3.0",
-  "author": "ArielGlenn",
-  "title": "Rack in wmf sf office.jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:Rack in wmf sf office.jpg",
-  "year": "2008",
-  "uk": false,
-  "where": ""
- },
- {
-  "file": "server-racks.jpg",
-  "licence": "CC BY-SA 3.0",
-  "author": "BalticServers.com",
-  "title": "BalticServers data center.jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:BalticServers data center.jpg",
-  "year": "2013",
-  "uk": false,
-  "where": ""
- },
- {
-  "file": "server-room.jpg",
-  "licence": "CC BY-SA 3.0",
-  "author": "123net",
-  "title": "123Net Data Center (DC2).jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:123Net Data Center (DC2).jpg",
-  "year": "2011",
-  "uk": false,
-  "where": "United States"
- },
- {
-  "file": "substation.jpg",
-  "licence": "CC BY-SA 3.0",
-  "author": "Rept0n1x",
-  "title": "Pylons, Ledsham, Wirral 1.JPG",
-  "source": "https://commons.wikimedia.org/wiki/File:Pylons, Ledsham, Wirral 1.JPG",
-  "year": "2009",
-  "uk": true,
-  "where": "United Kingdom"
- },
- {
-  "file": "supermarket-checkout.jpg",
-  "licence": "CC BY-SA 4.0",
-  "author": "Kolforn (Kolforn) I'd appreciate if you could mail me (Kolforn@gmail.com) if you want to use this picture out of the Wikimedia project scope. This file is licensed under the Creative Commons Attribution-Share Alike 4.0 International license. You are free: to share – to copy, distribute and transmit the work to remix – to adapt the work Under the following conditions: attribution – You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use. share alike – If you remix, transform, or build upon the material, you must distribute your contributions under the same or compatible license as the original.https://creativecommons.org/licenses/by-sa/4.0CC BY-SA 4.0 Creative Commons Attribution-Share Alike 4.0 truetrue",
-  "title": "-2022-02-26 Checkouts inside Morrisons, Cromer, Norfolk (1).JPG",
-  "source": "https://commons.wikimedia.org/wiki/File:-2022-02-26 Checkouts inside Morrisons, Cromer, Norfolk (1).JPG",
-  "year": "2022",
-  "uk": true,
-  "where": "United Kingdom"
  },
  {
   "file": "switchyard.jpg",
@@ -260,15 +110,5 @@
   "year": "2010",
   "uk": false,
   "where": ""
- },
- {
-  "file": "water-treatment.jpg",
-  "licence": "CC BY-SA 2.0",
-  "author": "M J Richardson",
-  "title": "Tanks at Claymills Sewage Treatment Works - geograph.org.uk - 3181993.jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:Tanks at Claymills Sewage Treatment Works - geograph.org.uk - 3181993.jpg",
-  "year": "2012",
-  "uk": true,
-  "where": "United Kingdom"
  }
 ]

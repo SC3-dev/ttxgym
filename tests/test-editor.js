@@ -1776,93 +1776,83 @@ G('the way out is named after where it goes');
   });
 }
 
-G('the gallery ships pictures it is allowed to ship');
+G('nothing in the gallery carries an obligation');
 {
-  const dir = path.join(ROOT, 'lib/exercise_data/stock-photos');
+  const root = path.join(ROOT, 'lib/exercise_data');
+  const dir = path.join(root, 'stock-photos');
   const files = fs.readdirSync(dir).filter(f => /\.(jpe?g|png|webp)$/i.test(f));
+  const gallery = JSON.parse(fs.readFileSync(path.join(root, 'gallery.json'), 'utf8'));
 
-  t('there are photographs to choose from', () => ok(files.length >= 15, 'only ' + files.length));
+  t('there is plenty to choose from', () => {
+    ok(gallery.images.length >= 50, 'only ' + gallery.images.length + ' images');
+    ['icons', 'scenes', 'stock-photos', 'screenshots', 'documents', 'diagrams']
+      .forEach(c => ok(gallery.images.some(i => i.category === c), c + ' is empty'));
+  });
 
-  /* These are redistributed in a public repo, published to a site, and copied
-     again by anyone who downloads a scenario using one. A licence that follows
-     those copies would land on facilitators who never agreed to it. */
-  t('every one of them is accounted for', () => {
+  /* The whole point of the drawn scenes. A licence that asks for a credit
+     follows every copy of every scenario anyone downloads, and lands the
+     obligation on facilitators who never agreed to it. */
+  t('no picture anywhere in it needs crediting', () => {
+    const owed = gallery.images.filter(i => /^CC BY/i.test(i.licence || ''));
+    eq(owed.map(i => i.file + ' (' + i.licence + ')'), [],
+       'a licence here would travel with every scenario that used it');
+  });
+
+  t('every photograph is public domain or CC0, and says which', () => {
     const credits = JSON.parse(fs.readFileSync(path.join(dir, 'credits.json'), 'utf8'));
     const known = new Set(credits.map(c => c.file));
     eq(files.filter(f => !known.has(f)), [], 'photographs with no recorded provenance');
-    eq(credits.filter(c => !files.includes(c.file)), [], 'credits for photographs that are not here');
     credits.forEach(c => {
-      ok(c.licence, c.file + ' has no licence recorded');
+      ok(/^(CC0|Public domain|PDM|No restrictions)/i.test(c.licence), c.file + ': ' + c.licence);
       ok(c.source && /^https:/.test(c.source), c.file + ' has no source');
+      ok(c.year, c.file + ' has no date recorded');
     });
   });
 
-  t('and is either free to pass on, or carries the credit it owes', () => {
+  t('and none of them is a period piece, unless it says why not', () => {
     const credits = JSON.parse(fs.readFileSync(path.join(dir, 'credits.json'), 'utf8'));
-    const bad = credits.filter(c => !/^(CC0|Public domain|PDM|No restrictions|CC BY)/i.test(c.licence));
-    eq(bad.map(c => c.file + ': ' + c.licence), [], 'a licence that cannot be redistributed');
-    // CC BY without a named author is the one combination that cannot be honoured
-    const anonymous = credits.filter(c => /^CC BY/i.test(c.licence) && (!c.author || c.author === 'Unknown'));
-    eq(anonymous.map(c => c.file), [], 'a credit is owed but there is nobody to credit');
-    const md = fs.readFileSync(path.join(dir, 'CREDITS.md'), 'utf8');
-    credits.forEach(c => has(md, '`' + c.file + '`'));
-  });
-
-  t('the manifest carries the credit to the picker', () => {
-    const gallery = JSON.parse(fs.readFileSync(path.join(ROOT, 'lib/exercise_data/gallery.json'), 'utf8'));
-    const owed = gallery.images.filter(i => /^CC BY/i.test(i.licence || ''));
-    ok(owed.length, 'nothing in the gallery needs a credit — has the policy changed?');
-    owed.forEach(i => { ok(i.author, i.file + ' reaches the picker with no author'); });
-    const src = fs.readFileSync(path.join(ROOT, 'editor.html'), 'utf8');
-    has(src, 'class="credit"');
-    has(src, 'b-gal-note');
-  });
-
-  t('and none is heavy enough to hurt a repository', () => {
-    const heavy = files.filter(f => fs.statSync(path.join(dir, f)).size > 500 * 1024)
-      .map(f => f + ' ' + Math.round(fs.statSync(path.join(dir, f)).size / 1024) + 'KB');
-    eq(heavy, []);
-  });
-
-  t('the manifest lists them, so the picker can show them', () => {
-    const gallery = JSON.parse(fs.readFileSync(path.join(ROOT, 'lib/exercise_data/gallery.json'), 'utf8'));
-    const listed = gallery.images.filter(i => i.category === 'stock-photos');
-    eq(listed.length, files.length, 'run node tools/build-gallery.js');
-    listed.forEach(i => ok(fs.existsSync(path.join(ROOT, 'lib/exercise_data', i.file)), 'missing ' + i.file));
-  });
-
-  /* The library's scenarios are set in British organisations. A US ambulance or
-     a control panel from 1979 is not wrong, but it asks a room to picture
-     somewhere that is not theirs. */
-  t('most of them are British, and none is a period piece', () => {
-    const credits = JSON.parse(fs.readFileSync(path.join(dir, 'credits.json'), 'utf8'));
-    credits.forEach(c => ok(c.year, c.file + ' has no date recorded'));
-    /* Old is only a problem when it shows. Anything from before 2008 has to say
-       why it does not look its age, which makes it a decision rather than an
-       oversight. */
     const dated = credits
       .filter(c => Number(c.year) < 2008 && !(c.timeless && c.why))
       .map(c => c.file + ' (' + c.year + ')');
     eq(dated, [], 'photographs old enough to date the exercise');
-    const uk = credits.filter(c => c.uk);
-    ok(uk.length >= 10, 'only ' + uk.length + ' of ' + credits.length + ' were taken in the UK');
-    // the ones that are not are meant to be places that read as anywhere
-    const foreign = credits.filter(c => !c.uk && /United States|Japan|Kenya|Canada|Australia/.test(c.where || ''));
-    ok(foreign.length <= 4, 'identifiably non-British: ' + foreign.map(c => c.file).join(', '));
   });
 
-  t('and what is deliberately missing is written down, with the reason', () => {
-    const md = fs.readFileSync(path.join(dir, 'CREDITS.md'), 'utf8').replace(/\s+/g, ' ');
-    has(md, 'taken in the UK');
-    has(md, 'What is deliberately missing');
-    // the two that were looked for and turned down, and why
-    has(md, 'identifiable children');
-    has(md, 'British office interior');
+  /* The library's scenarios are British. The scenes are drawn that way on
+     purpose: battenburg markings, a brick substation, a parade of shopfronts. */
+  t('the drawn scenes are recognisably British', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'tools/build-scenes.js'), 'utf8');
+    has(src, 'battenburg');
+    ['ambulance.svg', 'police.svg', 'high-street.svg', 'local-substation.svg', 'fire-and-rescue.svg']
+      .forEach(f => ok(fs.existsSync(path.join(root, 'scenes', f)), 'no ' + f));
+    const sub = fs.readFileSync(path.join(root, 'scenes/local-substation.svg'), 'utf8');
+    has(sub, 'DANGER OF DEATH');
   });
 
-  t('each is named for what it shows, not for where it came from', () => {
-    const gallery = JSON.parse(fs.readFileSync(path.join(ROOT, 'lib/exercise_data/gallery.json'), 'utf8'));
-    gallery.images.filter(i => i.category === 'stock-photos').forEach(i => {
+  t('the reasoning is written down where the next person will find it', () => {
+    const photos = fs.readFileSync(path.join(dir, 'CREDITS.md'), 'utf8').replace(/\s+/g, ' ');
+    has(photos, 'every one of them public domain or CC0');
+    has(photos, 'lands the obligation on facilitators');
+    const scenes = fs.readFileSync(path.join(root, 'scenes/CREDITS.md'), 'utf8').replace(/\s+/g, ' ');
+    has(scenes, 'original work');
+    has(scenes, 'no credit is owed');
+    has(scenes, 'not photoreal');       // says what they are not, as well as what they are
+  });
+
+  t('nothing is heavy enough to hurt a repository', () => {
+    const heavy = [];
+    ['stock-photos', 'scenes', 'screenshots', 'documents', 'diagrams', 'icons'].forEach(cat => {
+      fs.readdirSync(path.join(root, cat)).filter(f => !/\.(md|json)$/i.test(f)).forEach(f => {
+        const n = fs.statSync(path.join(root, cat, f)).size;
+        if (n > 500 * 1024) heavy.push(cat + '/' + f + ' ' + Math.round(n / 1024) + 'KB');
+      });
+    });
+    eq(heavy, []);
+  });
+
+  t('the manifest matches the folders, and labels read as names', () => {
+    gallery.images.forEach(i => ok(fs.existsSync(path.join(root, i.file)), 'missing ' + i.file));
+    ok(!gallery.images.some(i => /credits/i.test(i.file)), 'a credits file is offered as a picture');
+    gallery.images.forEach(i => {
       ok(/^[A-Z]/.test(i.label), i.file + ' has no readable label');
       ok(!/^(DSC|IMG|File|P\d)/i.test(i.label), i.file + ' is labelled with a camera filename');
     });
@@ -1872,6 +1862,7 @@ G('the gallery ships pictures it is allowed to ship');
 G('the artefacts no stock library sells');
 {
   const { build, ARTEFACTS } = require(path.join(ROOT, 'tools/build-artefacts.js'));
+  const scenes = require(path.join(ROOT, 'tools/build-scenes.js'));
   const root = path.join(ROOT, 'lib/exercise_data');
 
   t('a ransom note, a console, an invoice, a network diagram — all drawn, not bought', () => {
@@ -1898,13 +1889,22 @@ G('the artefacts no stock library sells');
 
   t('they are regenerated, not hand-maintained, so they cannot drift', () => {
     const before = {};
-    Object.keys(ARTEFACTS).forEach(cat =>
+    Object.keys(ARTEFACTS).concat(['scenes']).forEach(cat =>
       fs.readdirSync(path.join(root, cat)).filter(f => f.endsWith('.svg'))
         .forEach(f => { before[cat + '/' + f] = fs.readFileSync(path.join(root, cat, f), 'utf8'); }));
     build({ quiet: true });
+    scenes.build({ quiet: true });
     const changed = Object.keys(before)
       .filter(k => fs.readFileSync(path.join(root, k), 'utf8') !== before[k]);
     eq(changed, [], 'the files on disk differ from what the generator produces');
+  });
+
+  t('and a scene is self-contained too, with nothing to fetch', () => {
+    fs.readdirSync(path.join(root, 'scenes')).filter(f => f.endsWith('.svg')).forEach(f => {
+      const body = fs.readFileSync(path.join(root, 'scenes', f), 'utf8');
+      has(body, 'viewBox="0 0 1200 750"');
+      ok(!/<image|xlink:href|@import|url\(http/.test(body), f + ' reaches outside itself');
+    });
   });
 
   t('nothing in them is someone else’s to own', () => {

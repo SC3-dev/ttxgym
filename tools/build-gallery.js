@@ -23,7 +23,7 @@ const NOT_ART = /^(credits\.json|CREDITS\.md)$/i;
 
 // The order categories appear in the picker. Anything not listed follows,
 // alphabetically — so a new folder shows up without being registered here.
-const ORDER = ['icons', 'stock-photos', 'screenshots', 'documents', 'diagrams'];
+const ORDER = ['icons', 'scenes', 'stock-photos', 'screenshots', 'documents', 'diagrams'];
 
 /* Some pictures carry an obligation. A category folder may hold credits.json —
    file, licence, author, source — and whatever it says is attached to the entry

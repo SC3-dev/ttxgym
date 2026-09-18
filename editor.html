@@ -2554,11 +2554,14 @@
       }).join('');
 
       const owing = items.filter(i => /^CC BY/i.test(i.licence || ''));
+      const drawn = items.every(i => /\.svg$/i.test(i.file));
       note.innerHTML = owing.length
         ? `${owing.length} of these carry a licence that asks for a credit — shown in amber, and listed in `
           + `<a href="${GALLERY_DIR}${esc(galleryTab)}/CREDITS.md" target="_blank" rel="noopener">CREDITS.md</a>. `
           + 'Name the photographer and the licence wherever you would credit a slide.'
-        : 'Everything here is public domain or CC0: no credit required.';
+        : drawn
+          ? 'Drawn for TTX Gym. Nothing to credit, and nothing follows a scenario that uses one.'
+          : 'Public domain or CC0. Nothing to credit.';
       note.hidden = !items.length;
     }
 
