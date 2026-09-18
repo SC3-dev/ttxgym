@@ -17,13 +17,16 @@ npm test
 | `test-c.js` | The format end to end in the gym, against all 14 shipped scenarios |
 | `test-editor.js` | `editor.html`: the outline, the WYSIWYG fields, questions and the audience split, the participant view, problems, drafts, the image picker |
 | `test-handoff.js` | The ways in and out of the builder: `?load=` from the library, the handoff to the gym, downloads, and a round trip of every shipped scenario |
-| `test-updates.js` | `updates.html` and `tools/build-updates.js`: commit messages into release notes, and a page that renders them without trusting them |
 | `test-lib.js` | `library.html`: the gallery, filtering, history, and a hostile manifest |
 | `test-participant.js` | The participant window, shared by the gym and the builder (`js/participant-view.js`) |
 | `test-f.js` | Features across pages |
 | `test-flow.js` | Page-to-page journeys: library → builder → gym |
 | `test-sidebar.js` | The gym's sidebar |
 | `test-standalone.js` | `gym/standalone.html` and the offline build |
+
+A suite whose file is not present is skipped and named at the end of the run,
+rather than failing it — `updates.html` and its tests are kept local for now, so
+a clone has the generator but neither the page nor the suite that covers it.
 
 `harness.js` boots a page under jsdom with the small set of stubs it needs
 (`BroadcastChannel`, `localStorage`, `URL.createObjectURL`).

@@ -8,3 +8,10 @@ SCENARIO-REVIEW.md
 
 # Source catalogue for the technical exercises — not part of the published site
 *.odt
+
+# The Updates page is local-only for now: the page, the notes it reads, and its
+# tests. tools/build-updates.js stays tracked so it is a one-line change to
+# publish them again.
+updates.html
+lib/updates.json
+tests/test-updates.js

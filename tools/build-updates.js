@@ -12,6 +12,11 @@
  * headline and the body becomes the note. Bodies are hard-wrapped, so wrapped
  * lines are rejoined into paragraphs and "  - " items into lists.
  *
+ * updates.html itself is kept out of the repository for now, along with the notes
+ * this writes and the tests that cover them, so nothing published links to it.
+ * This generator stays tracked: publishing it again is a matter of un-ignoring
+ * three files and putting the link back in the footer.
+ *
  *   node tools/build-updates.js
  */
 const fs = require('fs');

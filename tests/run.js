@@ -18,7 +18,10 @@ const suites = [
 ];
 
 let total = 0, failed = 0, broken = [];
+const skipped = [];
 for (const [label, file] of suites) {
+  // some suites cover work that is kept local, so a missing file is not a fault
+  if (!require('fs').existsSync(path.join(__dirname, file))) { skipped.push(label); continue; }
   const started = Date.now();
   let out = '';
   try {
@@ -36,4 +39,5 @@ for (const [label, file] of suites) {
 }
 console.log('─'.repeat(46));
 console.log(`TOTAL: ${total} passed, ${failed} failed`);
+if (skipped.length) console.log(`(skipped, not present: ${skipped.join(', ')})`);
 process.exit(failed || broken.length ? 1 : 0);
