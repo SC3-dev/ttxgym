@@ -1285,6 +1285,43 @@ G('the workspace has room to work in');
     ok(Number(m[1]) >= 1000, 'the workspace is only ' + m[1] + 'px wide');
   });
 
+  /* With 23 stages the rail used to run past the bottom of the window, taking
+     "+ Add stage" and the running totals with it, because body keeps
+     min-height:100vh from style.css and grows to fit whatever is in it. Only a
+     definite height makes "the rest of the space" mean anything to a child. */
+  t('the page divides the viewport rather than growing past it', () => {
+    ok(/\bbody \{[^}]*height:\s*100vh/.test(style), 'body has no definite height');
+    ok(/\bbody \{[^}]*overflow:\s*hidden/.test(style), 'the page itself can still scroll');
+  });
+
+  t('the stage list is the only part of the rail that scrolls', () => {
+    ok(/#b-outline \{[^}]*overflow:\s*hidden/.test(style), 'the whole rail scrolls');
+    const list = /#b-stage-list \{([^}]*)\}/.exec(style);
+    ok(list, 'no rule for the stage list');
+    ok(/overflow-y:\s*auto/.test(list[1]), 'the stage list does not scroll');
+    ok(/min-height:\s*0/.test(list[1]), 'a flex child will not shrink below its content without this');
+    ok(/flex:\s*1/.test(list[1]), 'the stage list does not take the space left over');
+  });
+
+  t('and adding a stage stays reachable however long the exercise gets', () => {
+    const { w } = boot();
+    w.load('! title: T\n\n' + Array.from({ length: 30 },
+      (_, i) => `@ Stage ${i + 1}\n! content\nc\n`).join('\n'));
+    const rail = w.document.getElementById('b-outline');
+    const kids = Array.from(rail.children).map(e => e.id || e.className);
+    // outside the scrolling list, and after it, so it cannot be scrolled away
+    const list = kids.indexOf('b-stage-list');
+    const actions = kids.indexOf('b-rail-actions');
+    const foot = kids.indexOf('b-rail-foot');
+    ok(list > -1 && actions === list + 1 && foot === actions + 1,
+       'the rail is ordered ' + kids.join(', '));
+    ok(!w.document.querySelector('#b-stage-list #b-rail-actions'),
+       'the add button is inside the list it is meant to outlive');
+    ok(/#b-rail-actions,\s*\n?\s*#b-rail-foot \{[^}]*flex:\s*0 0 auto/.test(style)
+       || /#b-rail-actions[^{]*\{[^}]*flex:\s*0 0 auto/.test(style),
+       'the footer can be squeezed out by a long list');
+  });
+
   t('and the outline is the gym\u2019s rail, not a second opinion about rails', () => {
     ok(/#b-wrap \{[^}]*grid-template-columns:\s*var\(--sidebar-width[,)]/.test(style),
        'the outline sets its own width instead of sharing the site\u2019s');

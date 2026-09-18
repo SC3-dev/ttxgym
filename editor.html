@@ -25,6 +25,14 @@
        the site stylesheet after browsers had been caching it for months -->
   <link rel="stylesheet" href="style.css?v=2">
   <style>
+    /* This page is an app shell rather than a document: the nav, the top bar and
+       the workspace divide the viewport between them and only the panes inside
+       them scroll. style.css gives body min-height:100vh, which lets it grow to
+       fit its content — so a long exercise made the whole page scroll and carried
+       the rail's "+ Add stage" and totals off the bottom with it. A definite
+       height is what makes "the rest of the space" mean anything to the children. */
+    body { height: 100vh; height: 100dvh; overflow: hidden; }
+
     /* ═══ LAYOUT ═══════════════════════════════════════════════════════════
        Two zones replacing one long scroll: an outline that is both map and
        navigation, and a workspace showing one stage at a time. The participant
@@ -51,14 +59,21 @@
     /* ═══ OUTLINE ═══ */
     /* The gym's controller is var(--surface) at var(--sidebar-width); this is the
        same rail on a different page, so it is the same colour and the same width. */
+    /* The rail itself does not scroll: the exercise's details stay at the top and
+       "+ Add stage" with the running totals stay at the bottom, so neither can be
+       scrolled out of reach in a long exercise. Only the list of stages moves. */
     #b-outline {
       border-right: 1px solid var(--border);
       background: var(--surface);
-      overflow-y: auto;
+      overflow: hidden;
       display: flex;
       flex-direction: column;
       min-height: 0;
     }
+    #b-outline > .b-rail-head,
+    #b-outline > .b-meta,
+    #b-rail-actions,
+    #b-rail-foot { flex: 0 0 auto; }
     h1.b-name, h2.b-rail-head, .b-zone-head { margin: 0; }
     /* the gym's section headings, to the letter */
     .b-rail-head {
@@ -86,7 +101,18 @@
     .b-meta textarea { resize: vertical; min-height: 3.2em; line-height: 1.5; }
     .b-meta input:focus, .b-meta textarea:focus { border-color: var(--accent); }
 
-    #b-stage-list { padding: 0 0.5rem; flex: 1; }
+    #b-stage-list {
+      padding: 0 0.5rem 0.4rem;
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+    }
+
+    #b-rail-actions {
+      padding: 0.5rem 0.7rem;
+      border-top: 1px solid var(--border);
+    }
     .b-stage-row {
       display: grid;
       grid-template-columns: 1.4rem minmax(0, 1fr);
@@ -1215,7 +1241,7 @@
       </div>
       <h2 class="b-rail-head" id="b-head-order">Running order</h2>
       <div id="b-stage-list" role="list" aria-labelledby="b-head-order"></div>
-      <div style="padding:0.3rem 0.7rem 0.9rem">
+      <div id="b-rail-actions">
         <button class="b-add" style="width:100%" onclick="bAddStage()">+ Add stage</button>
       </div>
       <div id="b-rail-foot"><span id="b-foot-count"></span><span id="b-foot-time"></span></div>
