@@ -8,6 +8,7 @@ const suites = [
   ['format integration', 'test-c.js'],
   ['scenario builder', 'test-editor.js'],
   ['builder handoffs', 'test-handoff.js'],
+  ['updates page', 'test-updates.js'],
   ['exercise library', 'test-lib.js'],
   ['participant window', 'test-participant.js'],
   ['features', 'test-f.js'],

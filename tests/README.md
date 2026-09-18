@@ -17,6 +17,7 @@ npm test
 | `test-c.js` | The format end to end in the gym, against all 14 shipped scenarios |
 | `test-editor.js` | `editor.html`: the outline, the WYSIWYG fields, questions and the audience split, the participant view, problems, drafts, the image picker |
 | `test-handoff.js` | The ways in and out of the builder: `?load=` from the library, the handoff to the gym, downloads, and a round trip of every shipped scenario |
+| `test-updates.js` | `updates.html` and `tools/build-updates.js`: commit messages into release notes, and a page that renders them without trusting them |
 | `test-lib.js` | `library.html`: the gallery, filtering, history, and a hostile manifest |
 | `test-participant.js` | The participant window, shared by the gym and the builder (`js/participant-view.js`) |
 | `test-f.js` | Features across pages |
