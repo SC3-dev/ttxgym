@@ -1786,6 +1786,23 @@ G('the guide describes the builder that exists');
     has(guide, 'never need to see the file format');
   });
 
+  /* Library, builder, running it, what came of it — then the format as a
+     reference for the people who want it. */
+  t('it runs in the order someone actually does these things', () => {
+    const order = (guide.match(/<h2 id="([a-z]+)"/g) || []).map(m => m.slice(8, -1));
+    eq(order, ['plan', 'lib', 'tool', 'scenario', 'running', 'recording',
+               'structure', 'markdown', 'validation', 'example']);
+  });
+
+  t('and the contents down the side agree with the page', () => {
+    const from = guide.indexOf('class="toc-list"');          // the markup, not the stylesheet
+    const toc = guide.slice(from, guide.indexOf('</ul>', from));
+    const links = (toc.match(/href="#([a-z]+)"/g) || []).map(m => m.slice(7, -1));
+    const heads = (guide.match(/<h2 id="([a-z]+)"/g) || []).map(m => m.slice(8, -1));
+    eq(links, heads, 'the contents list is in a different order from the page');
+    has(toc, 'toc-break');              // the reference half is marked off
+  });
+
   t('and says the format is optional rather than the way in', () => {
     const section = guide.slice(guide.indexOf('id="scenario"'), guide.indexOf('id="structure"'));
     has(section, 'The file underneath');

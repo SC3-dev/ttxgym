@@ -62,6 +62,25 @@
       gap: 0.15rem;
     }
 
+    /* the reference half of the page, which most readers can stop before */
+    .toc-list .toc-break {
+      margin-top: 0.5rem;
+      padding-top: 0.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .toc-list .toc-break::before {
+      content: 'Reference';
+      display: block;
+      padding: 0 0.6rem 0.2rem;
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-label, var(--text-secondary));
+    }
+
     .toc-list a {
       display: block;
       text-decoration: none;
@@ -460,10 +479,10 @@
         <li><a href="#lib">Using the library</a></li>
         <li><a href="#tool">Using the tool</a></li>
         <li><a href="#scenario">Creating scenarios</a></li>
-        <li><a href="#structure">TTXF file structure</a></li>
-        <li><a href="#markdown">Markdown syntax</a></li>
         <li><a href="#running">Running the room</a></li>
         <li><a href="#recording">Recording what happened</a></li>
+        <li class="toc-break"><a href="#structure">TTXF file structure</a></li>
+        <li><a href="#markdown">Markdown syntax</a></li>
         <li><a href="#validation">Checking your file</a></li>
         <li><a href="#example">Full example</a></li>
       </ul>
@@ -668,10 +687,221 @@
       </p>
 
       <p>
-        The rest of this page describes that format. Read it if you want to write or edit exercises in a
-        text editor, understand what the builder is producing, or use something the builder does not yet
-        expose. <strong>If you are happy in the builder, you can skip to
-        <a href="#running">Running the Room</a>.</strong>
+        <a href="#structure">The format is set out in full at the end of this page</a>, as a reference.
+        Read it if you want to write or edit exercises in a text editor, understand what the builder is
+        producing, or use something the builder does not yet expose. <strong>If you are happy in the
+        builder, you never need to go there at all</strong> — carry on to
+        <a href="#running">Running the Room</a>.
+      </p>
+
+      <!-- RUNNING THE ROOM -->
+      <h2 id="running">Running the Room</h2>
+
+      <p>
+        Everything below is in the facilitator sidebar, and none of it changes the scenario
+        file — it is all about driving the session in front of you.
+      </p>
+
+      <h3>Moving through stages</h3>
+      <p>
+        As well as the <strong>Next</strong> and <strong>Prev</strong> buttons, the exercise
+        responds to <code>Page Down</code> / <code>Page Up</code> and the arrow keys, so a
+        presenter remote works without any setup. Keys are ignored while you are typing in
+        notes or actions.
+      </p>
+      <p>
+        You can also go straight to any stage by clicking its number in the row of stage
+        markers, without stepping through the ones in between. That is useful for skipping a
+        stage that is not landing, or returning to one the room wants to revisit — and it is
+        what makes <strong>branching exercises</strong> possible. A scenario can offer the room
+        a choice, put the destination for each option in the facilitator prompts where only you
+        can see it, and send everyone wherever the vote goes. <em>Night Shift</em> in the
+        <strong>Just for Fun</strong> section of the library is built this way: twenty-three
+        stages, four endings, and a different route each time you run it.
+      </p>
+
+      <h3>The participant view mirror</h3>
+      <p>
+        A small live copy of the participant screen sits in the bottom-right of the facilitator
+        window, so you can see exactly what the room sees without switching windows. Collapse it
+        with the <code>–</code> button if it is in the way.
+      </p>
+      <p>
+        It stays above everything else in the facilitator window, including the paused overlay
+        and the summary — while the exercise is paused or the summary is up, what the room is
+        looking at is exactly the thing you still want to see.
+      </p>
+      <p>
+        It is a genuine second view of the same thing, not a snapshot. The stage, the response
+        tallies, the theme, the text size and the scroll position all follow, in both directions —
+        scroll the mirror and the room's screen scrolls with it, which is the easiest way to walk
+        a room down a long inject without leaving your own window.
+      </p>
+      <p>
+        Drag its <strong>header</strong> to move it, and the <strong>corner</strong> at its
+        top-left to resize it — the whole participant screen scales with it, so you can push it up
+        to something you can properly read while working through a long inject, then drop it back
+        down. Double-click either the header or the corner to put that back to where it started.
+        Both the size and the position are remembered, and the corner takes focus if arrow keys
+        suit you better than a drag.
+      </p>
+      <p>
+        The preview takes its shape from the screen the room is actually looking at. When you open
+        a participant window it reports its size, and the mirror renders at exactly those
+        dimensions and scales the whole thing down — so a 4:3 projector previews as 4:3, a 4K
+        television previews at 4K proportions, and an ultrawide previews wide. Because it is scaled
+        rather than re-laid-out, the line breaks and the amount of content above the fold are the
+        same as the room sees. The pixel size is shown in the header so you know what you are
+        previewing, and it updates if that window is resized or made fullscreen.
+      </p>
+      <p>
+        The mirror's own header carries the controls worth having at full size:
+        <strong>A−</strong> and <strong>A+</strong> set the text size on the participant screen,
+        <strong>◐</strong> switches it between the screen and projector themes, and
+        <strong>⤢</strong> returns the panel itself to its default size and place if you have
+        moved it somewhere awkward. The frame itself is live, so you can scroll and click inside
+        it too — though at quarter scale the header buttons are the easier target.
+      </p>
+
+      <h3>Blanking the screen</h3>
+      <p>
+        <strong>Blank Screen</strong> — or pressing <code>B</code> — covers the participant
+        display for a break or a side conversation, without losing your place. Press it again to
+        bring the content back.
+      </p>
+
+      <h3>Running it offline</h3>
+      <p>
+        <a href="gym/standalone.html" download="ttxgym.html">Download the tool as a single
+        HTML file</a> and open it from your own machine — useful if the exercise is being run
+        somewhere without reliable network, or if your organisation would rather it never
+        touched the internet at all. Everything works: load a scenario, drive the participant
+        window, capture notes and actions, export the report.
+      </p>
+      <p>
+        Two caveats. Scenario cover images and any embedded pictures still come from the
+        network, so scenarios that use them will show the text without the images. And some
+        browsers refuse to let a page opened from a <code>file://</code> path save anything
+        locally, which turns off autosave — TTX Gym will tell you if that happens, and
+        <strong>Save Session</strong> still writes a file you can keep.
+      </p>
+      <p>
+        The participant window works the same way offline as it does online. Open it with
+        <strong>Participant Window</strong> and leave it open; if you close it and open a new
+        one, it will pick up whatever stage you are on by itself.
+      </p>
+
+      <h3>The facilitator pack</h3>
+      <p>
+        Under <strong>More</strong>, <strong>Facilitator Pack</strong> lays the whole scenario
+        out as a single document — every stage in order with its planned duration, content,
+        discussion points, facilitator prompts and questions, with correct quiz answers marked.
+        It is meant for the hour before the exercise: read it through, or print it and take it
+        into the room. Prompts are labelled as not shown to participants, so there is no risk of
+        putting the wrong page on the projector.
+      </p>
+
+      <h3>Ad-hoc injects</h3>
+      <p>
+        Exercises rarely go exactly to plan. <strong>Send Inject</strong> pushes a one-off line
+        of text to the participant screen — "the press have just called", "your primary site has
+        lost power" — without editing the scenario. Moving to the next stage clears it.
+      </p>
+
+      <h3>Light and dark</h3>
+      <p>
+        The two windows are themed independently, because a laptop in a dim room and a projector
+        in a lit one want opposite things.
+      </p>
+      <p>
+        The <strong>participant window</strong> opens dark; the half-moon icon in its bottom-right
+        switches to a light, high-contrast theme for projectors. The <strong>facilitator
+        window</strong> has its own <strong>Light Theme</strong> switch under <strong>More</strong>
+        in the sidebar — useful if you are sharing your own screen, or simply prefer it. Both
+        remember your choice.
+      </p>
+
+      <!-- RECORDING -->
+      <h2 id="recording">Recording What Happened</h2>
+
+      <h3>Responses are a tally, not a single answer</h3>
+      <p>
+        Each answer option is a button, and every click records one response. Click once and it
+        behaves like a simple choice; take a show of hands and click an option once per hand, and
+        the exercise records the spread. The small <code>−</code> on an option removes a response
+        if you over-count.
+      </p>
+      <p>
+        This matters because the interesting signal in a tabletop is usually disagreement. If half
+        the room is confident and half is not, that gap is the finding — and a single answer would
+        have averaged it away before anyone saw it.
+      </p>
+      <p>
+        The count appears on the participant screen as you record it, so the room watches the
+        split form on the answer options rather than waiting for the summary. The option with the
+        most responses is highlighted, and options with none fade back. Taking a response off
+        with the small <code>−</code>, or clearing the question, updates the room straight away
+        too — a miscount is not something you have to live with.
+      </p>
+
+      <h3>Where you are</h3>
+      <p>
+        The participant screen shows the current stage and a marker for each stage of the
+        exercise, so the room can see how far through they are without asking.
+      </p>
+
+      <h3>Actions</h3>
+      <p>
+        Every stage has an <strong>Actions</strong> panel for what needs to happen afterwards, with
+        an owner and a due date. These are collected into a table at the top of the exported report,
+        which is usually the part of the report anyone actually acts on.
+      </p>
+
+      <h3>Session details</h3>
+      <p>
+        The intro card carries the date, facilitator, attendees, and the objectives and scope of the
+        exercise. Filling these in turns the report from a printout into a record of what was tested,
+        by whom, and what was deliberately left out.
+      </p>
+
+      <h3>The summary</h3>
+      <p>
+        <strong>Present Summary</strong> puts the same summary on your screen and on the
+        participant screen — the headline figures, the questions the room was least confident
+        about, the actions with their owners, and each stage with its response distributions.
+        What you are reading is what they are reading.
+      </p>
+      <p>
+        Your <strong>facilitator notes</strong> are deliberately not on either summary screen.
+        They are your working record of the discussion, and they go into the exported report
+        rather than onto a projector. Actions and their owners <em>are</em> shown, since agreeing
+        who does what is the point of the debrief.
+      </p>
+
+      <h3>Confidence and quiz accuracy are reported separately</h3>
+      <p>
+        Rating questions measure what the room believes about itself. Quiz questions measure whether
+        someone knew a fact. These are different things, so the summary reports them as two numbers
+        and never averages them together. The report leads with the questions the room was
+        <em>least</em> confident about, because that is the list worth taking away.
+      </p>
+      <p>
+        Treat the confidence figure as a map of where to look, not as a grade. A low score on a
+        well-run exercise is a good outcome — it means people were honest.
+      </p>
+
+      <h3>Saving and resuming a session</h3>
+      <p>
+        <strong>Save Session</strong> writes a <code>.ttxs</code> file containing everything: the
+        scenario itself, every response, your notes, the actions and the timings. Because the
+        scenario travels inside it, <strong>Open Session</strong> will resume the exercise on any
+        machine — useful for handing over to a co-facilitator, or for finishing a session that ran
+        out of time.
+      </p>
+      <p>
+        <strong>Compare With Previous Run</strong> loads an older <code>.ttxs</code> alongside the
+        current one and shows the movement in confidence since then. Running the same scenario a
+        year later and seeing where the numbers moved is the point of exercising in the first place.
       </p>
 
       <!-- STRUCTURE -->
@@ -985,216 +1215,6 @@ This line continues the same paragraph.</code></pre>
       <div class="tip-card">
         <strong>Tip:</strong> The pipe character (<code>|</code>) was chosen as the image scale delimiter because it is not a valid unencoded character in URLs — so even URLs containing commas will be parsed correctly. For example: <code>%(https://cdn.example.com/img?a=1,b=2 | 60%)</code>
       </div>
-
-      <!-- RUNNING THE ROOM -->
-      <h2 id="running">Running the Room</h2>
-
-      <p>
-        Everything below is in the facilitator sidebar, and none of it changes the scenario
-        file — it is all about driving the session in front of you.
-      </p>
-
-      <h3>Moving through stages</h3>
-      <p>
-        As well as the <strong>Next</strong> and <strong>Prev</strong> buttons, the exercise
-        responds to <code>Page Down</code> / <code>Page Up</code> and the arrow keys, so a
-        presenter remote works without any setup. Keys are ignored while you are typing in
-        notes or actions.
-      </p>
-      <p>
-        You can also go straight to any stage by clicking its number in the row of stage
-        markers, without stepping through the ones in between. That is useful for skipping a
-        stage that is not landing, or returning to one the room wants to revisit — and it is
-        what makes <strong>branching exercises</strong> possible. A scenario can offer the room
-        a choice, put the destination for each option in the facilitator prompts where only you
-        can see it, and send everyone wherever the vote goes. <em>Night Shift</em> in the
-        <strong>Just for Fun</strong> section of the library is built this way: twenty-three
-        stages, four endings, and a different route each time you run it.
-      </p>
-
-      <h3>The participant view mirror</h3>
-      <p>
-        A small live copy of the participant screen sits in the bottom-right of the facilitator
-        window, so you can see exactly what the room sees without switching windows. Collapse it
-        with the <code>–</code> button if it is in the way.
-      </p>
-      <p>
-        It stays above everything else in the facilitator window, including the paused overlay
-        and the summary — while the exercise is paused or the summary is up, what the room is
-        looking at is exactly the thing you still want to see.
-      </p>
-      <p>
-        It is a genuine second view of the same thing, not a snapshot. The stage, the response
-        tallies, the theme, the text size and the scroll position all follow, in both directions —
-        scroll the mirror and the room's screen scrolls with it, which is the easiest way to walk
-        a room down a long inject without leaving your own window.
-      </p>
-      <p>
-        Drag its <strong>header</strong> to move it, and the <strong>corner</strong> at its
-        top-left to resize it — the whole participant screen scales with it, so you can push it up
-        to something you can properly read while working through a long inject, then drop it back
-        down. Double-click either the header or the corner to put that back to where it started.
-        Both the size and the position are remembered, and the corner takes focus if arrow keys
-        suit you better than a drag.
-      </p>
-      <p>
-        The preview takes its shape from the screen the room is actually looking at. When you open
-        a participant window it reports its size, and the mirror renders at exactly those
-        dimensions and scales the whole thing down — so a 4:3 projector previews as 4:3, a 4K
-        television previews at 4K proportions, and an ultrawide previews wide. Because it is scaled
-        rather than re-laid-out, the line breaks and the amount of content above the fold are the
-        same as the room sees. The pixel size is shown in the header so you know what you are
-        previewing, and it updates if that window is resized or made fullscreen.
-      </p>
-      <p>
-        The mirror's own header carries the controls worth having at full size:
-        <strong>A−</strong> and <strong>A+</strong> set the text size on the participant screen,
-        <strong>◐</strong> switches it between the screen and projector themes, and
-        <strong>⤢</strong> returns the panel itself to its default size and place if you have
-        moved it somewhere awkward. The frame itself is live, so you can scroll and click inside
-        it too — though at quarter scale the header buttons are the easier target.
-      </p>
-
-      <h3>Blanking the screen</h3>
-      <p>
-        <strong>Blank Screen</strong> — or pressing <code>B</code> — covers the participant
-        display for a break or a side conversation, without losing your place. Press it again to
-        bring the content back.
-      </p>
-
-      <h3>Running it offline</h3>
-      <p>
-        <a href="gym/standalone.html" download="ttxgym.html">Download the tool as a single
-        HTML file</a> and open it from your own machine — useful if the exercise is being run
-        somewhere without reliable network, or if your organisation would rather it never
-        touched the internet at all. Everything works: load a scenario, drive the participant
-        window, capture notes and actions, export the report.
-      </p>
-      <p>
-        Two caveats. Scenario cover images and any embedded pictures still come from the
-        network, so scenarios that use them will show the text without the images. And some
-        browsers refuse to let a page opened from a <code>file://</code> path save anything
-        locally, which turns off autosave — TTX Gym will tell you if that happens, and
-        <strong>Save Session</strong> still writes a file you can keep.
-      </p>
-      <p>
-        The participant window works the same way offline as it does online. Open it with
-        <strong>Participant Window</strong> and leave it open; if you close it and open a new
-        one, it will pick up whatever stage you are on by itself.
-      </p>
-
-      <h3>The facilitator pack</h3>
-      <p>
-        Under <strong>More</strong>, <strong>Facilitator Pack</strong> lays the whole scenario
-        out as a single document — every stage in order with its planned duration, content,
-        discussion points, facilitator prompts and questions, with correct quiz answers marked.
-        It is meant for the hour before the exercise: read it through, or print it and take it
-        into the room. Prompts are labelled as not shown to participants, so there is no risk of
-        putting the wrong page on the projector.
-      </p>
-
-      <h3>Ad-hoc injects</h3>
-      <p>
-        Exercises rarely go exactly to plan. <strong>Send Inject</strong> pushes a one-off line
-        of text to the participant screen — "the press have just called", "your primary site has
-        lost power" — without editing the scenario. Moving to the next stage clears it.
-      </p>
-
-      <h3>Light and dark</h3>
-      <p>
-        The two windows are themed independently, because a laptop in a dim room and a projector
-        in a lit one want opposite things.
-      </p>
-      <p>
-        The <strong>participant window</strong> opens dark; the half-moon icon in its bottom-right
-        switches to a light, high-contrast theme for projectors. The <strong>facilitator
-        window</strong> has its own <strong>Light Theme</strong> switch under <strong>More</strong>
-        in the sidebar — useful if you are sharing your own screen, or simply prefer it. Both
-        remember your choice.
-      </p>
-
-      <!-- RECORDING -->
-      <h2 id="recording">Recording What Happened</h2>
-
-      <h3>Responses are a tally, not a single answer</h3>
-      <p>
-        Each answer option is a button, and every click records one response. Click once and it
-        behaves like a simple choice; take a show of hands and click an option once per hand, and
-        the exercise records the spread. The small <code>−</code> on an option removes a response
-        if you over-count.
-      </p>
-      <p>
-        This matters because the interesting signal in a tabletop is usually disagreement. If half
-        the room is confident and half is not, that gap is the finding — and a single answer would
-        have averaged it away before anyone saw it.
-      </p>
-      <p>
-        The count appears on the participant screen as you record it, so the room watches the
-        split form on the answer options rather than waiting for the summary. The option with the
-        most responses is highlighted, and options with none fade back. Taking a response off
-        with the small <code>−</code>, or clearing the question, updates the room straight away
-        too — a miscount is not something you have to live with.
-      </p>
-
-      <h3>Where you are</h3>
-      <p>
-        The participant screen shows the current stage and a marker for each stage of the
-        exercise, so the room can see how far through they are without asking.
-      </p>
-
-      <h3>Actions</h3>
-      <p>
-        Every stage has an <strong>Actions</strong> panel for what needs to happen afterwards, with
-        an owner and a due date. These are collected into a table at the top of the exported report,
-        which is usually the part of the report anyone actually acts on.
-      </p>
-
-      <h3>Session details</h3>
-      <p>
-        The intro card carries the date, facilitator, attendees, and the objectives and scope of the
-        exercise. Filling these in turns the report from a printout into a record of what was tested,
-        by whom, and what was deliberately left out.
-      </p>
-
-      <h3>The summary</h3>
-      <p>
-        <strong>Present Summary</strong> puts the same summary on your screen and on the
-        participant screen — the headline figures, the questions the room was least confident
-        about, the actions with their owners, and each stage with its response distributions.
-        What you are reading is what they are reading.
-      </p>
-      <p>
-        Your <strong>facilitator notes</strong> are deliberately not on either summary screen.
-        They are your working record of the discussion, and they go into the exported report
-        rather than onto a projector. Actions and their owners <em>are</em> shown, since agreeing
-        who does what is the point of the debrief.
-      </p>
-
-      <h3>Confidence and quiz accuracy are reported separately</h3>
-      <p>
-        Rating questions measure what the room believes about itself. Quiz questions measure whether
-        someone knew a fact. These are different things, so the summary reports them as two numbers
-        and never averages them together. The report leads with the questions the room was
-        <em>least</em> confident about, because that is the list worth taking away.
-      </p>
-      <p>
-        Treat the confidence figure as a map of where to look, not as a grade. A low score on a
-        well-run exercise is a good outcome — it means people were honest.
-      </p>
-
-      <h3>Saving and resuming a session</h3>
-      <p>
-        <strong>Save Session</strong> writes a <code>.ttxs</code> file containing everything: the
-        scenario itself, every response, your notes, the actions and the timings. Because the
-        scenario travels inside it, <strong>Open Session</strong> will resume the exercise on any
-        machine — useful for handing over to a co-facilitator, or for finishing a session that ran
-        out of time.
-      </p>
-      <p>
-        <strong>Compare With Previous Run</strong> loads an older <code>.ttxs</code> alongside the
-        current one and shows the movement in confidence since then. Running the same scenario a
-        year later and seeing where the numbers moved is the point of exercising in the first place.
-      </p>
 
       <!-- VALIDATION -->
       <h2 id="validation">Checking Your File</h2>
