@@ -860,6 +860,28 @@
     }
     .b-gal-item:hover, .b-gal-item:focus-visible { border-color: var(--accent); color: var(--text-primary); }
     .b-gal-item img { width: 100%; height: 5rem; object-fit: contain; }
+    .b-gal-item .name { display: block; }
+    /* shown where the choice is made, not buried in a file nobody opens */
+    .b-gal-item .credit {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      line-height: 1.35;
+      color: var(--text-label);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 100%;
+    }
+    .b-gal-item .credit b { font-weight: 600; color: var(--amber); }
+    .b-gal-note {
+      font-size: 11px;
+      color: var(--text-label);
+      padding: 0.6rem 0 0;
+      border-top: 1px solid var(--border);
+      margin-top: 0.8rem;
+    }
+    .b-gal-note a { color: var(--accent); }
     .b-gal-empty { color: var(--text-label); font-size: 12px; padding: 1.5rem 0; text-align: center; }
 
     /* dropping a file anywhere on the page */
@@ -1113,7 +1135,10 @@
         <button class="btn btn-ghost" onclick="cancelGallery()" aria-label="Close">✕</button>
       </div>
       <div id="b-gal-tabs" role="tablist"></div>
-      <div class="b-modal-body"><div id="b-gal-grid"></div></div>
+      <div class="b-modal-body">
+        <div id="b-gal-grid"></div>
+        <p id="b-gal-note" class="b-gal-note" hidden></p>
+      </div>
       <div class="b-modal-foot">
         <label for="b-gal-scale" style="font-size:11.5px;color:var(--text-secondary)">Size</label>
         <select id="b-gal-scale" class="b-input" style="width:auto">
@@ -2485,6 +2510,8 @@
     function renderGallery() {
       const tabs = document.getElementById('b-gal-tabs');
       const grid = document.getElementById('b-gal-grid');
+      const note = document.getElementById('b-gal-note');
+      note.hidden = true;
       const cats = (galleryData && galleryData.categories) || [];
       const images = (galleryData && galleryData.images) || [];
 
@@ -2515,10 +2542,24 @@
         // each segment separately: encoding the whole path would turn "/" into %2F
         const src = GALLERY_DIR + i.file.split('/').map(encodeURIComponent).join('/');
         const label = esc(i.label + (i.variant ? ' (' + i.variant + ')' : ''));
-        return `<button type="button" class="b-gal-item" title="${esc(i.file)}"
+        const owed = /^CC BY/i.test(i.licence || '');
+        const credit = i.licence
+          ? `<span class="credit">${owed ? '<b>' + esc(i.licence) + '</b> · ' : ''}${esc(i.author || '')}</span>`
+          : '';
+        const tip = i.licence ? `${i.file} — ${i.licence}${i.author ? ', ' + i.author : ''}` : i.file;
+        return `<button type="button" class="b-gal-item" title="${esc(tip)}"
                   onclick="insertGalleryImage('${esc(i.file).replace(/'/g, "\\'")}')">
-                  <img src="${src}" alt="" loading="lazy"><span>${label}</span></button>`;
+                  <img src="${src}" alt="" loading="lazy">
+                  <span class="name">${label}</span>${credit}</button>`;
       }).join('');
+
+      const owing = items.filter(i => /^CC BY/i.test(i.licence || ''));
+      note.innerHTML = owing.length
+        ? `${owing.length} of these carry a licence that asks for a credit — shown in amber, and listed in `
+          + `<a href="${GALLERY_DIR}${esc(galleryTab)}/CREDITS.md" target="_blank" rel="noopener">CREDITS.md</a>. `
+          + 'Name the photographer and the licence wherever you would credit a slide.'
+        : 'Everything here is public domain or CC0: no credit required.';
+      note.hidden = !items.length;
     }
 
     function galleryPick(name) { galleryTab = name; renderGallery(); }

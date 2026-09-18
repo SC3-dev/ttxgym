@@ -761,8 +761,11 @@ G('the image picker');
   });
 
   t('an empty category says how to fill it instead of showing nothing', () => {
-    w.galleryPick('diagrams');
-    has(w.document.getElementById('b-gal-grid').textContent, 'lib/exercise_data/diagrams/');
+    // a category of its own, so the test does not depend on a folder staying empty
+    w.eval("galleryData = { categories: galleryData.categories.concat([{ name: 'sketches', heading: 'Sketches' }]),"
+         + " images: galleryData.images };");
+    w.galleryPick('sketches');
+    has(w.document.getElementById('b-gal-grid').textContent, 'lib/exercise_data/sketches/');
     w.galleryPick('icons');
   });
 
@@ -1770,6 +1773,127 @@ G('the way out is named after where it goes');
     ok(m, 'the content field has no floor');
     ok(Number(m[1]) >= 10, 'the content field is only ' + m[1] + 'rem tall');
     ok(/#b-work-inner > \.b-zone\.screen \{[^}]*min-height/.test(style), 'a short stage still collapses');
+  });
+}
+
+G('the gallery ships pictures it is allowed to ship');
+{
+  const dir = path.join(ROOT, 'lib/exercise_data/stock-photos');
+  const files = fs.readdirSync(dir).filter(f => /\.(jpe?g|png|webp)$/i.test(f));
+
+  t('there are photographs to choose from', () => ok(files.length >= 15, 'only ' + files.length));
+
+  /* These are redistributed in a public repo, published to a site, and copied
+     again by anyone who downloads a scenario using one. A licence that follows
+     those copies would land on facilitators who never agreed to it. */
+  t('every one of them is accounted for', () => {
+    const credits = JSON.parse(fs.readFileSync(path.join(dir, 'credits.json'), 'utf8'));
+    const known = new Set(credits.map(c => c.file));
+    eq(files.filter(f => !known.has(f)), [], 'photographs with no recorded provenance');
+    eq(credits.filter(c => !files.includes(c.file)), [], 'credits for photographs that are not here');
+    credits.forEach(c => {
+      ok(c.licence, c.file + ' has no licence recorded');
+      ok(c.source && /^https:/.test(c.source), c.file + ' has no source');
+    });
+  });
+
+  t('and is either free to pass on, or carries the credit it owes', () => {
+    const credits = JSON.parse(fs.readFileSync(path.join(dir, 'credits.json'), 'utf8'));
+    const bad = credits.filter(c => !/^(CC0|Public domain|PDM|No restrictions|CC BY)/i.test(c.licence));
+    eq(bad.map(c => c.file + ': ' + c.licence), [], 'a licence that cannot be redistributed');
+    // CC BY without a named author is the one combination that cannot be honoured
+    const anonymous = credits.filter(c => /^CC BY/i.test(c.licence) && (!c.author || c.author === 'Unknown'));
+    eq(anonymous.map(c => c.file), [], 'a credit is owed but there is nobody to credit');
+    const md = fs.readFileSync(path.join(dir, 'CREDITS.md'), 'utf8');
+    credits.forEach(c => has(md, '`' + c.file + '`'));
+  });
+
+  t('the manifest carries the credit to the picker', () => {
+    const gallery = JSON.parse(fs.readFileSync(path.join(ROOT, 'lib/exercise_data/gallery.json'), 'utf8'));
+    const owed = gallery.images.filter(i => /^CC BY/i.test(i.licence || ''));
+    ok(owed.length, 'nothing in the gallery needs a credit — has the policy changed?');
+    owed.forEach(i => { ok(i.author, i.file + ' reaches the picker with no author'); });
+    const src = fs.readFileSync(path.join(ROOT, 'editor.html'), 'utf8');
+    has(src, 'class="credit"');
+    has(src, 'b-gal-note');
+  });
+
+  t('and none is heavy enough to hurt a repository', () => {
+    const heavy = files.filter(f => fs.statSync(path.join(dir, f)).size > 500 * 1024)
+      .map(f => f + ' ' + Math.round(fs.statSync(path.join(dir, f)).size / 1024) + 'KB');
+    eq(heavy, []);
+  });
+
+  t('the manifest lists them, so the picker can show them', () => {
+    const gallery = JSON.parse(fs.readFileSync(path.join(ROOT, 'lib/exercise_data/gallery.json'), 'utf8'));
+    const listed = gallery.images.filter(i => i.category === 'stock-photos');
+    eq(listed.length, files.length, 'run node tools/build-gallery.js');
+    listed.forEach(i => ok(fs.existsSync(path.join(ROOT, 'lib/exercise_data', i.file)), 'missing ' + i.file));
+  });
+
+  t('each is named for what it shows, not for where it came from', () => {
+    const gallery = JSON.parse(fs.readFileSync(path.join(ROOT, 'lib/exercise_data/gallery.json'), 'utf8'));
+    gallery.images.filter(i => i.category === 'stock-photos').forEach(i => {
+      ok(/^[A-Z]/.test(i.label), i.file + ' has no readable label');
+      ok(!/^(DSC|IMG|File|P\d)/i.test(i.label), i.file + ' is labelled with a camera filename');
+    });
+  });
+}
+
+G('the artefacts no stock library sells');
+{
+  const { build, ARTEFACTS } = require(path.join(ROOT, 'tools/build-artefacts.js'));
+  const root = path.join(ROOT, 'lib/exercise_data');
+
+  t('a ransom note, a console, an invoice, a network diagram — all drawn, not bought', () => {
+    const wanted = { screenshots: 5, documents: 4, diagrams: 4 };
+    Object.entries(wanted).forEach(([cat, n]) => {
+      const svgs = fs.readdirSync(path.join(root, cat)).filter(f => f.endsWith('.svg'));
+      ok(svgs.length >= n, cat + ' has only ' + svgs.length + ' drawn artefacts');
+    });
+  });
+
+  t('each is real SVG, self-contained, and costs nothing to ship', () => {
+    Object.keys(ARTEFACTS).forEach(cat => {
+      fs.readdirSync(path.join(root, cat)).filter(f => f.endsWith('.svg')).forEach(f => {
+        const body = fs.readFileSync(path.join(root, cat, f), 'utf8');
+        has(body, '<svg xmlns="http://www.w3.org/2000/svg"');
+        has(body, 'viewBox="0 0 1200 750"');
+        // an external reference would break in the participant window, which
+        // runs from a blob URL and can resolve nothing relative
+        ok(!/<image|xlink:href|@import|url\(http/.test(body), f + ' reaches outside itself');
+        ok(body.length < 60 * 1024, f + ' is ' + Math.round(body.length / 1024) + 'KB');
+      });
+    });
+  });
+
+  t('they are regenerated, not hand-maintained, so they cannot drift', () => {
+    const before = {};
+    Object.keys(ARTEFACTS).forEach(cat =>
+      fs.readdirSync(path.join(root, cat)).filter(f => f.endsWith('.svg'))
+        .forEach(f => { before[cat + '/' + f] = fs.readFileSync(path.join(root, cat, f), 'utf8'); }));
+    build({ quiet: true });
+    const changed = Object.keys(before)
+      .filter(k => fs.readFileSync(path.join(root, k), 'utf8') !== before[k]);
+    eq(changed, [], 'the files on disk differ from what the generator produces');
+  });
+
+  t('nothing in them is someone else’s to own', () => {
+    const credits = fs.readFileSync(path.join(root, 'screenshots/CREDITS.md'), 'utf8')
+      .replace(/\s+/g, ' ');            // the file is wrapped; the sentences are not
+    has(credits, 'original work');
+    has(credits, 'no credit is owed');
+  });
+
+  t('and the picker lists them beside the photographs', () => {
+    const gallery = JSON.parse(fs.readFileSync(path.join(root, 'gallery.json'), 'utf8'));
+    ['screenshots', 'documents', 'diagrams'].forEach(cat => {
+      const listed = gallery.images.filter(i => i.category === cat);
+      ok(listed.length, cat + ' is empty in the manifest — run tools/build-gallery.js');
+      listed.forEach(i => ok(fs.existsSync(path.join(root, i.file)), 'missing ' + i.file));
+    });
+    // CREDITS.md and credits.json are bookkeeping, not artwork
+    ok(!gallery.images.some(i => /credits/i.test(i.file)), 'a credits file is offered as a picture');
   });
 }
 

@@ -19,10 +19,25 @@ const IMAGE = /\.(png|jpe?g|gif|webp|svg)$/i;
 
 // news.jpeg is the backdrop %news() draws on, not artwork to insert on its own.
 const SYSTEM = new Set(['news.jpeg']);
+const NOT_ART = /^(credits\.json|CREDITS\.md)$/i;
 
 // The order categories appear in the picker. Anything not listed follows,
 // alphabetically — so a new folder shows up without being registered here.
 const ORDER = ['icons', 'stock-photos', 'screenshots', 'documents', 'diagrams'];
+
+/* Some pictures carry an obligation. A category folder may hold credits.json —
+   file, licence, author, source — and whatever it says is attached to the entry
+   in the manifest, so the picker can show the credit at the moment someone
+   chooses the picture rather than burying it in a file nobody opens. */
+function creditsFor(category) {
+  const at = path.join(DIR, category, 'credits.json');
+  if (!fs.existsSync(at)) return {};
+  let rows = [];
+  try { rows = JSON.parse(fs.readFileSync(at, 'utf8')); } catch (e) { return {}; }
+  const by = {};
+  rows.forEach(r => { if (r && r.file) by[r.file] = r; });
+  return by;
+}
 
 // TTXGYM_Brokenshield_teal.png -> "Brokenshield", variant "teal"
 function describe(file) {
@@ -51,20 +66,32 @@ function build(opts) {
     });
 
   const entries = [];
+  const unattributed = [];
   categories.forEach(category => {
+    const credits = creditsFor(category);
     fs.readdirSync(path.join(DIR, category))
-      .filter(f => IMAGE.test(f) && !SYSTEM.has(f))
+      .filter(f => IMAGE.test(f) && !SYSTEM.has(f) && !NOT_ART.test(f))
       .sort((a, b) => a.localeCompare(b))
       .forEach(file => {
         const d = describe(file);
-        entries.push({
+        const c = credits[file];
+        const entry = {
           file: `${category}/${file}`,
           label: d.label,
           variant: d.variant,
           category,
           heading: heading(category),
           bytes: fs.statSync(path.join(DIR, category, file)).size,
-        });
+        };
+        if (c) {
+          entry.licence = c.licence || '';
+          entry.author = c.author || '';
+          entry.source = c.source || '';
+        }
+        // a licence that needs a credit, with no credit recorded, is the one
+        // combination that must not ship quietly
+        if (!c && Object.keys(credits).length) unattributed.push(entry.file);
+        entries.push(entry);
       });
   });
 
@@ -80,6 +107,10 @@ function build(opts) {
     const n = entries.filter(e => e.category === c).length;
     say(`  ${heading(c).padEnd(14)} ${n === 0 ? '(empty)' : n}`);
   });
+  if (unattributed.length) {
+    say(`  note: ${unattributed.length} file(s) in a credited category have no credits.json entry:`);
+    unattributed.forEach(f => say(`    ${f}`));
+  }
   if (loose.length) {
     say(`  note: ${loose.length} image(s) sit outside any category and were skipped:`);
     loose.forEach(f => say(`    ${f}`));

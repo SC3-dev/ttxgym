@@ -143,12 +143,349 @@
    "bytes": 15243
   },
   {
+   "file": "stock-photos/ambulance.jpg",
+   "label": "Ambulance",
+   "variant": "",
+   "category": "stock-photos",
+   "heading": "Stock Photos",
+   "bytes": 143712,
+   "licence": "Public domain",
+   "author": "Cbwetter at English Wikipedia",
+   "source": "https://commons.wikimedia.org/wiki/File:LMEMS 1255 (8).JPG"
+  },
+  {
+   "file": "stock-photos/assembly-line.jpg",
+   "label": "Assembly line",
+   "variant": "",
+   "category": "stock-photos",
+   "heading": "Stock Photos",
+   "bytes": 213748,
+   "licence": "CC BY-SA 2.0",
+   "author": "Jetstar Airways",
+   "source": "https://commons.wikimedia.org/wiki/File:Jetstar 787 (8953979236).jpg"
+  },
+  {
+   "file": "stock-photos/boardroom.jpg",
+   "label": "Boardroom",
+   "variant": "",
+   "category": "stock-photos",
+   "heading": "Stock Photos",
+   "bytes": 123868,
+   "licence": "CC0",
+   "author": "Breather breather",
+   "source": "https://commons.wikimedia.org/wiki/File:Conference room table (Unsplash).jpg"
+  },
+  {
+   "file": "stock-photos/CCTV-camera.jpg",
+   "label": "CCTV camera",
+   "variant": "",
+   "category": "stock-photos",
+   "heading": "Stock Photos",
+   "bytes": 375735,
+   "licence": "CC0",
+   "author": "Raysonho @ Open Grid Scheduler / Grid Engine",
+   "source": "https://commons.wikimedia.org/wiki/File:CCTVBrickWall2.jpg"
+  },
+  {
+   "file": "stock-photos/civic-building.jpg",
+   "label": "Civic building",
+   "variant": "",
+   "category": "stock-photos",
+   "heading": "Stock Photos",
+   "bytes": 230559,
+   "licence": "CC0",
+   "author": "PeterChingfordHistory99",
+   "source": "https://commons.wikimedia.org/wiki/File:Chingford Old Town Hall Building, The Ridgeway, Chingford, London, UK.jpg"
+  },
+  {
+   "file": "stock-photos/classroom.jpg",
+   "label": "Classroom",
+   "variant": "",
+   "category": "stock-photos",
+   "heading": "Stock Photos",
+   "bytes": 212557,
+   "licence": "CC0",
+   "author": "Darklanlan",
+   "source": "https://commons.wikimedia.org/wiki/File:Classroom2.jpg"
+  },
+  {
+   "file": "stock-photos/control-panel.jpg",
+   "label": "Control panel",
+   "variant": "",
+   "category": "stock-photos",
+   "heading": "Stock Photos",
+   "bytes": 150674,
+   "licence": "Public domain",
+   "author": "Unknown authorUnknown author or not provided",
+   "source": "https://commons.wikimedia.org/wiki/File:Control room Number 2. Nuclear Regulatory Commission inspector looking at meters. - NARA - 540034.tif"
+  },
+  {
+   "file": "stock-photos/cyber-operations.jpg",
+   "label": "Cyber operations",
+   "variant": "",
+   "category": "stock-photos",
+   "heading": "Stock Photos",
+   "bytes": 197694,
+   "licence": "Public domain",
+   "author": "Unknown photographer",
+   "source": "https://commons.wikimedia.org/wiki/File:NSOC-2012.jpg"
+  },
+  {
+   "file": "stock-photos/data-hall.jpg",
+   "label": "Data hall",
+   "variant": "",
+   "category": "stock-photos",
+   "heading": "Stock Photos",
+   "bytes": 244849,
+   "licence": "CC BY-SA 3.0",
+   "author": "Florian Hirzinger - www.fh-ap.com",
+   "source": "https://commons.wikimedia.org/wiki/File:CERN Server 03.jpg"
+  },
+  {
+   "file": "stock-photos/delivery-lorry.jpg",
+   "label": "Delivery lorry",
+   "variant": "",
+   "category": "stock-photos",
+   "heading": "Stock Photos",
+   "bytes": 128573,
+   "licence": "Public domain",
+   "author": "Ingolfson",
+   "source": "https://commons.wikimedia.org/wiki/File:Finished Mini TBM Is Leaving Newmarket.jpg"
+  },
+  {
+   "file": "stock-photos/desk-devices.jpg",
+   "label": "Desk devices",
+   "variant": "",
+   "category": "stock-photos",
+   "heading": "Stock Photos",
+   "bytes": 135057,
+   "licence": "CC0",
+   "author": "Aleks Dorohovich aleksdorohovich",
+   "source": "https://commons.wikimedia.org/wiki/File:Books, pencils, laptop, and iphone on a desk (Unsplash).jpg"
+  },
+  {
+   "file": "stock-photos/hospital-room.jpg",
+   "label": "Hospital room",
+   "variant": "",
+   "category": "stock-photos",
+   "heading": "Stock Photos",
+   "bytes": 120544,
+   "licence": "Public domain",
+   "author": "Official Navy Page from United States of America MC2 Todd Frantom/U.S. Marine Corps",
+   "source": "https://commons.wikimedia.org/wiki/File:Flickr - Official U.S. Navy Imagery - Fort Belvoir Community Hospital (15).jpg"
+  },
+  {
+   "file": "stock-photos/laptop-desk.jpg",
+   "label": "Laptop desk",
+   "variant": "",
+   "category": "stock-photos",
+   "heading": "Stock Photos",
+   "bytes": 104710,
+   "licence": "CC0",
+   "author": "Luca Bravo lucabravo",
+   "source": "https://commons.wikimedia.org/wiki/File:Desktop after work (Unsplash).jpg"
+  },
+  {
+   "file": "stock-photos/meeting-room.jpg",
+   "label": "Meeting room",
+   "variant": "",
+   "category": "stock-photos",
+   "heading": "Stock Photos",
+   "bytes": 147388,
+   "licence": "CC0",
+   "author": "Breather breather",
+   "source": "https://commons.wikimedia.org/wiki/File:Chairs in a meeting room (Unsplash).jpg"
+  },
+  {
+   "file": "stock-photos/network-cabling.jpg",
+   "label": "Network cabling",
+   "variant": "",
+   "category": "stock-photos",
+   "heading": "Stock Photos",
+   "bytes": 291751,
+   "licence": "Public domain",
+   "author": "—",
+   "source": "https://commons.wikimedia.org/wiki/File:Cable closet bh.jpg"
+  },
+  {
+   "file": "stock-photos/office-floor.jpg",
+   "label": "Office floor",
+   "variant": "",
+   "category": "stock-photos",
+   "heading": "Stock Photos",
+   "bytes": 226375,
+   "licence": "CC BY-SA 4.0",
+   "author": "Techno Brain BPO ITES",
+   "source": "https://commons.wikimedia.org/wiki/File:Executive at Work - Techno Brain BPO Kenya Production Floor.jpg"
+  },
+  {
+   "file": "stock-photos/open-plan-office.jpg",
+   "label": "Open plan office",
+   "variant": "",
+   "category": "stock-photos",
+   "heading": "Stock Photos",
+   "bytes": 154715,
+   "licence": "CC BY-SA 3.0",
+   "author": "MUGENUP",
+   "source": "https://commons.wikimedia.org/wiki/File:30134 jissekiimage3.JPG"
+  },
+  {
+   "file": "stock-photos/operations-centre.jpg",
+   "label": "Operations centre",
+   "variant": "",
+   "category": "stock-photos",
+   "heading": "Stock Photos",
+   "bytes": 159364,
+   "licence": "Public domain",
+   "author": "Zonk43",
+   "source": "https://commons.wikimedia.org/wiki/File:Altbach Power Plant Control Room.JPG"
+  },
+  {
+   "file": "stock-photos/plant-control-room.jpg",
+   "label": "Plant control room",
+   "variant": "",
+   "category": "stock-photos",
+   "heading": "Stock Photos",
+   "bytes": 179321,
+   "licence": "Public domain",
+   "author": "Thomas Hartwell, USAID",
+   "source": "https://commons.wikimedia.org/wiki/File:Baghdad South Power Station - October 2003 - control room.jpg"
+  },
+  {
+   "file": "stock-photos/rack-cabinet.jpg",
+   "label": "Rack cabinet",
+   "variant": "",
+   "category": "stock-photos",
+   "heading": "Stock Photos",
+   "bytes": 133006,
+   "licence": "CC BY-SA 3.0",
+   "author": "ArielGlenn",
+   "source": "https://commons.wikimedia.org/wiki/File:Rack in wmf sf office.jpg"
+  },
+  {
+   "file": "stock-photos/server-racks.jpg",
+   "label": "Server racks",
+   "variant": "",
+   "category": "stock-photos",
+   "heading": "Stock Photos",
+   "bytes": 166952,
+   "licence": "CC BY-SA 3.0",
+   "author": "BalticServers.com",
+   "source": "https://commons.wikimedia.org/wiki/File:BalticServers data center.jpg"
+  },
+  {
+   "file": "stock-photos/server-room.jpg",
+   "label": "Server room",
+   "variant": "",
+   "category": "stock-photos",
+   "heading": "Stock Photos",
+   "bytes": 141557,
+   "licence": "CC BY-SA 3.0",
+   "author": "123net",
+   "source": "https://commons.wikimedia.org/wiki/File:123Net Data Center (DC2).jpg"
+  },
+  {
+   "file": "stock-photos/substation.jpg",
+   "label": "Substation",
+   "variant": "",
+   "category": "stock-photos",
+   "heading": "Stock Photos",
+   "bytes": 191373,
+   "licence": "Public domain",
+   "author": "Vassil",
+   "source": "https://commons.wikimedia.org/wiki/File:Pylônes électriques 6107.jpg"
+  },
+  {
+   "file": "stock-photos/supermarket-checkout.jpg",
+   "label": "Supermarket checkout",
+   "variant": "",
+   "category": "stock-photos",
+   "heading": "Stock Photos",
+   "bytes": 219887,
+   "licence": "CC0",
+   "author": "Mr. Satterly",
+   "source": "https://commons.wikimedia.org/wiki/File:Checkouts at Smith's Food and Drug in Gillette, Wyoming.jpg"
+  },
+  {
+   "file": "stock-photos/switchyard.jpg",
+   "label": "Switchyard",
+   "variant": "",
+   "category": "stock-photos",
+   "heading": "Stock Photos",
+   "bytes": 161889,
+   "licence": "Public domain",
+   "author": "James Selesnick, U.S. Army",
+   "source": "https://commons.wikimedia.org/wiki/File:New electrical infrastructure, Iraq.JPG"
+  },
+  {
+   "file": "stock-photos/warehouse.jpg",
+   "label": "Warehouse",
+   "variant": "",
+   "category": "stock-photos",
+   "heading": "Stock Photos",
+   "bytes": 244621,
+   "licence": "Public domain",
+   "author": "Leo 'Jace' Anderson",
+   "source": "https://commons.wikimedia.org/wiki/File:FEMA - 44999 - Pallets of water in Iowa.jpg"
+  },
+  {
+   "file": "stock-photos/water-treatment.jpg",
+   "label": "Water treatment",
+   "variant": "",
+   "category": "stock-photos",
+   "heading": "Stock Photos",
+   "bytes": 225919,
+   "licence": "Public domain",
+   "author": "zardeto",
+   "source": "https://commons.wikimedia.org/wiki/File:Decantação.jpg"
+  },
+  {
+   "file": "screenshots/account-locked.svg",
+   "label": "Account locked",
+   "variant": "",
+   "category": "screenshots",
+   "heading": "Screenshots",
+   "bytes": 1705
+  },
+  {
    "file": "screenshots/phish_screenshot.png",
    "label": "Phish screenshot",
    "variant": "",
    "category": "screenshots",
    "heading": "Screenshots",
    "bytes": 91262
+  },
+  {
+   "file": "screenshots/ransom-note.svg",
+   "label": "Ransom note",
+   "variant": "",
+   "category": "screenshots",
+   "heading": "Screenshots",
+   "bytes": 5257
+  },
+  {
+   "file": "screenshots/service-unavailable.svg",
+   "label": "Service unavailable",
+   "variant": "",
+   "category": "screenshots",
+   "heading": "Screenshots",
+   "bytes": 3171
+  },
+  {
+   "file": "screenshots/siem-alert.svg",
+   "label": "Siem alert",
+   "variant": "",
+   "category": "screenshots",
+   "heading": "Screenshots",
+   "bytes": 9135
+  },
+  {
+   "file": "screenshots/terminal-session.svg",
+   "label": "Terminal session",
+   "variant": "",
+   "category": "screenshots",
+   "heading": "Screenshots",
+   "bytes": 3646
   },
   {
    "file": "screenshots/TTXGYM_Phishing email highlighted.png",
@@ -165,6 +502,70 @@
    "category": "screenshots",
    "heading": "Screenshots",
    "bytes": 113335
+  },
+  {
+   "file": "documents/incident-report.svg",
+   "label": "Incident report",
+   "variant": "",
+   "category": "documents",
+   "heading": "Documents",
+   "bytes": 4586
+  },
+  {
+   "file": "documents/invoice-bank-change.svg",
+   "label": "Invoice bank change",
+   "variant": "",
+   "category": "documents",
+   "heading": "Documents",
+   "bytes": 3435
+  },
+  {
+   "file": "documents/press-release.svg",
+   "label": "Press release",
+   "variant": "",
+   "category": "documents",
+   "heading": "Documents",
+   "bytes": 3159
+  },
+  {
+   "file": "documents/regulator-letter.svg",
+   "label": "Regulator letter",
+   "variant": "",
+   "category": "documents",
+   "heading": "Documents",
+   "bytes": 3397
+  },
+  {
+   "file": "diagrams/data-flow.svg",
+   "label": "Data flow",
+   "variant": "",
+   "category": "diagrams",
+   "heading": "Diagrams",
+   "bytes": 4447
+  },
+  {
+   "file": "diagrams/escalation-path.svg",
+   "label": "Escalation path",
+   "variant": "",
+   "category": "diagrams",
+   "heading": "Diagrams",
+   "bytes": 4410
+  },
+  {
+   "file": "diagrams/incident-lifecycle.svg",
+   "label": "Incident lifecycle",
+   "variant": "",
+   "category": "diagrams",
+   "heading": "Diagrams",
+   "bytes": 5588
+  },
+  {
+   "file": "diagrams/network-overview.svg",
+   "label": "Network overview",
+   "variant": "",
+   "category": "diagrams",
+   "heading": "Diagrams",
+   "bytes": 4312
   }
  ]
 }

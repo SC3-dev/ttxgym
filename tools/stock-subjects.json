@@ -1,0 +1,21 @@
+[
+ {"slug":"server-room","q":"data center interior"},
+ {"slug":"server-rack","q":"server rack"},
+ {"slug":"network-cabling","q":"ethernet cables rack"},
+ {"slug":"open-plan-office","q":"office workstation desks"},
+ {"slug":"meeting-room","q":"conference room table chairs"},
+ {"slug":"operations-centre","q":"network operations centre monitors"},
+ {"slug":"control-room","q":"power plant control room"},
+ {"slug":"laptop-desk","q":"laptop on desk office"},
+ {"slug":"cctv-camera","q":"security camera wall mounted"},
+ {"slug":"substation","q":"electrical substation transformers"},
+ {"slug":"water-treatment","q":"water treatment plant tanks"},
+ {"slug":"factory-floor","q":"factory production line machinery"},
+ {"slug":"warehouse","q":"warehouse storage building interior"},
+ {"slug":"lorry-depot","q":"semi trailer truck parked"},
+ {"slug":"hospital-ward","q":"hospital room patient bed equipment"},
+ {"slug":"ambulance","q":"ambulance emergency vehicle"},
+ {"slug":"town-hall","q":"city hall municipal building"},
+ {"slug":"classroom","q":"classroom desks students"},
+ {"slug":"checkout","q":"self checkout supermarket"}
+]
