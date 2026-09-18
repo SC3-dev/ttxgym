@@ -24,6 +24,14 @@ const https = require('https');
 
 const UA = 'TTXGym-gallery-build/1.0 (https://ttxgym.com)';
 
+/* Where a photograph was taken and when, read off its Commons categories and
+   EXIF. A US ambulance or a Japanese classroom is not wrong, but it is wrong for
+   a room full of people being asked to imagine their own organisation, and a
+   control panel from 1979 is a period piece. Neither is visible from the title,
+   so both are pulled out here and shown at review time. */
+const PLACES = /\b(United Kingdom|England|Scotland|Wales|Northern Ireland|London|Manchester|Birmingham|Glasgow|Edinburgh|Leeds|Bristol|Cardiff|Belfast|United States|Germany|France|Sweden|Norway|Denmark|Finland|Netherlands|Belgium|Spain|Italy|Poland|Ireland|Canada|Australia|New Zealand|Japan|China|India|Kenya|Brazil|Switzerland|Austria|Lithuania|Russia|Singapore)\b/;
+const UK = /\b(United Kingdom|England|Scotland|Wales|Northern Ireland|London|Manchester|Birmingham|Glasgow|Edinburgh|Leeds|Bristol|Cardiff|Belfast|British|NHS)\b/i;
+
 /* Two policies, and the difference is not cosmetic.
    `free`      — CC0 and public domain. Nothing follows the file, so a facilitator
                  who downloads a scenario using one inherits no obligation.
@@ -60,17 +68,22 @@ async function search(query, limit, allowed) {
   const url = 'https://commons.wikimedia.org/w/api.php?action=query&format=json&generator=search'
     + '&gsrsearch=' + encodeURIComponent(query + scope)
     + '&gsrnamespace=6&gsrlimit=' + limit
-    + '&prop=imageinfo&iiprop=url|extmetadata|size&iiurlwidth=520';
+    + '&prop=imageinfo|categories&cllimit=500'
+    + '&iiprop=url|extmetadata|size&iiurlwidth=520';
   const pages = (JSON.parse((await get(url)).toString()).query || {}).pages || {};
   return Object.values(pages).map(page => {
     const info = (page.imageinfo || [])[0] || {};
     const meta = info.extmetadata || {};
     const field = k => ((meta[k] || {}).value || '').replace(/<[^>]+>/g, '').trim();
+    const cats = (page.categories || []).map(c => c.title.replace(/^Category:/, '')).join(' · ');
+    const hay = cats + ' ' + page.title + ' ' + field('ImageDescription');
+    const year = ((field('DateTimeOriginal') || field('DateTime')).match(/(18|19|20)\d\d/) || [''])[0];
     return {
       title: page.title, thumb: info.thumburl, full: info.url,
       width: info.width, height: info.height,
       licence: field('LicenseShortName'), author: field('Artist'),
       description: field('ImageDescription').slice(0, 140),
+      year: year, uk: UK.test(hay), where: (hay.match(PLACES) || [''])[0],
       page: 'https://commons.wikimedia.org/wiki/' + encodeURIComponent(page.title),
     };
   }).filter(c =>
@@ -89,7 +102,11 @@ async function main(subjectsFile, outDir, policy) {
   let index = fs.existsSync(indexPath) ? JSON.parse(fs.readFileSync(indexPath, 'utf8')) : [];
 
   for (const subject of subjects) {
-    const hits = (await search(subject.q, subject.search || 80, allowed)).slice(0, subject.n || 4);
+    let hits = await search(subject.q, subject.search || 80, allowed);
+    // nothing here rules a photograph out; it only decides what is looked at first
+    if (subject.since) hits = hits.filter(h => !h.year || Number(h.year) >= subject.since);
+    if (subject.uk) hits.sort((a, b) => (b.uk ? 1 : 0) - (a.uk ? 1 : 0));
+    hits = hits.slice(0, subject.n || 4);
     let n = 0;
     for (const hit of hits) {
       const name = `${subject.slug}-${++n}.jpg`;
@@ -97,7 +114,8 @@ async function main(subjectsFile, outDir, policy) {
       index = index.filter(e => e.cand !== name);
       index.push(Object.assign({ slug: subject.slug, cand: name }, hit));
     }
-    console.log(`  ${subject.slug.padEnd(22)} ${hits.length || 'nothing usable'}`);
+    console.log(`  ${subject.slug.padEnd(22)} ${String(hits.length || 'nothing usable').padEnd(4)}`
+      + hits.map(h => (h.uk ? 'UK' : (h.where || '?').slice(0, 6)) + (h.year ? ' ' + h.year : '')).join(', '));
   }
 
   fs.writeFileSync(indexPath, JSON.stringify(index, null, 1) + '\n');
@@ -113,4 +131,4 @@ if (require.main === module) {
   }
   main(subjects, out, policy).catch(e => { console.error(e.message); process.exit(1); });
 }
-module.exports = { search, POLICY, MIN_WIDTH };
+module.exports = { search, POLICY, MIN_WIDTH, UK, PLACES };

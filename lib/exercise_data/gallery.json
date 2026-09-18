@@ -148,21 +148,10 @@
    "variant": "",
    "category": "stock-photos",
    "heading": "Stock Photos",
-   "bytes": 143712,
-   "licence": "Public domain",
-   "author": "Cbwetter at English Wikipedia",
-   "source": "https://commons.wikimedia.org/wiki/File:LMEMS 1255 (8).JPG"
-  },
-  {
-   "file": "stock-photos/assembly-line.jpg",
-   "label": "Assembly line",
-   "variant": "",
-   "category": "stock-photos",
-   "heading": "Stock Photos",
-   "bytes": 213748,
-   "licence": "CC BY-SA 2.0",
-   "author": "Jetstar Airways",
-   "source": "https://commons.wikimedia.org/wiki/File:Jetstar 787 (8953979236).jpg"
+   "bytes": 187267,
+   "licence": "CC BY 2.0",
+   "author": "hha124l (Chris Sampson)",
+   "source": "https://commons.wikimedia.org/wiki/File:EEAS-ambulance.jpg"
   },
   {
    "file": "stock-photos/boardroom.jpg",
@@ -198,28 +187,6 @@
    "source": "https://commons.wikimedia.org/wiki/File:Chingford Old Town Hall Building, The Ridgeway, Chingford, London, UK.jpg"
   },
   {
-   "file": "stock-photos/classroom.jpg",
-   "label": "Classroom",
-   "variant": "",
-   "category": "stock-photos",
-   "heading": "Stock Photos",
-   "bytes": 212557,
-   "licence": "CC0",
-   "author": "Darklanlan",
-   "source": "https://commons.wikimedia.org/wiki/File:Classroom2.jpg"
-  },
-  {
-   "file": "stock-photos/control-panel.jpg",
-   "label": "Control panel",
-   "variant": "",
-   "category": "stock-photos",
-   "heading": "Stock Photos",
-   "bytes": 150674,
-   "licence": "Public domain",
-   "author": "Unknown authorUnknown author or not provided",
-   "source": "https://commons.wikimedia.org/wiki/File:Control room Number 2. Nuclear Regulatory Commission inspector looking at meters. - NARA - 540034.tif"
-  },
-  {
    "file": "stock-photos/cyber-operations.jpg",
    "label": "Cyber operations",
    "variant": "",
@@ -247,21 +214,54 @@
    "variant": "",
    "category": "stock-photos",
    "heading": "Stock Photos",
-   "bytes": 128573,
-   "licence": "Public domain",
-   "author": "Ingolfson",
-   "source": "https://commons.wikimedia.org/wiki/File:Finished Mini TBM Is Leaving Newmarket.jpg"
+   "bytes": 145134,
+   "licence": "CC BY-SA 2.0",
+   "author": "Jaggery",
+   "source": "https://commons.wikimedia.org/wiki/File:Gist articulated lorry descending the A4051 Malpas Road, Newport - geograph.org.uk - 6441263.jpg"
   },
   {
-   "file": "stock-photos/desk-devices.jpg",
-   "label": "Desk devices",
+   "file": "stock-photos/factory-floor.jpg",
+   "label": "Factory floor",
    "variant": "",
    "category": "stock-photos",
    "heading": "Stock Photos",
-   "bytes": 135057,
-   "licence": "CC0",
-   "author": "Aleks Dorohovich aleksdorohovich",
-   "source": "https://commons.wikimedia.org/wiki/File:Books, pencils, laptop, and iphone on a desk (Unsplash).jpg"
+   "bytes": 322205,
+   "licence": "CC BY-SA 4.0",
+   "author": "Alainmac",
+   "source": "https://commons.wikimedia.org/wiki/File:EDM LTD Production .jpg"
+  },
+  {
+   "file": "stock-photos/fire-service.jpg",
+   "label": "Fire service",
+   "variant": "",
+   "category": "stock-photos",
+   "heading": "Stock Photos",
+   "bytes": 186433,
+   "licence": "CC BY-SA 2.0",
+   "author": "Oast House Archive",
+   "source": "https://commons.wikimedia.org/wiki/File:Fire engines at Eastbourne Pier fire - geograph.org.uk - 4096729.jpg"
+  },
+  {
+   "file": "stock-photos/high-street.jpg",
+   "label": "High street",
+   "variant": "",
+   "category": "stock-photos",
+   "heading": "Stock Photos",
+   "bytes": 189404,
+   "licence": "CC BY-SA 4.0",
+   "author": "Mutney",
+   "source": "https://commons.wikimedia.org/wiki/File:Convenience store and Takeaways, Bird Cage Walk, Harlow Town Centre.jpg"
+  },
+  {
+   "file": "stock-photos/hospital-exterior.jpg",
+   "label": "Hospital exterior",
+   "variant": "",
+   "category": "stock-photos",
+   "heading": "Stock Photos",
+   "bytes": 226219,
+   "licence": "CC BY-SA 2.0",
+   "author": "David Hallam-Jones",
+   "source": "https://commons.wikimedia.org/wiki/File:Leicester General Hospital, Evington, Leicester - geograph.org.uk - 4292391.jpg"
   },
   {
    "file": "stock-photos/hospital-room.jpg",
@@ -286,6 +286,17 @@
    "source": "https://commons.wikimedia.org/wiki/File:Desktop after work (Unsplash).jpg"
   },
   {
+   "file": "stock-photos/local-substation.jpg",
+   "label": "Local substation",
+   "variant": "",
+   "category": "stock-photos",
+   "heading": "Stock Photos",
+   "bytes": 205245,
+   "licence": "CC BY-SA 4.0",
+   "author": "Andy Mabbett",
+   "source": "https://commons.wikimedia.org/wiki/File:Beeches Road Substation - 2020-11-30 - Andy Mabbett - 02.jpg"
+  },
+  {
    "file": "stock-photos/meeting-room.jpg",
    "label": "Meeting room",
    "variant": "",
@@ -306,17 +317,6 @@
    "licence": "Public domain",
    "author": "—",
    "source": "https://commons.wikimedia.org/wiki/File:Cable closet bh.jpg"
-  },
-  {
-   "file": "stock-photos/office-floor.jpg",
-   "label": "Office floor",
-   "variant": "",
-   "category": "stock-photos",
-   "heading": "Stock Photos",
-   "bytes": 226375,
-   "licence": "CC BY-SA 4.0",
-   "author": "Techno Brain BPO ITES",
-   "source": "https://commons.wikimedia.org/wiki/File:Executive at Work - Techno Brain BPO Kenya Production Floor.jpg"
   },
   {
    "file": "stock-photos/open-plan-office.jpg",
@@ -341,15 +341,15 @@
    "source": "https://commons.wikimedia.org/wiki/File:Altbach Power Plant Control Room.JPG"
   },
   {
-   "file": "stock-photos/plant-control-room.jpg",
-   "label": "Plant control room",
+   "file": "stock-photos/police.jpg",
+   "label": "Police",
    "variant": "",
    "category": "stock-photos",
    "heading": "Stock Photos",
-   "bytes": 179321,
-   "licence": "Public domain",
-   "author": "Thomas Hartwell, USAID",
-   "source": "https://commons.wikimedia.org/wiki/File:Baghdad South Power Station - October 2003 - control room.jpg"
+   "bytes": 174612,
+   "licence": "CC BY-SA 2.0",
+   "author": "West Midlands Police from West Midlands, United Kingdom",
+   "source": "https://commons.wikimedia.org/wiki/File:Day 315 - West Midlands Police - Tackling Street Racers (8169532471).jpg"
   },
   {
    "file": "stock-photos/rack-cabinet.jpg",
@@ -390,10 +390,10 @@
    "variant": "",
    "category": "stock-photos",
    "heading": "Stock Photos",
-   "bytes": 191373,
-   "licence": "Public domain",
-   "author": "Vassil",
-   "source": "https://commons.wikimedia.org/wiki/File:Pylônes électriques 6107.jpg"
+   "bytes": 191657,
+   "licence": "CC BY-SA 3.0",
+   "author": "Rept0n1x",
+   "source": "https://commons.wikimedia.org/wiki/File:Pylons, Ledsham, Wirral 1.JPG"
   },
   {
    "file": "stock-photos/supermarket-checkout.jpg",
@@ -401,10 +401,10 @@
    "variant": "",
    "category": "stock-photos",
    "heading": "Stock Photos",
-   "bytes": 219887,
-   "licence": "CC0",
-   "author": "Mr. Satterly",
-   "source": "https://commons.wikimedia.org/wiki/File:Checkouts at Smith's Food and Drug in Gillette, Wyoming.jpg"
+   "bytes": 226199,
+   "licence": "CC BY-SA 4.0",
+   "author": "Kolforn (Kolforn) I'd appreciate if you could mail me (Kolforn@gmail.com) if you want to use this picture out of the Wikimedia project scope. This file is licensed under the Creative Commons Attribution-Share Alike 4.0 International license. You are free: to share – to copy, distribute and transmit the work to remix – to adapt the work Under the following conditions: attribution – You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use. share alike – If you remix, transform, or build upon the material, you must distribute your contributions under the same or compatible license as the original.https://creativecommons.org/licenses/by-sa/4.0CC BY-SA 4.0 Creative Commons Attribution-Share Alike 4.0 truetrue",
+   "source": "https://commons.wikimedia.org/wiki/File:-2022-02-26 Checkouts inside Morrisons, Cromer, Norfolk (1).JPG"
   },
   {
    "file": "stock-photos/switchyard.jpg",
@@ -434,10 +434,10 @@
    "variant": "",
    "category": "stock-photos",
    "heading": "Stock Photos",
-   "bytes": 225919,
-   "licence": "Public domain",
-   "author": "zardeto",
-   "source": "https://commons.wikimedia.org/wiki/File:Decantação.jpg"
+   "bytes": 188882,
+   "licence": "CC BY-SA 2.0",
+   "author": "M J Richardson",
+   "source": "https://commons.wikimedia.org/wiki/File:Tanks at Claymills Sewage Treatment Works - geograph.org.uk - 3181993.jpg"
   },
   {
    "file": "screenshots/account-locked.svg",

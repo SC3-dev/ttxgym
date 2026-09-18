@@ -1831,6 +1831,35 @@ G('the gallery ships pictures it is allowed to ship');
     listed.forEach(i => ok(fs.existsSync(path.join(ROOT, 'lib/exercise_data', i.file)), 'missing ' + i.file));
   });
 
+  /* The library's scenarios are set in British organisations. A US ambulance or
+     a control panel from 1979 is not wrong, but it asks a room to picture
+     somewhere that is not theirs. */
+  t('most of them are British, and none is a period piece', () => {
+    const credits = JSON.parse(fs.readFileSync(path.join(dir, 'credits.json'), 'utf8'));
+    credits.forEach(c => ok(c.year, c.file + ' has no date recorded'));
+    /* Old is only a problem when it shows. Anything from before 2008 has to say
+       why it does not look its age, which makes it a decision rather than an
+       oversight. */
+    const dated = credits
+      .filter(c => Number(c.year) < 2008 && !(c.timeless && c.why))
+      .map(c => c.file + ' (' + c.year + ')');
+    eq(dated, [], 'photographs old enough to date the exercise');
+    const uk = credits.filter(c => c.uk);
+    ok(uk.length >= 10, 'only ' + uk.length + ' of ' + credits.length + ' were taken in the UK');
+    // the ones that are not are meant to be places that read as anywhere
+    const foreign = credits.filter(c => !c.uk && /United States|Japan|Kenya|Canada|Australia/.test(c.where || ''));
+    ok(foreign.length <= 4, 'identifiably non-British: ' + foreign.map(c => c.file).join(', '));
+  });
+
+  t('and what is deliberately missing is written down, with the reason', () => {
+    const md = fs.readFileSync(path.join(dir, 'CREDITS.md'), 'utf8').replace(/\s+/g, ' ');
+    has(md, 'taken in the UK');
+    has(md, 'What is deliberately missing');
+    // the two that were looked for and turned down, and why
+    has(md, 'identifiable children');
+    has(md, 'British office interior');
+  });
+
   t('each is named for what it shows, not for where it came from', () => {
     const gallery = JSON.parse(fs.readFileSync(path.join(ROOT, 'lib/exercise_data/gallery.json'), 'utf8'));
     gallery.images.filter(i => i.category === 'stock-photos').forEach(i => {

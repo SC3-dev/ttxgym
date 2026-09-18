@@ -1,0 +1,14 @@
+[
+ {"slug":"uk-ambulance","q":"ambulance England NHS","n":5,"uk":true,"since":2008},
+ {"slug":"uk-supermarket","q":"supermarket checkout United Kingdom","n":5,"uk":true,"since":2008},
+ {"slug":"uk-classroom","q":"school classroom England pupils","n":5,"uk":true,"since":2008},
+ {"slug":"uk-hospital","q":"NHS hospital ward England","n":5,"uk":true,"since":2008},
+ {"slug":"uk-warehouse","q":"distribution centre warehouse United Kingdom","n":5,"uk":true,"since":2008},
+ {"slug":"uk-lorry","q":"lorry HGV motorway United Kingdom","n":5,"uk":true,"since":2008},
+ {"slug":"uk-water","q":"water treatment works England","n":5,"uk":true,"since":2008},
+ {"slug":"uk-substation","q":"electricity substation England","n":5,"uk":true,"since":2008},
+ {"slug":"uk-office","q":"office interior London workers","n":5,"uk":true,"since":2010},
+ {"slug":"uk-police","q":"police officers street England","n":4,"uk":true,"since":2010},
+ {"slug":"uk-factory","q":"factory production United Kingdom","n":4,"uk":true,"since":2010},
+ {"slug":"uk-highstreet","q":"high street shops England town centre","n":4,"uk":true,"since":2010}
+]

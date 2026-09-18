@@ -1,191 +1,274 @@
 [
  {
   "file": "ambulance.jpg",
-  "licence": "Public domain",
-  "author": "Cbwetter at English Wikipedia",
-  "title": "LMEMS 1255 (8).JPG",
-  "source": "https://commons.wikimedia.org/wiki/File:LMEMS 1255 (8).JPG"
- },
- {
-  "file": "assembly-line.jpg",
-  "licence": "CC BY-SA 2.0",
-  "author": "Jetstar Airways",
-  "title": "Jetstar 787 (8953979236).jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:Jetstar 787 (8953979236).jpg"
+  "licence": "CC BY 2.0",
+  "author": "hha124l (Chris Sampson)",
+  "title": "EEAS-ambulance.jpg",
+  "source": "https://commons.wikimedia.org/wiki/File:EEAS-ambulance.jpg",
+  "year": "2010",
+  "uk": true,
+  "where": "United Kingdom"
  },
  {
   "file": "boardroom.jpg",
   "licence": "CC0",
   "author": "Breather breather",
   "title": "Conference room table (Unsplash).jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:Conference room table (Unsplash).jpg"
+  "source": "https://commons.wikimedia.org/wiki/File:Conference room table (Unsplash).jpg",
+  "year": "2016",
+  "uk": false,
+  "where": "United States"
  },
  {
   "file": "CCTV-camera.jpg",
   "licence": "CC0",
   "author": "Raysonho @ Open Grid Scheduler / Grid Engine",
   "title": "CCTVBrickWall2.jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:CCTVBrickWall2.jpg"
+  "source": "https://commons.wikimedia.org/wiki/File:CCTVBrickWall2.jpg",
+  "year": "2015",
+  "uk": false,
+  "where": ""
  },
  {
   "file": "civic-building.jpg",
   "licence": "CC0",
   "author": "PeterChingfordHistory99",
   "title": "Chingford Old Town Hall Building, The Ridgeway, Chingford, London, UK.jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:Chingford Old Town Hall Building, The Ridgeway, Chingford, London, UK.jpg"
- },
- {
-  "file": "classroom.jpg",
-  "licence": "CC0",
-  "author": "Darklanlan",
-  "title": "Classroom2.jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:Classroom2.jpg"
- },
- {
-  "file": "control-panel.jpg",
-  "licence": "Public domain",
-  "author": "Unknown authorUnknown author or not provided",
-  "title": "Control room Number 2. Nuclear Regulatory Commission inspector looking at meters. - NARA - 540034.tif",
-  "source": "https://commons.wikimedia.org/wiki/File:Control room Number 2. Nuclear Regulatory Commission inspector looking at meters. - NARA - 540034.tif"
+  "source": "https://commons.wikimedia.org/wiki/File:Chingford Old Town Hall Building, The Ridgeway, Chingford, London, UK.jpg",
+  "year": "2011",
+  "uk": true,
+  "where": "United Kingdom"
  },
  {
   "file": "cyber-operations.jpg",
   "licence": "Public domain",
   "author": "Unknown photographer",
   "title": "NSOC-2012.jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:NSOC-2012.jpg"
+  "source": "https://commons.wikimedia.org/wiki/File:NSOC-2012.jpg",
+  "year": "2012",
+  "uk": false,
+  "where": ""
  },
  {
   "file": "data-hall.jpg",
   "licence": "CC BY-SA 3.0",
   "author": "Florian Hirzinger - www.fh-ap.com",
   "title": "CERN Server 03.jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:CERN Server 03.jpg"
+  "source": "https://commons.wikimedia.org/wiki/File:CERN Server 03.jpg",
+  "year": "2009",
+  "uk": false,
+  "where": "Switzerland"
  },
  {
   "file": "delivery-lorry.jpg",
-  "licence": "Public domain",
-  "author": "Ingolfson",
-  "title": "Finished Mini TBM Is Leaving Newmarket.jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:Finished Mini TBM Is Leaving Newmarket.jpg"
+  "licence": "CC BY-SA 2.0",
+  "author": "Jaggery",
+  "title": "Gist articulated lorry descending the A4051 Malpas Road, Newport - geograph.org.uk - 6441263.jpg",
+  "source": "https://commons.wikimedia.org/wiki/File:Gist articulated lorry descending the A4051 Malpas Road, Newport - geograph.org.uk - 6441263.jpg",
+  "year": "2020",
+  "uk": true,
+  "where": "United Kingdom"
  },
  {
-  "file": "desk-devices.jpg",
-  "licence": "CC0",
-  "author": "Aleks Dorohovich aleksdorohovich",
-  "title": "Books, pencils, laptop, and iphone on a desk (Unsplash).jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:Books, pencils, laptop, and iphone on a desk (Unsplash).jpg"
+  "file": "factory-floor.jpg",
+  "licence": "CC BY-SA 4.0",
+  "author": "Alainmac",
+  "title": "EDM LTD Production .jpg",
+  "source": "https://commons.wikimedia.org/wiki/File:EDM LTD Production .jpg",
+  "year": "2016",
+  "uk": true,
+  "where": "United Kingdom"
+ },
+ {
+  "file": "fire-service.jpg",
+  "licence": "CC BY-SA 2.0",
+  "author": "Oast House Archive",
+  "title": "Fire engines at Eastbourne Pier fire - geograph.org.uk - 4096729.jpg",
+  "source": "https://commons.wikimedia.org/wiki/File:Fire engines at Eastbourne Pier fire - geograph.org.uk - 4096729.jpg",
+  "year": "2014",
+  "uk": true,
+  "where": "United Kingdom"
+ },
+ {
+  "file": "high-street.jpg",
+  "licence": "CC BY-SA 4.0",
+  "author": "Mutney",
+  "title": "Convenience store and Takeaways, Bird Cage Walk, Harlow Town Centre.jpg",
+  "source": "https://commons.wikimedia.org/wiki/File:Convenience store and Takeaways, Bird Cage Walk, Harlow Town Centre.jpg",
+  "year": "2021",
+  "uk": true,
+  "where": "United Kingdom"
+ },
+ {
+  "file": "hospital-exterior.jpg",
+  "licence": "CC BY-SA 2.0",
+  "author": "David Hallam-Jones",
+  "title": "Leicester General Hospital, Evington, Leicester - geograph.org.uk - 4292391.jpg",
+  "source": "https://commons.wikimedia.org/wiki/File:Leicester General Hospital, Evington, Leicester - geograph.org.uk - 4292391.jpg",
+  "year": "2014",
+  "uk": true,
+  "where": "United Kingdom"
  },
  {
   "file": "hospital-room.jpg",
   "licence": "Public domain",
   "author": "Official Navy Page from United States of America MC2 Todd Frantom/U.S. Marine Corps",
   "title": "Flickr - Official U.S. Navy Imagery - Fort Belvoir Community Hospital (15).jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:Flickr - Official U.S. Navy Imagery - Fort Belvoir Community Hospital (15).jpg"
+  "source": "https://commons.wikimedia.org/wiki/File:Flickr - Official U.S. Navy Imagery - Fort Belvoir Community Hospital (15).jpg",
+  "year": "2011",
+  "uk": false,
+  "where": "United States"
  },
  {
   "file": "laptop-desk.jpg",
   "licence": "CC0",
   "author": "Luca Bravo lucabravo",
   "title": "Desktop after work (Unsplash).jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:Desktop after work (Unsplash).jpg"
+  "source": "https://commons.wikimedia.org/wiki/File:Desktop after work (Unsplash).jpg",
+  "year": "2017",
+  "uk": false,
+  "where": "Italy"
+ },
+ {
+  "file": "local-substation.jpg",
+  "licence": "CC BY-SA 4.0",
+  "author": "Andy Mabbett",
+  "title": "Beeches Road Substation - 2020-11-30 - Andy Mabbett - 02.jpg",
+  "source": "https://commons.wikimedia.org/wiki/File:Beeches Road Substation - 2020-11-30 - Andy Mabbett - 02.jpg",
+  "year": "2020",
+  "uk": true,
+  "where": "United Kingdom"
  },
  {
   "file": "meeting-room.jpg",
   "licence": "CC0",
   "author": "Breather breather",
   "title": "Chairs in a meeting room (Unsplash).jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:Chairs in a meeting room (Unsplash).jpg"
+  "source": "https://commons.wikimedia.org/wiki/File:Chairs in a meeting room (Unsplash).jpg",
+  "year": "2015",
+  "uk": false,
+  "where": "Canada"
  },
  {
   "file": "network-cabling.jpg",
   "licence": "Public domain",
   "author": "—",
   "title": "Cable closet bh.jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:Cable closet bh.jpg"
- },
- {
-  "file": "office-floor.jpg",
-  "licence": "CC BY-SA 4.0",
-  "author": "Techno Brain BPO ITES",
-  "title": "Executive at Work - Techno Brain BPO Kenya Production Floor.jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:Executive at Work - Techno Brain BPO Kenya Production Floor.jpg"
+  "source": "https://commons.wikimedia.org/wiki/File:Cable closet bh.jpg",
+  "year": "2005",
+  "uk": false,
+  "where": "",
+  "timeless": true,
+  "why": "A rack of patch cables looks the same now as it did then."
  },
  {
   "file": "open-plan-office.jpg",
   "licence": "CC BY-SA 3.0",
   "author": "MUGENUP",
   "title": "30134 jissekiimage3.JPG",
-  "source": "https://commons.wikimedia.org/wiki/File:30134 jissekiimage3.JPG"
+  "source": "https://commons.wikimedia.org/wiki/File:30134 jissekiimage3.JPG",
+  "year": "2013",
+  "uk": false,
+  "where": ""
  },
  {
   "file": "operations-centre.jpg",
   "licence": "Public domain",
   "author": "Zonk43",
   "title": "Altbach Power Plant Control Room.JPG",
-  "source": "https://commons.wikimedia.org/wiki/File:Altbach Power Plant Control Room.JPG"
+  "source": "https://commons.wikimedia.org/wiki/File:Altbach Power Plant Control Room.JPG",
+  "year": "2009",
+  "uk": false,
+  "where": ""
  },
  {
-  "file": "plant-control-room.jpg",
-  "licence": "Public domain",
-  "author": "Thomas Hartwell, USAID",
-  "title": "Baghdad South Power Station - October 2003 - control room.jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:Baghdad South Power Station - October 2003 - control room.jpg"
+  "file": "police.jpg",
+  "licence": "CC BY-SA 2.0",
+  "author": "West Midlands Police from West Midlands, United Kingdom",
+  "title": "Day 315 - West Midlands Police - Tackling Street Racers (8169532471).jpg",
+  "source": "https://commons.wikimedia.org/wiki/File:Day 315 - West Midlands Police - Tackling Street Racers (8169532471).jpg",
+  "year": "2012",
+  "uk": true,
+  "where": "United Kingdom"
  },
  {
   "file": "rack-cabinet.jpg",
   "licence": "CC BY-SA 3.0",
   "author": "ArielGlenn",
   "title": "Rack in wmf sf office.jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:Rack in wmf sf office.jpg"
+  "source": "https://commons.wikimedia.org/wiki/File:Rack in wmf sf office.jpg",
+  "year": "2008",
+  "uk": false,
+  "where": ""
  },
  {
   "file": "server-racks.jpg",
   "licence": "CC BY-SA 3.0",
   "author": "BalticServers.com",
   "title": "BalticServers data center.jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:BalticServers data center.jpg"
+  "source": "https://commons.wikimedia.org/wiki/File:BalticServers data center.jpg",
+  "year": "2013",
+  "uk": false,
+  "where": ""
  },
  {
   "file": "server-room.jpg",
   "licence": "CC BY-SA 3.0",
   "author": "123net",
   "title": "123Net Data Center (DC2).jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:123Net Data Center (DC2).jpg"
+  "source": "https://commons.wikimedia.org/wiki/File:123Net Data Center (DC2).jpg",
+  "year": "2011",
+  "uk": false,
+  "where": "United States"
  },
  {
   "file": "substation.jpg",
-  "licence": "Public domain",
-  "author": "Vassil",
-  "title": "Pylônes électriques 6107.jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:Pylônes électriques 6107.jpg"
+  "licence": "CC BY-SA 3.0",
+  "author": "Rept0n1x",
+  "title": "Pylons, Ledsham, Wirral 1.JPG",
+  "source": "https://commons.wikimedia.org/wiki/File:Pylons, Ledsham, Wirral 1.JPG",
+  "year": "2009",
+  "uk": true,
+  "where": "United Kingdom"
  },
  {
   "file": "supermarket-checkout.jpg",
-  "licence": "CC0",
-  "author": "Mr. Satterly",
-  "title": "Checkouts at Smith's Food and Drug in Gillette, Wyoming.jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:Checkouts at Smith's Food and Drug in Gillette, Wyoming.jpg"
+  "licence": "CC BY-SA 4.0",
+  "author": "Kolforn (Kolforn) I'd appreciate if you could mail me (Kolforn@gmail.com) if you want to use this picture out of the Wikimedia project scope. This file is licensed under the Creative Commons Attribution-Share Alike 4.0 International license. You are free: to share – to copy, distribute and transmit the work to remix – to adapt the work Under the following conditions: attribution – You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use. share alike – If you remix, transform, or build upon the material, you must distribute your contributions under the same or compatible license as the original.https://creativecommons.org/licenses/by-sa/4.0CC BY-SA 4.0 Creative Commons Attribution-Share Alike 4.0 truetrue",
+  "title": "-2022-02-26 Checkouts inside Morrisons, Cromer, Norfolk (1).JPG",
+  "source": "https://commons.wikimedia.org/wiki/File:-2022-02-26 Checkouts inside Morrisons, Cromer, Norfolk (1).JPG",
+  "year": "2022",
+  "uk": true,
+  "where": "United Kingdom"
  },
  {
   "file": "switchyard.jpg",
   "licence": "Public domain",
   "author": "James Selesnick, U.S. Army",
   "title": "New electrical infrastructure, Iraq.JPG",
-  "source": "https://commons.wikimedia.org/wiki/File:New electrical infrastructure, Iraq.JPG"
+  "source": "https://commons.wikimedia.org/wiki/File:New electrical infrastructure, Iraq.JPG",
+  "year": "2009",
+  "uk": false,
+  "where": ""
  },
  {
   "file": "warehouse.jpg",
   "licence": "Public domain",
   "author": "Leo 'Jace' Anderson",
   "title": "FEMA - 44999 - Pallets of water in Iowa.jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:FEMA - 44999 - Pallets of water in Iowa.jpg"
+  "source": "https://commons.wikimedia.org/wiki/File:FEMA - 44999 - Pallets of water in Iowa.jpg",
+  "year": "2010",
+  "uk": false,
+  "where": ""
  },
  {
   "file": "water-treatment.jpg",
-  "licence": "Public domain",
-  "author": "zardeto",
-  "title": "Decantação.jpg",
-  "source": "https://commons.wikimedia.org/wiki/File:Decantação.jpg"
+  "licence": "CC BY-SA 2.0",
+  "author": "M J Richardson",
+  "title": "Tanks at Claymills Sewage Treatment Works - geograph.org.uk - 3181993.jpg",
+  "source": "https://commons.wikimedia.org/wiki/File:Tanks at Claymills Sewage Treatment Works - geograph.org.uk - 3181993.jpg",
+  "year": "2012",
+  "uk": true,
+  "where": "United Kingdom"
  }
 ]
