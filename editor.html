@@ -218,7 +218,65 @@
     .b-zone.screen .b-zone-body { border-left-color: color-mix(in srgb, var(--accent) 40%, transparent); }
     .b-zone.notes .b-zone-body { border-left-color: color-mix(in srgb, var(--amber) 40%, transparent); }
 
+    /* ═══ SIGIL COLOURS ════════════════════════════════════════════════════
+       The format already has a colour language and the guide teaches it: "!" for
+       the directives amber, "#" lists green when the room sees them and amber
+       when only the facilitator does, "?" questions purple, "@" the stage itself
+       in the accent. The builder used none of it, so every field looked the same
+       whatever it was. These are the same values the guide's syntax badges use.
+
+       They sit inside the zone rails rather than replacing them: the rail still
+       says who sees this, the field says what it is. */
+    :root {
+      --sig-directive: var(--amber);
+      --sig-directive-edge: rgba(245, 166, 35, 0.3);
+      --sig-directive-glow: rgba(245, 166, 35, 0.1);
+      --sig-list: var(--green);
+      --sig-list-edge: rgba(62, 201, 200, 0.32);
+      --sig-list-glow: rgba(62, 201, 200, 0.12);
+      --sig-note: var(--amber);
+      --sig-note-edge: rgba(245, 166, 35, 0.3);
+      --sig-note-glow: rgba(245, 166, 35, 0.1);
+      --sig-question: #c792ea;
+      --sig-question-edge: rgba(199, 146, 234, 0.32);
+      --sig-question-glow: rgba(199, 146, 234, 0.13);
+      --sig-stage: var(--accent);
+      --sig-stage-edge: var(--border-active);
+      --sig-stage-glow: var(--accent-glow);
+    }
+
     .b-field { margin-bottom: 0.9rem; }
+    .b-field[data-sig] { --sig: var(--text-label); --sig-edge: var(--border); --sig-glow: transparent; }
+    .b-field[data-sig="directive"] { --sig: var(--sig-directive); --sig-edge: var(--sig-directive-edge); --sig-glow: var(--sig-directive-glow); }
+    .b-field[data-sig="list"]      { --sig: var(--sig-list);      --sig-edge: var(--sig-list-edge);      --sig-glow: var(--sig-list-glow); }
+    .b-field[data-sig="note"]      { --sig: var(--sig-note);      --sig-edge: var(--sig-note-edge);      --sig-glow: var(--sig-note-glow); }
+    .b-field[data-sig="question"]  { --sig: var(--sig-question);  --sig-edge: var(--sig-question-edge);  --sig-glow: var(--sig-question-glow); }
+
+    .b-field[data-sig] > .b-field-label { color: var(--sig); }
+    /* the sigil itself, so the colour is teaching the format rather than decorating */
+    .b-field[data-sig] > .b-field-label::after {
+      content: attr(data-sigil);
+      margin-left: 0.5rem;
+      font-size: 9.5px;
+      letter-spacing: 0.02em;
+      text-transform: none;
+      opacity: 0.55;
+    }
+
+    /* the controls pick the colour up: a tinted edge at rest, the full colour on focus */
+    .b-field[data-sig] .b-input,
+    .b-field[data-sig] .b-rich,
+    .b-field[data-sig] .b-q { border-color: var(--sig-edge); }
+    .b-field[data-sig] .b-input:focus,
+    .b-field[data-sig] .b-rich:focus-within,
+    .b-field[data-sig] .b-q:focus-within {
+      border-color: var(--sig);
+      box-shadow: 0 0 0 3px var(--sig-glow);
+    }
+    .b-field[data-sig] .b-add:hover { color: var(--sig); border-color: var(--sig-edge); }
+
+    /* the stage is "@", and its title is the one field that names it */
+    .b-stage-title:focus { border-bottom-color: var(--sig-stage); }
     .b-field-label {
       font-family: var(--font-mono);
       font-size: 10px;
@@ -274,7 +332,7 @@
        The author edits the rendered thing. A source toggle sits behind it for
        when that is not what they want. */
     .b-rich { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
-    .b-rich:focus-within { border-color: var(--accent); }
+    .b-rich:focus-within { border-color: var(--accent); }   /* overridden inside a [data-sig] field */
     /* The bar mixes two kinds of control: marks, which are single glyphs, and
        blocks, which need a word. Giving them one font size made the glyphs
        illegible and the words cramped, so they get one shared height and two
@@ -1423,7 +1481,10 @@
         el.innerHTML = `<input class="b-stage-title" type="text" value="${esc(heading)}" disabled>
           <div class="b-stage-meta"><span>${esc(note)}</span></div>
           <section class="b-zone screen"><h2 class="b-zone-head">On screen</h2>
-            <div class="b-zone-body">${richHTML(metaFocus, doc[metaFocus] || '', note)}</div>
+            <div class="b-zone-body"><div class="b-field" data-sig="directive">
+              <label class="b-field-label" data-sigil="! ${esc(metaFocus)}">${esc(heading)}</label>
+              ${richHTML(metaFocus, doc[metaFocus] || '', note)}
+            </div></div>
           </section>`;
         el.querySelectorAll('.b-editable').forEach(dressEditable);
         return;
@@ -1455,17 +1516,17 @@
         <section class="b-zone screen">
           <h2 class="b-zone-head">On screen</h2>
           <div class="b-zone-body">
-            <div class="b-field">
-              <label class="b-field-label">Content</label>
+            <div class="b-field" data-sig="directive">
+              <label class="b-field-label" data-sigil="! content">Content</label>
               ${richHTML('content', s.content, 'What the room sees when this stage opens.')}
             </div>
-            <div class="b-field">
-              <label class="b-field-label">Discussion points</label>
+            <div class="b-field" data-sig="list">
+              <label class="b-field-label" data-sigil="# discussion">Discussion points</label>
               ${listHTML('discussion', s.discussion, 'A question for the room')}
               <button class="b-add" onclick="bAddItem('discussion')">+ Add discussion point</button>
             </div>
-            <div class="b-field">
-              <label class="b-field-label">Questions the room answers</label>
+            <div class="b-field" data-sig="question">
+              <label class="b-field-label" data-sigil="?">Questions the room answers</label>
               ${questionsHTML(false)}
               <button class="b-add" onclick="bAddQuestion(false)">+ Add question</button>
             </div>
@@ -1475,13 +1536,13 @@
         <section class="b-zone notes">
           <h2 class="b-zone-head">Your notes — never shown to participants</h2>
           <div class="b-zone-body">
-            <div class="b-field">
-              <label class="b-field-label">Facilitator prompts</label>
+            <div class="b-field" data-sig="note">
+              <label class="b-field-label" data-sigil="# prompts">Facilitator prompts</label>
               ${listHTML('prompts', s.prompts, 'What to probe, what a good answer sounds like')}
               <button class="b-add" onclick="bAddItem('prompts')">+ Add prompt</button>
             </div>
-            <div class="b-field">
-              <label class="b-field-label">Questions kept off the screen</label>
+            <div class="b-field" data-sig="question">
+              <label class="b-field-label" data-sigil="?-">Questions kept off the screen</label>
               ${questionsHTML(true)}
               <button class="b-add" onclick="bAddQuestion(true)">+ Add private question</button>
             </div>

@@ -10,6 +10,7 @@ const G = n => console.log('\n' + n);
 const t = (n, f) => { try { f(); console.log('  ok   ' + n); pass++; } catch (e) { console.log('  FAIL ' + n + '\n       ' + e.message); fail++; } };
 const eq = (a, b, m) => { if (JSON.stringify(a) !== JSON.stringify(b)) throw new Error(`${m || ''} expected ${JSON.stringify(b)}, got ${JSON.stringify(a)}`); };
 const ok = (v, m) => { if (!v) throw new Error(m || 'expected truthy'); };
+const sheetOf = src => src.slice(src.indexOf('<style>'), src.indexOf('</style>'));
 const has = (s, sub) => { if (!String(s).includes(sub)) throw new Error(`expected ${JSON.stringify(sub)} in ${JSON.stringify(String(s).slice(0, 200))}`); };
 
 function boot(draft, width) {
@@ -1773,6 +1774,66 @@ G('the way out is named after where it goes');
     ok(m, 'the content field has no floor');
     ok(Number(m[1]) >= 10, 'the content field is only ' + m[1] + 'rem tall');
     ok(/#b-work-inner > \.b-zone\.screen \{[^}]*min-height/.test(style), 'a short stage still collapses');
+  });
+}
+
+G('a stage is colour-coded by what each part is');
+{
+  const { w } = boot();
+  w.load(fs.readFileSync(path.join(ROOT, 'lib/scenarios/cold_start.ttxf'), 'utf8'));
+  w.bFocus(1);
+  const fields = () => Array.from(w.document.querySelectorAll('#b-work-inner .b-field[data-sig]'))
+    .map(f => [f.getAttribute('data-sig'),
+               f.querySelector('.b-field-label').getAttribute('data-sigil')]);
+
+  t('every part of a stage says which directive it is', () => {
+    eq(fields(), [
+      ['directive', '! content'],
+      ['list', '# discussion'],
+      ['question', '?'],
+      ['note', '# prompts'],
+      ['question', '?-'],
+    ]);
+  });
+
+  t('and the opening and debrief are directives too', () => {
+    w.bFocusMeta('summary');
+    eq(fields(), [['directive', '! summary']]);
+    w.bFocusMeta('conclusion');
+    eq(fields(), [['directive', '! conclusion']]);
+    w.bFocus(1);
+  });
+
+  /* The guide teaches this colour language in its syntax badges. Two files
+     claiming to teach the same thing is only true while the values match. */
+  t('the colours are the ones the guide already teaches', () => {
+    const style = sheetOf(fs.readFileSync(path.join(ROOT, 'editor.html'), 'utf8'));
+    const guide = fs.readFileSync(path.join(ROOT, 'guide.html'), 'utf8');
+    const badge = name => {
+      const m = new RegExp('\\.section-badge\\.' + name + ' \\{([^}]*)\\}').exec(guide);
+      return /color:\s*([^;]+);/.exec(m[1])[1].trim();
+    };
+    const token = name => new RegExp('--sig-' + name + ':\\s*([^;]+);').exec(style)[1].trim();
+    eq(token('directive'), badge('amber'), '"!" is not the guide’s amber');
+    eq(token('list'), badge('green'), '"# discussion" is not the guide’s green');
+    eq(token('question'), badge('purple'), '"?" is not the guide’s purple');
+  });
+
+  t('the colour reaches the controls, not just the label', () => {
+    const style = sheetOf(fs.readFileSync(path.join(ROOT, 'editor.html'), 'utf8'));
+    ok(/\.b-field\[data-sig\][^{]*\.b-input[^{]*\{[^}]*border-color:\s*var\(--sig-edge\)/.test(style),
+       'a field with a colour leaves its inputs grey');
+    ok(/:focus[^{]*\{[^}]*box-shadow:[^}]*var\(--sig-glow\)/.test(style),
+       'focus does not pick the colour up');
+  });
+
+  t('and the zone rails still say who sees it', () => {
+    const style = sheetOf(fs.readFileSync(path.join(ROOT, 'editor.html'), 'utf8'));
+    has(style, '.b-zone.screen .b-zone-head { color: var(--accent); }');
+    has(style, '.b-zone.notes .b-zone-head { color: var(--amber); }');
+    const zones = Array.from(w.document.querySelectorAll('#b-work-inner .b-zone'))
+      .map(z => z.className.replace('b-zone ', ''));
+    eq(zones, ['screen', 'notes'], 'the audience split went missing');
   });
 }
 
