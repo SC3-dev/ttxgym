@@ -3,11 +3,13 @@
  * The artefacts a tabletop needs on screen — a ransom note, a SIEM alert, a
  * fraudulent invoice, a network diagram — and which no stock library sells.
  *
- * They are drawn rather than photographed, as SVG, for reasons that all point
- * the same way: no licence attaches to them, they stay sharp at any size a
+ * They are drawn rather than photographed, as SVG: they stay sharp at any size a
  * projector asks for, they weigh a few kilobytes, and the text inside them is
  * editable by anyone with a text editor, so an author can put their own system
  * names into one without redrawing it.
+ *
+ * To change one, edit this file and re-run it, or open the .svg in a text editor
+ * and change the words. Then run tools/build-gallery.js.
  *
  * Names are deliberately generic. An exercise about your finance system is
  * better served by a screen that says FINANCE SYSTEM than by one carrying an

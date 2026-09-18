@@ -1776,93 +1776,54 @@ G('the way out is named after where it goes');
   });
 }
 
-G('nothing in the gallery carries an obligation');
+G('the image gallery');
 {
   const root = path.join(ROOT, 'lib/exercise_data');
-  const dir = path.join(root, 'stock-photos');
-  const files = fs.readdirSync(dir).filter(f => /\.(jpe?g|png|webp)$/i.test(f));
   const gallery = JSON.parse(fs.readFileSync(path.join(root, 'gallery.json'), 'utf8'));
 
-  t('there is plenty to choose from', () => {
-    ok(gallery.images.length >= 50, 'only ' + gallery.images.length + ' images');
-    ['icons', 'scenes', 'stock-photos', 'screenshots', 'documents', 'diagrams']
+  t('there is plenty to choose from, across every category', () => {
+    ok(gallery.images.length >= 45, 'only ' + gallery.images.length + ' images');
+    ['icons', 'stock-photos', 'screenshots', 'documents', 'diagrams']
       .forEach(c => ok(gallery.images.some(i => i.category === c), c + ' is empty'));
   });
 
-  /* The whole point of the drawn scenes. A licence that asks for a credit
-     follows every copy of every scenario anyone downloads, and lands the
-     obligation on facilitators who never agreed to it. */
-  t('no picture anywhere in it needs crediting', () => {
-    const owed = gallery.images.filter(i => /^CC BY/i.test(i.licence || ''));
-    eq(owed.map(i => i.file + ' (' + i.licence + ')'), [],
-       'a licence here would travel with every scenario that used it');
+  t('the manifest matches the folders', () => {
+    gallery.images.forEach(i => ok(fs.existsSync(path.join(root, i.file)), 'missing ' + i.file));
+    const onDisk = [];
+    gallery.categories.forEach(c => fs.readdirSync(path.join(root, c.name))
+      .filter(f => /\.(jpe?g|png|gif|webp|svg)$/i.test(f))
+      .forEach(f => onDisk.push(c.name + '/' + f)));
+    const unlisted = onDisk.filter(f => !gallery.images.some(i => i.file === f));
+    eq(unlisted, [], 'images on disk that the picker will never show — run tools/build-gallery.js');
   });
 
-  t('every photograph is public domain or CC0, and says which', () => {
-    const credits = JSON.parse(fs.readFileSync(path.join(dir, 'credits.json'), 'utf8'));
-    const known = new Set(credits.map(c => c.file));
-    eq(files.filter(f => !known.has(f)), [], 'photographs with no recorded provenance');
-    credits.forEach(c => {
-      ok(/^(CC0|Public domain|PDM|No restrictions)/i.test(c.licence), c.file + ': ' + c.licence);
-      ok(c.source && /^https:/.test(c.source), c.file + ' has no source');
-      ok(c.year, c.file + ' has no date recorded');
+  t('every label reads as a name, not as a camera filename', () => {
+    gallery.images.forEach(i => {
+      ok(/^[A-Z]/.test(i.label), i.file + ' has no readable label');
+      ok(!/^(DSC|IMG|File|P\d|Gemini)/i.test(i.label), i.file + ' is labelled ' + i.label);
     });
   });
 
-  t('and none of them is a period piece, unless it says why not', () => {
-    const credits = JSON.parse(fs.readFileSync(path.join(dir, 'credits.json'), 'utf8'));
-    const dated = credits
-      .filter(c => Number(c.year) < 2008 && !(c.timeless && c.why))
-      .map(c => c.file + ' (' + c.year + ')');
-    eq(dated, [], 'photographs old enough to date the exercise');
-  });
-
-  /* The library's scenarios are British. The scenes are drawn that way on
-     purpose: battenburg markings, a brick substation, a parade of shopfronts. */
-  t('the drawn scenes are recognisably British', () => {
-    const src = fs.readFileSync(path.join(ROOT, 'tools/build-scenes.js'), 'utf8');
-    has(src, 'battenburg');
-    ['ambulance.svg', 'police.svg', 'high-street.svg', 'local-substation.svg', 'fire-and-rescue.svg']
-      .forEach(f => ok(fs.existsSync(path.join(root, 'scenes', f)), 'no ' + f));
-    const sub = fs.readFileSync(path.join(root, 'scenes/local-substation.svg'), 'utf8');
-    has(sub, 'DANGER OF DEATH');
-  });
-
-  t('the reasoning is written down where the next person will find it', () => {
-    const photos = fs.readFileSync(path.join(dir, 'CREDITS.md'), 'utf8').replace(/\s+/g, ' ');
-    has(photos, 'every one of them public domain or CC0');
-    has(photos, 'lands the obligation on facilitators');
-    const scenes = fs.readFileSync(path.join(root, 'scenes/CREDITS.md'), 'utf8').replace(/\s+/g, ' ');
-    has(scenes, 'original work');
-    has(scenes, 'no credit is owed');
-    has(scenes, 'not photoreal');       // says what they are not, as well as what they are
-  });
-
-  t('nothing is heavy enough to hurt a repository', () => {
+  /* A picture is inserted at 60% of its own width onto a 1280px participant
+     screen, so anything much past a thousand pixels is weight nobody sees. */
+  t('nothing is heavier than it needs to be on a projector', () => {
     const heavy = [];
-    ['stock-photos', 'scenes', 'screenshots', 'documents', 'diagrams', 'icons'].forEach(cat => {
-      fs.readdirSync(path.join(root, cat)).filter(f => !/\.(md|json)$/i.test(f)).forEach(f => {
-        const n = fs.statSync(path.join(root, cat, f)).size;
-        if (n > 500 * 1024) heavy.push(cat + '/' + f + ' ' + Math.round(n / 1024) + 'KB');
-      });
+    gallery.images.forEach(i => {
+      if (i.bytes > 200 * 1024) heavy.push(i.file + ' ' + Math.round(i.bytes / 1024) + 'KB');
     });
     eq(heavy, []);
   });
 
-  t('the manifest matches the folders, and labels read as names', () => {
-    gallery.images.forEach(i => ok(fs.existsSync(path.join(root, i.file)), 'missing ' + i.file));
-    ok(!gallery.images.some(i => /credits/i.test(i.file)), 'a credits file is offered as a picture');
-    gallery.images.forEach(i => {
-      ok(/^[A-Z]/.test(i.label), i.file + ' has no readable label');
-      ok(!/^(DSC|IMG|File|P\d)/i.test(i.label), i.file + ' is labelled with a camera filename');
-    });
+  t('and the picker asks for nothing beyond the picture', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'editor.html'), 'utf8');
+    ['b-gal-note', 'licence', 'CREDITS.md'].forEach(gone =>
+      ok(!src.includes(gone), 'the picker still carries ' + gone));
   });
 }
 
 G('the artefacts no stock library sells');
 {
   const { build, ARTEFACTS } = require(path.join(ROOT, 'tools/build-artefacts.js'));
-  const scenes = require(path.join(ROOT, 'tools/build-scenes.js'));
   const root = path.join(ROOT, 'lib/exercise_data');
 
   t('a ransom note, a console, an invoice, a network diagram — all drawn, not bought', () => {
@@ -1889,30 +1850,15 @@ G('the artefacts no stock library sells');
 
   t('they are regenerated, not hand-maintained, so they cannot drift', () => {
     const before = {};
-    Object.keys(ARTEFACTS).concat(['scenes']).forEach(cat =>
+    Object.keys(ARTEFACTS).forEach(cat =>
       fs.readdirSync(path.join(root, cat)).filter(f => f.endsWith('.svg'))
         .forEach(f => { before[cat + '/' + f] = fs.readFileSync(path.join(root, cat, f), 'utf8'); }));
     build({ quiet: true });
-    scenes.build({ quiet: true });
     const changed = Object.keys(before)
       .filter(k => fs.readFileSync(path.join(root, k), 'utf8') !== before[k]);
     eq(changed, [], 'the files on disk differ from what the generator produces');
   });
 
-  t('and a scene is self-contained too, with nothing to fetch', () => {
-    fs.readdirSync(path.join(root, 'scenes')).filter(f => f.endsWith('.svg')).forEach(f => {
-      const body = fs.readFileSync(path.join(root, 'scenes', f), 'utf8');
-      has(body, 'viewBox="0 0 1200 750"');
-      ok(!/<image|xlink:href|@import|url\(http/.test(body), f + ' reaches outside itself');
-    });
-  });
-
-  t('nothing in them is someone else’s to own', () => {
-    const credits = fs.readFileSync(path.join(root, 'screenshots/CREDITS.md'), 'utf8')
-      .replace(/\s+/g, ' ');            // the file is wrapped; the sentences are not
-    has(credits, 'original work');
-    has(credits, 'no credit is owed');
-  });
 
   t('and the picker lists them beside the photographs', () => {
     const gallery = JSON.parse(fs.readFileSync(path.join(root, 'gallery.json'), 'utf8'));

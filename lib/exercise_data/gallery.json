@@ -5,10 +5,6 @@
    "heading": "Icons"
   },
   {
-   "name": "scenes",
-   "heading": "Scenes"
-  },
-  {
    "name": "stock-photos",
    "heading": "Stock Photos"
   },
@@ -147,116 +143,28 @@
    "bytes": 15243
   },
   {
-   "file": "scenes/ambulance.svg",
-   "label": "Ambulance",
+   "file": "stock-photos/accident-and-emergency.jpg",
+   "label": "Accident and emergency",
    "variant": "",
-   "category": "scenes",
-   "heading": "Scenes",
-   "bytes": 11060
+   "category": "stock-photos",
+   "heading": "Stock Photos",
+   "bytes": 65671
   },
   {
-   "file": "scenes/data-hall.svg",
-   "label": "Data hall",
+   "file": "stock-photos/analyst-desk.jpg",
+   "label": "Analyst desk",
    "variant": "",
-   "category": "scenes",
-   "heading": "Scenes",
-   "bytes": 25856
+   "category": "stock-photos",
+   "heading": "Stock Photos",
+   "bytes": 50536
   },
   {
-   "file": "scenes/delivery-lorry.svg",
-   "label": "Delivery lorry",
+   "file": "stock-photos/board-meeting.jpg",
+   "label": "Board meeting",
    "variant": "",
-   "category": "scenes",
-   "heading": "Scenes",
-   "bytes": 4696
-  },
-  {
-   "file": "scenes/fire-and-rescue.svg",
-   "label": "Fire and rescue",
-   "variant": "",
-   "category": "scenes",
-   "heading": "Scenes",
-   "bytes": 16063
-  },
-  {
-   "file": "scenes/high-street.svg",
-   "label": "High street",
-   "variant": "",
-   "category": "scenes",
-   "heading": "Scenes",
-   "bytes": 9536
-  },
-  {
-   "file": "scenes/hospital.svg",
-   "label": "Hospital",
-   "variant": "",
-   "category": "scenes",
-   "heading": "Scenes",
-   "bytes": 11303
-  },
-  {
-   "file": "scenes/local-substation.svg",
-   "label": "Local substation",
-   "variant": "",
-   "category": "scenes",
-   "heading": "Scenes",
-   "bytes": 15997
-  },
-  {
-   "file": "scenes/office-floor.svg",
-   "label": "Office floor",
-   "variant": "",
-   "category": "scenes",
-   "heading": "Scenes",
-   "bytes": 9271
-  },
-  {
-   "file": "scenes/police.svg",
-   "label": "Police",
-   "variant": "",
-   "category": "scenes",
-   "heading": "Scenes",
-   "bytes": 11421
-  },
-  {
-   "file": "scenes/production-floor.svg",
-   "label": "Production floor",
-   "variant": "",
-   "category": "scenes",
-   "heading": "Scenes",
-   "bytes": 9584
-  },
-  {
-   "file": "scenes/rack-and-cabling.svg",
-   "label": "Rack and cabling",
-   "variant": "",
-   "category": "scenes",
-   "heading": "Scenes",
-   "bytes": 11576
-  },
-  {
-   "file": "scenes/supermarket.svg",
-   "label": "Supermarket",
-   "variant": "",
-   "category": "scenes",
-   "heading": "Scenes",
-   "bytes": 21429
-  },
-  {
-   "file": "scenes/transmission.svg",
-   "label": "Transmission",
-   "variant": "",
-   "category": "scenes",
-   "heading": "Scenes",
-   "bytes": 10555
-  },
-  {
-   "file": "scenes/water-treatment.svg",
-   "label": "Water treatment",
-   "variant": "",
-   "category": "scenes",
-   "heading": "Scenes",
-   "bytes": 8707
+   "category": "stock-photos",
+   "heading": "Stock Photos",
+   "bytes": 54511
   },
   {
    "file": "stock-photos/boardroom.jpg",
@@ -264,21 +172,7 @@
    "variant": "",
    "category": "stock-photos",
    "heading": "Stock Photos",
-   "bytes": 123868,
-   "licence": "CC0",
-   "author": "Breather breather",
-   "source": "https://commons.wikimedia.org/wiki/File:Conference room table (Unsplash).jpg"
-  },
-  {
-   "file": "stock-photos/CCTV-camera.jpg",
-   "label": "CCTV camera",
-   "variant": "",
-   "category": "stock-photos",
-   "heading": "Stock Photos",
-   "bytes": 375735,
-   "licence": "CC0",
-   "author": "Raysonho @ Open Grid Scheduler / Grid Engine",
-   "source": "https://commons.wikimedia.org/wiki/File:CCTVBrickWall2.jpg"
+   "bytes": 53276
   },
   {
    "file": "stock-photos/civic-building.jpg",
@@ -286,98 +180,119 @@
    "variant": "",
    "category": "stock-photos",
    "heading": "Stock Photos",
-   "bytes": 230559,
-   "licence": "CC0",
-   "author": "PeterChingfordHistory99",
-   "source": "https://commons.wikimedia.org/wiki/File:Chingford Old Town Hall Building, The Ridgeway, Chingford, London, UK.jpg"
+   "bytes": 55257
   },
   {
-   "file": "stock-photos/cyber-operations.jpg",
-   "label": "Cyber operations",
+   "file": "stock-photos/comms-cabinet.jpg",
+   "label": "Comms cabinet",
    "variant": "",
    "category": "stock-photos",
    "heading": "Stock Photos",
-   "bytes": 197694,
-   "licence": "Public domain",
-   "author": "Unknown photographer",
-   "source": "https://commons.wikimedia.org/wiki/File:NSOC-2012.jpg"
+   "bytes": 56261
   },
   {
-   "file": "stock-photos/hospital-room.jpg",
-   "label": "Hospital room",
+   "file": "stock-photos/contact-centre.jpg",
+   "label": "Contact centre",
    "variant": "",
    "category": "stock-photos",
    "heading": "Stock Photos",
-   "bytes": 120544,
-   "licence": "Public domain",
-   "author": "Official Navy Page from United States of America MC2 Todd Frantom/U.S. Marine Corps",
-   "source": "https://commons.wikimedia.org/wiki/File:Flickr - Official U.S. Navy Imagery - Fort Belvoir Community Hospital (15).jpg"
+   "bytes": 47874
   },
   {
-   "file": "stock-photos/laptop-desk.jpg",
-   "label": "Laptop desk",
+   "file": "stock-photos/council-offices.jpg",
+   "label": "Council offices",
    "variant": "",
    "category": "stock-photos",
    "heading": "Stock Photos",
-   "bytes": 104710,
-   "licence": "CC0",
-   "author": "Luca Bravo lucabravo",
-   "source": "https://commons.wikimedia.org/wiki/File:Desktop after work (Unsplash).jpg"
+   "bytes": 57382
   },
   {
-   "file": "stock-photos/meeting-room.jpg",
-   "label": "Meeting room",
+   "file": "stock-photos/data-centre.jpg",
+   "label": "Data centre",
    "variant": "",
    "category": "stock-photos",
    "heading": "Stock Photos",
-   "bytes": 147388,
-   "licence": "CC0",
-   "author": "Breather breather",
-   "source": "https://commons.wikimedia.org/wiki/File:Chairs in a meeting room (Unsplash).jpg"
+   "bytes": 65476
   },
   {
-   "file": "stock-photos/network-cabling.jpg",
-   "label": "Network cabling",
+   "file": "stock-photos/lone-workstation.jpg",
+   "label": "Lone workstation",
    "variant": "",
    "category": "stock-photos",
    "heading": "Stock Photos",
-   "bytes": 291751,
-   "licence": "Public domain",
-   "author": "—",
-   "source": "https://commons.wikimedia.org/wiki/File:Cable closet bh.jpg"
+   "bytes": 33350
   },
   {
-   "file": "stock-photos/operations-centre.jpg",
-   "label": "Operations centre",
+   "file": "stock-photos/motorway-freight.jpg",
+   "label": "Motorway freight",
    "variant": "",
    "category": "stock-photos",
    "heading": "Stock Photos",
-   "bytes": 159364,
-   "licence": "Public domain",
-   "author": "Zonk43",
-   "source": "https://commons.wikimedia.org/wiki/File:Altbach Power Plant Control Room.JPG"
+   "bytes": 53796
   },
   {
-   "file": "stock-photos/switchyard.jpg",
-   "label": "Switchyard",
+   "file": "stock-photos/office-after-hours.jpg",
+   "label": "Office after hours",
    "variant": "",
    "category": "stock-photos",
    "heading": "Stock Photos",
-   "bytes": 161889,
-   "licence": "Public domain",
-   "author": "James Selesnick, U.S. Army",
-   "source": "https://commons.wikimedia.org/wiki/File:New electrical infrastructure, Iraq.JPG"
+   "bytes": 41480
   },
   {
-   "file": "stock-photos/warehouse.jpg",
-   "label": "Warehouse",
+   "file": "stock-photos/office-building.jpg",
+   "label": "Office building",
    "variant": "",
    "category": "stock-photos",
    "heading": "Stock Photos",
-   "bytes": 244621,
-   "licence": "Public domain",
-   "author": "Leo 'Jace' Anderson",
-   "source": "https://commons.wikimedia.org/wiki/File:FEMA - 44999 - Pallets of water in Iowa.jpg"
+   "bytes": 66263
+  },
+  {
+   "file": "stock-photos/open-plan-office.jpg",
+   "label": "Open plan office",
+   "variant": "",
+   "category": "stock-photos",
+   "heading": "Stock Photos",
+   "bytes": 61684
+  },
+  {
+   "file": "stock-photos/planning-workshop.jpg",
+   "label": "Planning workshop",
+   "variant": "",
+   "category": "stock-photos",
+   "heading": "Stock Photos",
+   "bytes": 56893
+  },
+  {
+   "file": "stock-photos/police.jpg",
+   "label": "Police",
+   "variant": "",
+   "category": "stock-photos",
+   "heading": "Stock Photos",
+   "bytes": 66624
+  },
+  {
+   "file": "stock-photos/power-station.jpg",
+   "label": "Power station",
+   "variant": "",
+   "category": "stock-photos",
+   "heading": "Stock Photos",
+   "bytes": 42310
+  },
+  {
+   "file": "stock-photos/service-desk.jpg",
+   "label": "Service desk",
+   "variant": "",
+   "category": "stock-photos",
+   "heading": "Stock Photos",
+   "bytes": 38348
+  },
+  {
+   "file": "stock-photos/telecoms-mast.jpg",
+   "label": "Telecoms mast",
+   "variant": "",
+   "category": "stock-photos",
+   "heading": "Stock Photos",
+   "bytes": 66534
   },
   {
    "file": "screenshots/account-locked.svg",
