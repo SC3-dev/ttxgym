@@ -106,7 +106,7 @@ G('the outline is the map');
   w.load(fs.readFileSync(path.join(ROOT, 'lib/scenarios/cold_start.ttxf'), 'utf8'));
 
   t('one row per stage', () =>
-    eq(w.document.querySelectorAll('.b-stage-row').length, T.parse(
+    eq(w.document.querySelectorAll('.b-stage-row[data-i]').length, T.parse(
       fs.readFileSync(path.join(ROOT, 'lib/scenarios/cold_start.ttxf'), 'utf8')).doc.stages.length));
 
   t('it shows planned time for the whole exercise', () => {
@@ -116,7 +116,7 @@ G('the outline is the map');
 
   t('a stage with no title still reads as something', () => {
     w.eval('doc.stages[0].stage = ""; renderOutline();');
-    has(w.document.querySelector('.b-stage-row').textContent, 'Untitled');
+    has(w.document.querySelector('.b-stage-row[data-i]').textContent, 'Untitled');
   });
 
   t('clicking a row focuses that stage, and only that stage is rendered', () => {
@@ -335,7 +335,7 @@ G('editing');
 
   t('typing a title reaches the model and the outline', () => {
     w.bStage('stage', 'Containment');
-    has(w.document.querySelector('.b-stage-row').textContent, 'Containment');
+    has(w.document.querySelector('.b-stage-row[data-i]').textContent, 'Containment');
   });
 
   t('discussion points and prompts can be added and removed', () => {
@@ -637,7 +637,7 @@ G('pacing is visible while authoring');
     w.eval('doc.stages[0].duration = "45 mins"; renderOutline();');
     const flags = JSON.parse(w.eval('JSON.stringify(pacing())'));
     ok(flags.some(f => f.i === 0 && f.how === 'long'), 'an obviously over-long stage was not flagged');
-    ok(w.document.querySelector('.b-stage-row .warn'), 'the outline shows no warning');
+    ok(w.document.querySelector('.b-stage-row[data-i] .warn'), 'the outline shows no warning');
   });
 
   t('it stays quiet until enough of the exercise is timed to compare against', () => {
@@ -654,7 +654,7 @@ G('drafts');
   const { w } = boot(draft);
   t('a draft is restored on load', () => {
     eq(w.document.getElementById('b-title').value, 'Recovered');
-    eq(w.document.querySelectorAll('.b-stage-row').length, 1);
+    eq(w.document.querySelectorAll('.b-stage-row[data-i]').length, 1);
   });
   t('and editing writes a new one', () => {
     w.bMeta('title', 'Changed');
@@ -715,7 +715,7 @@ G('problems point at the stage, not at a line number');
   });
 
   t('and the stage is marked in the outline', () => {
-    const rows = w.document.querySelectorAll('#b-stage-list .b-stage-row');
+    const rows = w.document.querySelectorAll('#b-stage-list .b-stage-row[data-i]');
     ok(rows[1].querySelector('.flag'), 'the bad stage is unmarked');
     ok(!rows[0].querySelector('.flag'), 'a good stage is marked');
   });
@@ -961,6 +961,815 @@ G('the exercise adds up to something the author can see');
     w.eval("bStage('duration', 'whenever'); status();");
     const listed = JSON.parse(w.eval('JSON.stringify(problems())'));
     ok(listed.some(p => /duration/.test(p.message)), 'an unreadable duration passed silently');
+  });
+}
+
+G('the formatting bar reads as a toolbar');
+{
+  const { w } = boot();
+  w.load('! title: T\n\n@ One\n! content\nSomething.\n');
+  const bar = () => w.document.querySelector('.b-rich[data-field="content"] .b-rich-bar');
+
+  t('it says what it is, and every control says what it does', () => {
+    eq(bar().getAttribute('role'), 'toolbar');
+    const btns = Array.from(bar().querySelectorAll('button'));
+    ok(btns.length >= 10, 'only ' + btns.length + ' controls');
+    const unlabelled = btns.filter(b => !b.getAttribute('aria-label') && !b.textContent.trim());
+    eq(unlabelled.length, 0, 'a control with no name');
+  });
+
+  t('marks and blocks are shaped differently, rather than sharing one size', () => {
+    const marks = bar().querySelectorAll('button.ico');
+    const blocks = bar().querySelectorAll('button.lbl');
+    ok(marks.length >= 6, 'the single-glyph controls are not square');
+    ok(blocks.length >= 3, 'the word controls are not labelled');
+    Array.from(marks).forEach(b => ok(b.getAttribute('data-cmd'), 'a mark with no command'));
+  });
+
+  t('each shape has a rule of its own in the stylesheet', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'editor.html'), 'utf8');
+    const style = src.slice(src.indexOf('<style>'), src.indexOf('</style>'));
+    ok(/\.b-rich-bar button\.ico\s*\{/.test(style), 'no rule for the square controls');
+    ok(/\.b-rich-bar button\.lbl\s*\{/.test(style), 'no rule for the labelled controls');
+    ok(/data-cmd="bold"\]\s*\{[^}]*font-weight/.test(style), 'the bold control is not bold');
+    ok(/align-items:\s*center/.test(style.slice(style.indexOf('.b-rich-bar {'))), 'the row does not line up');
+  });
+
+  t('Source opens at the height of the field it replaces, not a slot', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'editor.html'), 'utf8');
+    const style = src.slice(src.indexOf('<style>'), src.indexOf('</style>'));
+    const floor = sel => {
+      const m = new RegExp(sel + ' \\{[^}]*min-height:\\s*([\\d.]+)rem').exec(style);
+      return m ? Number(m[1]) : null;
+    };
+    const source = floor('\\.b-source');
+    const editor = floor('\\.b-rich\\[data-field="content"\\] \\.b-editable');
+    ok(source, 'the source view has no floor of its own');
+    ok(source >= editor, 'Source is ' + source + 'rem against the editor\u2019s ' + editor + 'rem');
+    ok(/<textarea class="b-source"[^>]*rows="(\d+)"/.test(src), 'it falls back to two rows with no CSS');
+    ok(Number(/<textarea class="b-source"[^>]*rows="(\d+)"/.exec(src)[1]) >= 10, 'the row fallback is tiny');
+  });
+
+  t('and grows to whatever is in it rather than scrolling in a small box', () => {
+    const rich = w.document.querySelector('.b-rich[data-field="content"]');
+    const ta = rich.querySelector('.b-source');
+    Object.defineProperty(ta, 'scrollHeight', { value: 900, configurable: true });
+    w.richToggleSource(rich.querySelector('.b-src-toggle'));
+    eq(ta.style.height, '900px', 'the source box ignored its content');
+    w.richToggleSource(rich.querySelector('.b-src-toggle'));
+  });
+
+  t('Source is a toggle, and says which way it is set', () => {
+    const btn = bar().querySelector('.b-src-toggle');
+    eq(btn.getAttribute('aria-pressed'), 'false');
+    w.richToggleSource(btn);
+    eq(btn.getAttribute('aria-pressed'), 'true');
+    w.richToggleSource(btn);
+    eq(btn.getAttribute('aria-pressed'), 'false');
+  });
+}
+
+/* jsdom loads no pixels, so a picture has to be told how big it is. */
+function withSize(img, px) {
+  Object.defineProperty(img, 'naturalWidth', { value: px, configurable: true });
+  Object.defineProperty(img, 'complete', { value: true, configurable: true });
+  return img;
+}
+
+G('a picture can be resized where it sits');
+{
+  const { w } = boot();
+  w.load('! title: T\n\n@ One\n! content\nBefore.\n\n%(../lib/exercise_data/icons/TTXGYM_Warning_red.png | 50%)\n');
+  const editable = () => w.document.querySelector('.b-rich[data-field="content"] .b-editable');
+  const img = () => editable().querySelector('img.SFmedia');
+  const sizer = () => w.document.getElementById('b-tools');
+
+  t('the size the author chose is the size shown, which it never used to be', () => {
+    const i = withSize(img(), 400);
+    w.sizeMedia(i);
+    eq(i.style.width, '200px', 'half of 400 is not being shown');
+  });
+
+  t('clicking one selects it and brings up the handle', () => {
+    const i = withSize(img(), 400);
+    i.click();
+    ok(!sizer().classList.contains('hide'), 'no resize handle appeared');
+    ok(i.classList.contains('b-picked'), 'the picture is not marked as selected');
+    has(sizer().querySelector('.read').textContent, '50%');
+  });
+
+  t('and dragging the handle changes the file, not just the view', () => {
+    const i = withSize(img(), 400);
+    w.setMediaScale(i, 25, true);
+    eq(i.getAttribute('data-scale'), '25%');
+    eq(i.style.width, '100px');
+    has(w.eval('doc.stages[0].content'), '| 25%)');
+  });
+
+  t('the authored path is untouched by a resize', () => {
+    has(w.eval('doc.stages[0].content'), '%(../lib/exercise_data/icons/TTXGYM_Warning_red.png');
+  });
+
+  t('it cannot be dragged to nothing, or past its own resolution', () => {
+    const i = withSize(img(), 400);
+    w.setMediaScale(i, -50, true);
+    eq(i.getAttribute('data-scale'), '5%');
+    w.setMediaScale(i, 5000, true);
+    eq(i.getAttribute('data-scale'), '100%');
+  });
+
+  t('the percentage badge puts it back to full size', () => {
+    const i = withSize(img(), 400);
+    w.setMediaScale(i, 30, true);
+    sizer().querySelector('.read').click();
+    eq(i.getAttribute('data-scale'), '100%');
+  });
+
+  t('arrow keys resize it, but not while someone is typing', () => {
+    const i = withSize(img(), 400);
+    i.click();
+    w.setMediaScale(i, 50, true);
+    const key = k => w.document.dispatchEvent(
+      new w.KeyboardEvent('keydown', { key: k, bubbles: true, cancelable: true }));
+    key('ArrowRight');
+    eq(i.getAttribute('data-scale'), '52%');
+    key('ArrowLeft');
+    eq(i.getAttribute('data-scale'), '50%');
+
+    editable().focus();
+    Object.defineProperty(w.document, 'activeElement', { value: editable(), configurable: true });
+    key('ArrowRight');
+    eq(i.getAttribute('data-scale'), '50%', 'an arrow key in the text resized the picture');
+  });
+
+  t('and the selection lets go when the workspace is rebuilt under it', () => {
+    w.renderWork();
+    ok(sizer().classList.contains('hide'), 'the handle is floating over nothing');
+  });
+}
+
+G('a news headline is typed into, not re-inserted');
+{
+  const { w } = boot();
+  w.load('! title: T\n\n@ One\n! content\n%news(Council systems offline)\n');
+  const editable = () => w.document.querySelector('.b-rich[data-field="content"] .b-editable');
+  const figure = () => editable().querySelector('figure.SFnews');
+
+  t('the frame stays locked but its words do not', () => {
+    eq(figure().getAttribute('contenteditable'), 'false');
+    eq(figure().querySelector('.SFnews-line').getAttribute('contenteditable'), 'true');
+    eq(figure().querySelector('.SFnews-flag').getAttribute('contenteditable'), 'true');
+  });
+
+  t('nothing with words in it is an atomic selection, which would block typing', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'editor.html'), 'utf8');
+    const style = src.slice(src.indexOf('<style>'), src.indexOf('</style>'));
+    const atomic = (style.match(/[^}]*\{[^}]*user-select:\s*all[^}]*\}/g) || []).join(' ');
+    ok(atomic, 'nothing is atomic any more — a picture should still be');
+    ['figure.SFnews', 'pre.SFpre'].forEach(sel =>
+      ok(!atomic.includes(sel), sel + ' is still select-all, so its text cannot be typed into'));
+  });
+
+  t('editing the headline rewrites the directive', () => {
+    figure().querySelector('.SFnews-line').textContent = 'Third day of outage at the council';
+    w.richInput(editable());
+    has(w.eval('doc.stages[0].content'), '%news(Third day of outage at the council)');
+  });
+
+  t('editing the flag comes through too', () => {
+    figure().querySelector('.SFnews-flag').textContent = 'Live';
+    w.richInput(editable());
+    has(w.eval('doc.stages[0].content'), '| Live)');
+  });
+
+  t('and the default flag is still left out of the file', () => {
+    figure().querySelector('.SFnews-flag').textContent = 'Breaking News';
+    w.richInput(editable());
+    const content = w.eval('doc.stages[0].content');
+    has(content, '%news(Third day of outage at the council)');
+    ok(!/\|/.test(content), 'the default flag was written out: ' + content);
+  });
+
+  t('Enter does not break the strap open', () => {
+    const line = figure().querySelector('.SFnews-line');
+    const ev = new w.KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true });
+    line.dispatchEvent(ev);
+    ok(ev.defaultPrevented, 'Enter was allowed to put a line break in the headline');
+  });
+
+  t('a headline typed away to nothing still round-trips', () => {
+    figure().querySelector('.SFnews-line').textContent = '';
+    w.richInput(editable());
+    has(w.eval('doc.stages[0].content'), '%news(');
+  });
+}
+
+G('the participant view keeps up with the editing');
+{
+  const { w } = boot();
+  w.load('! title: T\n\n@ One\n! content\nFirst.\n\n# discussion\n- talk\n\n? Q\n+ a\n+ b\n\n@ Two\n! content\nSecond.\n');
+  w.bToggleRoom();
+
+  const posted = [];
+  const frame = w.document.getElementById('b-mirror-frame');
+  Object.defineProperty(frame, 'contentWindow',
+    { value: { postMessage: m => posted.push(m) }, configurable: true });
+  const settle = () => new Promise(r => setTimeout(r, 30));
+  const ready = () => w.dispatchEvent(new w.MessageEvent('message', { data: { type: 'ready' } }));
+
+  t('nothing is thrown at a document that has not loaded yet', async () => {
+    w.bStage('stage', 'Typed before the frame existed');
+    await settle();
+    eq(posted.length, 0, 'a message went to a window with no listener');
+  });
+
+  t('and the newest state lands the moment it says it is ready', async () => {
+    ready();
+    await settle();
+    eq(posted.length, 1);
+    eq(posted[0].title, 'Typed before the frame existed');
+  });
+
+  t('a burst of keystrokes is one refresh, carrying the last of them', async () => {
+    posted.length = 0;
+    for (let i = 0; i < 10; i++) w.bStage('stage', 'draft ' + i);
+    await settle();
+    eq(posted.length, 1, 'it re-rendered the room once per keypress');
+    eq(posted[0].title, 'draft 9', 'the refresh was stale');
+  });
+
+  t('selecting a stage shows that stage', async () => {
+    posted.length = 0;
+    w.bFocus(1);
+    await settle();
+    eq(posted.length, 1);
+    eq(posted[0].title, 'Two');
+    has(posted[0].content, 'Second.');
+  });
+
+  /* The guarantee is "every change", so it is checked as every change rather
+     than as a list of the ones someone remembered to wire up. */
+  t('every way of changing the exercise reaches the room', async () => {
+    w.bFocus(0);
+    const editable = () => w.document.querySelector('.b-rich[data-field="content"] .b-editable');
+    const changes = {
+      'stage title': () => w.bStage('stage', 'Renamed'),
+      'planned time': () => w.bStage('duration', '15 mins'),
+      'exercise title': () => w.bMeta('title', 'A new name'),
+      'typing content': () => { editable().querySelector('p').textContent = 'Rewritten'; w.richInput(editable()); },
+      'a discussion point': () => w.bItem('discussion', 0, 'Something else'),
+      'a question': () => w.bQuestion(0, 'Changed?'),
+      'an answer': () => w.bAnswer(0, 0, 'Another'),
+      'adding an answer': () => w.bAddAnswer(0),
+      'taking a question private': () => w.bMoveQuestion(0),
+      'adding a stage': () => w.bAddStage(),
+      'moving a stage': () => w.bMoveStage(1, -1),
+      'the summary screen': () => w.bFocusMeta('summary'),
+    };
+    const silent = [];
+    for (const name of Object.keys(changes)) {
+      posted.length = 0;
+      changes[name]();
+      await settle();
+      if (!posted.length) silent.push(name);
+    }
+    eq(silent, [], 'these changed the exercise without refreshing the room');
+  });
+
+  t('and closing it stops the traffic', async () => {
+    posted.length = 0;
+    w.bToggleRoom();
+    w.bStage('stage', 'Edited with the view closed');
+    await settle();
+    eq(posted.length, 0, 'it is still posting to a panel nobody is looking at');
+  });
+}
+
+G('the workspace has room to work in');
+{
+  const src = fs.readFileSync(path.join(ROOT, 'editor.html'), 'utf8');
+  const style = src.slice(src.indexOf('<style>'), src.indexOf('</style>'));
+
+  /* A var() that resolves to nothing makes its whole declaration invalid, so a
+     token that lives in another file can take the layout down with it: the grid
+     collapses to one column and the rail spans the page. It happened. */
+  t('the layout cannot be collapsed by a stylesheet that has not arrived', () => {
+    // anchored to the start of a declaration, so "border-right" is not read as "right"
+    const structural = (style.match(
+      /[{;\n]\s*(?:grid[a-z-]*|width|height|min-width|min-height|max-width|max-height|flex|inset|top|left|right|bottom|transform)\s*:\s*[^;{}]*var\([^;{}]*\)[^;{}]*;/g) || []);
+    const local = new Set((style.match(/--[\w-]+\s*:/g) || []).map(d => d.replace(/\s*:$/, '')));
+    const naked = structural.filter(d => {
+      const tokens = (d.match(/var\(\s*(--[\w-]+)\s*\)/g) || []).map(t => /(--[\w-]+)/.exec(t)[1]);
+      return tokens.some(t => !local.has(t));          // no fallback, and not defined on this page
+    });
+    eq(naked, [], 'a structural property depends on another file with no fallback');
+  });
+
+  t('and the stylesheet it needs is asked for by version', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'editor.html'), 'utf8');
+    const link = /<link rel="stylesheet" href="(style\.css[^"]*)"/.exec(src);
+    ok(link, 'the page does not load the site stylesheet');
+    has(link[1], '?v=');
+    const site = fs.readFileSync(path.join(ROOT, 'style.css'), 'utf8');
+    ['--sidebar-width', '--text-label'].forEach(t =>
+      has(site, t + ':'));
+  });
+
+  t('a stage is given the width of a page, not of a column of form fields', () => {
+    const m = /#b-work-inner \{[^}]*max-width:\s*(\d+)px/.exec(style);
+    ok(m, 'no width set on the workspace');
+    ok(Number(m[1]) >= 1000, 'the workspace is only ' + m[1] + 'px wide');
+  });
+
+  t('and the outline is the gym\u2019s rail, not a second opinion about rails', () => {
+    ok(/#b-wrap \{[^}]*grid-template-columns:\s*var\(--sidebar-width[,)]/.test(style),
+       'the outline sets its own width instead of sharing the site\u2019s');
+    const site = fs.readFileSync(path.join(ROOT, 'style.css'), 'utf8');
+    const gym = fs.readFileSync(path.join(ROOT, 'gym/index.html'), 'utf8');
+    const widthOf = css => (/--sidebar-width:\s*([^;]+);/.exec(css) || [])[1];
+    eq(widthOf(site), widthOf(gym), 'the two rails are different widths');
+    ok(/#b-outline \{[^}]*background:\s*var\(--surface\)/.test(style),
+       'the rail is a different shade from the gym\u2019s, which uses --surface');
+    ok(/#controller \{[^}]*background:\s*var\(--surface\)/.test(gym),
+       'the gym\u2019s rail changed shade; this one should follow');
+  });
+}
+
+G('a block dropped into a sentence becomes a block');
+{
+  const { w } = boot();
+  const editable = () => w.document.querySelector('.b-rich[data-field="content"] .b-editable');
+  const kinds = () => Array.from(editable().childNodes).map(n => n.nodeName).join(' ');
+  const caretAt = (node, offset) => {
+    const r = w.document.createRange();
+    r.setStart(node, offset);
+    r.collapse(true);
+    const sel = w.document.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(r);
+  };
+  const fresh = () => {
+    w.load('! title: T\n\n@ One\n! content\nThe alert fired at midnight.\n');
+    return editable();
+  };
+
+  t('an artefact lands beside the paragraph, not inside it', () => {
+    const ed = fresh();
+    caretAt(ed.querySelector('p').firstChild, 9);          // after "The alert"
+    w.insertBlock(ed, '```SIEM export\n02:13:47  EDR  unsigned binary executed\n```');
+    w.richInput(ed);
+    eq(kinds(), 'P PRE P', 'the block was nested or flattened');
+  });
+
+  t('and it is still an artefact in the file — the fences survive', () => {
+    const content = w.eval('doc.stages[0].content');
+    has(content, '```SIEM export');
+    has(content, '02:13:47  EDR  unsigned binary executed');
+    has(content, '\n```');
+  });
+
+  t('the sentence is split around it, and the join is not left with a stray space', () => {
+    const content = w.eval('doc.stages[0].content');
+    has(content, 'The alert\n\n```');
+    has(content, '```\n\nfired at midnight.');
+  });
+
+  t('a news frame behaves the same way', () => {
+    const ed = fresh();
+    caretAt(ed.querySelector('p').firstChild, 9);
+    w.insertBlock(ed, '%news(Council systems offline)');
+    w.richInput(ed);
+    eq(kinds(), 'P FIGURE P');
+    has(w.eval('doc.stages[0].content'), '%news(Council systems offline)');
+  });
+
+  t('so does a picture', () => {
+    const ed = fresh();
+    caretAt(ed.querySelector('p').firstChild, 9);
+    w.insertBlock(ed, '%(../lib/exercise_data/icons/TTXGYM_Warning_red.png | 60%)');
+    w.richInput(ed);
+    has(w.eval('doc.stages[0].content'), '%(../lib/exercise_data/icons/TTXGYM_Warning_red.png | 60%)');
+    ok(editable().querySelector('img.SFmedia'), 'no picture in the editor');
+  });
+
+  t('inserting at the very start does not leave an empty line above it', () => {
+    const ed = fresh();
+    caretAt(ed.querySelector('p').firstChild, 0);
+    w.insertBlock(ed, '```log\nx\n```');
+    w.richInput(ed);
+    eq(kinds(), 'PRE P');
+    ok(!/^\s*\n/.test(w.eval('doc.stages[0].content')), 'the content starts with a blank line');
+  });
+
+  t('with no caret in the field it goes to the end rather than nowhere', () => {
+    const ed = fresh();
+    w.document.getSelection().removeAllRanges();
+    w.insertBlock(ed, '```log\nx\n```');
+    w.richInput(ed);
+    eq(kinds(), 'P PRE P');
+    has(w.eval('doc.stages[0].content'), 'The alert fired at midnight.\n\n```log');
+  });
+
+  t('and a block dropped on a block sits after it, never inside it', () => {
+    const ed = fresh();
+    w.document.getSelection().removeAllRanges();
+    w.insertBlock(ed, '```first\na\n```');
+    const pre = ed.querySelector('pre.SFpre');
+    caretAt(pre, 0);
+    w.insertBlock(ed, '```second\nb\n```');
+    w.richInput(ed);
+    eq(ed.querySelectorAll('pre.SFpre').length, 2, 'one artefact swallowed the other');
+    eq(ed.querySelectorAll('pre.SFpre pre').length, 0, 'an artefact is nested inside another');
+    const content = w.eval('doc.stages[0].content');
+    ok(content.indexOf('```first') < content.indexOf('```second'), 'they came out in the wrong order');
+  });
+
+  t('the caret is left after the block, ready to keep typing', () => {
+    const ed = fresh();
+    caretAt(ed.querySelector('p').firstChild, 9);
+    w.insertBlock(ed, '```log\nx\n```');
+    const sel = w.document.getSelection();
+    ok(sel.rangeCount, 'the caret was lost');
+    let n = sel.getRangeAt(0).startContainer;
+    while (n && n.parentNode !== ed) n = n.parentNode;
+    const kids = Array.from(ed.childNodes);
+    ok(kids.indexOf(n) > kids.findIndex(k => k.nodeName === 'PRE'), 'the caret is before the block');
+  });
+}
+
+G('the chrome is actually styled');
+{
+  const src = fs.readFileSync(path.join(ROOT, 'editor.html'), 'utf8');
+  const style = src.slice(src.indexOf('<style>'), src.indexOf('</style>'));
+
+  /* The .btn family was defined inside the builder this page replaced and went
+     with it, leaving nine buttons rendering as raw browser defaults. Nothing
+     failed, because nothing was checking that a class in the markup means
+     anything in the stylesheet. */
+  t('every class this page puts on a button has a rule behind it', () => {
+    const used = new Set();
+    (src.match(/class="([^"]*)"/g) || []).forEach(m => {
+      m.slice(7, -1).split(/\s+/).filter(Boolean).forEach(c => used.add(c));
+    });
+    const wanted = Array.from(used).filter(c => /^btn/.test(c) || /^b-(name|notice|status)/.test(c));
+    ok(wanted.length >= 5, 'found only ' + wanted.join(', '));
+    const missing = wanted.filter(c => !new RegExp('[.#]' + c.replace(/[-]/g, '\\-') + '[\\s,:.{\\[]').test(style));
+    eq(missing, [], 'classes used in the markup with no rule in the stylesheet');
+  });
+
+  t('the top bar separates what you make from where you send it', () => {
+    const { w } = boot();
+    const top = w.document.getElementById('b-top');
+    ok(top.querySelector('.b-name'), 'the page does not name itself');
+    ok(top.querySelector('.rule'), 'the actions are not grouped');
+    ok(top.querySelector('.btn-primary'), 'nothing is the main action');
+    const quiet = top.querySelectorAll('.btn-quiet');
+    ok(quiet.length >= 2, 'New and Import are competing with Download for attention');
+  });
+
+  t('the draft banner is a banner, with its own dismiss', () => {
+    const { w } = boot(JSON.stringify({
+      title: 'Half done',
+      stages: [{ stage: 'S', content: 'c', duration: '', discussion: [], prompts: [], questions: [] }],
+    }));
+    const notice = w.document.getElementById('b-notice');
+    ok(!notice.classList.contains('hide'), 'the banner did not appear');
+    ok(notice.querySelector('.btn-ghost'), 'no way to start again');
+    const x = notice.querySelector('.btn-dismiss');
+    ok(x, 'no way to dismiss it');
+    ok(x.getAttribute('aria-label'), 'the dismiss control has no name');
+    x.click();
+    ok(notice.classList.contains('hide'), 'it could not be dismissed');
+  });
+}
+
+G('an artefact is labelled and written in place');
+{
+  const { w } = boot();
+  const SRC = '! title: T\n\n@ One\n! content\nBefore.\n\n```SIEM export\n02:13:47  EDR  unsigned binary executed\n02:14:02  EDR  persistence written\n```\n';
+  const editable = () => w.document.querySelector('.b-rich[data-field="content"] .b-editable');
+  const pre = () => editable().querySelector('pre.SFpre');
+  const label = () => pre().querySelector('.SFpre-label');
+  const body = () => pre().querySelector('code');
+  const fresh = () => { w.load(SRC); return editable(); };
+
+  t('the label is a real element, not something drawn with CSS', () => {
+    fresh();
+    ok(label(), 'the label cannot be reached, only looked at');
+    eq(label().textContent, 'SIEM export');
+    eq(label().getAttribute('contenteditable'), 'true');
+  });
+
+  t('and the frame around it stays locked', () => {
+    eq(pre().getAttribute('contenteditable'), 'false');
+  });
+
+  t('renaming it renames the fence', () => {
+    label().textContent = 'Firewall log';
+    w.richInput(editable());
+    has(w.eval('doc.stages[0].content'), '```Firewall log\n02:13:47');
+  });
+
+  t('the lines under it are untouched by that', () => {
+    const content = w.eval('doc.stages[0].content');
+    has(content, '02:13:47  EDR  unsigned binary executed\n02:14:02  EDR  persistence written');
+    ok(!content.includes('Firewall log\nFirewall log'), 'the label leaked into the body');
+  });
+
+  t('clearing it leaves a bare fence rather than an empty label', () => {
+    label().textContent = '';
+    w.richInput(editable());
+    const content = w.eval('doc.stages[0].content');
+    has(content, '```\n02:13:47');
+    ok(!/```\s+\n/.test(content), 'the fence carries whitespace where the label was');
+  });
+
+  t('Enter in the label moves on rather than splitting it', () => {
+    const ev = new w.KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true });
+    label().dispatchEvent(ev);
+    ok(ev.defaultPrevented, 'Enter was allowed to break the label in two');
+  });
+
+  /* The body is the other half of the same block. Editing it in place is only
+     safe if a line break survives, and a caret in a <pre> leaves markup rather
+     than a newline — <br> in some engines, <div> in others. */
+  t('the lines themselves can be typed into', () => {
+    fresh();
+    eq(body().getAttribute('contenteditable'), 'true');
+  });
+
+  t('and a line break entered as a <br> survives the round trip', () => {
+    body().innerHTML = '02:13:47  EDR  unsigned binary executed<br>02:15:10  EDR  beacon to 10.4.4.9';
+    w.richInput(editable());
+    has(w.eval('doc.stages[0].content'),
+        '```SIEM export\n02:13:47  EDR  unsigned binary executed\n02:15:10  EDR  beacon to 10.4.4.9\n```');
+  });
+
+  t('one entered as a <div> does too, because engines differ', () => {
+    fresh();
+    body().innerHTML = 'line one<div>line two</div><div>line three</div>';
+    w.richInput(editable());
+    has(w.eval('doc.stages[0].content'), '```SIEM export\nline one\nline two\nline three\n```');
+  });
+
+  t('Enter inside the body is left alone, because a log is made of lines', () => {
+    const ev = new w.KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true });
+    body().dispatchEvent(ev);
+    ok(!ev.defaultPrevented, 'Enter was blocked inside the artefact body');
+  });
+
+  t('an artefact nobody touches comes back byte for byte', () => {
+    fresh();
+    has(w.eval('toTTXF()'),
+        '```SIEM export\n02:13:47  EDR  unsigned binary executed\n02:14:02  EDR  persistence written\n```');
+  });
+
+  t('the label element is never written into the file as content', () => {
+    fresh();
+    w.richInput(editable());
+    const content = w.eval('doc.stages[0].content');
+    ok(!content.includes('SFpre-label'), 'the markup leaked into the scenario');
+    eq((content.match(/SIEM export/g) || []).length, 1, 'the label was written twice');
+  });
+}
+
+G('the opening and the debrief are part of the running order');
+{
+  const { w } = boot();
+  w.load('! title: T\n\n! summary\nWhat you are walking into.\n\n@ One\n! content\nc\n\n@ Two\n! content\nc\n\n! conclusion\nWhat we learned.\n');
+  const rows = () => Array.from(w.document.querySelectorAll('#b-stage-list .b-stage-row'));
+
+  t('they sit in the list, at the ends, rather than behind two buttons', () => {
+    const all = rows();
+    eq(all.length, 4, 'expected opening, two stages and the debrief');
+    ok(all[0].classList.contains('b-bookend'), 'the opening is not first');
+    ok(all[3].classList.contains('b-bookend'), 'the debrief is not last');
+    has(all[0].textContent, 'Opening');
+    has(all[3].textContent, 'Debrief');
+  });
+
+  t('and are marked as not being stages', () => {
+    const all = rows();
+    ok(!all[0].hasAttribute('data-i'), 'the opening is numbered like a stage');
+    ok(!all[0].hasAttribute('draggable'), 'the opening can be dragged into the middle');
+    ok(all[1].getAttribute('draggable') === 'true', 'a real stage is no longer draggable');
+  });
+
+  t('each shows whether it has anything in it', () => {
+    has(rows()[0].textContent, 'What you are walking into');
+    const { w: empty } = boot();
+    empty.load('! title: T\n\n@ One\n! content\nc\n');
+    has(empty.document.querySelectorAll('#b-stage-list .b-stage-row')[0].textContent, 'click to write it');
+  });
+
+  t('clicking one opens it for editing', () => {
+    rows()[3].click();
+    eq(w.eval('metaFocus'), 'conclusion');
+    ok(w.document.querySelector('.b-rich[data-field="conclusion"]'), 'the debrief did not open');
+    eq(rows()[3].getAttribute('aria-current'), 'true');
+  });
+
+  t('and selecting a stage releases them', () => {
+    w.bFocus(0);
+    eq(w.eval('metaFocus'), null);
+    eq(rows()[0].getAttribute('aria-current'), 'false');
+    eq(rows()[1].getAttribute('aria-current'), 'true');
+  });
+}
+
+G('a block can be got rid of without guessing how');
+{
+  const { w } = boot();
+  const editable = () => w.document.querySelector('.b-rich[data-field="content"] .b-editable');
+  const tools = () => w.document.getElementById('b-tools');
+  const load = src => { w.load('! title: T\n\n@ One\n! content\nBefore.\n\n' + src + '\n\nAfter.\n'); };
+
+  t('selecting an artefact offers a way to remove it', () => {
+    load('```SIEM export\na\n```');
+    const pre = editable().querySelector('pre.SFpre');
+    pre.click();
+    ok(!tools().classList.contains('hide'), 'no controls appeared');
+    ok(pre.classList.contains('b-picked'), 'the block is not marked as selected');
+    const kill = tools().querySelector('.kill');
+    ok(kill, 'no remove button');
+    has(kill.getAttribute('aria-label'), 'artefact');
+  });
+
+  t('and pressing it takes the block out of the file', () => {
+    tools().querySelector('.kill').click();
+    const content = w.eval('doc.stages[0].content');
+    ok(!content.includes('```'), 'the artefact is still there: ' + content);
+    has(content, 'Before.');
+    has(content, 'After.');
+    ok(tools().classList.contains('hide'), 'the controls are floating over nothing');
+  });
+
+  t('a news frame the same', () => {
+    load('%news(Council systems offline)');
+    const fig = editable().querySelector('figure.SFnews');
+    fig.click();
+    has(tools().querySelector('.kill').getAttribute('aria-label'), 'news');
+    tools().querySelector('.kill').click();
+    ok(!w.eval('doc.stages[0].content').includes('%news('), 'the frame survived');
+  });
+
+  t('and a picture, which also keeps its size control', () => {
+    load('%(../lib/exercise_data/icons/TTXGYM_Warning_red.png | 50%)');
+    const img = editable().querySelector('img.SFmedia');
+    Object.defineProperty(img, 'naturalWidth', { value: 400, configurable: true });
+    Object.defineProperty(img, 'complete', { value: true, configurable: true });
+    img.click();
+    ok(!tools().classList.contains('no-size'), 'a picture lost its resize handle');
+    has(tools().querySelector('.kill').getAttribute('aria-label'), 'picture');
+    tools().querySelector('.kill').click();
+    ok(!w.eval('doc.stages[0].content').includes('%('), 'the picture survived');
+  });
+
+  t('the size control is hidden for blocks that have no size', () => {
+    load('```log\na\n```');
+    editable().querySelector('pre.SFpre').click();
+    ok(tools().classList.contains('no-size'), 'an artefact was offered a resize handle');
+  });
+
+  t('Delete removes a selected block, but never while someone is typing', () => {
+    load('```log\na\n```');
+    editable().querySelector('pre.SFpre').click();
+    const press = () => {
+      const ev = new w.KeyboardEvent('keydown', { key: 'Delete', bubbles: true, cancelable: true });
+      w.document.dispatchEvent(ev);
+      return ev;
+    };
+    Object.defineProperty(w.document, 'activeElement', { value: editable(), configurable: true });
+    press();
+    has(w.eval('doc.stages[0].content'), '```log', 'a keystroke in the text deleted the block');
+    Object.defineProperty(w.document, 'activeElement', { value: w.document.body, configurable: true });
+    press();
+    ok(!w.eval('doc.stages[0].content').includes('```log'), 'Delete did not remove the block');
+  });
+}
+
+G('accessibility');
+{
+  const { w } = boot();
+  w.load(fs.readFileSync(path.join(ROOT, 'lib/scenarios/cold_start.ttxf'), 'utf8'));
+  w.bFocus(1);
+  w.bToggleRoom();
+  w.toggleProblems();
+  const d = w.document;
+  const nameOf = el => (el.getAttribute('aria-label') || el.getAttribute('title') || el.textContent || '')
+    .replace(/\s+/g, ' ').trim();
+
+  t('every control the page draws has a name', () => {
+    const unnamed = Array.from(d.querySelectorAll('button, [role="button"], [role="slider"]'))
+      .filter(b => !nameOf(b))
+      .map(b => b.outerHTML.slice(0, 70));
+    eq(unnamed, []);
+  });
+
+  t('every field has a real label, not just a placeholder', () => {
+    const bare = Array.from(d.querySelectorAll('input, textarea, select'))
+      .filter(f => !(f.id && d.querySelector('label[for="' + f.id + '"]')) && !f.closest('label') &&
+                   !f.getAttribute('aria-label') && !f.getAttribute('aria-labelledby'))
+      .map(f => f.outerHTML.slice(0, 70));
+    eq(bare, [], 'a placeholder disappears the moment someone types into the field');
+  });
+
+  t('the page can be navigated by heading', () => {
+    const hs = Array.from(d.querySelectorAll('h1, h2, h3')).map(h => h.tagName);
+    ok(hs.length >= 4, 'only ' + hs.length + ' headings');
+    eq(hs.filter(h => h === 'H1').length, 1, 'there should be exactly one H1');
+  });
+
+  t('and by landmark, with each one saying which it is', () => {
+    const marks = Array.from(d.querySelectorAll('nav, main, aside'));
+    ok(marks.length >= 3, 'only ' + marks.length + ' landmarks');
+    const nameless = marks.filter(m => !m.getAttribute('aria-label')).map(m => m.tagName);
+    eq(nameless, [], 'a landmark with no name is no use for navigating');
+  });
+
+  t('the writing surfaces announce themselves as text boxes', () => {
+    Array.from(d.querySelectorAll('.b-editable')).forEach(e => {
+      eq(e.getAttribute('role'), 'textbox');
+      ok(e.getAttribute('aria-label'), 'an editable with no name');
+    });
+  });
+
+  t('what is wrong is announced, not only shown', () => {
+    const status = d.getElementById('b-status');
+    ok(status.getAttribute('aria-live'), 'the status changes silently');
+    eq(status.getAttribute('aria-controls'), 'b-problems');
+    ok(status.hasAttribute('aria-expanded'), 'the disclosure state is not exposed');
+  });
+
+  t('opening the picker takes the focus with it, and gives it back', () => {
+    const before = d.getElementById('b-title');
+    before.focus();
+    w.eval('galleryData = { categories: [], images: [] };');
+    w.openGallery(d.querySelector('.b-editable'));
+    ok(d.getElementById('b-gallery').contains(d.activeElement), 'focus was left behind the dialog');
+    w.cancelGallery();
+    eq(d.activeElement, before, 'focus was not given back');
+  });
+
+  t('and Tab cannot wander out of it while it is open', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'editor.html'), 'utf8');
+    has(src, "ev.key !== 'Tab'");
+    has(src, 'shiftKey && document.activeElement === first');
+  });
+
+  t('no image is left without alt text', () => {
+    const bare = Array.from(d.querySelectorAll('img')).filter(i => i.getAttribute('alt') === null);
+    eq(bare.length, 0);
+  });
+
+  t('the participant view frame is named for anyone who lands in it', () => {
+    ok(d.getElementById('b-mirror-frame').getAttribute('title'));
+  });
+
+  /* Measured rather than eyeballed. --text-muted is about 2.4:1 on every ground
+     in this palette — the gym added --text-label for exactly this reason, and
+     the builder drew its labels with the failing one until it was checked. */
+  t('no text is drawn in a colour that cannot be read on its own background', () => {
+    const lin = c => { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
+    const lum = ch => 0.2126 * lin(ch[0]) + 0.7152 * lin(ch[1]) + 0.0722 * lin(ch[2]);
+    const hex = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+    const over = (fg, a, bg) => fg.map((c, i) => c * a + bg[i] * (1 - a));
+    const ratio = (a, b) => { const x = lum(a), y = lum(b); const [hi, lo] = x > y ? [x, y] : [y, x]; return (hi + 0.05) / (lo + 0.05); };
+
+    const site = fs.readFileSync(path.join(ROOT, 'style.css'), 'utf8');
+    const tok = n => (new RegExp('--' + n + ':\\s*([^;]+);').exec(site) || [])[1].trim();
+    const alphaOf = v => { const m = /rgba\([^,]+,[^,]+,[^,]+,\s*([\d.]+)\)/.exec(v); return m ? Number(m[1]) : 1; };
+    const white = hex('#e8ecf2');
+    const grounds = ['back', 'mid', 'surface', 'surface-raised'].map(n => hex(tok(n)));
+
+    const style = fs.readFileSync(path.join(ROOT, 'editor.html'), 'utf8');
+    ok(!/color:\s*var\(--text-muted\)/.test(style),
+       'the builder still draws text in --text-muted, which fails on every ground');
+
+    const label = alphaOf(tok('text-label'));
+    grounds.forEach((g, i) => {
+      const r = ratio(over(white, label, g), g);
+      ok(r >= 4.5, '--text-label is only ' + r.toFixed(2) + ':1 on ground ' + i);
+    });
+  });
+}
+
+G('the way out is named after where it goes');
+{
+  const { w } = boot();
+  t('the gym button says so', () => {
+    const btn = Array.from(w.document.querySelectorAll('#b-top .btn'))
+      .find(b => /bRunInGym/.test(b.getAttribute('onclick') || ''));
+    ok(btn, 'no control to run the exercise');
+    eq(btn.textContent.trim(), 'Preview in TTX Gym');
+  });
+  t('and a stage gets room to write in', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'editor.html'), 'utf8');
+    const style = src.slice(src.indexOf('<style>'), src.indexOf('</style>'));
+    const m = /\.b-rich\[data-field="content"\] \.b-editable \{[^}]*min-height:\s*([\d.]+)rem/.exec(style);
+    ok(m, 'the content field has no floor');
+    ok(Number(m[1]) >= 10, 'the content field is only ' + m[1] + 'rem tall');
+    ok(/#b-work-inner > \.b-zone\.screen \{[^}]*min-height/.test(style), 'a short stage still collapses');
   });
 }
 

@@ -4,24 +4,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TTX Gym - Scenario Builder</title>
+  <title>TTX Gym - Exercise Builder</title>
   <meta name="description" content="Build and edit your own .ttxf tabletop exercise scenarios in the browser, with a live preview of exactly what facilitators and participants will see.">
   <link rel="canonical" href="https://ttxgym.com/editor.html">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <meta name="theme-color" content="#141820">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="TTX Gym">
-  <meta property="og:title" content="Scenario Builder — TTX Gym">
+  <meta property="og:title" content="Exercise Builder — TTX Gym">
   <meta property="og:description" content="Build and edit your own .ttxf tabletop exercise scenarios in the browser, with a live preview of exactly what facilitators and participants will see.">
   <meta property="og:url" content="https://ttxgym.com/editor.html">
   <meta property="og:image" content="https://ttxgym.com/hero.png">
   <meta property="og:image:alt" content="The TTX Gym exercise interface, showing a scenario stage and facilitator notes.">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Scenario Builder — TTX Gym">
+  <meta name="twitter:title" content="Exercise Builder — TTX Gym">
   <meta name="twitter:description" content="Build and edit your own .ttxf tabletop exercise scenarios in the browser, with a live preview of exactly what facilitators and participants will see.">
   <meta name="twitter:image" content="https://ttxgym.com/hero.png">
   <link rel="stylesheet" href="css/fonts.css">
-  <link rel="stylesheet" href="style.css">
+  <!-- versioned: this page needs --sidebar-width and --text-label, both added to
+       the site stylesheet after browsers had been caching it for months -->
+  <link rel="stylesheet" href="style.css?v=2">
   <style>
     /* ═══ LAYOUT ═══════════════════════════════════════════════════════════
        Two zones replacing one long scroll: an outline that is both map and
@@ -30,7 +32,12 @@
        and a column is the wrong shape for it. See docs/BUILDER-DESIGN.md. */
     #b-wrap {
       display: grid;
-      grid-template-columns: 250px minmax(0, 1fr);
+      /* The fallback is not decoration. --sidebar-width lives in style.css, and if
+         that file is missing or cached from before the token existed, var() with
+         no fallback makes the whole declaration invalid — the grid collapses to
+         one column and the rail spans the page. A layout must not depend on
+         another file having arrived. */
+      grid-template-columns: var(--sidebar-width, 280px) minmax(0, 1fr);
       /* body is already a flex column with the nav in it, so the workspace takes
          what is left rather than guessing at a nav height — which is what the old
          builder did, subtracting 56px from a nav that is 80px tall. */
@@ -42,21 +49,25 @@
 
 
     /* ═══ OUTLINE ═══ */
+    /* The gym's controller is var(--surface) at var(--sidebar-width); this is the
+       same rail on a different page, so it is the same colour and the same width. */
     #b-outline {
       border-right: 1px solid var(--border);
-      background: var(--mid);
+      background: var(--surface);
       overflow-y: auto;
       display: flex;
       flex-direction: column;
       min-height: 0;
     }
+    h1.b-name, h2.b-rail-head, .b-zone-head { margin: 0; }
+    /* the gym's section headings, to the letter */
     .b-rail-head {
       font-family: var(--font-mono);
-      font-size: 10px;
+      font-size: 0.68rem;
       font-weight: 600;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: var(--text-muted);
+      color: var(--text-label);
       padding: 0.85rem 0.9rem 0.35rem;
     }
     .b-meta { padding: 0 0.7rem 0.6rem; }
@@ -102,7 +113,7 @@
     .b-stage-row .n {
       font-family: var(--font-mono);
       font-size: 10px;
-      color: var(--text-muted);
+      color: var(--text-label);
     }
     .b-stage-row.current .n { color: var(--accent); }
     .b-stage-row .t { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -110,7 +121,7 @@
       grid-column: 2;
       font-family: var(--font-mono);
       font-size: 9.5px;
-      color: var(--text-muted);
+      color: var(--text-label);
       margin-top: 0.1rem;
     }
     .b-untitled { opacity: 0.55; font-style: italic; }
@@ -124,7 +135,7 @@
       padding: 0.6rem 0.9rem;
       font-family: var(--font-mono);
       font-size: 10px;
-      color: var(--text-muted);
+      color: var(--text-label);
       display: flex;
       justify-content: space-between;
       gap: 0.5rem;
@@ -133,7 +144,14 @@
 
     /* ═══ WORKSPACE ═══ */
     #b-work { overflow-y: auto; min-height: 0; }
-    #b-work-inner { max-width: 760px; margin: 0 auto; padding: 1.1rem 1.4rem 4rem; }
+    /* Wide enough for a scenario stage to look like a page rather than a column
+       of form fields, and still short enough a line stays readable. */
+    #b-work-inner { max-width: 1040px; margin: 0 auto; padding: 1.1rem 1.6rem 4rem; }
+    /* so a short stage does not sit in a sliver at the top of an empty page */
+    #b-work-inner > .b-zone.screen { min-height: 22rem; }
+    .b-rich[data-field="content"] .b-editable { min-height: 14rem; }
+    .b-rich[data-field="summary"] .b-editable,
+    .b-rich[data-field="conclusion"] .b-editable { min-height: 16rem; }
 
     .b-stage-title {
       width: 100%;
@@ -157,7 +175,7 @@
       margin: 0.45rem 0 1.3rem;
       font-family: var(--font-mono);
       font-size: 10.5px;
-      color: var(--text-muted);
+      color: var(--text-label);
     }
     .b-stage-meta input {
       background: var(--surface);
@@ -206,7 +224,7 @@
       font-size: 10px;
       letter-spacing: 0.06em;
       text-transform: uppercase;
-      color: var(--text-muted);
+      color: var(--text-label);
       margin-bottom: 0.3rem;
       display: block;
     }
@@ -231,7 +249,7 @@
       background: transparent;
       border: 1px solid transparent;
       border-radius: var(--radius);
-      color: var(--text-muted);
+      color: var(--text-label);
       cursor: pointer;
       padding: 0.3rem 0.45rem;
       font: inherit;
@@ -243,7 +261,7 @@
       background: transparent;
       border: 1px dashed var(--border);
       border-radius: var(--radius);
-      color: var(--text-muted);
+      color: var(--text-label);
       cursor: pointer;
       font-family: var(--font-mono);
       font-size: 10.5px;
@@ -257,30 +275,71 @@
        when that is not what they want. */
     .b-rich { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
     .b-rich:focus-within { border-color: var(--accent); }
+    /* The bar mixes two kinds of control: marks, which are single glyphs, and
+       blocks, which need a word. Giving them one font size made the glyphs
+       illegible and the words cramped, so they get one shared height and two
+       shapes — square for a mark, labelled for a block. */
     .b-rich-bar {
       display: flex;
       flex-wrap: wrap;
-      gap: 0.15rem;
-      padding: 0.3rem 0.35rem;
+      align-items: center;
+      gap: 0.12rem;
+      padding: 0.25rem 0.3rem;
       border-bottom: 1px solid var(--border);
+      background: color-mix(in srgb, var(--mid) 60%, transparent);
+      border-radius: var(--radius) var(--radius) 0 0;
     }
     .b-rich-bar button {
+      height: 1.55rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       background: transparent;
       border: 1px solid transparent;
       border-radius: var(--radius);
-      color: var(--text-muted);
+      color: var(--text-secondary);
       cursor: pointer;
-      font-family: var(--font-mono);
-      font-size: 10px;
-      letter-spacing: 0.03em;
-      padding: 0.2rem 0.4rem;
+      font-family: var(--font-display);
+      line-height: 1;
+      padding: 0 0.45rem;
     }
-    .b-rich-bar button:hover { color: var(--text-primary); border-color: var(--border); }
-    .b-rich-bar .sep { width: 1px; background: var(--border); margin: 0.2rem 0.25rem; }
+    .b-rich-bar button.ico {
+      min-width: 1.55rem;
+      padding: 0;
+      font-size: 13px;
+    }
+    .b-rich-bar button.ico[data-cmd="bold"] { font-weight: 800; }
+    .b-rich-bar button.ico[data-cmd="italic"] { font-style: italic; font-family: Georgia, serif; }
+    .b-rich-bar button.ico[data-cmd="code"] { font-family: var(--font-mono); font-size: 10px; }
+    .b-rich-bar button.lbl {
+      font-size: 10.5px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+    .b-rich-bar button:hover {
+      color: var(--text-primary);
+      background: var(--surface);
+      border-color: var(--border);
+    }
+    .b-rich-bar button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+    .b-rich-bar .sep {
+      flex: 0 0 1px;
+      align-self: stretch;
+      background: var(--border);
+      margin: 0.15rem 0.3rem;
+    }
     .b-rich-bar .grow { flex: 1; }
-    .b-rich-bar .on { color: var(--accent); border-color: var(--accent); }
+    .b-rich-bar button.on,
+    .b-rich-bar button[aria-pressed="true"] {
+      color: var(--accent);
+      border-color: var(--accent);
+      background: color-mix(in srgb, var(--accent) 12%, transparent);
+    }
 
     .b-editable {
+      /* A stage's content is the main writing surface, so it gets a page-like
+         floor rather than collapsing to the height of one line. The narrower
+         fields keep theirs, which is set alongside. */
       min-height: 7em;
       padding: 0.7rem 0.85rem;
       color: var(--text-primary);
@@ -292,7 +351,7 @@
     }
     .b-editable:empty::before {
       content: attr(data-placeholder);
-      color: var(--text-muted);
+      color: var(--text-label);
     }
     .b-editable p { margin: 0 0 0.6rem; }
     .b-editable p:last-child { margin-bottom: 0; }
@@ -314,10 +373,8 @@
       background: color-mix(in srgb, currentColor 10%, transparent);
       border: 1px solid color-mix(in srgb, currentColor 18%, transparent);
     }
-    /* blocks are atomic: selectable and removable, never typed into */
-    .b-editable pre.SFpre, .b-editable figure.SFnews, .b-editable img.SFmedia {
-      user-select: all;
-    }
+    /* a picture is the only block left with nothing to type into */
+    .b-editable img.SFmedia { user-select: all; }
     .b-editable pre.SFpre {
       font-family: var(--font-mono);
       font-size: 0.82em;
@@ -331,18 +388,109 @@
       overflow-wrap: break-word;
     }
     .b-editable pre.SFpre > code { background: none; border: 0; padding: 0; font-size: inherit; }
-    .b-editable pre.SFpre[data-label]::before {
-      content: attr(data-label);
+    /* Everywhere else the label is drawn with ::before from data-label, which
+       cannot be typed into. Here it is a real element, so it is suppressed. */
+    .b-editable pre.SFpre[data-label]::before { content: none; }
+    .b-editable .SFpre-label {
       display: block;
       font-family: var(--font-display);
       font-size: 0.78em;
       font-weight: 600;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      opacity: 0.7;
+      opacity: 0.75;
       margin-bottom: 0.4rem;
+      user-select: text;
+      cursor: text;
+      outline: 1px dashed transparent;
+      outline-offset: 2px;
+      border-radius: 3px;
     }
-    .b-editable img.SFmedia { display: block; margin: 0.7rem auto; max-width: min(100%, 22em); height: auto; border-radius: var(--radius); }
+    .b-editable pre.SFpre:hover .SFpre-label { outline-color: color-mix(in srgb, currentColor 35%, transparent); }
+    .b-editable .SFpre-label:focus { outline: 2px solid var(--accent); opacity: 1; }
+    .b-editable .SFpre-label:empty::before {
+      content: 'Label this artefact';
+      opacity: 0.6;
+      font-style: italic;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+    .b-editable pre.SFpre > code { user-select: text; cursor: text; }
+    /* The editor shows the size the author chose. width is set from data-scale
+       against the picture's natural width, exactly as the gym does it; max-width
+       only stops a large picture from bursting the column, and never changes what
+       is stored. */
+    .b-editable img.SFmedia {
+      display: block;
+      margin: 0.7rem auto;
+      max-width: 100%;
+      height: auto;
+      border-radius: var(--radius);
+      cursor: pointer;
+    }
+
+
+    /* The furniture for a selected block floats over it rather than wrapping it:
+       a wrapper element would nest the block, and htmlToSource reads top-level
+       children, so the block would vanish from the file. */
+    #b-tools { position: fixed; z-index: 650; pointer-events: none; }
+    #b-tools.hide { display: none; }
+    #b-tools .grip {
+      position: absolute;
+      right: -7px;
+      bottom: -7px;
+      width: 14px;
+      height: 14px;
+      border-radius: 3px;
+      background: var(--accent);
+      border: 2px solid var(--mid);
+      cursor: nwse-resize;
+      pointer-events: auto;
+    }
+    #b-tools .read {
+      position: absolute;
+      left: 0;
+      top: -0.5rem;
+      transform: translateY(-100%);
+      background: var(--accent);
+      color: #fff;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      padding: 0.2rem 0.45rem;
+      border-radius: var(--radius);
+      white-space: nowrap;
+      pointer-events: auto;
+      cursor: pointer;
+      border: 0;
+    }
+    #b-tools .kill {
+      position: absolute;
+      right: -0.55rem;
+      top: -0.55rem;
+      width: 1.35rem;
+      height: 1.35rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: var(--red);
+      color: #fff;
+      border: 2px solid var(--mid);
+      font-size: 11px;
+      line-height: 1;
+      cursor: pointer;
+      pointer-events: auto;
+      padding: 0;
+    }
+    #b-tools .kill:hover { filter: brightness(1.15); }
+    #b-tools.no-size .grip, #b-tools.no-size .read { display: none; }
+    #b-tools .grip:focus-visible, #b-tools .kill:focus-visible, #b-tools .read:focus-visible {
+      outline: 2px solid #fff;
+      outline-offset: 1px;
+    }
+    /* whatever is selected, not just a picture */
+    .b-editable .b-picked { outline: 2px solid var(--accent); outline-offset: 3px; }
+    .b-editable pre.SFpre, .b-editable figure.SFnews { cursor: default; }
     .b-editable figure.SFnews {
       position: relative; display: block; margin: 0.7rem auto; max-width: min(100%, 26em);
       border-radius: var(--radius); overflow: hidden; container-type: inline-size; font-size: 11px;
@@ -352,6 +500,23 @@
     .b-editable .SFnews-ticker { position: absolute; left: 0; right: 0; bottom: 0; display: flex; }
     .b-editable .SFnews-flag { background: #c8102e; color: #fff; font-weight: 800; font-size: .78em; text-transform: uppercase; padding: .7em .8em; }
     .b-editable .SFnews-line { flex: 1; background: rgba(11,14,20,.9); color: #fff; font-weight: 700; font-size: .78em; padding: .7em .8em; }
+    /* the headline and its flag are the one part of the frame worth typing into */
+    .b-editable .SFnews-line[contenteditable], .b-editable .SFnews-flag[contenteditable] {
+      user-select: text;
+      cursor: text;
+      outline: 1px dashed transparent;
+      outline-offset: -2px;
+    }
+    .b-editable figure.SFnews:hover .SFnews-line[contenteditable],
+    .b-editable figure.SFnews:hover .SFnews-flag[contenteditable] { outline-color: rgba(255, 255, 255, 0.45); }
+    .b-editable .SFnews-line[contenteditable]:focus, .b-editable .SFnews-flag[contenteditable]:focus {
+      outline: 2px solid var(--accent);
+      outline-offset: -2px;
+    }
+    .b-editable .SFnews-line[contenteditable]:empty::before {
+      content: 'Headline';
+      opacity: 0.55;
+    }
 
     .b-source {
       width: 100%;
@@ -364,8 +529,14 @@
       padding: 0.7rem 0.85rem;
       outline: none;
       resize: vertical;
-      min-height: 9em;
+      /* The same floor as the field it replaces. It used to be 9em of a 12px
+         monospace — barely half the height of the editor — so opening Source
+         shrank the box to a slot. */
+      min-height: 14rem;
+      overflow-y: hidden;                 /* it grows to its content instead */
     }
+    .b-rich[data-field="summary"] .b-source,
+    .b-rich[data-field="conclusion"] .b-source { min-height: 16rem; }
 
     /* ═══ QUESTIONS ═══ */
     .b-q {
@@ -412,7 +583,7 @@
       border-radius: 50%;
       border: 1px solid var(--border);
       background: transparent;
-      color: var(--text-muted);
+      color: var(--text-label);
       cursor: pointer;
       font-size: 11px;
       line-height: 1;
@@ -432,7 +603,7 @@
       background: var(--back);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      color: var(--text-muted);
+      color: var(--text-label);
       font-family: var(--font-mono);
       font-size: 10px;
       padding: 0.25rem 0.35rem;
@@ -443,7 +614,7 @@
       font-size: 9.5px;
       letter-spacing: 0.05em;
       text-transform: uppercase;
-      color: var(--text-muted);
+      color: var(--text-label);
       border: 1px solid var(--border);
       border-radius: 99px;
       padding: 0.1rem 0.45rem;
@@ -452,13 +623,32 @@
 
     /* pacing: a stage whose clock looks out of step with what is in it */
     .b-stage-row .warn { color: var(--amber); }
+
+    /* the opening and the debrief: in the order, but plainly not stages */
+    .b-stage-row.b-bookend .n { color: var(--accent); opacity: 0.8; font-size: 9px; }
+    .b-stage-row.b-bookend .t { font-style: italic; }
+    .b-stage-row.b-bookend { margin-bottom: 0.3rem; }
+    .b-stage-row.b-bookend + .b-stage-row { margin-top: 0.1rem; }
+
+    /* visible only to a screen reader */
+    .b-sr {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+      border: 0;
+    }
     #b-pace {
       font-family: var(--font-mono); font-size: 10px; color: var(--amber);
       padding: 0 0.9rem 0.6rem;
     }
 
     .b-empty {
-      color: var(--text-muted);
+      color: var(--text-label);
       font-size: 12.5px;
       padding: 2.5rem 0;
       text-align: center;
@@ -545,8 +735,8 @@
       content: '';
       position: absolute;
       inset: 4px;
-      border-top: 2px solid var(--text-muted);
-      border-left: 2px solid var(--text-muted);
+      border-top: 2px solid var(--text-secondary);
+      border-left: 2px solid var(--text-secondary);
       border-radius: 2px 0 0 0;
     }
     #b-mirror-grip:hover::before, #b-mirror-grip:focus-visible::before { border-color: var(--accent); }
@@ -575,7 +765,7 @@
       text-align: left;
       background: none;
       border: 0;
-      border-left: 2px solid var(--amber, #d9a441);
+      border-left: 2px solid var(--amber);
       cursor: pointer;
       color: var(--text-secondary);
       font-size: 12px;
@@ -586,7 +776,7 @@
     }
     .b-problem.err { border-left-color: var(--red); }
     .b-problem:hover { background: var(--surface); color: var(--text-primary); }
-    .b-problem .where { display: block; font-size: 10.5px; font-family: var(--font-mono); color: var(--text-muted); }
+    .b-problem .where { display: block; font-size: 10.5px; font-family: var(--font-mono); color: var(--text-label); }
     .b-stage-row .flag { color: var(--red); margin-left: 0.25rem; }
 
     /* the gallery */
@@ -648,7 +838,7 @@
     }
     #b-gal-tabs button:hover { color: var(--text-primary); }
     #b-gal-tabs button[aria-selected="true"] { color: var(--accent); border-bottom-color: var(--accent); }
-    #b-gal-tabs .count { color: var(--text-muted); font-size: 10px; margin-left: 0.3rem; }
+    #b-gal-tabs .count { color: var(--text-label); font-size: 10px; margin-left: 0.3rem; }
     #b-gal-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
@@ -670,7 +860,7 @@
     }
     .b-gal-item:hover, .b-gal-item:focus-visible { border-color: var(--accent); color: var(--text-primary); }
     .b-gal-item img { width: 100%; height: 5rem; object-fit: contain; }
-    .b-gal-empty { color: var(--text-muted); font-size: 12px; padding: 1.5rem 0; text-align: center; }
+    .b-gal-empty { color: var(--text-label); font-size: 12px; padding: 1.5rem 0; text-align: center; }
 
     /* dropping a file anywhere on the page */
     #b-drop {
@@ -692,39 +882,129 @@
     #b-notice {
       display: flex;
       align-items: center;
-      gap: 0.6rem;
-      padding: 0.45rem 0.9rem;
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      font-size: 11.5px;
-      color: var(--text-secondary);
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      padding: 0.5rem 0.9rem;
+      background: color-mix(in srgb, var(--accent) 10%, var(--mid));
+      border-bottom: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border));
+      font-family: var(--font-display);
+      font-size: 12px;
+      color: var(--text-primary);
     }
     #b-notice.hide { display: none; }
-    #b-notice-text { flex: 1; }
-    #b-notice .btn { padding: 0.2rem 0.5rem; font-size: 11px; }
+    #b-notice::before {
+      content: '';
+      flex: 0 0 3px;
+      align-self: stretch;
+      border-radius: 2px;
+      background: var(--accent);
+    }
+    #b-notice-text { flex: 1; min-width: 12rem; color: var(--text-secondary); }
+    #b-notice .btn { height: 1.7rem; font-size: 11.5px; }
+    #b-notice .btn-dismiss {
+      background: none;
+      border: 0;
+      padding: 0 0.35rem;
+      color: var(--text-label);
+      font-size: 13px;
+      line-height: 1;
+      cursor: pointer;
+      border-radius: var(--radius);
+    }
+    #b-notice .btn-dismiss:hover { color: var(--text-primary); background: var(--surface); }
+
+    /* ═══ BUTTONS ══════════════════════════════════════════════════════════
+       The .btn family lived inside the builder this page replaced and went with
+       it, leaving nine buttons here rendering as raw browser defaults. Redefined
+       at this page's own scale, which is denser than the site's. */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+      height: 1.85rem;
+      padding: 0 0.75rem;
+      border: 1px solid transparent;
+      border-radius: var(--radius);
+      font-family: var(--font-display);
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 1;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+    }
+    .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+    .btn svg { width: 14px; height: 14px; fill: currentColor; }
+    .btn-ghost {
+      background: var(--surface);
+      color: var(--text-secondary);
+      border-color: var(--border);
+    }
+    .btn-ghost:hover { background: var(--mid); color: var(--text-primary); border-color: var(--border-active); }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-quiet {
+      background: transparent;
+      color: var(--text-secondary);
+      border-color: transparent;
+      padding: 0 0.5rem;
+    }
+    .btn-quiet:hover { background: var(--surface); color: var(--text-primary); }
 
     /* ═══ TOP BAR ═══ */
     #b-top {
       position: relative;                 /* the problems list hangs off it */
       display: flex;
       align-items: center;
-      gap: 0.6rem;
-      padding: 0.5rem 0.9rem;
+      gap: 0.4rem;
+      padding: 0.45rem 0.9rem;
       border-bottom: 1px solid var(--border);
       background: var(--mid);
     }
     #b-top .grow { flex: 1; }
+    #b-top .b-name {
+      font-family: var(--font-display);
+      font-size: 12.5px;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      color: var(--text-primary);
+      margin-right: 0.15rem;
+    }
+    #b-top .rule {
+      flex: 0 0 1px;
+      align-self: stretch;
+      background: var(--border);
+      margin: 0.2rem 0.35rem;
+    }
     #b-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
       background: none;
-      border: 0;
-      padding: 0.1rem 0.3rem;
+      border: 1px solid transparent;
+      height: 1.85rem;
+      padding: 0 0.45rem;
       border-radius: var(--radius);
       cursor: pointer;
       font-family: var(--font-mono);
-      font-size: 10px;
-      color: var(--text-muted);
+      font-size: 10.5px;
+      line-height: 1;
+      color: var(--text-label);
     }
-    #b-status:hover { background: var(--surface); }
+    #b-status::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+      opacity: 0.85;
+    }
+    #b-status:hover { background: var(--surface); border-color: var(--border); color: var(--text-primary); }
     #b-status.bad { color: var(--red); }
     #b-status.good { color: var(--green); }
 
@@ -792,19 +1072,21 @@
   <div id="b-notice" class="hide" role="status">
     <span id="b-notice-text"></span>
     <button type="button" class="btn btn-ghost" onclick="bDiscardDraft()">Start something new</button>
-    <button type="button" class="btn btn-ghost" onclick="dismissNotice()" aria-label="Dismiss">✕</button>
+    <button type="button" class="btn-dismiss" onclick="dismissNotice()"
+            title="Keep working on this" aria-label="Dismiss this message">✕</button>
   </div>
 
   <div id="b-top">
-    <strong style="font-size:13px">Scenario Builder</strong>
-    <button type="button" id="b-status" aria-expanded="false"
+    <h1 class="b-name">Exercise Builder</h1>
+    <button type="button" id="b-status" aria-expanded="false" aria-live="polite"
             aria-controls="b-problems" onclick="toggleProblems()">—</button>
     <div id="b-problems" class="hide" role="region" aria-label="Problems in this scenario"></div>
     <span class="grow"></span>
-    <button class="btn btn-ghost" onclick="bNewFromShape()">New</button>
-    <button class="btn btn-ghost" onclick="bImportPrompt()">Import</button>
+    <button class="btn btn-quiet" onclick="bNewFromShape()">New</button>
+    <button class="btn btn-quiet" onclick="bImportPrompt()">Import</button>
+    <span class="rule"></span>
     <button class="btn btn-ghost" id="b-room-btn" onclick="bToggleRoom()">Participant view</button>
-    <button class="btn btn-ghost" onclick="bRunInGym()">Run it</button>
+    <button class="btn btn-ghost" onclick="bRunInGym()">Preview in TTX Gym</button>
     <button class="btn btn-primary" onclick="bExport()">Download .ttxf</button>
   </div>
 
@@ -841,38 +1123,46 @@
           <option value="80%">80%</option>
           <option value="100%">100%</option>
         </select>
-        <input id="b-gal-url" class="b-input" type="text" style="flex:1" placeholder="…or paste an image URL"
+        <input id="b-gal-url" class="b-input" type="text" style="flex:1"
+               aria-label="Image URL" placeholder="…or paste an image URL"
                onkeydown="if (event.key === 'Enter') { event.preventDefault(); insertGalleryURL(); }">
         <button class="btn btn-primary" onclick="insertGalleryURL()">Insert URL</button>
       </div>
     </div>
   </div>
 
+  <div id="b-tools" class="hide">
+    <button type="button" class="read" title="Back to full size"
+            aria-label="Set this picture back to full size"></button>
+    <button type="button" class="kill" onclick="removeBlock()"
+            title="Remove this block" aria-label="Remove this block">&#10005;</button>
+    <span class="grip" role="slider" tabindex="0" aria-label="Picture size"
+          aria-valuemin="5" aria-valuemax="100" aria-valuenow="100"
+          title="Drag to resize"></span>
+  </div>
+
   <div id="b-drop" class="hide"><span>Drop a <strong>.ttxf</strong> file to open it</span></div>
 
   <div id="b-wrap">
-    <aside id="b-outline">
-      <div class="b-rail-head">Exercise</div>
+    <aside id="b-outline" aria-label="Running order">
+      <h2 class="b-rail-head" id="b-head-exercise">Exercise</h2>
       <div class="b-meta">
+        <label class="b-sr" for="b-title">Exercise title</label>
         <input id="b-title" type="text" placeholder="Title" oninput="bMeta('title', this.value)">
+        <label class="b-sr" for="b-author">Author</label>
         <input id="b-author" type="text" placeholder="Author" oninput="bMeta('author', this.value)">
-        <button class="b-add" style="width:100%;text-align:left" onclick="bFocusMeta('summary')">Summary…</button>
         <button class="b-add" style="width:100%;text-align:left" onclick="bPickCover()">
           <span id="b-cover-label">Cover image…</span></button>
       </div>
-      <div class="b-rail-head">Stages</div>
-      <div id="b-stage-list"></div>
-      <div style="padding:0.3rem 0.7rem 0.8rem">
+      <h2 class="b-rail-head" id="b-head-order">Running order</h2>
+      <div id="b-stage-list" role="list" aria-labelledby="b-head-order"></div>
+      <div style="padding:0.3rem 0.7rem 0.9rem">
         <button class="b-add" style="width:100%" onclick="bAddStage()">+ Add stage</button>
-      </div>
-      <div class="b-rail-head">Debrief</div>
-      <div class="b-meta">
-        <button class="b-add" style="width:100%;text-align:left" onclick="bFocusMeta('conclusion')">Conclusion…</button>
       </div>
       <div id="b-rail-foot"><span id="b-foot-count"></span><span id="b-foot-time"></span></div>
     </aside>
 
-    <main id="b-work"><div id="b-work-inner"></div></main>
+    <main id="b-work" aria-label="The stage you are editing"><div id="b-work-inner"></div></main>
   </div>
 
   <!-- versioned: this page depends on TTXF.htmlToSource, and a cached copy
@@ -962,7 +1252,24 @@
       pacing().forEach(p => { paceBy[p.i] = p; });
       const secs = doc.stages.map(s => TTXF.durationToSeconds(s.duration));
       const longest = Math.max(1, ...secs);
-      list.innerHTML = doc.stages.map((s, i) => {
+      /* The opening and the debrief are screens the room reads, so they belong in
+         the running order rather than hidden behind two buttons labelled with an
+         ellipsis. They are not stages: no number, no clock, and not draggable. */
+      const bookend = (field, name, note) => {
+        const filled = (doc[field] || '').trim();
+        const on = metaFocus === field;
+        return `<button class="b-stage-row b-bookend${on ? ' current' : ''}" role="listitem"
+                        aria-current="${on}" onclick="bFocusMeta('${field}')"
+                        title="${esc(note)}">
+          <span class="n" aria-hidden="true">${field === 'summary' ? '▸' : '■'}</span>
+          <span class="t${filled ? '' : ' b-untitled'}">${esc(name)}</span>
+          <span class="sub">${filled ? esc(TTXF.markdown(filled).replace(/<[^>]+>/g, ' ').trim().slice(0, 42))
+                                     : 'Empty — click to write it'}</span>
+        </button>`;
+      };
+
+      list.innerHTML = bookend('summary', 'Opening', 'What the room reads before the exercise begins')
+        + doc.stages.map((s, i) => {
         const bits = [];
         if (s.duration) bits.push(s.duration);
         const qs = s.questions.filter(q => (q.question || '').trim()).length;
@@ -971,17 +1278,24 @@
         if (d) bits.push(d + 'd');
         const title = (s.stage || '').trim();
         const pace = paceBy[i];
-        return `<button class="b-stage-row${i === focus ? ' current' : ''}" onclick="bFocus(${i})"
-                        draggable="true" data-i="${i}"
+        const on = !metaFocus && i === focus;
+        return `<button class="b-stage-row${on ? ' current' : ''}" onclick="bFocus(${i})"
+                        role="listitem" aria-current="${on}" draggable="true" data-i="${i}"
                         title="${pace ? esc('This stage looks ' + pace.how + ' for what is in it') : 'Drag to reorder'}">
-          <span class="n">${i + 1}</span>
+          <span class="n" aria-hidden="true">${i + 1}</span>
           <span class="t${title ? '' : ' b-untitled'}">${esc(title || 'Untitled stage')}${
             badBy[i] ? '<span class="flag" title="Something in this stage needs attention">!</span>' : ''}</span>
           ${bits.length ? `<span class="sub">${esc(bits.join(' · '))}${
             pace ? `<span class="warn"> · ${pace.how} for its content</span>` : ''}</span>` : ''}
           ${secs[i] ? `<span class="b-bar"><i style="width:${Math.round(secs[i] / longest * 100)}%"></i></span>` : ''}
         </button>`;
-      }).join('') || '<div class="b-empty" style="padding:1rem 0;font-size:11.5px">No stages yet</div>';
+      }).join('')
+        + bookend('conclusion', 'Debrief', 'The finish screen — the last thing the room reads');
+
+      if (!doc.stages.length) {
+        list.insertAdjacentHTML('beforeend',
+          '<div class="b-empty" style="padding:0.6rem 0;font-size:11.5px">No stages in between yet</div>');
+      }
 
       const total = secs.reduce((a, b) => a + b, 0);
       document.getElementById('b-foot-count').textContent =
@@ -1098,6 +1412,8 @@
     /* ═══ WORKSPACE ═══ */
     function renderWork() {
       const el = document.getElementById('b-work-inner');
+      pickMedia(null);                       // whatever was selected is about to be replaced
+      sendRoom();                            // so no caller can forget to refresh the preview
       if (metaFocus) {
         const heading = metaFocus === 'summary' ? 'Summary' : 'Conclusion';
         const note = metaFocus === 'summary'
@@ -1105,7 +1421,7 @@
           : 'The finish screen. The last thing the room reads.';
         el.innerHTML = `<input class="b-stage-title" type="text" value="${esc(heading)}" disabled>
           <div class="b-stage-meta"><span>${esc(note)}</span></div>
-          <section class="b-zone screen"><div class="b-zone-head">On screen</div>
+          <section class="b-zone screen"><h2 class="b-zone-head">On screen</h2>
             <div class="b-zone-body">${richHTML(metaFocus, doc[metaFocus] || '', note)}</div>
           </section>`;
         el.querySelectorAll('.b-editable').forEach(dressEditable);
@@ -1120,7 +1436,7 @@
       }
       el.innerHTML = `
         <input class="b-stage-title" type="text" value="${esc(s.stage)}"
-               placeholder="Stage title" oninput="bStage('stage', this.value)">
+               aria-label="Stage title" placeholder="Stage title" oninput="bStage('stage', this.value)">
         <div class="b-stage-meta">
           <span>Stage ${focus + 1} of ${doc.stages.length}</span>
           <span>·</span>
@@ -1136,7 +1452,7 @@
         </div>
 
         <section class="b-zone screen">
-          <div class="b-zone-head">On screen</div>
+          <h2 class="b-zone-head">On screen</h2>
           <div class="b-zone-body">
             <div class="b-field">
               <label class="b-field-label">Content</label>
@@ -1156,7 +1472,7 @@
         </section>
 
         <section class="b-zone notes">
-          <div class="b-zone-head">Your notes — never shown to participants</div>
+          <h2 class="b-zone-head">Your notes — never shown to participants</h2>
           <div class="b-zone-body">
             <div class="b-field">
               <label class="b-field-label">Facilitator prompts</label>
@@ -1181,32 +1497,38 @@
        A stage the author never types into is never re-serialised, so opening a
        scenario cannot churn its formatting — only real edits change bytes. */
     const RICH_BUTTONS = [
-      ['B', 'bold', 'Bold'],
-      ['I', 'italic', 'Italic'],
-      ['&lt;/&gt;', 'code', 'Inline code'],
+      ['B', 'bold', 'Bold', 'ico'],
+      ['I', 'italic', 'Italic', 'ico'],
+      ['&lt;&gt;', 'code', 'Inline code', 'ico'],
       ['sep'],
-      ['&bull;', 'ul', 'Bulleted list'],
-      ['1.', 'ol', 'Numbered list'],
-      ['&rdquo;', 'quote', 'Quote'],
+      ['&#9679;&#8201;&#8212;', 'ul', 'Bulleted list', 'ico'],
+      ['1.', 'ol', 'Numbered list', 'ico'],
+      ['&#8220;', 'quote', 'Quote', 'ico'],
       ['sep'],
-      ['Image', 'image', 'Insert an image'],
-      ['News', 'news', 'Insert a news headline'],
-      ['Artefact', 'pre', 'Insert a log or artefact block'],
+      ['Image', 'image', 'Insert an image', 'lbl'],
+      ['News', 'news', 'Insert a news headline', 'lbl'],
+      ['Artefact', 'pre', 'Insert a log or artefact block', 'lbl'],
     ];
 
+    const FIELD_NAMES = { content: 'Stage content', summary: 'Opening', conclusion: 'Debrief' };
+
     function richHTML(field, value, placeholder) {
-      const bar = RICH_BUTTONS.map(([label, cmd, title]) =>
-        cmd ? `<button type="button" title="${esc(title)}" onmousedown="event.preventDefault()"
-                 onclick="richCmd(this,'${cmd}')">${label}</button>`
-            : '<span class="sep"></span>').join('');
+      const what = FIELD_NAMES[field] || field;
+      const bar = RICH_BUTTONS.map(([glyph, cmd, title, shape]) =>
+        cmd ? `<button type="button" class="${shape}" data-cmd="${cmd}" title="${esc(title)}"
+                 aria-label="${esc(title)}" onmousedown="event.preventDefault()"
+                 onclick="richCmd(this,'${cmd}')">${glyph}</button>`
+            : '<span class="sep" role="separator"></span>').join('');
       return `<div class="b-rich" data-field="${field}">
-        <div class="b-rich-bar">${bar}<span class="grow"></span>
-          <button type="button" class="b-src-toggle" title="Edit the underlying .ttxf"
-                  onclick="richToggleSource(this)">Source</button>
+        <div class="b-rich-bar" role="toolbar" aria-label="${esc(what)} formatting">${bar}<span class="grow"></span>
+          <button type="button" class="lbl b-src-toggle" aria-pressed="false"
+                  title="Edit the underlying .ttxf" onclick="richToggleSource(this)">Source</button>
         </div>
-        <div class="b-editable" contenteditable="true" data-placeholder="${esc(placeholder)}"
-             oninput="richInput(this)" onpaste="richPaste(event, this)">${TTXF.markdown(value)}</div>
-        <textarea class="b-source" hidden oninput="richSourceInput(this)">${esc(value)}</textarea>
+        <div class="b-editable" contenteditable="true" role="textbox" aria-multiline="true"
+             aria-label="${esc(what)}" data-placeholder="${esc(placeholder)}"
+             oninput="richInput(this)" onpaste="richPaste(event, this)" onkeydown="widgetKeys(event)">${TTXF.markdown(value)}</div>
+        <textarea class="b-source" hidden rows="12" aria-label="${esc(what)} as .ttxf source"
+                  oninput="richSourceInput(this)">${esc(value)}</textarea>
       </div>`;
     }
 
@@ -1234,7 +1556,17 @@
       el.className = 'bad';
     }
 
-    function richSourceInput(ta) { writeField(richField(ta), ta.value); }
+    function richSourceInput(ta) { writeField(richField(ta), ta.value); autosizeSource(ta); }
+
+    /* A scenario stage can be much longer than any sensible default height, and a
+       long artefact inside a short scrolling box is worse than the WYSIWYG it was
+       opened to escape. The floor comes from CSS; this only ever grows it. */
+    function autosizeSource(ta) {
+      if (!ta || !ta.style) return;
+      ta.style.height = 'auto';
+      const wanted = ta.scrollHeight;
+      if (wanted) ta.style.height = wanted + 'px';
+    }
 
     function writeField(field, source) {
       if (field === 'content') doc.stages[focus].content = source;
@@ -1257,7 +1589,9 @@
         let live = null;
         try { live = TTXF.htmlToSource(editable); } catch (e) { live = null; }
         ta.value = typeof live === 'string' && live.trim() ? live : readField(richField(btn));
-        ta.hidden = false; editable.hidden = true; btn.classList.add('on');
+        ta.hidden = false; editable.hidden = true;
+        btn.classList.add('on'); btn.setAttribute('aria-pressed', 'true');
+        autosizeSource(ta);                 // only measurable once it is visible
         ta.focus();
       } else {
         const source = ta.value;
@@ -1267,19 +1601,222 @@
           editable.innerHTML = TTXF.markdown(source);
           dressEditable(editable);
         }
-        ta.hidden = true; editable.hidden = false; btn.classList.remove('on');
+        ta.hidden = true; editable.hidden = false;
+        btn.classList.remove('on'); btn.setAttribute('aria-pressed', 'false');
       }
     }
 
     /* Everything a freshly rendered editable needs before an author touches it. */
-    function dressEditable(el) { mediaDisplay(el); lockWidgets(el); }
+    function dressEditable(el) { mediaDisplay(el); lockWidgets(el); sizeAllMedia(el); }
 
     /* Blocks are objects, not text: made non-editable so a caret cannot land
-       inside one and quietly break the markup it round-trips to. */
+       inside one and quietly break the markup it round-trips to.
+
+       The news frame is the exception. Its headline is the only thing in it an
+       author ever wants to change, and htmlToSource reads that headline straight
+       out of the DOM — so the frame stays locked and the two bits of text inside
+       it are opened up. */
     function lockWidgets(root) {
       root.querySelectorAll('pre.SFpre, figure.SFnews, img.SFmedia').forEach(el => {
         el.setAttribute('contenteditable', 'false');
       });
+      openWidgetText(root);
+    }
+
+    /* Everywhere else an artefact's label is drawn from data-label with CSS,
+       which nobody can type into. Here it is given a real element, which
+       TTXF.htmlToSource reads in preference to the attribute — so editing it
+       edits the file, and the block keeps its own body separate. */
+    function openWidgetText(root) {
+      root.querySelectorAll('pre.SFpre').forEach(pre => {
+        if (!pre.querySelector('.SFpre-label')) {
+          const label = document.createElement('span');
+          label.className = 'SFpre-label';
+          label.textContent = pre.getAttribute('data-label') || '';
+          pre.insertBefore(label, pre.firstChild);
+        }
+      });
+      root.querySelectorAll(
+        'figure.SFnews .SFnews-line, figure.SFnews .SFnews-flag, pre.SFpre .SFpre-label, pre.SFpre > code'
+      ).forEach(el => {
+        el.setAttribute('contenteditable', 'true');
+        el.setAttribute('spellcheck', 'false');
+      });
+    }
+
+    /* A headline and a label are each one line. Enter would leave a <br> or a
+       stray div inside an element the converter reads as plain text, so it moves
+       the caret out instead. Inside an artefact's body a newline is the point,
+       so Enter is left alone there. */
+    function widgetKeys(ev) {
+      if (ev.key !== 'Enter' || !ev.target.closest) return;
+      const oneLine = ev.target.closest('.SFnews-line, .SFnews-flag, .SFpre-label');
+      if (!oneLine) return;
+      ev.preventDefault();
+      oneLine.blur();
+    }
+
+    /* ═══ SELECTED BLOCKS ═════════════════════════════════════════════════
+       A block — a picture, an artefact, a news frame — is not text, so the usual
+       ways of getting rid of something do not obviously apply to it. Clicking one
+       selects it and brings up its controls: a remove button on every block, and
+       for a picture a size grip and a percentage.
+
+       %(url | 60%) is a percentage of the picture's own width, which the gym
+       applies at render time. The editor ignored it completely: an author set a
+       quarter-size image and saw it full width, which is not a preview of
+       anything. It is applied here the same way.
+
+       The controls float over the block rather than wrapping it, because a
+       wrapper would nest it and TTXF.htmlToSource reads top-level children — the
+       block would disappear from the file on the next keystroke. */
+    const SIZE_MIN = 5, SIZE_MAX = 100;
+    const BLOCKS = '.b-editable img.SFmedia, .b-editable pre.SFpre, .b-editable figure.SFnews';
+    let picked = null;
+
+    function isPicture(el) { return !!el && el.tagName === 'IMG'; }
+
+    function scaleOf(img) {
+      const raw = (img.getAttribute('data-scale') || '').trim();
+      const n = /^(\d+(?:\.\d+)?)\s*%?$/.exec(raw);
+      return n ? Math.min(SIZE_MAX, Math.max(SIZE_MIN, parseFloat(n[1]))) : 100;
+    }
+
+    function sizeMedia(img) {
+      const apply = () => {
+        if (!img.naturalWidth) return;
+        img.style.width = Math.round(img.naturalWidth * (scaleOf(img) / 100)) + 'px';
+      };
+      if (img.complete) apply();
+      else img.addEventListener('load', apply, { once: true });
+    }
+
+    function sizeAllMedia(root) { root.querySelectorAll('img.SFmedia').forEach(sizeMedia); }
+
+    function pickBlock(el) {
+      if (picked) picked.classList.remove('b-picked');
+      picked = el || null;
+      const tools = document.getElementById('b-tools');
+      if (!picked) { tools.classList.add('hide'); return; }
+      picked.classList.add('b-picked');
+      tools.classList.toggle('no-size', !isPicture(picked));
+      tools.classList.remove('hide');
+      placeTools();
+    }
+
+    // the old name, kept because a picture is still the usual thing to select
+    function pickMedia(img) { pickBlock(img); }
+
+    function placeTools() {
+      if (!picked) return;
+      const tools = document.getElementById('b-tools');
+      const r = picked.getBoundingClientRect();
+      // it can be scrolled out from under its own controls
+      if (r.bottom < 0 || r.top > window.innerHeight) { tools.classList.add('hide'); return; }
+      tools.classList.remove('hide');
+      tools.style.left = r.left + 'px';
+      tools.style.top = r.top + 'px';
+      tools.style.width = r.width + 'px';
+      tools.style.height = r.height + 'px';
+      if (isPicture(picked)) {
+        const pct = Math.round(scaleOf(picked));
+        tools.querySelector('.read').textContent = pct + '%';
+        tools.querySelector('.grip').setAttribute('aria-valuenow', String(pct));
+      }
+      tools.querySelector('.kill').setAttribute('aria-label', 'Remove this ' + blockName(picked));
+    }
+
+    function blockName(el) {
+      if (isPicture(el)) return 'picture';
+      if (el.tagName === 'PRE') return 'artefact';
+      if (el.tagName === 'FIGURE') return 'news frame';
+      return 'block';
+    }
+
+    function removeBlock() {
+      if (!picked) return;
+      const editable = picked.closest('.b-editable');
+      picked.remove();
+      pickBlock(null);
+      if (editable) { dressEditable(editable); richInput(editable); }
+    }
+
+    function setMediaScale(img, pct, commit) {
+      const v = Math.min(SIZE_MAX, Math.max(SIZE_MIN, Math.round(pct)));
+      img.setAttribute('data-scale', v + '%');
+      sizeMedia(img);
+      placeTools();
+      if (commit) {
+        const editable = img.closest('.b-editable');
+        if (editable) richInput(editable);
+      }
+    }
+
+    function initBlockTools() {
+      const tools = document.getElementById('b-tools');
+      const grip = tools.querySelector('.grip');
+      const read = tools.querySelector('.read');
+
+      const begin = ev => {
+        if (!isPicture(picked) || !picked.naturalWidth) return;
+        ev.preventDefault();
+        const startX = ev.clientX;
+        const startW = picked.getBoundingClientRect().width;
+        const natural = picked.naturalWidth;
+        const move = e => setMediaScale(picked, (startW + (e.clientX - startX)) / natural * 100, false);
+        const stop = () => {
+          window.removeEventListener('pointermove', move);
+          window.removeEventListener('pointerup', stop);
+          window.removeEventListener('mousemove', move);
+          window.removeEventListener('mouseup', stop);
+          if (isPicture(picked)) setMediaScale(picked, scaleOf(picked), true);
+        };
+        window.addEventListener('pointermove', move);
+        window.addEventListener('pointerup', stop);
+        window.addEventListener('mousemove', move);
+        window.addEventListener('mouseup', stop);
+      };
+      grip.addEventListener('pointerdown', begin);
+      grip.addEventListener('mousedown', begin);
+      read.addEventListener('click', () => { if (isPicture(picked)) setMediaScale(picked, 100, true); });
+      grip.addEventListener('keydown', ev => {
+        if (!isPicture(picked)) return;
+        const step = ev.shiftKey ? 10 : 2;
+        if (ev.key === 'ArrowRight' || ev.key === 'ArrowUp') { setMediaScale(picked, scaleOf(picked) + step, true); ev.preventDefault(); }
+        else if (ev.key === 'ArrowLeft' || ev.key === 'ArrowDown') { setMediaScale(picked, scaleOf(picked) - step, true); ev.preventDefault(); }
+      });
+
+      /* A block is selected by clicking it, and let go of by clicking away — but
+         a click on the text inside an artefact or a headline is someone placing a
+         caret, so that selects the block without stealing the caret. */
+      document.addEventListener('click', ev => {
+        const block = ev.target.closest && ev.target.closest(BLOCKS);
+        if (block) { pickBlock(block); return; }
+        if (!ev.target.closest || !ev.target.closest('#b-tools')) pickBlock(null);
+      });
+
+      // keyboard, but never while the caret is in text, where these keys mean
+      // move the caret and delete a character
+      document.addEventListener('keydown', ev => {
+        if (!picked) return;
+        const a = document.activeElement;
+        const typing = a && (a.isContentEditable ||
+                             (a.closest && a.closest('[contenteditable="true"]')) ||
+                             /^(input|textarea|select)$/i.test(a.tagName));
+        if (typing) {
+          if (ev.key === 'Escape') pickBlock(null);
+          return;
+        }
+        if (ev.key === 'Escape') { pickBlock(null); return; }
+        if (ev.key === 'Delete' || ev.key === 'Backspace') { removeBlock(); ev.preventDefault(); return; }
+        if (!isPicture(picked)) return;
+        const step = ev.shiftKey ? 10 : 2;
+        if (ev.key === 'ArrowRight' || ev.key === 'ArrowUp') { setMediaScale(picked, scaleOf(picked) + step, true); ev.preventDefault(); }
+        else if (ev.key === 'ArrowLeft' || ev.key === 'ArrowDown') { setMediaScale(picked, scaleOf(picked) - step, true); ev.preventDefault(); }
+      });
+
+      window.addEventListener('scroll', placeTools, true);
+      window.addEventListener('resize', placeTools);
     }
 
     /* Anything pasted is pushed through the format and back, so what lands is
@@ -1324,16 +1861,77 @@
       richInput(editable);
     }
 
-    /* execCommand is deprecated and already missing from some engines. It stays
-       the first choice because it is the only route to the browser's own undo,
-       but a block that cannot be inserted must still land somewhere the author
-       can see it, so the fallback appends to the end of the field. */
+    /* ═══ INSERTING A BLOCK ═══════════════════════════════════════════════
+       An artefact, a news frame and an image are blocks: TTXF.htmlToSource walks
+       the editable's top-level children and only recognises them there. Dropping
+       one at the caret with execCommand nested it inside whatever paragraph the
+       caret was in, where the converter read it as a paragraph — so the block
+       came back as flat prose and the fences were gone from the file.
+
+       So the paragraph is split instead, and the block placed between the halves
+       as a sibling. The caret lands in the paragraph after it, which is where
+       someone who just inserted a log wants to carry on typing. */
+    function topLevelHost(editable) {
+      const sel = document.getSelection && document.getSelection();
+      if (!sel || !sel.rangeCount) return null;
+      const range = sel.getRangeAt(0);
+      let n = range.startContainer;
+      if (!editable.contains(n)) return null;
+      while (n && n.parentNode && n.parentNode !== editable) n = n.parentNode;
+      return n && n.parentNode === editable ? n : null;
+    }
+
     function insertBlock(editable, source) {
-      const html = TTXF.markdown(source) + '<p><br></p>';
-      let ok = false;
-      try { ok = !!(document.execCommand && document.execCommand('insertHTML', false, html)); }
-      catch (e) { ok = false; }
-      if (!ok) editable.insertAdjacentHTML('beforeend', html);
+      const holder = document.createElement('div');
+      holder.innerHTML = TTXF.markdown(source);
+      const blocks = Array.from(holder.childNodes);
+      if (!blocks.length) return;
+
+      const host = topLevelHost(editable);
+      const tail = document.createElement('p');
+      tail.appendChild(document.createElement('br'));
+
+      if (!host) {                                   // no caret in the field: append
+        blocks.forEach(b => editable.appendChild(b));
+        editable.appendChild(tail);
+      } else if (host.nodeType === 1 && /^(pre|figure|img|ul|ol|blockquote)$/i.test(host.tagName)) {
+        // a block of its own: put the new one after it rather than inside it
+        let at = host;
+        blocks.forEach(b => { at.after(b); at = b; });
+        at.after(tail);
+      } else {
+        // split the paragraph at the caret and sit between the halves
+        const range = document.getSelection().getRangeAt(0);
+        const rest = range.cloneRange();
+        rest.setEnd(host, host.childNodes.length);
+        const after = rest.extractContents();
+        if (after.textContent.trim() || after.querySelector('img, br')) {
+          tail.innerHTML = '';
+          tail.appendChild(after);
+          // the split lands between words; the space belonged to the sentence above
+          const first = tail.firstChild;
+          if (first && first.nodeType === 3) first.nodeValue = first.nodeValue.replace(/^\s+/, '');
+        }
+        let at = host;
+        blocks.forEach(b => { at.after(b); at = b; });
+        at.after(tail);
+        // a paragraph emptied by the split would otherwise sit there as a blank line
+        if (!host.textContent.trim() && !host.querySelector('img')) host.remove();
+      }
+
+      dressEditable(editable);
+      caretInto(tail);
+    }
+
+    function caretInto(el) {
+      try {
+        const range = document.createRange();
+        range.setStart(el, 0);
+        range.collapse(true);
+        const sel = document.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+      } catch (e) { /* no selection to move */ }
     }
 
     /* ═══ QUESTIONS ═══════════════════════════════════════════════════════
@@ -1367,12 +1965,14 @@
             <button class="b-mark" title="${ai === q.quizIndex ? 'The correct answer' : 'Mark as the correct answer'}"
                     onclick="bMarkAnswer(${i}, ${ai})">${ai === q.quizIndex ? '✓' : ''}</button>
             <input type="text" value="${esc(a)}" placeholder="Answer"
+                   aria-label="Answer ${ai + 1}"
                    oninput="bAnswer(${i}, ${ai}, this.value)">
             <button class="b-icon-btn" title="Remove answer" onclick="bRemoveAnswer(${i}, ${ai})">✕</button>
           </div>`).join('');
         return `<div class="b-q">
           <div class="b-q-top">
-            <input class="b-q-text" type="text" value="${esc(q.question)}" placeholder="What are you asking the room?"
+            <input class="b-q-text" type="text" value="${esc(q.question)}"
+                   aria-label="Question ${i + 1}" placeholder="What are you asking the room?"
                    oninput="bQuestion(${i}, this.value)">
             <span class="b-q-kind${scored ? ' scored' : ''}">${scored ? 'scored' : 'poll'}</span>
             <button class="b-icon-btn" title="Delete question" onclick="bRemoveQuestion(${i})">✕</button>
@@ -1380,7 +1980,8 @@
           ${answers}
           <div class="b-q-foot">
             <button class="b-add" onclick="bAddAnswer(${i})">+ Answer</button>
-            <select onchange="bPreset(${i}, this.value); this.selectedIndex = 0">
+            <select aria-label="Replace the answers with a standard scale"
+                    onchange="bPreset(${i}, this.value); this.selectedIndex = 0">
               <option value="">Preset…</option>
               ${Object.entries(ANSWER_PRESETS).map(([k, v]) => `<option value="${k}">${esc(v.label)}</option>`).join('')}
             </select>
@@ -1436,17 +2037,27 @@
       renderWork(); touched();
     }
 
+    /* One item is one line: the format writes it as "+ text", and a newline in
+       the middle would be serialised into the file as a line with no directive
+       above it — the parser drops it and everything after the break is gone. A
+       text input cannot hold a newline, so the hazard cannot arise. */
     function listHTML(field, items, placeholder) {
       return items.map((v, i) => `
         <div class="b-list-item">
-          <textarea class="b-input" rows="2" placeholder="${esc(placeholder)}"
-                    oninput="bItem('${field}', ${i}, this.value)">${esc(v)}</textarea>
-          <button class="b-icon-btn" title="Remove" onclick="bRemoveItem('${field}', ${i})">✕</button>
+          <input class="b-input" type="text" value="${esc(v)}" placeholder="${esc(placeholder)}"
+                 aria-label="${esc(placeholder)}, item ${i + 1}"
+                 oninput="bItem('${field}', ${i}, this.value)">
+          <button class="b-icon-btn" title="Remove" aria-label="Remove item ${i + 1}"
+                  onclick="bRemoveItem('${field}', ${i})">✕</button>
         </div>`).join('');
     }
 
     function bStage(key, value) { doc.stages[focus][key] = value; touched(); }
-    function bItem(field, i, value) { doc.stages[focus][field][i] = value; touched(); }
+    function bItem(field, i, value) {
+      // one item, one line — see listHTML
+      doc.stages[focus][field][i] = String(value).replace(/[\r\n]+/g, ' ');
+      touched();
+    }
     function bAddItem(field) { doc.stages[focus][field].push(''); renderWork(); touched(); }
     function bRemoveItem(field, i) { doc.stages[focus][field].splice(i, 1); renderWork(); touched(); }
 
@@ -1487,7 +2098,7 @@
       document.getElementById('b-work-inner').innerHTML = `
         <input class="b-stage-title" type="text" value="Start a new exercise" disabled>
         <div class="b-stage-meta"><span>Pick a shape. Every stage arrives named and empty — nothing is written for you.</span></div>
-        <section class="b-zone screen"><div class="b-zone-head">Shapes</div><div class="b-zone-body">
+        <section class="b-zone screen"><h2 class="b-zone-head">Shapes</h2><div class="b-zone-body">
           ${Object.entries(SHAPES).map(([k, v]) => `
             <div class="b-field">
               <button class="b-add" style="width:100%;text-align:left;padding:0.55rem 0.7rem"
@@ -1541,9 +2152,16 @@
         failSafe('the participant view did not load — try a hard refresh');
         return;
       }
+      mirrorReady = false;
       const blob = new Blob([PRESENTATION_HTML], { type: 'text/html' });
       const url = URL.createObjectURL(blob);
-      frame.addEventListener('load', () => { try { URL.revokeObjectURL(url); } catch (e) {} sendRoom(); }, { once: true });
+      frame.addEventListener('load', () => {
+        try { URL.revokeObjectURL(url); } catch (e) {}
+        // the document's own "ready" is the reliable signal, but if the message
+        // never arrives — a blocked channel, a slow script — load is a floor
+        mirrorReady = true;
+        postRoom();
+      }, { once: true });
       frame.src = url;
       frame.dataset.mounted = '1';
       mirrorRestore();
@@ -1714,15 +2332,44 @@
       }, place);
     }
 
+    /* Every edit posts the stage again, so the participant view is never showing
+       something the author has moved on from.
+
+       Two things could lose an update. A message posted before the document
+       inside the iframe exists goes nowhere and nothing retries it, so sends are
+       held until it says it is ready and the latest one is flushed then. And a
+       burst of keystrokes would post a full re-render per character, so sends are
+       coalesced into the next frame — the author still sees the current text,
+       just not a re-render per keypress. */
+    let mirrorReady = false;
+    let roomPending = false;
+
     function sendRoom() {
-      if (!mirrorOn) return;
-      const frame = mirrorFrame();
-      if (!frame || !frame.contentWindow) return;
-      try { frame.contentWindow.postMessage(roomPayload(), '*'); } catch (e) { /* not ready yet */ }
+      if (!mirrorOn) { roomPending = false; return; }
+      if (roomPending) return;
+      roomPending = true;
+      const flush = () => {
+        roomPending = false;
+        postRoom();
+      };
+      if (typeof requestAnimationFrame === 'function') requestAnimationFrame(flush);
+      else setTimeout(flush, 0);
     }
 
-    /* The document announces itself once loaded, so there is no delay to race. */
-    window.addEventListener('message', ev => { if (ev.data && ev.data.type === 'ready') sendRoom(); });
+    function postRoom() {
+      if (!mirrorOn || !mirrorReady) return;          // held until the document answers
+      const frame = mirrorFrame();
+      if (!frame || !frame.contentWindow) return;
+      try { frame.contentWindow.postMessage(roomPayload(), '*'); } catch (e) { /* gone */ }
+    }
+
+    /* The document announces itself once loaded, and keeps announcing until
+       something answers, so there is no delay to race. */
+    window.addEventListener('message', ev => {
+      if (!ev.data || ev.data.type !== 'ready') return;
+      mirrorReady = true;
+      postRoom();                                     // straight out, not next frame
+    });
 
     /* ═══ PROBLEMS ════════════════════════════════════════════════════════
        The old builder reported problems against line numbers in a file the
@@ -1807,10 +2454,18 @@
       });
     }
 
+    /* Opening a dialog and leaving the focus behind it strands anyone on a
+       keyboard: tab order carries on through the page underneath, and Escape is
+       the only way out they can find by accident. */
+    let galleryReturn = null;
+
     function openGallery(editable) {
       galleryTarget = editable;
+      galleryReturn = document.activeElement;
       document.getElementById('b-gallery').classList.remove('hide');
       document.getElementById('b-gal-url').value = '';
+      const first = document.querySelector('#b-gallery .b-modal-head button');
+      if (first && first.focus) first.focus();
       if (galleryData) return renderGallery();
       fetch(GALLERY_DIR + 'gallery.json')
         .then(r => (r.ok ? r.json() : null))
@@ -1821,6 +2476,8 @@
     function closeGallery() {
       document.getElementById('b-gallery').classList.add('hide');
       galleryTarget = null;
+      if (galleryReturn && galleryReturn.focus) galleryReturn.focus();
+      galleryReturn = null;
     }
 
     function cancelGallery() { coverPick = false; closeGallery(); }
@@ -1883,7 +2540,6 @@
       if (!editable) return;
       editable.focus();
       insertBlock(editable, '%(' + url + ' | ' + scale + ')');
-      dressEditable(editable);
       richInput(editable);
     }
 
@@ -2074,6 +2730,7 @@
       renderAll();
       initDrop();
       initOutlineDrag();
+      initBlockTools();
 
       let param = '';
       try { param = new URLSearchParams(window.location.search).get('load') || ''; } catch (e) { param = ''; }
@@ -2095,9 +2752,20 @@
         }
       });
       document.addEventListener('keydown', ev => {
-        if (ev.key !== 'Escape') return;
-        if (!document.getElementById('b-gallery').classList.contains('hide')) cancelGallery();
-        else if (problemsOpen) { problemsOpen = false; renderProblems(); }
+        const gallery = document.getElementById('b-gallery');
+        const open = !gallery.classList.contains('hide');
+        if (ev.key === 'Escape') {
+          if (open) cancelGallery();
+          else if (problemsOpen) { problemsOpen = false; renderProblems(); }
+          return;
+        }
+        if (ev.key !== 'Tab' || !open) return;
+        const stops = Array.from(gallery.querySelectorAll('button, input, select, [tabindex="0"]'))
+          .filter(el => !el.disabled && el.offsetParent !== null);
+        if (!stops.length) return;
+        const first = stops[0], last = stops[stops.length - 1];
+        if (ev.shiftKey && document.activeElement === first) { last.focus(); ev.preventDefault(); }
+        else if (!ev.shiftKey && document.activeElement === last) { first.focus(); ev.preventDefault(); }
       });
       window.addEventListener('beforeunload', save);
     }

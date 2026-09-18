@@ -3266,6 +3266,30 @@ document.addEventListener('DOMContentLoaded',function(){hydrateMedia(document);}
      load a picture from a different path than the one it writes to the file —
      scenario media is authored relative to gym/ — and the authored path is the
      one that belongs in the source. */
+  /* The body of a fenced block, as lines.
+
+     markdown() renders the label through CSS, which cannot be typed into, so an
+     editor may put a real .SFpre-label element inside the block instead — that
+     element is the label, and never part of the body.
+
+     A caret inside a <pre> also produces markup rather than newlines: pressing
+     Enter leaves a <br> in some engines and a <div> in others, and textContent
+     renders both as nothing. Both mean a line break here. */
+  function preLines(pre, labelEl) {
+    var clone = pre.cloneNode(true);
+    var label = labelEl ? clone.querySelector('.SFpre-label') : null;
+    if (label && label.parentNode) label.parentNode.removeChild(label);
+
+    var doc = pre.ownerDocument;
+    var brs = clone.querySelectorAll('br');
+    for (var i = 0; i < brs.length; i++) brs[i].parentNode.replaceChild(doc.createTextNode('\n'), brs[i]);
+    var blocks = clone.querySelectorAll('div, p');
+    for (var j = 0; j < blocks.length; j++) {
+      if (blocks[j].previousSibling) blocks[j].parentNode.insertBefore(doc.createTextNode('\n'), blocks[j]);
+    }
+    return clone.textContent.replace(/^\n/, '').replace(/\n$/, '').split('\n');
+  }
+
   function mediaSource(el) {
     var scale = el.getAttribute('data-scale');
     var url = el.getAttribute('data-src') || el.getAttribute('src') || '';
@@ -3308,9 +3332,9 @@ document.addEventListener('DOMContentLoaded',function(){hydrateMedia(document);}
       var cls = typeof n.className === 'string' ? n.className : '';
 
       if (tag === 'pre') {
-        out.push('```' + (n.getAttribute('data-label') || ''));
-        var body = n.textContent.replace(/\n$/, '');
-        body.split('\n').forEach(function (l) { out.push(l); });
+        var labelEl = n.querySelector('.SFpre-label');
+        out.push('```' + (labelEl ? labelEl.textContent.trim() : (n.getAttribute('data-label') || '')));
+        preLines(n, labelEl).forEach(function (l) { out.push(l); });
         out.push('```'); gap();
       } else if (tag === 'figure' && cls.indexOf('SFnews') > -1) {
         var head = n.querySelector('.SFnews-line');

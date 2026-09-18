@@ -29,6 +29,11 @@
      --text-primary: #e8ecf2;
      --text-secondary: rgba(232, 236, 242, 0.55);
      --text-muted: rgba(232, 236, 242, 0.3);
+     /* Small uppercase labels and readouts. --text-muted renders those at about
+        2.4:1 against every ground in this palette, well under the 4.5:1 AA needs;
+        this measures 6.1-8.2:1. The gym defines the same token for the same
+        reason — keep the two in step. */
+     --text-label: rgba(232, 236, 242, 0.72);
      --border: rgba(255, 255, 255, 0.07);
      --border-active: rgba(46, 125, 224, 0.5);
      --shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
@@ -39,6 +44,9 @@
      --font-mono: 'DM Mono', monospace;
      --nav-h: 5rem;
      --content-width: 1100px;
+     /* the gym's controller is the same width; a page with a rail should look
+        like the same rail */
+     --sidebar-width: 280px;
  }
 
  html {

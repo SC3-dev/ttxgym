@@ -191,7 +191,7 @@ G('everything the old page could do');
   });
 
   t('dragging a stage in the outline reorders it', () => {
-    const rows = w.document.querySelectorAll('#b-stage-list .b-stage-row');
+    const rows = w.document.querySelectorAll('#b-stage-list .b-stage-row[data-i]');
     eq(rows.length, 2);
     ok(rows[0].getAttribute('draggable') === 'true', 'rows are not draggable');
     const carry = { effectAllowed: '', setData: () => {}, getData: () => '0' };
@@ -200,7 +200,7 @@ G('everything the old page could do');
     rows[0].dispatchEvent(start);
     const drop = new w.Event('drop', { bubbles: true, cancelable: true });
     drop.dataTransfer = carry;
-    w.document.querySelectorAll('#b-stage-list .b-stage-row')[1].dispatchEvent(drop);
+    w.document.querySelectorAll('#b-stage-list .b-stage-row[data-i]')[1].dispatchEvent(drop);
     eq(w.eval('doc.stages.map(s => s.stage)'), ['Two', 'One']);
     w.bMoveStage(1, -1);
   });

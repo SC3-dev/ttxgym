@@ -167,6 +167,195 @@ presets, the syntax insert bar, and the image gallery picker.
 
 **Steps 1–2 — documents.** Review and design written.
 
+**After the swap — matching the gym, and a control that lost text.**
+
+*One line means one field.* Discussion points and facilitator prompts were
+textareas, and the format writes each as `+ text` on a single line. A newline
+typed into one was serialised straight into the file as a line with no directive
+above it — the parser dropped it with a warning and **everything after the break
+was gone**. They are text inputs now, which cannot hold a newline, and anything
+arriving with one has it flattened to a space.
+
+*Colour, measured.* The two palettes turn out to be identical — 24 shared tokens,
+none differing — but the builder disagreed with the gym in three concrete ways.
+
+The rail was `--mid` at 232px; the gym's controller is `--surface` at 280px. Same
+rail, different page: it is now the same colour, and both take their width from
+one `--sidebar-width`.
+
+Sharing that token immediately broke the page, in a way worth recording. A
+`var()` that resolves to nothing does not fall back to the property's initial
+value — it makes the **whole declaration** invalid. `--sidebar-width` had just
+been added to `style.css`, a file browsers had been caching for months, so the
+first load after the change had `grid-template-columns: var(--sidebar-width)
+minmax(0, 1fr)` collapse to no columns at all: one implicit column, and the rail
+across the entire screen.
+
+Two fixes, and a third for next time. The declaration carries a fallback, so the
+layout cannot depend on another file having arrived; the stylesheet is requested
+with a version, as `js/ttxf.js` already was after the same class of fault; and a
+test now collects every structural property on the page that depends on a token
+defined elsewhere with no fallback, and fails on any of them. Colour is allowed
+to go missing — an unresolved colour just inherits. Layout is not.
+
+`--text-label` existed only in the gym, which added it because `--text-muted`
+renders small uppercase labels at about 2.4:1. Measured across this palette,
+`--text-muted` is **2.30–2.47:1 on all four grounds — failing AA everywhere** —
+and the builder was using it in twenty places, mostly for exactly that kind of
+label. The token is now in `style.css` for the whole site, the builder uses it,
+and a test computes the ratios rather than trusting the number.
+
+Section labels were 10px/0.08em against the gym's 0.68rem/0.1em. They match.
+
+*"Scenario Builder"* became *"Exercise Builder"*, which is what the navigation on
+every page calls it.
+
+*The Source view* had a floor of `9em` at 12px monospace — about half the height
+of the editor it replaces — so opening it shrank the field to a slot. It now
+shares the floor of the field it stands in for, carries a `rows` fallback for
+when the stylesheet has not arrived, and grows to fit its content: a long
+artefact scrolling inside a short box is worse than the WYSIWYG someone opened
+Source to get away from.
+
+**After the swap — an accessibility pass, and things you could not see how to use.**
+
+*Accessibility.* Audited rather than eyeballed: a script walked the built page
+with the picker, the problems list and the participant view all open, and found
+**23 faults**. The page had **no headings at all**, so there was nothing to
+navigate by; two controls had no accessible name; eighteen fields were labelled
+only by placeholder, which vanishes the moment anyone types; and the two main
+landmarks were unnamed. Opening the picker also left the focus behind it, so a
+keyboard user tabbed on through the page underneath.
+
+All fixed — one `h1`, `h2`s for the rail and the two zones, real labels
+throughout, named landmarks, the writing surfaces exposed as multiline text
+boxes, the status chip as a live region, and focus moved into the picker and
+handed back on close with Tab held inside it. The audit is now ten tests in the
+suite rather than a script I ran once, so the next control added without a name
+fails the build. Colour contrast is *not* covered — that needs measuring in a
+browser.
+
+*The opening and the debrief* were two buttons labelled with an ellipsis, sitting
+outside the list of stages although they are screens the room reads. They are now
+rows at the top and bottom of the running order, each showing its first line or
+saying it is empty. They are visibly not stages: no number, no clock, not
+draggable.
+
+*Blocks you could not see how to remove.* A picture, an artefact and a news frame
+are not text, so backspace does not obviously apply. Selecting one now brings up
+its controls — a remove button on the corner of all three, and the size grip and
+percentage only on a picture, which is the only one with a size. Delete works too,
+but never while the caret is in text.
+
+*Room to write.* A stage's content had the same floor as a one-line field. It now
+has a page-like minimum, and the on-screen zone a floor of its own, so a short
+stage does not sit in a sliver at the top of an empty page.
+
+*"Run it"* became *"Preview in TTX Gym"*, which says where it goes.
+
+**After the swap — an artefact you can write.**
+
+The label on a fenced block is drawn with `::before` from `data-label`, which
+nobody can type into: renaming an artefact meant deleting the block and inserting
+another. The editor now puts a real `.SFpre-label` element inside the block and
+suppresses the CSS one, and `TTXF.htmlToSource` reads that element in preference
+to the attribute — the same shape as the `data-src` change, extending what the
+module will *accept* without changing what `markdown()` *emits*, so the gym, the
+report and the participant window are untouched.
+
+The body came with it, because a labelled block you still cannot write in is
+half a feature. That needed one real repair: a caret inside a `<pre>` leaves
+markup rather than a newline — a `<br>` in some engines, a `<div>` in others —
+and `textContent` renders both as nothing, so every line break an author typed
+would have vanished. Both are read as newlines now, and both are tested.
+
+Enter is blocked in the label and in a news headline, which are one line each,
+and left alone in an artefact body, which is made of lines. The only block left
+with nothing to type into is a picture, which is why it is also the only one
+still `user-select: all`.
+
+**After the swap — a lost stylesheet, and a block that was not one.**
+
+*The buttons were never styled.* The `.btn` family was defined inside the builder
+this page replaced, and went with it. Nine buttons — the whole top bar, the draft
+banner, the picker's footer — had been rendering as raw browser defaults since
+the swap. Nothing failed, because nothing was checking that a class in the markup
+means anything in the stylesheet. There is now a test that collects every
+button class the page uses and fails on any with no rule behind it, which is the
+general form of the mistake rather than this instance of it.
+
+With them defined at this page's own scale, the top bar could be given a shape:
+the page's name, the status as a dot and a word, then making (New, Import) held
+quiet, a rule, and sending (participant view, run, download) with one primary
+action. The draft banner became an accent-edged strip with its own quiet dismiss,
+rather than two identical buttons and a cross.
+
+*Inserting a block.* An artefact, a news frame and a picture are blocks:
+`TTXF.htmlToSource` walks the editable's top-level children and only recognises
+them there. `execCommand('insertHTML')` at a caret nested the block inside
+whatever paragraph the caret was in, where the converter read it as a paragraph
+— so an artefact inserted mid-sentence came back as flat prose, fences and all,
+and the file lost the block entirely. Inserting into an empty field worked, which
+is why it survived this long.
+
+The paragraph is now split at the caret and the block placed between the halves
+as a sibling, with the caret left after it. Dropping one onto an existing block
+puts it after rather than inside; with no caret at all it goes to the end. Nine
+tests cover the positions, because the failure was silent and destructive.
+
+**After the swap — width, and a preview that keeps up.**
+
+The workspace ran at 760px, which suited a column of form fields and not a stage
+that now holds rendered prose, images and news frames. It is 1040px, with the
+outline trimmed slightly to pay for it.
+
+*The refresh.* Every mutation already called `sendRoom()` — that was measured
+path by path, not assumed — but two things could still lose an update, and both
+show up as a stale preview rather than as an error.
+
+A message posted before the document inside the iframe exists goes nowhere, and
+nothing retried it; the `ready` handshake covered the first mount and nothing
+else. Sends are now held until the document answers, and the newest one is
+flushed then, with the iframe's `load` as a floor in case `ready` never arrives.
+
+And a burst of keystrokes posted a full participant re-render per character.
+Sends are coalesced into the next frame, so what lands is one refresh carrying
+the latest state rather than ten carrying nine stale ones.
+
+`renderWork()` now sends as well, so the guarantee does not rest on every future
+caller remembering. The test for it enumerates twelve ways of changing an
+exercise and fails on any that does not reach the room, which is the shape the
+promise actually has.
+
+**After the swap — sizing, headlines, and the bar.**
+
+*Sizing.* `%(url | 60%)` is a percentage of the picture's own width, applied by
+the gym at render time. The editor ignored it outright: an author set a
+quarter-size image and saw it full width, which is not a preview of anything. It
+is now applied the same way, and the picture is draggable — click to select,
+drag the corner, arrow keys for anyone without a mouse, and the percentage badge
+resets to full size. The furniture floats over the picture rather than wrapping
+it: a wrapper would nest the `img`, and `TTXF.htmlToSource` reads top-level
+children, so the image would disappear from the file on the next keystroke.
+
+The editor column is far narrower than a 1280px participant screen, so a large
+picture is still bounded by `max-width` on the way to being displayed. The number
+is exact and the file is exact; the rendering is as exact as a narrow column
+allows, which is what the participant view is for.
+
+*Headlines.* The news frame was locked whole, so changing a headline meant
+deleting the block and inserting a new one. The frame stays locked — it is a
+composed object — but the headline and its flag are opened up, which is all
+`htmlToSource` reads out of it anyway, so editing them round-trips with no new
+code. Enter moves the caret out rather than putting a line break inside a span
+the converter reads as plain text.
+
+*The bar.* It mixed single glyphs with words at one 10px monospace size, which
+left the glyphs illegible and the words cramped. Marks and blocks now have one
+shared height and two shapes — square for a mark, labelled for a block — and the
+bold control is bold, the italic italic, the code control monospace. Source is a
+real toggle carrying `aria-pressed`.
+
 **Step 8b — the swap.** `builder.html` is now `editor.html`; the page it
 replaces is gone. The URL does not change, so every link into the builder — the
 site nav on four pages, the library's Customise button, the canonical and

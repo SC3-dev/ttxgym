@@ -91,6 +91,24 @@ G('C3 — one image implementation, no inline handlers');
     const d = new JSDOM('<div><img class="SFmedia" src="https://x/i.png"></div>');
     eq(T.htmlToSource(d.window.document.querySelector('div')), '%(https://x/i.png)');
   });
+
+  /* A fenced block's label is drawn with CSS from data-label, which cannot be
+     typed into, so an editor may put a real element in its place. */
+  t('a fence label element is read in preference to the attribute', () => {
+    const d = new JSDOM('<div><pre class="SFpre" data-label="Old">' +
+                        '<span class="SFpre-label">New</span><code>a\nb</code></pre></div>');
+    eq(T.htmlToSource(d.window.document.querySelector('div')), '```New\na\nb\n```');
+  });
+  t('and the label is never counted as part of the body', () => {
+    const d = new JSDOM('<div><pre class="SFpre"><span class="SFpre-label">L</span><code>a</code></pre></div>');
+    eq(T.htmlToSource(d.window.document.querySelector('div')), '```L\na\n```');
+  });
+  t('a caret in a fence leaves markup, and both kinds mean a new line', () => {
+    const br = new JSDOM('<div><pre class="SFpre" data-label="L"><code>a<br>b</code></pre></div>');
+    eq(T.htmlToSource(br.window.document.querySelector('div')), '```L\na\nb\n```');
+    const div = new JSDOM('<div><pre class="SFpre" data-label="L"><code>a<div>b</div></code></pre></div>');
+    eq(T.htmlToSource(div.window.document.querySelector('div')), '```L\na\nb\n```');
+  });
 }
 
 G('C5 — directive lines inside content can be escaped');
