@@ -479,6 +479,14 @@
         providing a custom-designed tool to produce consistent, effective, and insightful exercising experiences.
       </p>
 
+      <div class="info-card">
+        <strong>In a hurry?</strong> Pick something from the
+        <a href="library.html">Exercise Library</a> and press <strong>Run Exercise</strong>. To write your
+        own, or to tailor one of ours, use the <a href="editor.html">Exercise Builder</a> — you do not need
+        to learn a file format to build a complete exercise. See
+        <a href="#scenario">Creating and Modifying Scenarios</a>.
+      </div>
+
       <!-- PLANNING -->
       <h2 id="plan">Planning Your Exercise</h2>
 
@@ -585,37 +593,93 @@
       <!-- SCENARIOS -->
       <h2 id="scenario">Creating and Modifying Scenarios</h2>
 
-      <div class="tip-card">
-        <strong>Answer presets:</strong> almost every rating question in a tabletop uses the same
-        five-point confidence scale, so new questions in the Exercise Builder start with it
-        already filled in. The <strong>Answers</strong> dropdown on each question swaps it for
-        agreement, maturity, frequency or yes/no scales, or clears it so you can write your own.
-        <strong>Duplicate stage</strong> copies a whole stage — content, timing, prompts and
-        questions — which is usually faster than building the next one from scratch.
-      </div>
-
       <p>
-        TTX Gym uses scenario files formatted in a specific way. These <strong>TTXF files</strong> use Markdown-style
-        syntax and so are easy to read, change, or create from scratch, offering unlimited customisation of exercises.
+        The <a href="editor.html"><strong>Exercise Builder</strong></a> is the way to write an exercise.
+        It is a normal editor: you type into the stage as it will look, and everything else — the picture
+        gallery, the timing, the questions, the file itself — is handled for you.
+        <strong>You never need to see the file format to build a complete exercise.</strong>
       </p>
 
       <p>
-        A guide to the file format is below. Scenario files can be loaded directly into TTX Gym or shared with others.
+        Open it empty and it offers you a shape to start from — the detection-to-lessons arc most of the
+        library follows, a supplier incident, or a short decision exercise — with every stage named and
+        waiting. Or open an existing exercise from the library with <strong>Customise</strong>, drop a
+        <code>.ttxf</code> file anywhere on the page, or use <strong>Import</strong>.
+      </p>
+
+      <h3>What the builder gives you</h3>
+
+      <p>
+        <strong>The running order, down the left.</strong> The opening, every stage, and the debrief, in
+        the order the room will meet them. Click to move between them; drag to reorder. Each row shows
+        its planned time as a bar, so you can see at a glance where the exercise is lopsided — and the
+        builder will tell you when a stage's clock looks wrong for the amount in it.
+      </p>
+
+      <p>
+        <strong>Two halves to every stage.</strong> <em>On screen</em> is what participants see; <em>Your
+        notes</em> is what only you see. Moving a question from one to the other is how you make it
+        private — there is no flag to remember, and nothing that reaches the room by accident.
+      </p>
+
+      <p>
+        <strong>You edit what the room will read.</strong> Bold, italics, lists, quotes and inline code
+        are buttons. Pictures, news headlines and log extracts go in as themselves: drag a picture's
+        corner to resize it, type straight into a news headline or an artefact's label, and use the
+        remove button on any of them to take it out. <strong>Source</strong> on any field shows the
+        underlying text if you want it — but you can ignore it entirely.
+      </p>
+
+      <p>
+        <strong>The participant view, live.</strong> <strong>Participant view</strong> floats the real
+        participant screen over your work — the same page the room gets, not an impression of it — and it
+        follows every change as you make it. Drag it anywhere, resize it, or collapse it out of the way.
+      </p>
+
+      <p>
+        <strong>It tells you what is wrong.</strong> The status beside the title counts anything that needs
+        attention and lists it; each entry names the stage it is in and takes you there.
+      </p>
+
+      <p>
+        <strong>Two ways out.</strong> <strong>Preview in TTX Gym</strong> opens the exercise in the player
+        so you can walk it through. <strong>Download .ttxf</strong> saves the file to keep, share or put
+        under version control. Your work is saved in the browser as you go, so closing the tab does not
+        lose it.
       </p>
 
       <div class="tip-card">
-        <strong>Tip:</strong> For convenience, a scenario builder tool for easily creating TTXF files in the correct
-        format
-        is available <a href="editor.html">here</a>.
+        <strong>Answer presets:</strong> almost every rating question in a tabletop uses one of a
+        handful of scales, so each question has a <strong>Preset</strong> dropdown that fills in
+        confidence, agreement, maturity, frequency or yes/no answers in one go. Marking an answer
+        correct turns a poll into a scored question; clicking the marked one again clears it,
+        because a rating scale has no right answer. <strong>Duplicate</strong> copies a whole
+        stage — content, timing, prompts and questions — which is usually faster than building the
+        next one from scratch.
       </div>
+
+      <h3>The file underneath</h3>
+
+      <p>
+        Everything the builder makes is a <strong>TTXF file</strong>: plain text, Markdown-flavoured, one
+        file per exercise. It is worth knowing it exists even if you never edit one by hand, because it is
+        what you send someone, commit to a repository, or diff to see what changed between two versions of
+        an exercise.
+      </p>
+
+      <p>
+        The rest of this page describes that format. Read it if you want to write or edit exercises in a
+        text editor, understand what the builder is producing, or use something the builder does not yet
+        expose. <strong>If you are happy in the builder, you can skip to
+        <a href="#running">Running the Room</a>.</strong>
+      </p>
 
       <!-- STRUCTURE -->
       <h2 id="structure">The TTXF File Structure and Syntax</h2>
 
       <p>
-        This guide explains how to create configuration files that define stages, questions, variables, and
-        facilitator prompts with markdown-enhanced content. Follow this structure and syntax to build
-        properly formatted and feature-rich files.
+        Stages, questions, variables and facilitator prompts, with Markdown-enhanced content. This is the
+        format the Exercise Builder reads and writes, so anything described here can be done either way.
       </p>
 
       <p>
@@ -1137,9 +1201,11 @@ This line continues the same paragraph.</code></pre>
 
       <p>
         Both the Exercise Builder and the TTX Gym player check a scenario as they read it,
-        and report anything that looks wrong rather than failing silently. The Builder shows
-        this in a strip above the preview as you type; the player shows it above the stage
-        list when a file is loaded.
+        and report anything that looks wrong rather than failing silently. The Builder counts
+        it beside the title as you type — click that to see the list, and click an entry to be
+        taken to the stage it is in. The player shows it above the stage list when a file is
+        loaded. The same checks run either way, so a file written by hand and a file built in
+        the Builder are held to the same standard.
       </p>
 
       <p>Things they will tell you about:</p>

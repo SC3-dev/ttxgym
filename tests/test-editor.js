@@ -1773,6 +1773,46 @@ G('the way out is named after where it goes');
   });
 }
 
+G('the guide describes the builder that exists');
+{
+  const guide = fs.readFileSync(path.join(ROOT, 'guide.html'), 'utf8');
+  const src = fs.readFileSync(path.join(ROOT, 'editor.html'), 'utf8');
+
+  t('it points people at the builder before the file format', () => {
+    const builderAt = guide.indexOf('editor.html', guide.indexOf('id="scenario"'));
+    const formatAt = guide.indexOf('id="structure"');
+    ok(builderAt > -1 && builderAt < formatAt,
+       'the format is introduced before the tool most people will use');
+    has(guide, 'never need to see the file format');
+  });
+
+  t('and says the format is optional rather than the way in', () => {
+    const section = guide.slice(guide.indexOf('id="scenario"'), guide.indexOf('id="structure"'));
+    has(section, 'The file underneath');
+    has(section, '#running');            // an explicit way to skip the syntax
+  });
+
+  /* A guide that names controls is only useful while those are the names. */
+  t('every control it names by label is on the page', () => {
+    const named = ['Participant view', 'Preview in TTX Gym', 'Download .ttxf', 'Import',
+                   'Source', 'On screen', 'Your notes', 'Duplicate', 'Preset', 'Customise'];
+    const missing = named.filter(label => guide.includes(label) && !src.includes(label));
+    eq(missing, [], 'the guide names controls the builder does not have');
+  });
+
+  t('and it does not describe the builder it replaced', () => {
+    ['strip above the preview', 'Visual tab', 'TTXF tab'].forEach(gone =>
+      ok(!guide.includes(gone), 'the guide still describes the old builder: ' + gone));
+  });
+
+  t('its in-page links all land somewhere', () => {
+    const ids = new Set((guide.match(/id="([a-z0-9-]+)"/g) || []).map(m => m.slice(4, -1)));
+    const broken = (guide.match(/href="#([a-z0-9-]+)"/g) || [])
+      .map(m => m.slice(7, -1)).filter(h => !ids.has(h));
+    eq([...new Set(broken)], []);
+  });
+}
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
 })();
