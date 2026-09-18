@@ -175,6 +175,22 @@
    "bytes": 102716
   },
   {
+   "file": "stock-photos/CCTV-camera.jpg",
+   "label": "CCTV camera",
+   "variant": "",
+   "category": "stock-photos",
+   "heading": "Stock Photos",
+   "bytes": 91255
+  },
+  {
+   "file": "stock-photos/city-street.jpg",
+   "label": "City street",
+   "variant": "",
+   "category": "stock-photos",
+   "heading": "Stock Photos",
+   "bytes": 116229
+  },
+  {
    "file": "stock-photos/civic-building.jpg",
    "label": "Civic building",
    "variant": "",
@@ -207,12 +223,28 @@
    "bytes": 123205
   },
   {
+   "file": "stock-photos/crowded-street.jpg",
+   "label": "Crowded street",
+   "variant": "",
+   "category": "stock-photos",
+   "heading": "Stock Photos",
+   "bytes": 75827
+  },
+  {
    "file": "stock-photos/data-centre.jpg",
    "label": "Data centre",
    "variant": "",
    "category": "stock-photos",
    "heading": "Stock Photos",
    "bytes": 135698
+  },
+  {
+   "file": "stock-photos/executive-office.jpg",
+   "label": "Executive office",
+   "variant": "",
+   "category": "stock-photos",
+   "heading": "Stock Photos",
+   "bytes": 65368
   },
   {
    "file": "stock-photos/lone-workstation.jpg",
@@ -247,12 +279,36 @@
    "bytes": 132849
   },
   {
+   "file": "stock-photos/office-dashboard.jpg",
+   "label": "Office dashboard",
+   "variant": "",
+   "category": "stock-photos",
+   "heading": "Stock Photos",
+   "bytes": 82865
+  },
+  {
    "file": "stock-photos/open-plan-office.jpg",
    "label": "Open plan office",
    "variant": "",
    "category": "stock-photos",
    "heading": "Stock Photos",
    "bytes": 118747
+  },
+  {
+   "file": "stock-photos/phishing-lure.jpg",
+   "label": "Phishing lure",
+   "variant": "",
+   "category": "stock-photos",
+   "heading": "Stock Photos",
+   "bytes": 64337
+  },
+  {
+   "file": "stock-photos/phone-alert.jpg",
+   "label": "Phone alert",
+   "variant": "",
+   "category": "stock-photos",
+   "heading": "Stock Photos",
+   "bytes": 52285
   },
   {
    "file": "stock-photos/planning-workshop.jpg",
@@ -279,6 +335,14 @@
    "bytes": 87607
   },
   {
+   "file": "stock-photos/production-line.jpg",
+   "label": "Production line",
+   "variant": "",
+   "category": "stock-photos",
+   "heading": "Stock Photos",
+   "bytes": 141770
+  },
+  {
    "file": "stock-photos/service-desk.jpg",
    "label": "Service desk",
    "variant": "",
@@ -287,12 +351,36 @@
    "bytes": 69525
   },
   {
+   "file": "stock-photos/storm.jpg",
+   "label": "Storm",
+   "variant": "",
+   "category": "stock-photos",
+   "heading": "Stock Photos",
+   "bytes": 76701
+  },
+  {
    "file": "stock-photos/telecoms-mast.jpg",
    "label": "Telecoms mast",
    "variant": "",
    "category": "stock-photos",
    "heading": "Stock Photos",
    "bytes": 137783
+  },
+  {
+   "file": "stock-photos/threat-actor.jpg",
+   "label": "Threat actor",
+   "variant": "",
+   "category": "stock-photos",
+   "heading": "Stock Photos",
+   "bytes": 67385
+  },
+  {
+   "file": "stock-photos/wall-clock.jpg",
+   "label": "Wall clock",
+   "variant": "",
+   "category": "stock-photos",
+   "heading": "Stock Photos",
+   "bytes": 74769
   },
   {
    "file": "screenshots/account-locked.svg",
